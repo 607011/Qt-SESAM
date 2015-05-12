@@ -17,46 +17,85 @@
 
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef __MAINWINDOW_H_
+#define __MAINWINDOW_H_
 
 #include <QMainWindow>
 #include <QFuture>
 #include <QElapsedTimer>
 #include <QMovie>
-
+#include <QRegExpValidator>
+#include <QCloseEvent>
+#include <QSettings>
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-private slots:
-    void updatePassword(void);
-    void updateUsedCharacters(void);
-    void copyPasswordToClipboard(void);
-    void onPasswordGenerated(QString);
-    void customCharacterSetCheckBoxToggled(bool);
-
-signals:
-    void passwordGenerated(QString);
-
-private: // methods
-    void generatePassword(void);
-
-private:
-    Ui::MainWindow *ui;
-    QElapsedTimer mElapsedTimer;
-    qreal mElapsed;
-    QFuture<void> mPasswordGeneratorFuture;
-    QMovie mLoaderIcon;
+struct DomainSettings {
+  DomainSettings(void)
+    : useLowerCase(true)
+    , useUpperCase(true)
+    , useDigits(true)
+    , useExtra(true)
+    , useCustom(false)
+    , iterations(4096)
+    , salt("This is my salt. There are many like it, but this one is mine.")
+    , validator("^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$", Qt::CaseSensitive, QRegExp::RegExp2)
+  { /* ... */ }
+  bool useLowerCase;
+  bool useUpperCase;
+  bool useDigits;
+  bool useExtra;
+  bool useCustom;
+  QString customCharacters;
+  int iterations;
+  QString salt;
+  QRegExp validator;
 };
 
-#endif // MAINWINDOW_H
+
+class MainWindow : public QMainWindow
+{
+  Q_OBJECT
+
+public:
+  explicit MainWindow(QWidget *parent = 0);
+  ~MainWindow();
+
+protected:
+  void closeEvent(QCloseEvent *);
+
+private slots:
+  void updatePassword(void);
+  void updateUsedCharacters(void);
+  void copyPasswordToClipboard(void);
+  void onPasswordGenerated(QString);
+  void customCharacterSetCheckBoxToggled(bool);
+  void customCharacterSetChanged(void);
+  void updateValidator(void);
+
+signals:
+  void passwordGenerated(QString);
+
+private: // methods
+  void saveSettings(void);
+  void saveDomainSettings(QSettings &, const QString &, const DomainSettings &);
+  void restoreSettings(void);
+  void generatePassword(void);
+
+private:
+  Ui::MainWindow *ui;
+  QElapsedTimer mElapsedTimer;
+  qreal mElapsed;
+  QFuture<void> mPasswordGeneratorFuture;
+  QMovie mLoaderIcon;
+  bool mCustomCharacterSetDirty;
+  QRegExpValidator mValidator;
+  bool mAutoIncreaseIterations;
+  QMap<QString, DomainSettings> mDomainParam;
+};
+
+#endif // __MAINWINDOW_H_
