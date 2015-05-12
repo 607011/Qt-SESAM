@@ -28,6 +28,7 @@
 #include <QCloseEvent>
 #include <QSettings>
 #include <QMap>
+#include <QCompleter>
 
 namespace Ui {
 class MainWindow;
@@ -76,6 +77,7 @@ private slots:
   void customCharacterSetCheckBoxToggled(bool);
   void customCharacterSetChanged(void);
   void updateValidator(void);
+  void saveCurrentSettings(void);
 
 signals:
   void passwordGenerated(QString);
@@ -96,6 +98,7 @@ private:
   QRegExpValidator mValidator;
   bool mAutoIncreaseIterations;
   QMap<QString, DomainSettings> mDomainParam;
+  QCompleter *mCompleter;
 };
 
 #endif // __MAINWINDOW_H_

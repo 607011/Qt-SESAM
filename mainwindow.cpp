@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
   , mElapsed(0)
   , mCustomCharacterSetDirty(false)
   , mAutoIncreaseIterations(true)
+  , mCompleter(0)
 {
   ui->setupUi(this);
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
@@ -58,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
   QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(customCharacterSetCheckBoxToggled(bool)));
   QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
+  QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
   QObject::connect(this, SIGNAL(passwordGenerated(QString)), SLOT(onPasswordGenerated(QString)));
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&mLoaderIcon);
@@ -202,13 +204,27 @@ void MainWindow::updateValidator(void)
 }
 
 
+void MainWindow::saveCurrentSettings(void)
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
+  DomainSettings domainSettings;
+  domainSettings.useLowerCase = ui->lowerCaseCheckBox->isChecked();
+  domainSettings.useUpperCase = ui->upperCaseCheckBox->isChecked();
+  domainSettings.useDigits = ui->digitsCheckBox->isChecked();
+  domainSettings.useExtra = ui->extrasCheckBox->isChecked();
+  domainSettings.iterations = ui->iterationsSpinBox->value();
+  domainSettings.salt = ui->saltLineEdit->text();
+  domainSettings.validator = mValidator.regExp();
+  saveDomainSettings(settings, ui->domainLineEdit->text(), domainSettings);
+}
+
+
 void MainWindow::saveSettings(void)
 {
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
   settings.setValue("mainwindow/geometry", geometry());
   QStringList domains = mDomainParam.keys();
   settings.setValue("domains", domains);
-  saveDomainSettings(settings, ui->domainLineEdit->text(), DomainSettings());
 }
 
 
@@ -228,8 +244,11 @@ void MainWindow::restoreSettings(void)
 {
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
   restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
-  QStringList domains = settings.value("domains");
-
+  QStringList domains = settings.value("domains").toStringList();
+  if (mCompleter)
+    delete mCompleter;
+  mCompleter = new QCompleter(domains);
+  ui->domainLineEdit->setCompleter(mCompleter);
 }
 
 
