@@ -40,8 +40,10 @@ public:
 
 private slots:
     void updatePassword(void);
+    void updateUsedCharacters(void);
     void copyPasswordToClipboard(void);
     void onPasswordGenerated(QString);
+    void customCharacterSetCheckBoxToggled(bool);
 
 signals:
     void passwordGenerated(QString);
@@ -51,7 +53,6 @@ private: // methods
 
 private:
     Ui::MainWindow *ui;
-    QString mPasswordCharacters;
     QElapsedTimer mElapsedTimer;
     qreal mElapsed;
     QFuture<void> mPasswordGeneratorFuture;

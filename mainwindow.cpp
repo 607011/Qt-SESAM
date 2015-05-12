@@ -36,19 +36,23 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-    QObject::connect(ui->masterPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+    QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+    QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
     QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
     QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
     QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
-    QObject::connect(ui->digitsCheckBox, SIGNAL(toggled(bool)), SLOT(updatePassword()));
-    QObject::connect(ui->extrasCheckBox, SIGNAL(toggled(bool)), SLOT(updatePassword()));
-    QObject::connect(ui->upperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updatePassword()));
-    QObject::connect(ui->lowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updatePassword()));
+    QObject::connect(ui->digitsCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+    QObject::connect(ui->extrasCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+    QObject::connect(ui->upperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+    QObject::connect(ui->lowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+    QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+    QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(customCharacterSetCheckBoxToggled(bool)));
     QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
     QObject::connect(this, SIGNAL(passwordGenerated(QString)), SLOT(onPasswordGenerated(QString)));
     ui->domainLineEdit->selectAll();
     ui->processLabel->setMovie(&mLoaderIcon);
     ui->processLabel->hide();
+    updateUsedCharacters();
 }
 
 
@@ -60,38 +64,53 @@ MainWindow::~MainWindow()
 
 void MainWindow::updatePassword(void)
 {
-    mPasswordCharacters = QString();
-    static const QString UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    static const QString LowerChars = "abcdefghijklmnopqrstuvwxyz";
-    static const QString Digits = "0123456789";
-    static const QString ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
-    if (ui->extrasCheckBox->isChecked())
-        mPasswordCharacters += ExtraChars;
-    if (ui->lowerCaseCheckBox->isChecked())
-        mPasswordCharacters += LowerChars;
-    if (ui->upperCaseCheckBox->isChecked())
-        mPasswordCharacters += UpperChars;
-    if (ui->digitsCheckBox->isChecked())
-        mPasswordCharacters += Digits;
-    if (mPasswordCharacters.count() > 0) {
-        if (!ui->domainLineEdit->text().isEmpty() && !ui->saltLineEdit->text().isEmpty() && !ui->masterPasswordLineEdit->text().isEmpty()) {
+    bool valid = false;
+    ui->statusBar->showMessage("");
+    if (!ui->masterPasswordLineEdit1->text().isEmpty() && !ui->masterPasswordLineEdit2->text().isEmpty()) {
+        if (ui->masterPasswordLineEdit1->text() != ui->masterPasswordLineEdit2->text()) {
+            ui->statusBar->showMessage(tr("Passwords do not match"), 2000);
+        }
+        else {
             ui->copyPasswordToClipboardPushButton->setEnabled(false);
             ui->processLabel->show();
             mLoaderIcon.start();
             mPasswordGeneratorFuture.cancel();
             mPasswordGeneratorFuture = QtConcurrent::run(this, &MainWindow::generatePassword);
+            valid = true;
         }
     }
-    else {
+    if (!valid) {
         ui->generatedPasswordLineEdit->setText(tr("<invalid>"));
-        ui->statusBar->showMessage("");
     }
+}
+
+
+void MainWindow::updateUsedCharacters(void)
+{
+    if (!ui->customCharacterSetCheckBox->isChecked()) {
+        QString passwordCharacters;
+        static const QString UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        static const QString LowerChars = "abcdefghijklmnopqrstuvwxyz";
+        static const QString Digits = "0123456789";
+        static const QString ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
+        if (ui->lowerCaseCheckBox->isChecked())
+            passwordCharacters += LowerChars;
+        if (ui->upperCaseCheckBox->isChecked())
+            passwordCharacters += UpperChars;
+        if (ui->digitsCheckBox->isChecked())
+            passwordCharacters += Digits;
+        if (ui->extrasCheckBox->isChecked())
+            passwordCharacters += ExtraChars;
+        ui->charactersPlainTextEdit->setPlainText(passwordCharacters);
+    }
+    updatePassword();
 }
 
 
 void MainWindow::copyPasswordToClipboard(void)
 {
     QApplication::clipboard()->setText(ui->generatedPasswordLineEdit->text());
+    ui->statusBar->showMessage(tr("Password copied to clipboard."));
 }
 
 
@@ -105,14 +124,23 @@ void MainWindow::onPasswordGenerated(QString key)
 }
 
 
+void MainWindow::customCharacterSetCheckBoxToggled(bool checked)
+{
+    ui->lowerCaseCheckBox->setEnabled(!checked);
+    ui->upperCaseCheckBox->setEnabled(!checked);
+    ui->digitsCheckBox->setEnabled(!checked);
+    ui->extrasCheckBox->setEnabled(!checked);
+}
+
+
 void MainWindow::generatePassword(void)
 {
     const QByteArray &domain = ui->domainLineEdit->text().toUtf8();
     const QByteArray &salt = ui->saltLineEdit->text().toUtf8();
-    const QByteArray &masterPwd = ui->masterPasswordLineEdit->text().toUtf8();
+    const QByteArray &masterPwd = ui->masterPasswordLineEdit1->text().toUtf8();
     const QByteArray &pwd = domain + masterPwd;
     CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA512> pbkdf2;
-    const int nChars = mPasswordCharacters.count();
+    const int nChars = ui->charactersPlainTextEdit->toPlainText().count();
     byte *derived = new byte[nChars];
     mElapsedTimer.start();
     pbkdf2.DeriveKey(
@@ -136,7 +164,7 @@ void MainWindow::generatePassword(void)
     int n = ui->passwordLengthSpinBox->value();
     while (v > Zero && n-- > 0) {
         BigInt::Rossi mod = v % Modulus;
-        key += mPasswordCharacters.at(mod.toUlong());
+        key += ui->charactersPlainTextEdit->toPlainText().at(mod.toUlong());
         v = v / Modulus;
     }
     delete[] derived;
