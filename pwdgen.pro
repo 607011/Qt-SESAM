@@ -69,3 +69,6 @@ INCLUDEPATH += $$PWD/3rdparty
 
 RESOURCES += \
     pwdgen.qrc
+
+DISTFILES += \
+    .gitignore
