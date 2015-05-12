@@ -52,7 +52,8 @@ private: // methods
 private:
     Ui::MainWindow *ui;
     QString mPasswordCharacters;
-    QElapsedTimer mElapsed;
+    QElapsedTimer mElapsedTimer;
+    qreal mElapsed;
     QFuture<void> mPasswordGeneratorFuture;
     QMovie mLoaderIcon;
 };

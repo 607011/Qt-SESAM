@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , mLoaderIcon(":/images/loader.gif")
+    , mElapsed(0)
 {
     ui->setupUi(this);
     QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
@@ -96,8 +97,7 @@ void MainWindow::copyPasswordToClipboard(void)
 
 void MainWindow::onPasswordGenerated(QString key)
 {
-    qreal elapsed = 1e-6 * mElapsed.nsecsElapsed();
-    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(elapsed, 0, 'f', 4), 3000);
+    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mElapsed, 0, 'f', 4), 3000);
     ui->generatedPasswordLineEdit->setText(key);
     ui->processLabel->hide();
     ui->copyPasswordToClipboardPushButton->setEnabled(true);
@@ -114,7 +114,7 @@ void MainWindow::generatePassword(void)
     CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA512> pbkdf2;
     const int nChars = mPasswordCharacters.count();
     byte *derived = new byte[nChars];
-    mElapsed.start();
+    mElapsedTimer.start();
     pbkdf2.DeriveKey(
                 derived,
                 nChars,
@@ -125,6 +125,7 @@ void MainWindow::generatePassword(void)
                 salt.count(),
                 ui->iterationsSpinBox->value()
                 );
+    mElapsed = 1e-6 * mElapsedTimer.nsecsElapsed();
     const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), nChars);
     const QByteArray &hexKey = derivedKeyBuf.toHex();
     const QString strModulus = QString("%1").arg(nChars);
