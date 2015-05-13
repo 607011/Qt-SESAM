@@ -127,9 +127,12 @@ void MainWindow::newDomain(void)
 
 void MainWindow::updatePassword(void)
 {
-  bool passwordsAreIdentical = false;
+  bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  if (!ui->masterPasswordLineEdit1->text().isEmpty() && !ui->masterPasswordLineEdit2->text().isEmpty()) {
+  if (ui->charactersPlainTextEdit->toPlainText().count() > 0 &&
+      !ui->masterPasswordLineEdit1->text().isEmpty() &&
+      !ui->masterPasswordLineEdit2->text().isEmpty())
+  {
     if (ui->masterPasswordLineEdit1->text() != ui->masterPasswordLineEdit2->text()) {
       ui->statusBar->showMessage(tr("Passwords do not match"), 2000);
     }
@@ -137,12 +140,12 @@ void MainWindow::updatePassword(void)
       ui->copyPasswordToClipboardPushButton->setEnabled(false);
       ui->processLabel->show();
       mLoaderIcon.start();
-      passwordsAreIdentical = true;
+      validConfiguration = true;
       stopPasswordGeneration();
       mPasswordGeneratorFuture = QtConcurrent::run(this, &MainWindow::generatePassword);
     }
   }
-  if (!passwordsAreIdentical) {
+  if (!validConfiguration) {
     ui->generatedPasswordLineEdit->setText(QString());
     ui->hashPlainTextEdit->setPlainText(QString());
   }
