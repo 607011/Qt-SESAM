@@ -29,6 +29,8 @@
 
 #include "bigint/bigInt.h"
 
+#include "util.h"
+
 static const QString CompanyName = "c't";
 static const QString AppName = "pwdgen";
 
@@ -219,17 +221,14 @@ void MainWindow::saveCurrentSettings(void)
 }
 
 
-void MainWindow::saveSettings(void)
-{
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
-  settings.setValue("mainwindow/geometry", geometry());
-  QStringList domains = mDomainParam.keys();
-  settings.setValue("domains", domains);
-}
-
-
 void MainWindow::saveDomainSettings(QSettings &settings, const QString &domain, const DomainSettings &domainSettings)
 {
+  QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
+  QStringList domains = model->stringList();
+  if (!domains.contains(domain, Qt::CaseInsensitive)) {
+    domains << domain;
+    model->setStringList(domains);
+  }
   settings.setValue(domain + "/useLowerCase", domainSettings.useLowerCase);
   settings.setValue(domain + "/useUpperCase", domainSettings.useUpperCase);
   settings.setValue(domain + "/useDigits", domainSettings.useDigits);
@@ -240,14 +239,21 @@ void MainWindow::saveDomainSettings(QSettings &settings, const QString &domain, 
 }
 
 
+void MainWindow::saveSettings(void)
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
+  settings.setValue("mainwindow/geometry", geometry());
+  QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
+  settings.setValue("domains", model->stringList());
+}
+
+
 void MainWindow::restoreSettings(void)
 {
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
   restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
   QStringList domains = settings.value("domains").toStringList();
-  if (mCompleter)
-    delete mCompleter;
-  mCompleter = new QCompleter(domains);
+  safeRenew(mCompleter, new QCompleter(domains));
   ui->domainLineEdit->setCompleter(mCompleter);
 }
 
@@ -276,7 +282,7 @@ void MainWindow::generatePassword(void)
   const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), nChars);
   const QByteArray &hexKey = derivedKeyBuf.toHex();
   const QString strModulus = QString("%1").arg(nChars);
-  BigInt::Rossi v(hexKey.toStdString(), BigInt::HEX_DIGIT);
+  BigInt::Rossi v(QString(hexKey).toStdString(), BigInt::HEX_DIGIT);
   const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
   static const BigInt::Rossi Zero(0);
   QString key;

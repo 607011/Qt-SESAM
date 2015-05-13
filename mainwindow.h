@@ -27,35 +27,13 @@
 #include <QRegExpValidator>
 #include <QCloseEvent>
 #include <QSettings>
-#include <QMap>
 #include <QCompleter>
+
+#include "DomainSettings.h"
 
 namespace Ui {
 class MainWindow;
 }
-
-
-struct DomainSettings {
-  DomainSettings(void)
-    : useLowerCase(true)
-    , useUpperCase(true)
-    , useDigits(true)
-    , useExtra(true)
-    , useCustom(false)
-    , iterations(4096)
-    , salt("This is my salt. There are many like it, but this one is mine.")
-    , validator("^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$", Qt::CaseSensitive, QRegExp::RegExp2)
-  { /* ... */ }
-  bool useLowerCase;
-  bool useUpperCase;
-  bool useDigits;
-  bool useExtra;
-  bool useCustom;
-  QString customCharacters;
-  int iterations;
-  QString salt;
-  QRegExp validator;
-};
 
 
 class MainWindow : public QMainWindow
@@ -97,7 +75,6 @@ private:
   bool mCustomCharacterSetDirty;
   QRegExpValidator mValidator;
   bool mAutoIncreaseIterations;
-  QMap<QString, DomainSettings> mDomainParam;
   QCompleter *mCompleter;
 };
 

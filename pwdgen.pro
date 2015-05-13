@@ -60,7 +60,9 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/queue.h \
     3rdparty/cryptopp562/algparam.h \
     3rdparty/cryptopp562/fips140.h \
-    3rdparty/cryptopp562/mqueue.h
+    3rdparty/cryptopp562/mqueue.h \
+    DomainSettings.h \
+    util.h
 
 FORMS    += mainwindow.ui
 
