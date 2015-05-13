@@ -60,6 +60,8 @@ private slots:
   void saveCurrentSettings(void);
   void domainSelected(const QString &);
   void newDomain(void);
+  void about(void);
+  void aboutQt(void);
 
 signals:
   void passwordGenerated(QString, QString);

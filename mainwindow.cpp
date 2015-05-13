@@ -34,6 +34,9 @@
 static const QString CompanyName = "c't";
 static const QString AppName = "ctpwdgen";
 static const QString AppVersion = "1.0 ALPHA";
+static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
+static const QString AppAuthor = "Oliver Lau";
+static const QString AppAuthorMail = "ola@ct.de";
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -70,6 +73,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(this, SIGNAL(passwordGenerated(QString, QString)), SLOT(onPasswordGenerated(QString, QString)));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
+  QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
+  QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&mLoaderIcon);
   ui->processLabel->hide();
@@ -370,4 +375,31 @@ void MainWindow::stopPasswordGeneration(void)
     mPasswordGeneratorFuture.waitForFinished();
   }
   mQuitHashing = false;
+}
+
+
+void MainWindow::about(void)
+{
+    QMessageBox::about(this, tr("About %1 %2").arg(AppName).arg(AppVersion),
+                       tr("<p><b>%1</b> is a domain specific password generator. "
+                          "See <a href=\"%2\" title=\"%1 project homepage\">%2</a> for more info.</p>"
+                          "<p>Copyright &copy; 2015 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
+                          "<p>This program is free software: you can redistribute it and/or modify "
+                          "it under the terms of the GNU General Public License as published by "
+                          "the Free Software Foundation, either version 3 of the License, or "
+                          "(at your option) any later version.</p>"
+                          "<p>This program is distributed in the hope that it will be useful, "
+                          "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+                          "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the "
+                          "GNU General Public License for more details.</p>"
+                          "You should have received a copy of the GNU General Public License "
+                          "along with this program. "
+                          "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>")
+                       .arg(AppName).arg(AppUrl).arg(AppAuthor).arg(AppAuthorMail));
+}
+
+
+void MainWindow::aboutQt(void)
+{
+    QMessageBox::aboutQt(this);
 }
