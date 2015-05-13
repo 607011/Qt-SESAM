@@ -29,6 +29,7 @@ struct DomainSettings {
     , useExtra(true)
     , useCustom(false)
     , iterations(4096)
+    , length(10)
     , salt("This is my salt. There are many like it, but this one is mine.")
     , validator("^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$", Qt::CaseSensitive, QRegExp::RegExp2)
   { /* ... */ }
@@ -39,6 +40,7 @@ struct DomainSettings {
     , useExtra(o.useExtra)
     , useCustom(o.useCustom)
     , iterations(o.iterations)
+    , length(o.length)
     , salt(o.salt)
     , validator(o.validator)
   { /* ... */ }
@@ -49,6 +51,7 @@ struct DomainSettings {
   bool useCustom;
   QString customCharacters;
   int iterations;
+  int length;
   QString salt;
   QRegExp validator;
 };

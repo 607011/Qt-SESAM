@@ -32,7 +32,13 @@
 #include "util.h"
 
 static const QString CompanyName = "c't";
-static const QString AppName = "pwdgen";
+static const QString AppName = "ctpwdgen";
+static const QString AppVersion = "1.0";
+
+static const int DefaultIterations = 4096;
+static const int DefaultPasswordLength = 10;
+static const QString DefaultSalt = "This is my salt. There are many like it, but this one is mine.";
+static const QString DefaultValidatorPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$";
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -46,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
   , mCompleter(0)
 {
   ui->setupUi(this);
+  setWindowTitle(AppName + " " + AppVersion);
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
@@ -242,6 +249,7 @@ void MainWindow::saveDomainSettings(const QString &domain, const DomainSettings 
   mSettings.setValue(domain + "/useDigits", domainSettings.useDigits);
   mSettings.setValue(domain + "/useExtra", domainSettings.useExtra);
   mSettings.setValue(domain + "/iterations", domainSettings.iterations);
+  mSettings.setValue(domain + "/length", domainSettings.length);
   mSettings.setValue(domain + "/salt", domainSettings.salt);
   mSettings.setValue(domain + "/validator/pattern", domainSettings.validator.pattern());
 }
@@ -271,13 +279,14 @@ void MainWindow::restoreSettings(void)
 
 void MainWindow::loadSettings(const QString &domain)
 {
-  ui->lowerCaseCheckBox->setChecked(mSettings.value(domain + "/useLowerCase").toBool());
-  ui->upperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase").toBool());
-  ui->digitsCheckBox->setChecked(mSettings.value(domain + "/useDigits").toBool());
-  ui->extrasCheckBox->setChecked(mSettings.value(domain + "/useExtra").toBool());
-  ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations").toInt());
-  ui->saltLineEdit->setText(mSettings.value(domain + "/salt").toString());
-  ui->forceCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/validator/pattern").toString());
+  ui->lowerCaseCheckBox->setChecked(mSettings.value(domain + "/useLowerCase", true).toBool());
+  ui->upperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase", true).toBool());
+  ui->digitsCheckBox->setChecked(mSettings.value(domain + "/useDigits", true).toBool());
+  ui->extrasCheckBox->setChecked(mSettings.value(domain + "/useExtra", false).toBool());
+  ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations", DefaultIterations).toInt());
+  ui->passwordLengthSpinBox->setValue(mSettings.value(domain + "/length", DefaultPasswordLength).toInt());
+  ui->saltLineEdit->setText(mSettings.value(domain + "/salt", DefaultSalt).toString());
+  ui->forceCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/validator/pattern", DefaultValidatorPattern).toString());
   updateValidator();
   updatePassword();
 }
