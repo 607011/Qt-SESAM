@@ -24,11 +24,6 @@
 #include <QtConcurrent>
 #include <QMessageBox>
 
-#include "cryptopp562/pwdbased.h"
-#include "cryptopp562/sha.h"
-
-#include "bigint/bigInt.h"
-
 #include "util.h"
 
 static const QString CompanyName = "c't";
@@ -37,6 +32,10 @@ static const QString AppVersion = "1.0 ALPHA";
 static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
+
+#ifdef QT_DEBUG
+#include "testpbkdf2.h"
+#endif
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -81,6 +80,11 @@ MainWindow::MainWindow(QWidget *parent)
   restoreSettings();
   updateUsedCharacters();
   updateValidator();
+
+#ifdef QT_DEBUG
+  TestPBKDF2 tc;
+  QTest::qExec(&tc, 0, 0);
+#endif
 }
 
 
@@ -331,43 +335,21 @@ void MainWindow::loadSettings(const QString &domain)
 
 void MainWindow::generatePassword(void)
 {
-  const QByteArray &domain = ui->domainLineEdit->text().toUtf8();
-  const QByteArray &salt = ui->saltLineEdit->text().toUtf8();
-  const QByteArray &masterPwd = ui->masterPasswordLineEdit1->text().toUtf8();
-  const QByteArray &pwd = domain + masterPwd;
-  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA512> pbkdf2;
-  const int nChars = ui->charactersPlainTextEdit->toPlainText().count();
-  byte *derived = new byte[CryptoPP::SHA512::DIGESTSIZE];
-  mElapsedTimer.start();
-  unsigned int iterations = pbkdf2.DeriveKey(
-        derived,
-        CryptoPP::SHA512::DIGESTSIZE,
-        reinterpret_cast<const byte*>(pwd.data()),
-        pwd.count(),
-        reinterpret_cast<const byte*>(salt.data()),
-        salt.count(),
+  QString key;
+  QByteArray hexKey;
+  mPasswordGenerator.generate(
+        ui->domainLineEdit->text().toUtf8(),
+        ui->saltLineEdit->text().toUtf8(),
+        ui->masterPasswordLineEdit1->text().toUtf8(),
+        ui->charactersPlainTextEdit->toPlainText(),
+        ui->passwordLengthSpinBox->value(),
         ui->iterationsSpinBox->value(),
-        mQuitHashing);
-  if (iterations > 0) {
-    mElapsed = 1e-6 * mElapsedTimer.nsecsElapsed();
-    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), CryptoPP::SHA512::DIGESTSIZE);
-    const QByteArray &hexKey = derivedKeyBuf.toHex();
-    const QString strModulus = QString("%1").arg(nChars);
-    BigInt::Rossi v(QString(hexKey).toStdString(), BigInt::HEX_DIGIT);
-    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-    static const BigInt::Rossi Zero(0);
-    QString key;
-    int n = ui->passwordLengthSpinBox->value();
-    while (v > Zero && n-- > 0) {
-      BigInt::Rossi mod = v % Modulus;
-      const QString &chrs = ui->charactersPlainTextEdit->toPlainText();
-      if (chrs.size() == nChars)
-        key += chrs.at(mod.toUlong());
-      v = v / Modulus;
-    }
-    emit passwordGenerated(key, hexKey);
-  }
-  delete[] derived;
+        mQuitHashing,
+        mElapsed,
+        key,
+        hexKey
+        );
+  emit passwordGenerated(key, hexKey);
 }
 
 

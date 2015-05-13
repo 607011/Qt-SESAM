@@ -26,6 +26,13 @@ QMAKE_CXXFLAGS += /wd4100
 DEFINES += _SCL_SECURE_NO_WARNINGS
 }
 
+CONFIG(debug) {
+QT += testlib
+SOURCES += testpbkdf2.cpp
+HEADERS += testpbkdf2.h
+
+}
+
 SOURCES += main.cpp mainwindow.cpp \
     3rdparty/bigint/bigInt.cpp \
     3rdparty/cryptopp562/sha.cpp \
@@ -40,7 +47,8 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/algparam.cpp \
     3rdparty/cryptopp562/fips140.cpp \
     3rdparty/cryptopp562/mqueue.cpp \
-    DomainSettings.cpp
+    passwordgenerator.cpp \
+    domainsettings.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -61,8 +69,9 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/algparam.h \
     3rdparty/cryptopp562/fips140.h \
     3rdparty/cryptopp562/mqueue.h \
-    DomainSettings.h \
-    util.h
+    util.h \
+    passwordgenerator.h \
+    domainsettings.h
 
 FORMS    += mainwindow.ui
 

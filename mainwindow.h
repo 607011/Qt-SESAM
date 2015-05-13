@@ -23,7 +23,6 @@
 #include <QMainWindow>
 #include <QString>
 #include <QFuture>
-#include <QElapsedTimer>
 #include <QMovie>
 #include <QRegExpValidator>
 #include <QCloseEvent>
@@ -31,7 +30,8 @@
 #include <QCompleter>
 #include <QMutex>
 
-#include "DomainSettings.h"
+#include "domainsettings.h"
+#include "passwordgenerator.h"
 
 namespace Ui {
 class MainWindow;
@@ -77,7 +77,6 @@ private: // methods
 private:
   Ui::MainWindow *ui;
   QSettings mSettings;
-  QElapsedTimer mElapsedTimer;
   qreal mElapsed;
   QFuture<void> mPasswordGeneratorFuture;
   QMovie mLoaderIcon;
@@ -86,6 +85,7 @@ private:
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;
   bool mQuitHashing;
+  PasswordGenerator mPasswordGenerator;
 };
 
 #endif // __MAINWINDOW_H_
