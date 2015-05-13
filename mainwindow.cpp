@@ -296,7 +296,6 @@ void MainWindow::generatePassword(void)
   pbkdf2.DeriveKey(
         derived,
         nChars,
-        0,
         reinterpret_cast<const byte*>(pwd.data()),
         pwd.count(),
         reinterpret_cast<const byte*>(salt.data()),

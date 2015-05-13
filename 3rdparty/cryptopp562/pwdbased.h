@@ -19,7 +19,7 @@ public:
 	//! derive key from password
 	/*! If timeInSeconds != 0, will iterate until time elapsed, as measured by ThreadUserTimer
 		Returns actual iteration count, which is equal to iterations if timeInSeconds == 0, and not less than iterations otherwise. */
-	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const =0;
+  virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations) const = 0;
 };
 
 //! PBKDF1 from PKCS #5, T should be a HashTransformation class
@@ -40,7 +40,7 @@ class PKCS5_PBKDF2_HMAC : public PasswordBasedKeyDerivationFunction
 public:
 	size_t MaxDerivedKeyLength() const {return 0xffffffffU;}	// should multiply by T::DIGESTSIZE, but gets overflow that way
 	bool UsesPurposeByte() const {return false;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
+  unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations) const;
 };
 
 /*
@@ -83,25 +83,21 @@ unsigned int PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte p
 }
 
 template <class T>
-unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations) const
 {
 	assert(derivedLen <= MaxDerivedKeyLength());
-	assert(iterations > 0 || timeInSeconds > 0);
+  assert(iterations > 0);
 
-	if (!iterations)
+  if (iterations == 0)
 		iterations = 1;
 
 	HMAC<T> hmac(password, passwordLen);
 	SecByteBlock buffer(hmac.DigestSize());
-	ThreadUserTimer timer;
 
-	unsigned int i=1;
-	while (derivedLen > 0)
-	{
+  unsigned int i = 1;
+  while (derivedLen > 0) {
 		hmac.Update(salt, saltLen);
-		unsigned int j;
-		for (j=0; j<4; j++)
-		{
+    for (unsigned int j = 0; j < 4; ++j) {
 			byte b = byte(i >> ((3-j)*8));
 			hmac.Update(&b, 1);
 		}
@@ -110,27 +106,14 @@ unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, b
 		size_t segmentLen = STDMIN(derivedLen, buffer.size());
 		memcpy(derived, buffer, segmentLen);
 
-		if (timeInSeconds)
-		{
-			timeInSeconds = timeInSeconds / ((derivedLen + buffer.size() - 1) / buffer.size());
-			timer.StartTimer();
-		}
-
-		for (j=1; j<iterations || (timeInSeconds && (j%128!=0 || timer.ElapsedTimeAsDouble() < timeInSeconds)); j++)
-		{
+    for (unsigned int j = 1; j < iterations; ++j) {
 			hmac.CalculateDigest(buffer, buffer, buffer.size());
 			xorbuf(derived, buffer, segmentLen);
 		}
 
-		if (timeInSeconds)
-		{
-			iterations = j;
-			timeInSeconds = 0;
-		}
-
 		derived += segmentLen;
 		derivedLen -= segmentLen;
-		i++;
+    ++i;
 	}
 
 	return iterations;
