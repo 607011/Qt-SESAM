@@ -38,6 +38,7 @@ static const QString AppName = "pwdgen";
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
+  , mSettings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
   , mLoaderIcon(":/images/loader.gif")
   , mElapsed(0)
   , mCustomCharacterSetDirty(false)
@@ -81,6 +82,12 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *)
 {
   saveSettings();
+}
+
+
+void MainWindow::domainSelected(const QString &domain)
+{
+  loadSettings(domain);
 }
 
 
@@ -208,7 +215,6 @@ void MainWindow::updateValidator(void)
 
 void MainWindow::saveCurrentSettings(void)
 {
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
   DomainSettings domainSettings;
   domainSettings.useLowerCase = ui->lowerCaseCheckBox->isChecked();
   domainSettings.useUpperCase = ui->upperCaseCheckBox->isChecked();
@@ -217,11 +223,12 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.iterations = ui->iterationsSpinBox->value();
   domainSettings.salt = ui->saltLineEdit->text();
   domainSettings.validator = mValidator.regExp();
-  saveDomainSettings(settings, ui->domainLineEdit->text(), domainSettings);
+  saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
+  mSettings.sync();
 }
 
 
-void MainWindow::saveDomainSettings(QSettings &settings, const QString &domain, const DomainSettings &domainSettings)
+void MainWindow::saveDomainSettings(const QString &domain, const DomainSettings &domainSettings)
 {
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
@@ -229,32 +236,49 @@ void MainWindow::saveDomainSettings(QSettings &settings, const QString &domain, 
     domains << domain;
     model->setStringList(domains);
   }
-  settings.setValue(domain + "/useLowerCase", domainSettings.useLowerCase);
-  settings.setValue(domain + "/useUpperCase", domainSettings.useUpperCase);
-  settings.setValue(domain + "/useDigits", domainSettings.useDigits);
-  settings.setValue(domain + "/useExtra", domainSettings.useExtra);
-  settings.setValue(domain + "/iterations", domainSettings.iterations);
-  settings.setValue(domain + "/salt", domainSettings.salt);
-  settings.setValue(domain + "/validator/pattern", domainSettings.validator.pattern());
+  mSettings.setValue(domain + "/useLowerCase", domainSettings.useLowerCase);
+  mSettings.setValue(domain + "/useUpperCase", domainSettings.useUpperCase);
+  mSettings.setValue(domain + "/useDigits", domainSettings.useDigits);
+  mSettings.setValue(domain + "/useExtra", domainSettings.useExtra);
+  mSettings.setValue(domain + "/iterations", domainSettings.iterations);
+  mSettings.setValue(domain + "/salt", domainSettings.salt);
+  mSettings.setValue(domain + "/validator/pattern", domainSettings.validator.pattern());
 }
 
 
 void MainWindow::saveSettings(void)
 {
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
-  settings.setValue("mainwindow/geometry", geometry());
+  mSettings.setValue("mainwindow/geometry", geometry());
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
-  settings.setValue("domains", model->stringList());
+  mSettings.setValue("domains", model->stringList());
+  mSettings.sync();
 }
 
 
 void MainWindow::restoreSettings(void)
 {
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName);
-  restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
-  QStringList domains = settings.value("domains").toStringList();
+  restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
+  QStringList domains = mSettings.value("domains").toStringList();
+  if (mCompleter) {
+    QObject::disconnect(ui->domainLineEdit->completer(), SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+  }
   safeRenew(mCompleter, new QCompleter(domains));
   ui->domainLineEdit->setCompleter(mCompleter);
+  QObject::connect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+}
+
+
+void MainWindow::loadSettings(const QString &domain)
+{
+  ui->lowerCaseCheckBox->setChecked(mSettings.value(domain + "/useLowerCase").toBool());
+  ui->upperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase").toBool());
+  ui->digitsCheckBox->setChecked(mSettings.value(domain + "/useDigits").toBool());
+  ui->extrasCheckBox->setChecked(mSettings.value(domain + "/useExtra").toBool());
+  ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations").toInt());
+  ui->saltLineEdit->setText(mSettings.value(domain + "/salt").toString());
+  ui->forceCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/validator/pattern").toString());
+  updateValidator();
+  updatePassword();
 }
 
 

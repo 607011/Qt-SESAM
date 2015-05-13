@@ -21,6 +21,7 @@
 #define __MAINWINDOW_H_
 
 #include <QMainWindow>
+#include <QString>
 #include <QFuture>
 #include <QElapsedTimer>
 #include <QMovie>
@@ -56,18 +57,21 @@ private slots:
   void customCharacterSetChanged(void);
   void updateValidator(void);
   void saveCurrentSettings(void);
+  void domainSelected(const QString &);
 
 signals:
   void passwordGenerated(QString);
 
 private: // methods
   void saveSettings(void);
-  void saveDomainSettings(QSettings &, const QString &, const DomainSettings &);
   void restoreSettings(void);
+  void saveDomainSettings(const QString &, const DomainSettings &);
+  void loadSettings(const QString &domain);
   void generatePassword(void);
 
 private:
   Ui::MainWindow *ui;
+  QSettings mSettings;
   QElapsedTimer mElapsedTimer;
   qreal mElapsed;
   QFuture<void> mPasswordGeneratorFuture;
