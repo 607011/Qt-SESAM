@@ -225,6 +225,7 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.validator = mValidator.regExp();
   saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
   mSettings.sync();
+  ui->statusBar->showMessage(tr("Settings saved."), 3000);
 }
 
 
