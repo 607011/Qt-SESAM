@@ -1,1 +1,6 @@
 *.pro.user
+deploy/ctpwdgen*.exe
+Makefile*
+release/*
+debug/*
+ui_mainwindow.h

@@ -53,15 +53,16 @@ private slots:
   void updatePassword(void);
   void updateUsedCharacters(void);
   void copyPasswordToClipboard(void);
-  void onPasswordGenerated(QString);
+  void onPasswordGenerated(QString, QString);
   void customCharacterSetCheckBoxToggled(bool);
   void customCharacterSetChanged(void);
   void updateValidator(void);
   void saveCurrentSettings(void);
   void domainSelected(const QString &);
+  void newDomain(void);
 
 signals:
-  void passwordGenerated(QString);
+  void passwordGenerated(QString, QString);
 
 private: // methods
   void saveSettings(void);

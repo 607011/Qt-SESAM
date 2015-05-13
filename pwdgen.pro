@@ -39,7 +39,8 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/queue.cpp \
     3rdparty/cryptopp562/algparam.cpp \
     3rdparty/cryptopp562/fips140.cpp \
-    3rdparty/cryptopp562/mqueue.cpp
+    3rdparty/cryptopp562/mqueue.cpp \
+    DomainSettings.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -72,4 +73,6 @@ RESOURCES += \
     pwdgen.qrc
 
 DISTFILES += \
-    .gitignore
+    .gitignore \
+    LICENSE \
+    README.md

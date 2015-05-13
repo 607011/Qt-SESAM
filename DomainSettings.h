@@ -21,6 +21,9 @@
 #ifndef __DOMAINSETTINGS_H_
 #define __DOMAINSETTINGS_H_
 
+#include <QString>
+#include <QRegExp>
+
 struct DomainSettings {
   DomainSettings(void)
     : useLowerCase(true)
@@ -28,10 +31,11 @@ struct DomainSettings {
     , useDigits(true)
     , useExtra(true)
     , useCustom(false)
-    , iterations(4096)
-    , length(10)
-    , salt("This is my salt. There are many like it, but this one is mine.")
-    , validator("^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$", Qt::CaseSensitive, QRegExp::RegExp2)
+    , iterations(DefaultIterations)
+    , length(DefaultPasswordLength)
+    , salt(DefaultSalt)
+    , forceValidation(false)
+    , validatorRegEx(DefaultValidatorPattern)
   { /* ... */ }
   DomainSettings(const DomainSettings &o)
     : useLowerCase(o.useLowerCase)
@@ -39,10 +43,12 @@ struct DomainSettings {
     , useDigits(o.useDigits)
     , useExtra(o.useExtra)
     , useCustom(o.useCustom)
+    , customCharacters(o.customCharacters)
     , iterations(o.iterations)
     , length(o.length)
     , salt(o.salt)
-    , validator(o.validator)
+    , forceValidation(o.forceValidation)
+    , validatorRegEx(o.validatorRegEx)
   { /* ... */ }
   bool useLowerCase;
   bool useUpperCase;
@@ -53,7 +59,13 @@ struct DomainSettings {
   int iterations;
   int length;
   QString salt;
-  QRegExp validator;
+  bool forceValidation;
+  QRegExp validatorRegEx;
+
+  static const int DefaultIterations;
+  static const int DefaultPasswordLength;
+  static const QString DefaultSalt;
+  static const QString DefaultValidatorPattern;
 };
 
 

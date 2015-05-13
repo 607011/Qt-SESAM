@@ -35,11 +35,6 @@ static const QString CompanyName = "c't";
 static const QString AppName = "ctpwdgen";
 static const QString AppVersion = "1.0 ALPHA";
 
-static const int DefaultIterations = 4096;
-static const int DefaultPasswordLength = 10;
-static const QString DefaultSalt = "This is my salt. There are many like it, but this one is mine.";
-static const QString DefaultValidatorPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$";
-
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
@@ -69,9 +64,12 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->lowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
   QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
   QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(customCharacterSetCheckBoxToggled(bool)));
+  QObject::connect(ui->avoidAmbiguousCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
   QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
-  QObject::connect(this, SIGNAL(passwordGenerated(QString)), SLOT(onPasswordGenerated(QString)));
+  QObject::connect(this, SIGNAL(passwordGenerated(QString, QString)), SLOT(onPasswordGenerated(QString, QString)));
+  QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
+  QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&mLoaderIcon);
   ui->processLabel->hide();
@@ -84,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
   delete ui;
+  safeDelete(mCompleter);
 }
 
 
@@ -99,10 +98,32 @@ void MainWindow::domainSelected(const QString &domain)
 }
 
 
+void MainWindow::newDomain(void)
+{
+  DomainSettings domainSettings;
+  ui->domainLineEdit->setText(QString());
+  ui->domainLineEdit->setFocus();
+  ui->masterPasswordLineEdit1->setText(QString());
+  ui->masterPasswordLineEdit2->setText(QString());
+  ui->lowerCaseCheckBox->setChecked(domainSettings.useLowerCase);
+  ui->upperCaseCheckBox->setChecked(domainSettings.useUpperCase);
+  ui->digitsCheckBox->setChecked(domainSettings.useDigits);
+  ui->extrasCheckBox->setChecked(domainSettings.useExtra);
+  ui->iterationsSpinBox->setValue(domainSettings.iterations);
+  ui->passwordLengthSpinBox->setValue(domainSettings.length);
+  ui->saltLineEdit->setText(domainSettings.salt);
+  ui->forceCharactersPlainTextEdit->setPlainText(domainSettings.validatorRegEx.pattern());
+  ui->forceCustomCharacterSetCheckBox->setChecked(domainSettings.forceValidation);
+  updateValidator();
+  updatePassword();
+
+}
+
+
 void MainWindow::updatePassword(void)
 {
-  bool valid = false;
-  ui->statusBar->showMessage("");
+  bool passwordsAreIdentical = false;
+  ui->statusBar->showMessage(QString());
   if (!ui->masterPasswordLineEdit1->text().isEmpty() && !ui->masterPasswordLineEdit2->text().isEmpty()) {
     if (ui->masterPasswordLineEdit1->text() != ui->masterPasswordLineEdit2->text()) {
       ui->statusBar->showMessage(tr("Passwords do not match"), 2000);
@@ -111,16 +132,14 @@ void MainWindow::updatePassword(void)
       ui->copyPasswordToClipboardPushButton->setEnabled(false);
       ui->processLabel->show();
       mLoaderIcon.start();
-      valid = true;
+      passwordsAreIdentical = true;
       stopPasswordGeneration();
-      if (mPasswordGeneratorFuture.isFinished()) {
-        mQuitHashing = false;
-        mPasswordGeneratorFuture = QtConcurrent::run(this, &MainWindow::generatePassword);
-      }
+      mPasswordGeneratorFuture = QtConcurrent::run(this, &MainWindow::generatePassword);
     }
   }
-  if (!valid) {
-    ui->generatedPasswordLineEdit->setText(tr("<invalid>"));
+  if (!passwordsAreIdentical) {
+    ui->generatedPasswordLineEdit->setText(QString());
+    ui->hashPlainTextEdit->setPlainText(QString());
   }
 }
 
@@ -131,13 +150,14 @@ void MainWindow::updateUsedCharacters(void)
     stopPasswordGeneration();
     QString passwordCharacters;
     static const QString UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static const QString UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
     static const QString LowerChars = "abcdefghijklmnopqrstuvwxyz";
     static const QString Digits = "0123456789";
     static const QString ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
     if (ui->lowerCaseCheckBox->isChecked())
       passwordCharacters += LowerChars;
     if (ui->upperCaseCheckBox->isChecked())
-      passwordCharacters += UpperChars;
+      passwordCharacters += ui->avoidAmbiguousCheckBox->isChecked() ? UpperCharsNoAmbiguous : UpperChars;
     if (ui->digitsCheckBox->isChecked())
       passwordCharacters += Digits;
     if (ui->extrasCheckBox->isChecked())
@@ -157,20 +177,21 @@ void MainWindow::copyPasswordToClipboard(void)
 }
 
 
-void MainWindow::onPasswordGenerated(QString key)
+void MainWindow::onPasswordGenerated(QString key, QString hexKey)
 {
   ui->processLabel->hide();
   ui->copyPasswordToClipboardPushButton->setEnabled(true);
   int pos = 0;
-  bool setKey = true;
+  bool setKey = true; //XXX
   if (ui->forceCustomCharacterSetCheckBox->isChecked() && !mValidator.validate(key, pos))
     setKey = false;
   if (setKey) {
     ui->generatedPasswordLineEdit->setText(key);
+    ui->hashPlainTextEdit->setPlainText(hexKey);
     ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mElapsed, 0, 'f', 4), 3000);
   }
   else {
-    ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(mAutoIncreaseIterations ? tr("Increasing iteration count.") : ""));
+    ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(mAutoIncreaseIterations ? tr("Increasing iteration count.") : QString()));
     if (mAutoIncreaseIterations)
       ui->iterationsSpinBox->setValue( ui->iterationsSpinBox->value() + 1);
   }
@@ -216,7 +237,7 @@ void MainWindow::updateValidator(void)
   QRegExp re(ui->forceCharactersPlainTextEdit->toPlainText(), Qt::CaseSensitive, QRegExp::RegExp2);
   if (re.isValid()) {
     mValidator.setRegExp(re);
-    ui->statusBar->showMessage("");
+    ui->statusBar->showMessage(QString());
     updatePassword();
   }
   else {
@@ -234,7 +255,8 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.useExtra = ui->extrasCheckBox->isChecked();
   domainSettings.iterations = ui->iterationsSpinBox->value();
   domainSettings.salt = ui->saltLineEdit->text();
-  domainSettings.validator = mValidator.regExp();
+  domainSettings.validatorRegEx = mValidator.regExp();
+  domainSettings.forceValidation = ui->forceCustomCharacterSetCheckBox->isChecked();
   saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
   mSettings.sync();
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
@@ -256,7 +278,8 @@ void MainWindow::saveDomainSettings(const QString &domain, const DomainSettings 
   mSettings.setValue(domain + "/iterations", domainSettings.iterations);
   mSettings.setValue(domain + "/length", domainSettings.length);
   mSettings.setValue(domain + "/salt", domainSettings.salt);
-  mSettings.setValue(domain + "/validator/pattern", domainSettings.validator.pattern());
+  mSettings.setValue(domain + "/validator/pattern", domainSettings.validatorRegEx.pattern());
+  mSettings.setValue(domain + "/validator/force", domainSettings.forceValidation);
 }
 
 
@@ -288,10 +311,11 @@ void MainWindow::loadSettings(const QString &domain)
   ui->upperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase", true).toBool());
   ui->digitsCheckBox->setChecked(mSettings.value(domain + "/useDigits", true).toBool());
   ui->extrasCheckBox->setChecked(mSettings.value(domain + "/useExtra", false).toBool());
-  ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations", DefaultIterations).toInt());
-  ui->passwordLengthSpinBox->setValue(mSettings.value(domain + "/length", DefaultPasswordLength).toInt());
-  ui->saltLineEdit->setText(mSettings.value(domain + "/salt", DefaultSalt).toString());
-  ui->forceCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/validator/pattern", DefaultValidatorPattern).toString());
+  ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations", DomainSettings::DefaultIterations).toInt());
+  ui->passwordLengthSpinBox->setValue(mSettings.value(domain + "/length", DomainSettings::DefaultPasswordLength).toInt());
+  ui->saltLineEdit->setText(mSettings.value(domain + "/salt", DomainSettings::DefaultSalt).toString());
+  ui->forceCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/validator/pattern", DomainSettings::DefaultValidatorPattern).toString());
+  ui->forceCustomCharacterSetCheckBox->setChecked(mSettings.value(domain + "/validator/force", false).toBool());
   updateValidator();
   updatePassword();
 }
@@ -305,11 +329,11 @@ void MainWindow::generatePassword(void)
   const QByteArray &pwd = domain + masterPwd;
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA512> pbkdf2;
   const int nChars = ui->charactersPlainTextEdit->toPlainText().count();
-  byte *derived = new byte[nChars];
+  byte *derived = new byte[CryptoPP::SHA512::DIGESTSIZE];
   mElapsedTimer.start();
   unsigned int iterations = pbkdf2.DeriveKey(
         derived,
-        nChars,
+        CryptoPP::SHA512::DIGESTSIZE,
         reinterpret_cast<const byte*>(pwd.data()),
         pwd.count(),
         reinterpret_cast<const byte*>(salt.data()),
@@ -318,7 +342,7 @@ void MainWindow::generatePassword(void)
         mQuitHashing);
   if (iterations > 0) {
     mElapsed = 1e-6 * mElapsedTimer.nsecsElapsed();
-    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), nChars);
+    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), CryptoPP::SHA512::DIGESTSIZE);
     const QByteArray &hexKey = derivedKeyBuf.toHex();
     const QString strModulus = QString("%1").arg(nChars);
     BigInt::Rossi v(QString(hexKey).toStdString(), BigInt::HEX_DIGIT);
@@ -333,7 +357,7 @@ void MainWindow::generatePassword(void)
         key += chrs.at(mod.toUlong());
       v = v / Modulus;
     }
-    emit passwordGenerated(key);
+    emit passwordGenerated(key, hexKey);
   }
   delete[] derived;
 }
@@ -345,4 +369,5 @@ void MainWindow::stopPasswordGeneration(void)
     mQuitHashing = true;
     mPasswordGeneratorFuture.waitForFinished();
   }
+  mQuitHashing = false;
 }
