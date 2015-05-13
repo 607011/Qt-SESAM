@@ -29,6 +29,7 @@
 #include <QCloseEvent>
 #include <QSettings>
 #include <QCompleter>
+#include <QMutex>
 
 #include "DomainSettings.h"
 
@@ -68,6 +69,7 @@ private: // methods
   void saveDomainSettings(const QString &, const DomainSettings &);
   void loadSettings(const QString &domain);
   void generatePassword(void);
+  void stopPasswordGeneration(void);
 
 private:
   Ui::MainWindow *ui;
@@ -80,6 +82,7 @@ private:
   QRegExpValidator mValidator;
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;
+  bool mQuitHashing;
 };
 
 #endif // __MAINWINDOW_H_

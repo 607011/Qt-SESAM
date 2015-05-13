@@ -33,7 +33,7 @@
 
 static const QString CompanyName = "c't";
 static const QString AppName = "ctpwdgen";
-static const QString AppVersion = "1.0";
+static const QString AppVersion = "1.0 ALPHA";
 
 static const int DefaultIterations = 4096;
 static const int DefaultPasswordLength = 10;
@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
   , mCustomCharacterSetDirty(false)
   , mAutoIncreaseIterations(true)
   , mCompleter(0)
+  , mQuitHashing(false)
 {
   ui->setupUi(this);
   setWindowTitle(AppName + " " + AppVersion);
@@ -111,8 +112,11 @@ void MainWindow::updatePassword(void)
       ui->processLabel->show();
       mLoaderIcon.start();
       valid = true;
-      if (mPasswordGeneratorFuture.isFinished())
+      stopPasswordGeneration();
+      if (mPasswordGeneratorFuture.isFinished()) {
+        mQuitHashing = false;
         mPasswordGeneratorFuture = QtConcurrent::run(this, &MainWindow::generatePassword);
+      }
     }
   }
   if (!valid) {
@@ -124,6 +128,7 @@ void MainWindow::updatePassword(void)
 void MainWindow::updateUsedCharacters(void)
 {
   if (!ui->customCharacterSetCheckBox->isChecked()) {
+    stopPasswordGeneration();
     QString passwordCharacters;
     static const QString UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static const QString LowerChars = "abcdefghijklmnopqrstuvwxyz";
@@ -232,7 +237,7 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.validator = mValidator.regExp();
   saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
   mSettings.sync();
-  ui->statusBar->showMessage(tr("Settings saved."), 3000);
+  ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
 }
 
 
@@ -302,29 +307,42 @@ void MainWindow::generatePassword(void)
   const int nChars = ui->charactersPlainTextEdit->toPlainText().count();
   byte *derived = new byte[nChars];
   mElapsedTimer.start();
-  pbkdf2.DeriveKey(
+  unsigned int iterations = pbkdf2.DeriveKey(
         derived,
         nChars,
         reinterpret_cast<const byte*>(pwd.data()),
         pwd.count(),
         reinterpret_cast<const byte*>(salt.data()),
         salt.count(),
-        ui->iterationsSpinBox->value()
-        );
-  mElapsed = 1e-6 * mElapsedTimer.nsecsElapsed();
-  const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), nChars);
-  const QByteArray &hexKey = derivedKeyBuf.toHex();
-  const QString strModulus = QString("%1").arg(nChars);
-  BigInt::Rossi v(QString(hexKey).toStdString(), BigInt::HEX_DIGIT);
-  const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-  static const BigInt::Rossi Zero(0);
-  QString key;
-  int n = ui->passwordLengthSpinBox->value();
-  while (v > Zero && n-- > 0) {
-    BigInt::Rossi mod = v % Modulus;
-    key += ui->charactersPlainTextEdit->toPlainText().at(mod.toUlong());
-    v = v / Modulus;
+        ui->iterationsSpinBox->value(),
+        mQuitHashing);
+  if (iterations > 0) {
+    mElapsed = 1e-6 * mElapsedTimer.nsecsElapsed();
+    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), nChars);
+    const QByteArray &hexKey = derivedKeyBuf.toHex();
+    const QString strModulus = QString("%1").arg(nChars);
+    BigInt::Rossi v(QString(hexKey).toStdString(), BigInt::HEX_DIGIT);
+    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
+    static const BigInt::Rossi Zero(0);
+    QString key;
+    int n = ui->passwordLengthSpinBox->value();
+    while (v > Zero && n-- > 0) {
+      BigInt::Rossi mod = v % Modulus;
+      const QString &chrs = ui->charactersPlainTextEdit->toPlainText();
+      if (chrs.size() == nChars)
+        key += chrs.at(mod.toUlong());
+      v = v / Modulus;
+    }
+    emit passwordGenerated(key);
   }
   delete[] derived;
-  emit passwordGenerated(key);
+}
+
+
+void MainWindow::stopPasswordGeneration(void)
+{
+  if (mPasswordGeneratorFuture.isRunning()) {
+    mQuitHashing = true;
+    mPasswordGeneratorFuture.waitForFinished();
+  }
 }

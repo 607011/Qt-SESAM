@@ -1,11 +1,11 @@
 // pwdbased.h - written and placed in the public domain by Wei Dai
+// removed unnecessary code (ola@ct.de)
 
 #ifndef CRYPTOPP_PWDBASED_H
 #define CRYPTOPP_PWDBASED_H
 
 #include "cryptlib.h"
 #include "hmac.h"
-#include "hrtimer.h"
 #include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -19,18 +19,7 @@ public:
 	//! derive key from password
 	/*! If timeInSeconds != 0, will iterate until time elapsed, as measured by ThreadUserTimer
 		Returns actual iteration count, which is equal to iterations if timeInSeconds == 0, and not less than iterations otherwise. */
-  virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations) const = 0;
-};
-
-//! PBKDF1 from PKCS #5, T should be a HashTransformation class
-template <class T>
-class PKCS5_PBKDF1 : public PasswordBasedKeyDerivationFunction
-{
-public:
-	size_t MaxDerivedKeyLength() const {return T::DIGESTSIZE;}
-	bool UsesPurposeByte() const {return false;}
-	// PKCS #5 says PBKDF1 should only take 8-byte salts. This implementation allows salts of any length.
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
+  virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, bool &doQuit) const = 0;
 };
 
 //! PBKDF2 from PKCS #5, T should be a HashTransformation class
@@ -40,50 +29,11 @@ class PKCS5_PBKDF2_HMAC : public PasswordBasedKeyDerivationFunction
 public:
 	size_t MaxDerivedKeyLength() const {return 0xffffffffU;}	// should multiply by T::DIGESTSIZE, but gets overflow that way
 	bool UsesPurposeByte() const {return false;}
-  unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations) const;
+  unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, bool &doQuit) const;
 };
 
-/*
-class PBKDF2Params
-{
-public:
-	SecByteBlock m_salt;
-	unsigned int m_interationCount;
-	ASNOptional<ASNUnsignedWrapper<word32> > m_keyLength;
-};
-*/
-
 template <class T>
-unsigned int PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
-{
-	assert(derivedLen <= MaxDerivedKeyLength());
-	assert(iterations > 0 || timeInSeconds > 0);
-
-	if (!iterations)
-		iterations = 1;
-
-	T hash;
-	hash.Update(password, passwordLen);
-	hash.Update(salt, saltLen);
-
-	SecByteBlock buffer(hash.DigestSize());
-	hash.Final(buffer);
-
-	unsigned int i;
-	ThreadUserTimer timer;
-
-	if (timeInSeconds)
-		timer.StartTimer();
-
-	for (i=1; i<iterations || (timeInSeconds && (i%128!=0 || timer.ElapsedTimeAsDouble() < timeInSeconds)); i++)
-		hash.CalculateDigest(buffer, buffer, buffer.size());
-
-	memcpy(derived, buffer, derivedLen);
-	return i;
-}
-
-template <class T>
-unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations) const
+unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, bool &doQuit) const
 {
 	assert(derivedLen <= MaxDerivedKeyLength());
   assert(iterations > 0);
@@ -95,7 +45,7 @@ unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, c
 	SecByteBlock buffer(hmac.DigestSize());
 
   unsigned int i = 1;
-  while (derivedLen > 0) {
+  while (derivedLen > 0 && !doQuit) {
 		hmac.Update(salt, saltLen);
     for (unsigned int j = 0; j < 4; ++j) {
 			byte b = byte(i >> ((3-j)*8));
@@ -116,81 +66,9 @@ unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, c
     ++i;
 	}
 
-	return iterations;
+  return doQuit ? 0 : iterations;
 }
 
-//! PBKDF from PKCS #12, appendix B, T should be a HashTransformation class
-template <class T>
-class PKCS12_PBKDF : public PasswordBasedKeyDerivationFunction
-{
-public:
-	size_t MaxDerivedKeyLength() const {return size_t(0)-1;}
-	bool UsesPurposeByte() const {return true;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const;
-};
-
-template <class T>
-unsigned int PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
-{
-	assert(derivedLen <= MaxDerivedKeyLength());
-	assert(iterations > 0 || timeInSeconds > 0);
-
-	if (!iterations)
-		iterations = 1;
-
-	const size_t v = T::BLOCKSIZE;	// v is in bytes rather than bits as in PKCS #12
-	const size_t DLen = v, SLen = RoundUpToMultipleOf(saltLen, v);
-	const size_t PLen = RoundUpToMultipleOf(passwordLen, v), ILen = SLen + PLen;
-	SecByteBlock buffer(DLen + SLen + PLen);
-	byte *D = buffer, *S = buffer+DLen, *P = buffer+DLen+SLen, *I = S;
-
-	memset(D, purpose, DLen);
-	size_t i;
-	for (i=0; i<SLen; i++)
-		S[i] = salt[i % saltLen];
-	for (i=0; i<PLen; i++)
-		P[i] = password[i % passwordLen];
-
-
-	T hash;
-	SecByteBlock Ai(T::DIGESTSIZE), B(v);
-	ThreadUserTimer timer;
-
-	while (derivedLen > 0)
-	{
-		hash.CalculateDigest(Ai, buffer, buffer.size());
-
-		if (timeInSeconds)
-		{
-			timeInSeconds = timeInSeconds / ((derivedLen + Ai.size() - 1) / Ai.size());
-			timer.StartTimer();
-		}
-
-		for (i=1; i<iterations || (timeInSeconds && (i%128!=0 || timer.ElapsedTimeAsDouble() < timeInSeconds)); i++)
-			hash.CalculateDigest(Ai, Ai, Ai.size());
-
-		if (timeInSeconds)
-		{
-			iterations = (unsigned int)i;
-			timeInSeconds = 0;
-		}
-
-		for (i=0; i<B.size(); i++)
-			B[i] = Ai[i % Ai.size()];
-
-		Integer B1(B, B.size());
-		++B1;
-		for (i=0; i<ILen; i+=v)
-			(Integer(I+i, v) + B1).Encode(I+i, v);
-
-		size_t segmentLen = STDMIN(derivedLen, Ai.size());
-		memcpy(derived, Ai, segmentLen);
-		derived += segmentLen;
-		derivedLen -= segmentLen;
-	}
-
-	return iterations;
-}
 
 NAMESPACE_END
 

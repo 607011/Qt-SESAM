@@ -23,6 +23,7 @@ CONFIG += warn_off
 
 win32 {
 QMAKE_CXXFLAGS += /wd4100
+DEFINES += _SCL_SECURE_NO_WARNINGS
 }
 
 SOURCES += main.cpp mainwindow.cpp \
@@ -32,7 +33,6 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/misc.cpp \
     3rdparty/cryptopp562/simple.cpp \
     3rdparty/cryptopp562/hmac.cpp \
-    3rdparty/cryptopp562/hrtimer.cpp \
     3rdparty/cryptopp562/cryptlib.cpp \
     3rdparty/cryptopp562/cpu.cpp \
     3rdparty/cryptopp562/filters.cpp \
@@ -54,7 +54,6 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/smartptr.h \
     3rdparty/cryptopp562/stdcpp.h \
     3rdparty/cryptopp562/hmac.h \
-    3rdparty/cryptopp562/hrtimer.h \
     3rdparty/cryptopp562/cpu.h \
     3rdparty/cryptopp562/filters.h \
     3rdparty/cryptopp562/queue.h \
