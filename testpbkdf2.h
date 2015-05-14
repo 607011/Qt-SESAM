@@ -15,7 +15,9 @@ public:
 signals:
 
 private slots:
-  void simple(void);
+  void simple1(void);
+  void simple2(void);
+  void pin(void);
 
 
 };
