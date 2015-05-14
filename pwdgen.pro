@@ -22,15 +22,14 @@ QT += core gui widgets concurrent
 CONFIG += warn_off
 
 win32 {
-QMAKE_CXXFLAGS += /wd4100
-DEFINES += _SCL_SECURE_NO_WARNINGS
+    QMAKE_CXXFLAGS += /wd4100
+    DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM
 }
 
 CONFIG(debug) {
-QT += testlib
-SOURCES += testpbkdf2.cpp
-HEADERS += testpbkdf2.h
-
+    QT += testlib
+    SOURCES += testpbkdf2.cpp
+    HEADERS += testpbkdf2.h
 }
 
 SOURCES += main.cpp mainwindow.cpp \
