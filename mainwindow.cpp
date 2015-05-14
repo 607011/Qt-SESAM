@@ -380,7 +380,7 @@ void MainWindow::about(void)
                           "You should have received a copy of the GNU General Public License "
                           "along with this program. "
                           "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>"
-                          "<p>No animals were harmed during the production of this software. "
+                          "<p>No animals were harmed during the development of this software. "
                           "It was programmed CO2 neutrally and without the use of genetic engineering. "
                           "It is vegan, free of antibiotics and hypoallergenic.</p>")
                        .arg(AppName).arg(AppUrl).arg(AppAuthor).arg(AppAuthorMail));
