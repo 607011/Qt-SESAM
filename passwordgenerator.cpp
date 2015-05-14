@@ -31,7 +31,7 @@ bool PasswordGenerator::generate(
   const QByteArray &pwd = domain + masterPwd;
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA512> pbkdf2;
   const int nChars = availableChars.count();
-  byte *derived = new byte[CryptoPP::SHA512::DIGESTSIZE];
+  byte derived[CryptoPP::SHA512::DIGESTSIZE];
   QElapsedTimer elapsedTimer;
   elapsedTimer.start();
   unsigned int nIter = pbkdf2.DeriveKey(
@@ -56,13 +56,10 @@ bool PasswordGenerator::generate(
     int n = passwordLength;
     while (v > Zero && n-- > 0) {
       BigInt::Rossi mod = v % Modulus;
-      const QString &chrs = availableChars;
-      if (chrs.size() == nChars)
-        key += chrs.at(mod.toUlong());
+      key += availableChars.at(mod.toUlong());
       v = v / Modulus;
     }
     success = true;
   }
-  delete[] derived;
   return success;
 }
