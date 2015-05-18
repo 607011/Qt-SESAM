@@ -60,6 +60,7 @@ private slots:
   void saveCurrentSettings(void);
   void domainSelected(const QString &);
   void newDomain(void);
+  void setDirty(void);
   void about(void);
   void aboutQt(void);
 
@@ -73,6 +74,7 @@ private: // methods
   void loadSettings(const QString &domain);
   void generatePassword(void);
   void stopPasswordGeneration(void);
+  void updateWindowTitle(void);
 
 private:
   Ui::MainWindow *ui;
@@ -81,6 +83,7 @@ private:
   QFuture<void> mPasswordGeneratorFuture;
   QMovie mLoaderIcon;
   bool mCustomCharacterSetDirty;
+  bool mParameterSetDirty;
   QRegExpValidator mValidator;
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;

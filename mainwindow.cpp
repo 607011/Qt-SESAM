@@ -45,12 +45,28 @@ MainWindow::MainWindow(QWidget *parent)
   , mLoaderIcon(":/images/loader.gif")
   , mElapsed(0)
   , mCustomCharacterSetDirty(false)
+  , mParameterSetDirty(false)
   , mAutoIncreaseIterations(true)
   , mCompleter(0)
   , mQuitHashing(false)
 {
   ui->setupUi(this);
-  setWindowTitle(AppName + " " + AppVersion);
+  QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->charactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
+  QObject::connect(ui->charactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
+  QObject::connect(ui->forceCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
+  QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
+  QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
+  QObject::connect(ui->digitsCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->extrasCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->upperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->lowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->avoidAmbiguousCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
@@ -80,6 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
   restoreSettings();
   updateUsedCharacters();
   updateValidator();
+  updateWindowTitle();
 
 #ifdef QT_DEBUG
   TestPBKDF2 tc;
@@ -95,8 +112,23 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent *e)
 {
+  int rc = (mParameterSetDirty)
+      ? QMessageBox::question(
+          this,
+          tr("Save before exit?"),
+          tr("Your parameters have changed. Do you want to save the changes before exiting?"),
+          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
+      : QMessageBox::NoButton;
+  if (rc != QMessageBox::Cancel) {
+    saveCurrentSettings();
+    QMainWindow::closeEvent(e);
+    e->accept();
+  }
+  else {
+    e->ignore();
+  }
   saveSettings();
 }
 
@@ -126,6 +158,11 @@ void MainWindow::newDomain(void)
   updateValidator();
   updatePassword();
 
+}
+
+void MainWindow::setDirty(void)
+{
+  mParameterSetDirty = true;
 }
 
 
@@ -272,6 +309,7 @@ void MainWindow::saveCurrentSettings(void)
   saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
   mSettings.sync();
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
+  setDirty();
 }
 
 
@@ -360,6 +398,12 @@ void MainWindow::stopPasswordGeneration(void)
     mPasswordGeneratorFuture.waitForFinished();
   }
   mQuitHashing = false;
+}
+
+
+void MainWindow::updateWindowTitle(void)
+{
+  setWindowTitle(AppName + " " + AppVersion + (mParameterSetDirty ? "*" : ""));
 }
 
 
