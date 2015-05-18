@@ -10,21 +10,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! abstract base class for password based key derivation function
-class PasswordBasedKeyDerivationFunction
-{
-public:
-	virtual size_t MaxDerivedKeyLength() const =0;
-	virtual bool UsesPurposeByte() const =0;
-	//! derive key from password
-	/*! If timeInSeconds != 0, will iterate until time elapsed, as measured by ThreadUserTimer
-		Returns actual iteration count, which is equal to iterations if timeInSeconds == 0, and not less than iterations otherwise. */
-  virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, bool &doQuit) const = 0;
-};
-
 //! PBKDF2 from PKCS #5, T should be a HashTransformation class
 template <class T>
-class PKCS5_PBKDF2_HMAC : public PasswordBasedKeyDerivationFunction
+class PKCS5_PBKDF2_HMAC
 {
 public:
 	size_t MaxDerivedKeyLength() const {return 0xffffffffU;}	// should multiply by T::DIGESTSIZE, but gets overflow that way
@@ -33,7 +21,15 @@ public:
 };
 
 template <class T>
-unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, bool &doQuit) const
+unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(
+    byte *derived,
+    size_t derivedLen,
+    const byte *password,
+    size_t passwordLen,
+    const byte *salt,
+    size_t saltLen,
+    unsigned int iterations,
+    bool &doQuit) const
 {
 	assert(derivedLen <= MaxDerivedKeyLength());
   assert(iterations > 0);
@@ -45,7 +41,7 @@ unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, c
 	SecByteBlock buffer(hmac.DigestSize());
 
   unsigned int i = 1;
-  while (derivedLen > 0 && !doQuit) {
+  while (derivedLen > 0 && doQuit != true) {
 		hmac.Update(salt, saltLen);
     for (unsigned int j = 0; j < 4; ++j) {
 			byte b = byte(i >> ((3-j)*8));

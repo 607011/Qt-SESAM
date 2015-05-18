@@ -24,7 +24,9 @@ CONFIG += warn_off
 win32 {
     QMAKE_CXXFLAGS += /wd4100
     DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM
+    RC_FILE = ctpwdgen.rc
 }
+
 
 CONFIG(debug) {
     QT += testlib
@@ -46,8 +48,8 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/algparam.cpp \
     3rdparty/cryptopp562/fips140.cpp \
     3rdparty/cryptopp562/mqueue.cpp \
-    passwordgenerator.cpp \
-    domainsettings.cpp
+    domainsettings.cpp \
+    password.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -69,8 +71,8 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/fips140.h \
     3rdparty/cryptopp562/mqueue.h \
     util.h \
-    passwordgenerator.h \
-    domainsettings.h
+    domainsettings.h \
+    password.h
 
 FORMS    += mainwindow.ui
 
@@ -83,4 +85,5 @@ RESOURCES += \
 DISTFILES += \
     .gitignore \
     LICENSE \
-    README.md
+    README.md \
+    ctpwdgen.rc

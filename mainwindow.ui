@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>611</width>
-    <height>457</height>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,10 +23,76 @@
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="domainLineEdit">
+           <property name="minimumSize">
+            <size>
+             <width>128</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="passwordLengthSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Password length</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="masterPasswordLineEdit2">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
+           <property name="placeholderText">
+            <string>password is not shown when typed in</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Min. iterations</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QPushButton" name="savePushButton">
+           <property name="text">
+            <string>Save</string>
            </property>
           </widget>
          </item>
@@ -50,46 +116,6 @@
            </property>
            <property name="clearButtonEnabled">
             <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QPushButton" name="savePushButton">
-           <property name="text">
-            <string>Save</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="masterPasswordLineEdit2">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-           <property name="placeholderText">
-            <string>password is not shown when typed in</string>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QSpinBox" name="passwordLengthSpinBox">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>10</number>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Password length</string>
            </property>
           </widget>
          </item>
@@ -123,51 +149,28 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="domainLineEdit">
-           <property name="minimumSize">
-            <size>
-             <width>128</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="saltLineEdit">
-           <property name="text">
-            <string>pepper</string>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Salt</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="saltLineEdit">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
+           <property name="text">
+            <string>pepper</string>
            </property>
-          </spacer>
+           <property name="readOnly">
+            <bool>false</bool>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -177,30 +180,13 @@
           <string>Use characters</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="digitsCheckBox">
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="extrasCheckBox">
             <property name="text">
-             <string>digits</string>
+             <string>extra</string>
             </property>
             <property name="checked">
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="upperCaseCheckBox">
-            <property name="text">
-             <string>upper case</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="customCharacterSetCheckBox">
-            <property name="text">
-             <string>custom</string>
             </property>
            </widget>
           </item>
@@ -214,20 +200,37 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QPlainTextEdit" name="charactersPlainTextEdit">
-            <property name="placeholderText" stdset="0">
-             <string>your custom characters</string>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="customCharacterSetCheckBox">
+            <property name="text">
+             <string>custom</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="extrasCheckBox">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="upperCaseCheckBox">
             <property name="text">
-             <string>extra</string>
+             <string>upper case</string>
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="digitsCheckBox">
+            <property name="text">
+             <string>digits</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QPlainTextEdit" name="charactersPlainTextEdit">
+            <property name="placeholderText">
+             <string>your custom characters</string>
             </property>
            </widget>
           </item>
@@ -237,7 +240,14 @@
              <string>avoid ambiguous characters</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -250,23 +260,10 @@
           <string>Force characters</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="forceLowerCaseCheckBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>lower case</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="forceUpperCaseCheckBox">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>upper case</string>
@@ -276,10 +273,23 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="forceLowerCaseCheckBox">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>lower case</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="forceDigitsCheckBox">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>digits</string>
@@ -292,15 +302,18 @@
           <item row="3" column="0">
            <widget class="QCheckBox" name="forceExtrasCheckBox">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>extra</string>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="forceCustomCharacterSetCheckBox">
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="forceRegexCheckBox">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -315,13 +328,20 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
-           <widget class="QPlainTextEdit" name="forceCharactersPlainTextEdit">
+          <item row="6" column="0">
+           <widget class="QPlainTextEdit" name="forceRegexPlainTextEdit">
             <property name="plainText">
-             <string>^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$</string>
+             <string/>
             </property>
-            <property name="placeholderText" stdset="0">
+            <property name="placeholderText">
              <string>regular expression to validate generated password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -369,6 +389,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="cancelPushButton">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -400,7 +427,7 @@
         <family>Courier New</family>
        </font>
       </property>
-      <property name="placeholderText" stdset="0">
+      <property name="placeholderText">
        <string>SHA512 hash (hex)</string>
       </property>
      </widget>
@@ -461,7 +488,6 @@
   <tabstop>domainLineEdit</tabstop>
   <tabstop>masterPasswordLineEdit1</tabstop>
   <tabstop>masterPasswordLineEdit2</tabstop>
-  <tabstop>saltLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
   <tabstop>savePushButton</tabstop>
@@ -476,8 +502,8 @@
   <tabstop>forceUpperCaseCheckBox</tabstop>
   <tabstop>forceDigitsCheckBox</tabstop>
   <tabstop>forceExtrasCheckBox</tabstop>
-  <tabstop>forceCustomCharacterSetCheckBox</tabstop>
-  <tabstop>forceCharactersPlainTextEdit</tabstop>
+  <tabstop>forceRegexCheckBox</tabstop>
+  <tabstop>forceRegexPlainTextEdit</tabstop>
   <tabstop>generatedPasswordLineEdit</tabstop>
   <tabstop>copyPasswordToClipboardPushButton</tabstop>
   <tabstop>hashPlainTextEdit</tabstop>

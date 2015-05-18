@@ -24,14 +24,13 @@
 #include <QString>
 #include <QFuture>
 #include <QMovie>
-#include <QRegExpValidator>
 #include <QCloseEvent>
 #include <QSettings>
 #include <QCompleter>
 #include <QMutex>
 
 #include "domainsettings.h"
-#include "passwordgenerator.h"
+#include "password.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,19 +52,20 @@ private slots:
   void updatePassword(void);
   void updateUsedCharacters(void);
   void copyPasswordToClipboard(void);
-  void onPasswordGenerated(QString, QString);
+  void onPasswordGenerated(void);
   void customCharacterSetCheckBoxToggled(bool);
   void customCharacterSetChanged(void);
   void updateValidator(void);
   void saveCurrentSettings(void);
   void domainSelected(const QString &);
   void newDomain(void);
+  void stopPasswordGeneration(void);
   void setDirty(void);
   void about(void);
   void aboutQt(void);
 
 signals:
-  void passwordGenerated(QString, QString);
+  void passwordGenerated(void);
 
 private: // methods
   void saveSettings(void);
@@ -73,7 +73,6 @@ private: // methods
   void saveDomainSettings(const QString &, const DomainSettings &);
   void loadSettings(const QString &domain);
   void generatePassword(void);
-  void stopPasswordGeneration(void);
   void updateWindowTitle(void);
 
 private:
@@ -84,11 +83,10 @@ private:
   QMovie mLoaderIcon;
   bool mCustomCharacterSetDirty;
   bool mParameterSetDirty;
-  QRegExpValidator mValidator;
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;
   bool mQuitHashing;
-  PasswordGenerator mPasswordGenerator;
+  Password mPassword;
 };
 
 #endif // __MAINWINDOW_H_
