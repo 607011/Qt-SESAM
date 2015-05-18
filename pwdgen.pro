@@ -53,7 +53,6 @@ SOURCES += main.cpp mainwindow.cpp \
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
-    3rdparty/cryptopp562/pwdbased.h \
     3rdparty/cryptopp562/sha.h \
     3rdparty/cryptopp562/config.h \
     3rdparty/cryptopp562/cryptlib.h \

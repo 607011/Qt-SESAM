@@ -10,11 +10,45 @@
 
 class PasswordPrivate;
 
+
+struct PasswordParam {
+  PasswordParam(
+      const QByteArray &domain,
+      const QByteArray &salt,
+      const QByteArray &masterPwd,
+      const QString &availableChars,
+      const int passwordLength,
+      const int iterations)
+    : domain(domain)
+    , salt(salt)
+    , masterPwd(masterPwd)
+    , availableChars(availableChars)
+    , passwordLength(passwordLength)
+    , iterations(iterations)
+  { /* ... */  }
+  PasswordParam(const PasswordParam &o)
+    : domain(o.domain)
+    , salt(o.salt)
+    , masterPwd(o.masterPwd)
+    , availableChars(o.availableChars)
+    , passwordLength(o.passwordLength)
+    , iterations(o.iterations)
+  { /* ... */  }
+  const QByteArray domain;
+  const QByteArray salt;
+  const QByteArray masterPwd;
+  const QString availableChars;
+  const int passwordLength;
+  const int iterations;
+};
+
+
 class Password : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(QString key READ key)
   Q_PROPERTY(QString hexKey READ hexKey)
+  Q_PROPERTY(QString elapsed READ elapsed)
   Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
 
 public:
@@ -27,22 +61,21 @@ public:
   static const QString Digits;
   static const QString ExtraChars;
 
-  bool generate(const QByteArray &domain,
-                const QByteArray &salt,
-                const QByteArray &masterPwd,
-                const QString &availableChars,
-                const int passwordLength,
-                const int iterations,
-                bool &doQuit,
-                qreal *elapsed);
+  void abortGeneration(void);
+  bool generate(const PasswordParam &p);
   bool setValidator(const QRegExp &);
   const QRegExp &validator(void) const;
   bool setValidCharacters(const QStringList &canContain, const QStringList &mustContain);
   bool isValid(void) const;
   const QString &key(void) const;
   const QString &hexKey(void) const;
+  qreal elapsed(void) const;
 
   QString errorString(void) const;
+
+signals:
+  void generated(void);
+  void generationAborted(void);
 
 private:
   QScopedPointer<PasswordPrivate> d_ptr;

@@ -23,6 +23,7 @@
 #include <QMainWindow>
 #include <QString>
 #include <QFuture>
+#include <QFutureWatcher>
 #include <QMovie>
 #include <QCloseEvent>
 #include <QSettings>
@@ -78,14 +79,12 @@ private: // methods
 private:
   Ui::MainWindow *ui;
   QSettings mSettings;
-  qreal mElapsed;
   QFuture<void> mPasswordGeneratorFuture;
   QMovie mLoaderIcon;
   bool mCustomCharacterSetDirty;
   bool mParameterSetDirty;
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;
-  bool mQuitHashing;
   Password mPassword;
 };
 

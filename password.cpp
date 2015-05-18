@@ -1,11 +1,15 @@
 #include "password.h"
 
-#include "cryptopp562/pwdbased.h"
 #include "cryptopp562/sha.h"
+#include "cryptopp562/cryptlib.h"
+#include "cryptopp562/hmac.h"
+#include "cryptopp562/integer.h"
 
 #include "bigint/bigInt.h"
 
 #include <QElapsedTimer>
+#include <QMutexLocker>
+
 #ifdef QT_DEBUG
 #include <QtDebug>
 #endif
@@ -13,12 +17,17 @@
 class PasswordPrivate {
 public:
   PasswordPrivate(void)
-{ /* ... */ }
+    : elapsed(0)
+    , abort(false)
+  { /* ... */ }
   ~PasswordPrivate()
   { /* ... */ }
   QString key;
   QString hexKey;
   QRegExp validator;
+  qreal elapsed;
+  bool abort;
+  QMutex abortMutex;
 };
 
 
@@ -42,52 +51,93 @@ Password::~Password()
 { /* ... */ }
 
 
-bool Password::generate(
-    const QByteArray &domain,
-    const QByteArray &salt,
-    const QByteArray &masterPwd,
-    const QString &availableChars,
-    const int passwordLength,
-    const int iterations,
-    bool &doQuit,
-    qreal *elapsed
-    )
+void Password::abortGeneration(void)
 {
   Q_D(Password);
-  const QByteArray &pwd = domain + masterPwd;
-  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA512> pbkdf2;
-  const int nChars = availableChars.count();
-  byte derived[CryptoPP::SHA512::DIGESTSIZE];
+  d->abortMutex.lock();
+  qDebug() << "Password::abortGeneration()";
+  d->abort = true;
+  d->abortMutex.unlock();
+}
+
+
+/* This function runs in a thread taken from the global QThreadPool. It is started by
+   QtConcurrent::run().
+ */
+bool Password::generate(const PasswordParam &p)
+{
+  Q_D(Password);
+  d->abortMutex.lock();
+  d->abort = false;
+  qDebug() << "Password::generate() has just started.";
+  d->abortMutex.unlock();
+  const QByteArray &pwd = p.domain + p.masterPwd;
+  const int nChars = p.availableChars.count();
+
+  byte derivedBuf[CryptoPP::SHA512::DIGESTSIZE];
+  byte *derived = derivedBuf;
+  size_t derivedLen = CryptoPP::SHA512::DIGESTSIZE;
+  const byte *password = reinterpret_cast<const byte*>(pwd.data());
+  size_t passwordLen = pwd.count();
+  const byte *saltPtr = reinterpret_cast<const byte*>(p.salt.data());
+  size_t saltLen = p.salt.count();
+  CryptoPP::HMAC<CryptoPP::SHA512> hmac(password, passwordLen);
+  CryptoPP::SecByteBlock buffer(hmac.DigestSize());
+
   QElapsedTimer elapsedTimer;
   elapsedTimer.start();
-  unsigned int nIter = pbkdf2.DeriveKey(
-        derived,
-        CryptoPP::SHA512::DIGESTSIZE,
-        reinterpret_cast<const byte*>(pwd.data()),
-        pwd.count(),
-        reinterpret_cast<const byte*>(salt.data()),
-        salt.count(),
-        iterations,
-        doQuit);
+
+  unsigned int i = 1;
+  while (derivedLen > 0) {
+    QMutexLocker(&d->abortMutex);
+    if (d->abort) {
+      qDebug() << "ABORTED!";
+      break;
+    }
+    hmac.Update(saltPtr, saltLen);
+    for (unsigned int j = 0; j < 4; ++j) {
+      byte b = byte(i >> ((3-j)*8));
+      hmac.Update(&b, 1);
+    }
+    hmac.Final(buffer);
+    size_t segmentLen = qMin(derivedLen, buffer.size());
+    memcpy(derived, buffer, segmentLen);
+    for (unsigned int j = 1; j < p.iterations; ++j) {
+      hmac.CalculateDigest(buffer, buffer, buffer.size());
+      xorbuf(derived, buffer, segmentLen);
+    }
+    derived += segmentLen;
+    derivedLen -= segmentLen;
+    ++i;
+  }
+
+  d->abortMutex.lock();
+  bool completed = !d->abort;
+  d->abortMutex.unlock();
   bool success = false;
-  if (nIter > 0) {
-    *elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
-    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derived), CryptoPP::SHA512::DIGESTSIZE);
+  qDebug() << "Password::generate(): computation" << (completed ? "has finished" : "was aborted");
+  if (completed) {
+    d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
+    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derivedBuf), CryptoPP::SHA512::DIGESTSIZE);
     d->hexKey = derivedKeyBuf.toHex();
     const QString strModulus = QString("%1").arg(nChars);
     BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
     static const BigInt::Rossi Zero(0);
     d->key = QString();
-    int n = passwordLength;
+    int n = p.passwordLength;
     while (v > Zero && n-- > 0) {
       BigInt::Rossi mod = v % Modulus;
-      d->key += availableChars.at(mod.toUlong());
+      d->key += p.availableChars.at(mod.toUlong());
       v = v / Modulus;
     }
     success = true;
   }
-  qDebug() << "Password::generate(): exit code" << success;
+  qDebug() << "Password::generate() is about exit ...";
+  if (success)
+    emit generated();
+  else
+    emit generationAborted();
   return success;
 }
 
@@ -148,6 +198,12 @@ const QString &Password::key(void) const
 const QString &Password::hexKey(void) const
 {
   return d_ptr->hexKey;
+}
+
+
+qreal Password::elapsed(void) const
+{
+  return d_ptr->elapsed;
 }
 
 

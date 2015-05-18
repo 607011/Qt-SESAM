@@ -46,12 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
   , ui(new Ui::MainWindow)
   , mSettings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
   , mLoaderIcon(":/images/loader.gif")
-  , mElapsed(0)
   , mCustomCharacterSetDirty(false)
   , mParameterSetDirty(false)
   , mAutoIncreaseIterations(true)
   , mCompleter(0)
-  , mQuitHashing(false)
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
@@ -94,7 +92,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
-  QObject::connect(this, SIGNAL(passwordGenerated()), SLOT(onPasswordGenerated()));
+  QObject::connect(&mPassword, SIGNAL(generated()), SLOT(onPasswordGenerated()));
+  QObject::connect(&mPassword, SIGNAL(generationAborted()), SLOT(onPasswordGenerated()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
@@ -202,7 +201,7 @@ void MainWindow::updatePassword(void)
       mLoaderIcon.start();
       validConfiguration = true;
       stopPasswordGeneration();
-      mPasswordGeneratorFuture = QtConcurrent::run(this, &MainWindow::generatePassword);
+      generatePassword();
     }
   }
   if (!validConfiguration) {
@@ -235,18 +234,16 @@ void MainWindow::updateUsedCharacters(void)
 
 void MainWindow::generatePassword(void)
 {
-  mQuitHashing = false;
-  bool ok = mPassword.generate(
-        ui->domainLineEdit->text().toUtf8(),
-        ui->saltLineEdit->text().toUtf8(),
-        ui->masterPasswordLineEdit1->text().toUtf8(),
-        ui->charactersPlainTextEdit->toPlainText(),
-        ui->passwordLengthSpinBox->value(),
-        ui->iterationsSpinBox->value(),
-        mQuitHashing,
-        &mElapsed);
-  if (ok)
-    emit passwordGenerated();
+  mPasswordGeneratorFuture = QtConcurrent::run(
+        &mPassword,
+        &Password::generate,
+        PasswordParam(
+          ui->domainLineEdit->text().toUtf8(),
+          ui->saltLineEdit->text().toUtf8(),
+          ui->masterPasswordLineEdit1->text().toUtf8(),
+          ui->charactersPlainTextEdit->toPlainText(),
+          ui->passwordLengthSpinBox->value(),
+          ui->iterationsSpinBox->value()));
 }
 
 
@@ -254,11 +251,11 @@ void MainWindow::stopPasswordGeneration(void)
 {
   qDebug() << "MainWindow::stopPasswordGeneration() ...";
   if (mPasswordGeneratorFuture.isRunning()) {
-    mQuitHashing = true;
+    qDebug() << "calling mPassword.abort() ...";
+    mPassword.abortGeneration();
     qDebug() << "mPasswordGeneratorFuture.waitForFinished() ...";
     mPasswordGeneratorFuture.waitForFinished();
   }
-  mQuitHashing = false;
 }
 
 
@@ -273,7 +270,7 @@ void MainWindow::onPasswordGenerated(void)
   if (setKey) {
     ui->generatedPasswordLineEdit->setText(mPassword.key());
     ui->hashPlainTextEdit->setPlainText(mPassword.hexKey());
-    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mElapsed, 0, 'f', 4), 3000);
+    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mPassword.elapsed(), 0, 'f', 4), 3000);
   }
   else {
     ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(mAutoIncreaseIterations ? tr("Increasing iteration count.") : QString()));
