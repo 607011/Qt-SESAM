@@ -31,6 +31,7 @@ struct DomainSettings {
     , useDigits(true)
     , useExtra(true)
     , useCustom(false)
+    , avoidAmbiguous(false)
     , iterations(DefaultIterations)
     , length(DefaultPasswordLength)
     , salt(DefaultSalt)
@@ -38,11 +39,14 @@ struct DomainSettings {
     , validatorRegEx(DefaultValidatorPattern)
   { /* ... */ }
   DomainSettings(const DomainSettings &o)
-    : useLowerCase(o.useLowerCase)
+    : domain(o.domain)
+    , username(o.username)
+    , useLowerCase(o.useLowerCase)
     , useUpperCase(o.useUpperCase)
     , useDigits(o.useDigits)
     , useExtra(o.useExtra)
     , useCustom(o.useCustom)
+    , avoidAmbiguous(o.avoidAmbiguous)
     , customCharacters(o.customCharacters)
     , iterations(o.iterations)
     , length(o.length)
@@ -50,11 +54,14 @@ struct DomainSettings {
     , forceValidation(o.forceValidation)
     , validatorRegEx(o.validatorRegEx)
   { /* ... */ }
+  QString domain;
+  QString username;
   bool useLowerCase;
   bool useUpperCase;
   bool useDigits;
   bool useExtra;
   bool useCustom;
+  bool avoidAmbiguous;
   QString customCharacters;
   int iterations;
   int length;

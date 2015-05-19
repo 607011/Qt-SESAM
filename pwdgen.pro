@@ -85,4 +85,5 @@ DISTFILES += \
     .gitignore \
     LICENSE \
     README.md \
-    ctpwdgen.rc
+    ctpwdgen.rc \
+    deploy/ctpwdgen.nsi

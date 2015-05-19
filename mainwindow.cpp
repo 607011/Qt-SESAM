@@ -34,8 +34,6 @@ static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
 
-
-
 #ifdef QT_DEBUG
 #include "testpbkdf2.h"
 #endif
@@ -57,16 +55,16 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->charactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
-  QObject::connect(ui->charactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
+  QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
+  QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->forceRegexPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
-  QObject::connect(ui->digitsCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
-  QObject::connect(ui->extrasCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
-  QObject::connect(ui->upperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
-  QObject::connect(ui->lowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
-  QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->useDigitsCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->useExtrasCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->useUpperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->useLowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
+  QObject::connect(ui->useCustomCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
   QObject::connect(ui->avoidAmbiguousCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
   QObject::connect(ui->forceLowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->forceUpperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
@@ -77,17 +75,17 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  QObject::connect(ui->charactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
-  QObject::connect(ui->charactersPlainTextEdit, SIGNAL(textChanged()), SLOT(customCharacterSetChanged()));
+  QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
+  QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(customCharacterSetChanged()));
   QObject::connect(ui->forceRegexPlainTextEdit, SIGNAL(textChanged()), SLOT(updateValidator()));
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
-  QObject::connect(ui->digitsCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
-  QObject::connect(ui->extrasCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
-  QObject::connect(ui->upperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
-  QObject::connect(ui->lowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
-  QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
-  QObject::connect(ui->customCharacterSetCheckBox, SIGNAL(toggled(bool)), SLOT(customCharacterSetCheckBoxToggled(bool)));
+  QObject::connect(ui->useDigitsCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+  QObject::connect(ui->useExtrasCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+  QObject::connect(ui->useUpperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+  QObject::connect(ui->useLowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+  QObject::connect(ui->useCustomCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
+  QObject::connect(ui->useCustomCheckBox, SIGNAL(toggled(bool)), SLOT(customCharacterSetCheckBoxToggled(bool)));
   QObject::connect(ui->avoidAmbiguousCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
   QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
@@ -139,8 +137,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
           tr("Your parameters have changed. Do you want to save the changes before exiting?"),
           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
       : QMessageBox::NoButton;
-  if (rc != QMessageBox::Cancel) {
+  if (rc == QMessageBox::Yes)
     saveCurrentSettings();
+  if (rc != QMessageBox::Cancel) {
     QMainWindow::closeEvent(e);
     e->accept();
   }
@@ -151,12 +150,6 @@ void MainWindow::closeEvent(QCloseEvent *e)
 }
 
 
-void MainWindow::domainSelected(const QString &domain)
-{
-  loadSettings(domain);
-}
-
-
 void MainWindow::newDomain(void)
 {
   DomainSettings domainSettings;
@@ -164,10 +157,10 @@ void MainWindow::newDomain(void)
   ui->domainLineEdit->setFocus();
   ui->masterPasswordLineEdit1->setText(QString());
   ui->masterPasswordLineEdit2->setText(QString());
-  ui->lowerCaseCheckBox->setChecked(domainSettings.useLowerCase);
-  ui->upperCaseCheckBox->setChecked(domainSettings.useUpperCase);
-  ui->digitsCheckBox->setChecked(domainSettings.useDigits);
-  ui->extrasCheckBox->setChecked(domainSettings.useExtra);
+  ui->useLowerCaseCheckBox->setChecked(domainSettings.useLowerCase);
+  ui->useUpperCaseCheckBox->setChecked(domainSettings.useUpperCase);
+  ui->useDigitsCheckBox->setChecked(domainSettings.useDigits);
+  ui->useExtrasCheckBox->setChecked(domainSettings.useExtra);
   ui->iterationsSpinBox->setValue(domainSettings.iterations);
   ui->passwordLengthSpinBox->setValue(domainSettings.length);
   ui->saltLineEdit->setText(domainSettings.salt);
@@ -196,7 +189,7 @@ void MainWindow::updatePassword(void)
 {
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  if (ui->charactersPlainTextEdit->toPlainText().count() > 0 &&
+  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 &&
       !ui->masterPasswordLineEdit1->text().isEmpty() &&
       !ui->masterPasswordLineEdit2->text().isEmpty())
   {
@@ -218,20 +211,20 @@ void MainWindow::updatePassword(void)
 
 void MainWindow::updateUsedCharacters(void)
 {
-  if (!ui->customCharacterSetCheckBox->isChecked()) {
+  if (!ui->useCustomCheckBox->isChecked()) {
     stopPasswordGeneration();
     QString passwordCharacters;
-    if (ui->lowerCaseCheckBox->isChecked())
+    if (ui->useLowerCaseCheckBox->isChecked())
       passwordCharacters += Password::LowerChars;
-    if (ui->upperCaseCheckBox->isChecked())
+    if (ui->useUpperCaseCheckBox->isChecked())
       passwordCharacters += ui->avoidAmbiguousCheckBox->isChecked() ? Password::UpperCharsNoAmbiguous : Password::UpperChars;
-    if (ui->digitsCheckBox->isChecked())
+    if (ui->useDigitsCheckBox->isChecked())
       passwordCharacters += Password::Digits;
-    if (ui->extrasCheckBox->isChecked())
+    if (ui->useExtrasCheckBox->isChecked())
       passwordCharacters += Password::ExtraChars;
-    ui->charactersPlainTextEdit->blockSignals(true);
-    ui->charactersPlainTextEdit->setPlainText(passwordCharacters);
-    ui->charactersPlainTextEdit->blockSignals(false);
+    ui->customCharactersPlainTextEdit->blockSignals(true);
+    ui->customCharactersPlainTextEdit->setPlainText(passwordCharacters);
+    ui->customCharactersPlainTextEdit->blockSignals(false);
   }
   updateValidator();
 }
@@ -244,7 +237,7 @@ void MainWindow::generatePassword(void)
           ui->domainLineEdit->text().toUtf8(),
           ui->saltLineEdit->text().toUtf8(),
           ui->masterPasswordLineEdit1->text().toUtf8(),
-          ui->charactersPlainTextEdit->toPlainText(),
+          ui->customCharactersPlainTextEdit->toPlainText(),
           ui->passwordLengthSpinBox->value(),
           ui->iterationsSpinBox->value()
           )
@@ -307,14 +300,14 @@ void MainWindow::customCharacterSetCheckBoxToggled(bool checked)
           QMessageBox::No);
     if (button != QMessageBox::Yes) {
       reallyToggle = false;
-      ui->customCharacterSetCheckBox->setChecked(true);
+      ui->useCustomCheckBox->setChecked(true);
     }
   }
   if (reallyToggle) {
-    ui->lowerCaseCheckBox->setEnabled(!checked);
-    ui->upperCaseCheckBox->setEnabled(!checked);
-    ui->digitsCheckBox->setEnabled(!checked);
-    ui->extrasCheckBox->setEnabled(!checked);
+    ui->useLowerCaseCheckBox->setEnabled(!checked);
+    ui->useUpperCaseCheckBox->setEnabled(!checked);
+    ui->useDigitsCheckBox->setEnabled(!checked);
+    ui->useExtrasCheckBox->setEnabled(!checked);
     updateUsedCharacters();
     if (!checked)
       mCustomCharacterSetDirty = false;
@@ -324,7 +317,7 @@ void MainWindow::customCharacterSetCheckBoxToggled(bool checked)
 
 void MainWindow::customCharacterSetChanged(void)
 {
-  ui->customCharacterSetCheckBox->setChecked(true);
+  ui->useCustomCheckBox->setChecked(true);
   mCustomCharacterSetDirty = true;
 }
 
@@ -342,13 +335,13 @@ void MainWindow::updateValidator(void)
     ok = mPassword.setValidator(QRegExp(ui->forceRegexPlainTextEdit->toPlainText()));
   }
   else {
-    if (ui->lowerCaseCheckBox->isChecked())
+    if (ui->useLowerCaseCheckBox->isChecked())
       canContain << "a-z";
-    if (ui->upperCaseCheckBox->isChecked())
+    if (ui->useUpperCaseCheckBox->isChecked())
       canContain << "A-Z";
-    if (ui->digitsCheckBox->isChecked())
+    if (ui->useDigitsCheckBox->isChecked())
       canContain << "0-9";
-    if (ui->extrasCheckBox->isChecked())
+    if (ui->useExtrasCheckBox->isChecked())
       canContain << Password::ExtraChars;
     if (ui->forceLowerCaseCheckBox->isChecked())
       mustContain << "[a-z]";
@@ -378,12 +371,18 @@ void MainWindow::updateValidator(void)
 void MainWindow::saveCurrentSettings(void)
 {
   DomainSettings domainSettings;
-  domainSettings.useLowerCase = ui->lowerCaseCheckBox->isChecked();
-  domainSettings.useUpperCase = ui->upperCaseCheckBox->isChecked();
-  domainSettings.useDigits = ui->digitsCheckBox->isChecked();
-  domainSettings.useExtra = ui->extrasCheckBox->isChecked();
+  domainSettings.domain = ui->domainLineEdit->text();
+  domainSettings.username = ui->userLineEdit->text();
+  domainSettings.useLowerCase = ui->useLowerCaseCheckBox->isChecked();
+  domainSettings.useUpperCase = ui->useUpperCaseCheckBox->isChecked();
+  domainSettings.useDigits = ui->useDigitsCheckBox->isChecked();
+  domainSettings.useExtra = ui->useExtrasCheckBox->isChecked();
+  domainSettings.useCustom = ui->useCustomCheckBox->isChecked();
+  domainSettings.avoidAmbiguous = ui->avoidAmbiguousCheckBox->isChecked();
+  domainSettings.customCharacters = ui->customCharactersPlainTextEdit->toPlainText();
   domainSettings.iterations = ui->iterationsSpinBox->value();
   domainSettings.salt = ui->saltLineEdit->text();
+  domainSettings.length = ui->passwordLengthSpinBox->value();
   domainSettings.validatorRegEx = mPassword.validator();
   domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
   saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
@@ -401,10 +400,13 @@ void MainWindow::saveDomainSettings(const QString &domain, const DomainSettings 
     domains << domain;
     model->setStringList(domains);
   }
-  mSettings.setValue(domain + "/useLowerCase", domainSettings.useLowerCase);
+  mSettings.setValue(domain + "/domain", domainSettings.domain);
+  mSettings.setValue(domain + "/username", domainSettings.username);
   mSettings.setValue(domain + "/useUpperCase", domainSettings.useUpperCase);
   mSettings.setValue(domain + "/useDigits", domainSettings.useDigits);
   mSettings.setValue(domain + "/useExtra", domainSettings.useExtra);
+  mSettings.setValue(domain + "/useCustom", domainSettings.useCustom);
+  mSettings.setValue(domain + "/customCharacters", domainSettings.customCharacters);
   mSettings.setValue(domain + "/iterations", domainSettings.iterations);
   mSettings.setValue(domain + "/length", domainSettings.length);
   mSettings.setValue(domain + "/salt", domainSettings.salt);
@@ -425,7 +427,7 @@ void MainWindow::saveSettings(void)
 void MainWindow::restoreSettings(void)
 {
   restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
-  QStringList domains = mSettings.value("domains").toStringList();
+  const QStringList &domains = mSettings.value("domains").toStringList();
   if (mCompleter) {
     QObject::disconnect(ui->domainLineEdit->completer(), SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
   }
@@ -437,10 +439,14 @@ void MainWindow::restoreSettings(void)
 
 void MainWindow::loadSettings(const QString &domain)
 {
-  ui->lowerCaseCheckBox->setChecked(mSettings.value(domain + "/useLowerCase", true).toBool());
-  ui->upperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase", true).toBool());
-  ui->digitsCheckBox->setChecked(mSettings.value(domain + "/useDigits", true).toBool());
-  ui->extrasCheckBox->setChecked(mSettings.value(domain + "/useExtra", false).toBool());
+  ui->userLineEdit->setText(mSettings.value(domain + "/username").toString());
+  ui->useLowerCaseCheckBox->setChecked(mSettings.value(domain + "/useLowerCase", true).toBool());
+  ui->useUpperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase", true).toBool());
+  ui->useDigitsCheckBox->setChecked(mSettings.value(domain + "/useDigits", true).toBool());
+  ui->useExtrasCheckBox->setChecked(mSettings.value(domain + "/useExtra", false).toBool());
+  ui->useCustomCheckBox->setChecked(mSettings.value(domain + "/useCustom", false).toBool());
+  ui->avoidAmbiguousCheckBox->setChecked(mSettings.value(domain + "/avoidAmbiguous", false).toBool());
+  ui->customCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/customCharacters").toString());
   ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations", DomainSettings::DefaultIterations).toInt());
   ui->passwordLengthSpinBox->setValue(mSettings.value(domain + "/length", DomainSettings::DefaultPasswordLength).toInt());
   ui->saltLineEdit->setText(mSettings.value(domain + "/salt", DomainSettings::DefaultSalt).toString());
@@ -448,6 +454,12 @@ void MainWindow::loadSettings(const QString &domain)
   ui->forceRegexCheckBox->setChecked(mSettings.value(domain + "/validator/force", false).toBool());
   updateValidator();
   updatePassword();
+}
+
+
+void MainWindow::domainSelected(const QString &domain)
+{
+  loadSettings(domain);
 }
 
 
