@@ -194,7 +194,6 @@ void MainWindow::onPasswordGenerationStarted()
 
 void MainWindow::updatePassword(void)
 {
-  qDebug() << "MainWindow::updatePassword(void)";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
   if (ui->charactersPlainTextEdit->toPlainText().count() > 0 &&
@@ -255,11 +254,8 @@ void MainWindow::generatePassword(void)
 
 void MainWindow::stopPasswordGeneration(void)
 {
-  qDebug() << "MainWindow::stopPasswordGeneration() ...";
   if (mPassword.isRunning()) {
-    qDebug() << "calling mPassword.abort() ...";
     mPassword.abortGeneration();
-    qDebug() << "mPasswordGeneratorFuture.waitForFinished() ...";
     mPassword.waitForFinished();
   }
 }

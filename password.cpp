@@ -57,7 +57,6 @@ bool Password::generate(const PasswordParam &p)
   d->abortMutex.lock();
   d->abort = false;
   d->abortMutex.unlock();
-  qDebug() << "Password::generate() has just started.";
   emit generationStarted();
   const QByteArray &pwd = p.domain + p.masterPwd;
   const int nChars = p.availableChars.count();
@@ -106,7 +105,6 @@ bool Password::generate(const PasswordParam &p)
   }
 
   bool success = false;
-  qDebug() << "Password::generate(): computation" << (completed ? "has finished" : "was aborted");
   if (completed) {
     d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
     const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derivedBuf), CryptoPP::SHA512::DIGESTSIZE);
@@ -124,7 +122,6 @@ bool Password::generate(const PasswordParam &p)
     }
     success = true;
   }
-  qDebug() << "Password::generate() is about exit ...";
   if (success)
     emit generated();
   return success;
@@ -134,7 +131,6 @@ bool Password::generate(const PasswordParam &p)
 void Password::generateAsync(const PasswordParam &p)
 {
   Q_D(Password);
-  qDebug() << "Password::generateAsync() ...";
   d->abort = false;
   d->future = QtConcurrent::run(this, &Password::generate, p);
 }
@@ -144,7 +140,6 @@ void Password::abortGeneration(void)
 {
   Q_D(Password);
   d->abortMutex.lock();
-  qDebug() << "Password::abortGeneration()";
   d->abort = true;
   d->abortMutex.unlock();
 }
