@@ -76,6 +76,7 @@ bool Password::generate(const PasswordParam &p)
   elapsedTimer.start();
 
   unsigned int i = 1;
+  bool completed = true;
   while (derivedLen > 0) {
     hmac.Update(saltPtr, saltLen);
     for (unsigned int j = 0; j < 4; ++j) {
@@ -84,10 +85,15 @@ bool Password::generate(const PasswordParam &p)
     }
     hmac.Final(buffer);
     const size_t segmentLen = qMin(derivedLen, buffer.size());
+#ifdef WIN32
+    memcpy_s(derived, derivedLen, buffer, segmentLen);
+#else
     memcpy(derived, buffer, segmentLen);
+#endif
     for (unsigned int j = 1; j < p.iterations; ++j) {
       QMutexLocker locker(&d->abortMutex);
       if (d->abort) {
+        completed = false;
         emit generationAborted();
         break;
       }
@@ -99,9 +105,6 @@ bool Password::generate(const PasswordParam &p)
     ++i;
   }
 
-  d->abortMutex.lock();
-  bool completed = !d->abort;
-  d->abortMutex.unlock();
   bool success = false;
   qDebug() << "Password::generate(): computation" << (completed ? "has finished" : "was aborted");
   if (completed) {
