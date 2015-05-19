@@ -184,7 +184,7 @@ void MainWindow::setDirty(void)
 }
 
 
-void MainWindow::onPasswordGenerationStarted()
+void MainWindow::onPasswordGenerationStarted(void)
 {
   ui->copyPasswordToClipboardPushButton->setEnabled(false);
   ui->processLabel->show();
