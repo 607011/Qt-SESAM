@@ -54,8 +54,11 @@ Password::~Password()
 bool Password::generate(const PasswordParam &p)
 {
   Q_D(Password);
+  d->abortMutex.lock();
   d->abort = false;
+  d->abortMutex.unlock();
   qDebug() << "Password::generate() has just started.";
+  emit generationStarted();
   const QByteArray &pwd = p.domain + p.masterPwd;
   const int nChars = p.availableChars.count();
 

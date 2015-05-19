@@ -77,6 +77,7 @@ public:
   QString errorString(void) const;
 
 signals:
+  void generationStarted(void);
   void generated(void);
   void generationAborted(void);
 

@@ -94,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
   QObject::connect(&mPassword, SIGNAL(generated()), SLOT(onPasswordGenerated()));
   QObject::connect(&mPassword, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
+  QObject::connect(&mPassword, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
@@ -183,8 +184,17 @@ void MainWindow::setDirty(void)
 }
 
 
+void MainWindow::onPasswordGenerationStarted()
+{
+  ui->copyPasswordToClipboardPushButton->setEnabled(false);
+  ui->processLabel->show();
+  ui->cancelPushButton->show();
+  mLoaderIcon.start();
+}
+
 void MainWindow::updatePassword(void)
 {
+  qDebug() << "MainWindow::updatePassword(void)";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
   if (ui->charactersPlainTextEdit->toPlainText().count() > 0 &&
@@ -195,10 +205,6 @@ void MainWindow::updatePassword(void)
       ui->statusBar->showMessage(tr("Passwords do not match"), 2000);
     }
     else {
-      ui->copyPasswordToClipboardPushButton->setEnabled(false);
-      ui->processLabel->show();
-      ui->cancelPushButton->show();
-      mLoaderIcon.start();
       validConfiguration = true;
       stopPasswordGeneration();
       generatePassword();

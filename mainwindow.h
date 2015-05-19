@@ -53,6 +53,7 @@ private slots:
   void copyPasswordToClipboard(void);
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
+  void onPasswordGenerationStarted(void);
   void customCharacterSetCheckBoxToggled(bool);
   void customCharacterSetChanged(void);
   void updateValidator(void);
