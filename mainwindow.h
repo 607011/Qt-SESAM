@@ -22,8 +22,6 @@
 
 #include <QMainWindow>
 #include <QString>
-#include <QFuture>
-#include <QFutureWatcher>
 #include <QMovie>
 #include <QCloseEvent>
 #include <QSettings>
@@ -54,6 +52,7 @@ private slots:
   void updateUsedCharacters(void);
   void copyPasswordToClipboard(void);
   void onPasswordGenerated(void);
+  void onPasswordGenerationAborted(void);
   void customCharacterSetCheckBoxToggled(bool);
   void customCharacterSetChanged(void);
   void updateValidator(void);
@@ -79,7 +78,6 @@ private: // methods
 private:
   Ui::MainWindow *ui;
   QSettings mSettings;
-  QFuture<void> mPasswordGeneratorFuture;
   QMovie mLoaderIcon;
   bool mCustomCharacterSetDirty;
   bool mParameterSetDirty;

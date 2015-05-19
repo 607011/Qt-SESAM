@@ -21,8 +21,8 @@
 #include "ui_mainwindow.h"
 
 #include <QClipboard>
-#include <QtConcurrent>
 #include <QMessageBox>
+#include <QStringListModel>
 
 #include "util.h"
 
@@ -93,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
   QObject::connect(&mPassword, SIGNAL(generated()), SLOT(onPasswordGenerated()));
-  QObject::connect(&mPassword, SIGNAL(generationAborted()), SLOT(onPasswordGenerated()));
+  QObject::connect(&mPassword, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
@@ -234,27 +234,27 @@ void MainWindow::updateUsedCharacters(void)
 
 void MainWindow::generatePassword(void)
 {
-  mPasswordGeneratorFuture = QtConcurrent::run(
-        &mPassword,
-        &Password::generate,
+  mPassword.generateAsync(
         PasswordParam(
           ui->domainLineEdit->text().toUtf8(),
           ui->saltLineEdit->text().toUtf8(),
           ui->masterPasswordLineEdit1->text().toUtf8(),
           ui->charactersPlainTextEdit->toPlainText(),
           ui->passwordLengthSpinBox->value(),
-          ui->iterationsSpinBox->value()));
+          ui->iterationsSpinBox->value()
+          )
+        );
 }
 
 
 void MainWindow::stopPasswordGeneration(void)
 {
   qDebug() << "MainWindow::stopPasswordGeneration() ...";
-  if (mPasswordGeneratorFuture.isRunning()) {
+  if (mPassword.isRunning()) {
     qDebug() << "calling mPassword.abort() ...";
     mPassword.abortGeneration();
     qDebug() << "mPasswordGeneratorFuture.waitForFinished() ...";
-    mPasswordGeneratorFuture.waitForFinished();
+    mPassword.waitForFinished();
   }
 }
 
@@ -270,13 +270,19 @@ void MainWindow::onPasswordGenerated(void)
   if (setKey) {
     ui->generatedPasswordLineEdit->setText(mPassword.key());
     ui->hashPlainTextEdit->setPlainText(mPassword.hexKey());
-    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mPassword.elapsed(), 0, 'f', 4), 3000);
+    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mPassword.elapsedSeconds(), 0, 'f', 4), 3000);
   }
   else {
     ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(mAutoIncreaseIterations ? tr("Increasing iteration count.") : QString()));
     if (mAutoIncreaseIterations)
       ui->iterationsSpinBox->setValue( ui->iterationsSpinBox->value() + 1);
   }
+}
+
+
+void MainWindow::onPasswordGenerationAborted(void)
+{
+  onPasswordGenerated();
 }
 
 
@@ -467,7 +473,7 @@ void MainWindow::about(void)
                           "along with this program. "
                           "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>"
                           "<p>No animals were harmed during the development of this software. "
-                          "It was programmed CO2 neutrally and without the use of genetic engineering. "
+                          "It was programmed with CO2 neutrality in focus and without the use of genetic engineering. "
                           "It is vegan, free of antibiotics and hypoallergenic.</p>")
                        .arg(AppName).arg(AppUrl).arg(AppAuthor).arg(AppAuthorMail));
 }

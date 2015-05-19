@@ -9,6 +9,7 @@
 
 #include <QElapsedTimer>
 #include <QMutexLocker>
+#include <QtConcurrent>
 
 #ifdef QT_DEBUG
 #include <QtDebug>
@@ -28,6 +29,7 @@ public:
   qreal elapsed;
   bool abort;
   QMutex abortMutex;
+  QFuture<void> future;
 };
 
 
@@ -42,35 +44,18 @@ const QString Password::ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
 Password::Password(QObject *parent)
   : QObject(parent)
   , d_ptr(new PasswordPrivate)
-{
-  // ...
-}
+{ /* ... */ }
 
 
 Password::~Password()
 { /* ... */ }
 
 
-void Password::abortGeneration(void)
-{
-  Q_D(Password);
-  d->abortMutex.lock();
-  qDebug() << "Password::abortGeneration()";
-  d->abort = true;
-  d->abortMutex.unlock();
-}
-
-
-/* This function runs in a thread taken from the global QThreadPool. It is started by
-   QtConcurrent::run().
- */
 bool Password::generate(const PasswordParam &p)
 {
   Q_D(Password);
-  d->abortMutex.lock();
   d->abort = false;
   qDebug() << "Password::generate() has just started.";
-  d->abortMutex.unlock();
   const QByteArray &pwd = p.domain + p.masterPwd;
   const int nChars = p.availableChars.count();
 
@@ -89,20 +74,20 @@ bool Password::generate(const PasswordParam &p)
 
   unsigned int i = 1;
   while (derivedLen > 0) {
-    QMutexLocker(&d->abortMutex);
-    if (d->abort) {
-      qDebug() << "ABORTED!";
-      break;
-    }
     hmac.Update(saltPtr, saltLen);
     for (unsigned int j = 0; j < 4; ++j) {
-      byte b = byte(i >> ((3-j)*8));
+      byte b = byte(i >> ((3 - j) * 8));
       hmac.Update(&b, 1);
     }
     hmac.Final(buffer);
-    size_t segmentLen = qMin(derivedLen, buffer.size());
+    const size_t segmentLen = qMin(derivedLen, buffer.size());
     memcpy(derived, buffer, segmentLen);
     for (unsigned int j = 1; j < p.iterations; ++j) {
+      QMutexLocker locker(&d->abortMutex);
+      if (d->abort) {
+        emit generationAborted();
+        break;
+      }
       hmac.CalculateDigest(buffer, buffer, buffer.size());
       xorbuf(derived, buffer, segmentLen);
     }
@@ -136,9 +121,26 @@ bool Password::generate(const PasswordParam &p)
   qDebug() << "Password::generate() is about exit ...";
   if (success)
     emit generated();
-  else
-    emit generationAborted();
   return success;
+}
+
+
+void Password::generateAsync(const PasswordParam &p)
+{
+  Q_D(Password);
+  qDebug() << "Password::generateAsync() ...";
+  d->abort = false;
+  d->future = QtConcurrent::run(this, &Password::generate, p);
+}
+
+
+void Password::abortGeneration(void)
+{
+  Q_D(Password);
+  d->abortMutex.lock();
+  qDebug() << "Password::abortGeneration()";
+  d->abort = true;
+  d->abortMutex.unlock();
 }
 
 
@@ -201,9 +203,21 @@ const QString &Password::hexKey(void) const
 }
 
 
-qreal Password::elapsed(void) const
+qreal Password::elapsedSeconds(void) const
 {
   return d_ptr->elapsed;
+}
+
+
+bool Password::isRunning(void) const
+{
+  return d_ptr->future.isRunning();
+}
+
+
+void Password::waitForFinished(void)
+{
+  d_ptr->future.waitForFinished();
 }
 
 
