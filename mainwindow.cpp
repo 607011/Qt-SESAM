@@ -23,8 +23,15 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QStringListModel>
+#include <QNetworkRequest>
+#include <QUrlQuery>
 
 #include "util.h"
+
+#ifdef QT_DEBUG
+#include <QtDebug>
+#include "testpbkdf2.h"
+#endif
 
 static const QString CompanyName = "c't";
 static const QString AppName = "ctpwdgen";
@@ -33,11 +40,10 @@ static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
-
-#ifdef QT_DEBUG
-#include <QtDebug>
-#include "testpbkdf2.h"
-#endif
+const QString MainWindow::DefaultServerRoot = "http://localhost/ctpwdgen-server";
+const QString MainWindow::DefaultWriteUrl = "/ajax/write.php";
+const QString MainWindow::DefaultReadUrl = "/ajax/read.php";
+const QString MainWindow::DefaultDeleteUrl = "/ajax/delete.php";
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -49,6 +55,12 @@ MainWindow::MainWindow(QWidget *parent)
   , mParameterSetDirty(false)
   , mAutoIncreaseIterations(true)
   , mCompleter(0)
+  , mServerRoot(DefaultServerRoot)
+  , mWriteUrl(DefaultWriteUrl)
+  , mReadUrl(DefaultReadUrl)
+  , mDeleteUrl(DefaultDeleteUrl)
+  , mNAM(new QNetworkAccessManager(this))
+  , mReply(0)
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
@@ -96,9 +108,14 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(&mPassword, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
   QObject::connect(&mPassword, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
+  QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
+  QObject::connect(mNAM, SIGNAL(finished(QNetworkReply*)), SLOT(replyFinished(QNetworkReply*)));
+  QObject::connect(mNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  QObject::connect(&mLoaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
+
 #ifdef QT_DEBUG
   ui->saltLineEdit->setEnabled(true);
   ui->domainLineEdit->setText("foo bar");
@@ -126,6 +143,7 @@ MainWindow::~MainWindow()
 {
   delete ui;
   safeDelete(mCompleter);
+  safeDelete(mNAM);
 }
 
 
@@ -136,19 +154,19 @@ void MainWindow::closeEvent(QCloseEvent *e)
       ? QMessageBox::question(
           this,
           tr("Save before exit?"),
-          tr("Your parameters have changed. Do you want to save the changes before exiting?"),
+          tr("Your domain parameters have changed. Do you want to save the changes before exiting?"),
           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
       : QMessageBox::NoButton;
   if (rc == QMessageBox::Yes)
     saveCurrentSettings();
-  if (rc != QMessageBox::Cancel) {
-    QMainWindow::closeEvent(e);
-    e->accept();
-  }
-  else {
+  if (rc == QMessageBox::Cancel) {
     e->ignore();
   }
-  saveSettings();
+  else {
+    QMainWindow::closeEvent(e);
+    e->accept();
+    saveSettings();
+  }
 }
 
 
@@ -187,6 +205,7 @@ void MainWindow::onPasswordGenerationStarted(void)
   ui->cancelPushButton->show();
   mLoaderIcon.start();
 }
+
 
 void MainWindow::updatePassword(void)
 {
@@ -261,6 +280,7 @@ void MainWindow::onPasswordGenerated(void)
 {
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
+  mLoaderIcon.stop();
   ui->copyPasswordToClipboardPushButton->setEnabled(true);
   bool setKey = true;
   if (ui->forceRegexCheckBox->isChecked() && !mPassword.isValid())
@@ -388,6 +408,8 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.length = ui->passwordLengthSpinBox->value();
   domainSettings.validatorRegEx = mPassword.validator();
   domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
+  domainSettings.cDate = mCreatedDate.isValid() ? mCreatedDate : QDateTime::currentDateTime();
+  domainSettings.mDate = mModifiedDate.isValid() ? mModifiedDate : QDateTime::currentDateTime();
   saveDomainSettings(domainSettings);
   mSettings.sync();
   setDirty(false);
@@ -407,7 +429,16 @@ void MainWindow::saveDomainSettings(DomainSettings domainSettings)
     model->setStringList(domains);
     domainSettings.cDate = QDateTime::currentDateTime();
   }
+  QUrlQuery params;
+  params.addQueryItem("data", QJsonDocument::fromVariant(domainSettings.toVariant()).toJson(QJsonDocument::Compact));
+  const QByteArray &data = params.query().toUtf8();
+  QNetworkRequest req(QUrl(mServerRoot + mWriteUrl));
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+  req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+  mReply = mNAM->post(req, data);
   mDomains[domainSettings.domain] = domainSettings.toVariant();
+  mLoaderIcon.start();
+  updateSaveButtonIcon();
 }
 
 
@@ -416,7 +447,54 @@ void MainWindow::saveSettings(void)
   mSettings.setValue("mainwindow/geometry", geometry());
   const QJsonDocument &json = QJsonDocument::fromVariant(mDomains);
   mSettings.setValue("data/domains", json.toJson(QJsonDocument::Compact));
+  mSettings.setValue("sync/serverRoot", mServerRoot);
+  mSettings.setValue("sync/writeUrl", mWriteUrl);
+  mSettings.setValue("sync/readUrl", mReadUrl);
+  mSettings.setValue("sync/deleteUrl", mDeleteUrl);
+  mSettings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
   mSettings.sync();
+}
+
+
+void MainWindow::replyFinished(QNetworkReply *reply)
+{
+  mLoaderIcon.stop();
+  updateSaveButtonIcon();
+  if (reply->error() == QNetworkReply::NoError) {
+    const QByteArray &result = reply->readAll();
+    QJsonParseError error;
+    QJsonDocument json = QJsonDocument::fromJson(result, &error);
+    QVariantMap map = json.toVariant().toMap();
+    QMessageBox::information(this, "Network Reply", result.trimmed(), QMessageBox::Ok);
+  }
+  else {
+    QMessageBox::critical(this, "Critical Network Error", reply->errorString(), QMessageBox::Ok);
+  }
+}
+
+
+void MainWindow::sync(void)
+{
+  // ...
+}
+
+
+void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
+{
+  Q_UNUSED(reply);
+  Q_UNUSED(errors);
+  // ...
+}
+
+
+void MainWindow::updateSaveButtonIcon(int)
+{
+  if (mReply && mReply->isRunning()) {
+    ui->savePushButton->setIcon(QIcon(mLoaderIcon.currentPixmap()));
+  }
+  else {
+    ui->savePushButton->setIcon(QIcon());
+  }
 }
 
 
@@ -424,13 +502,18 @@ void MainWindow::restoreSettings(void)
 {
   restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
   const QJsonDocument &json = QJsonDocument::fromJson(mSettings.value("data/domains").toByteArray());
-  mDomains = json.toVariant().toMap();
   const QStringList &domains = json.object().keys();
   if (mCompleter) {
     QObject::disconnect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
     delete mCompleter;
   }
   mCompleter = new QCompleter(domains);
+  mDomains = json.toVariant().toMap();
+  mServerRoot = mSettings.value("sync/serverRoot", DefaultServerRoot).toString();
+  mWriteUrl = mSettings.value("sync/writeUrl", DefaultWriteUrl).toString();
+  mReadUrl = mSettings.value("sync/readUrl", DefaultReadUrl).toString();
+  mDeleteUrl = mSettings.value("sync/deleteUrl", DefaultDeleteUrl).toString();
+  ui->actionSyncOnStart->setChecked(mSettings.value("sync/onStart", true).toBool());
   ui->domainLineEdit->setCompleter(mCompleter);
   QObject::connect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
 }
@@ -453,6 +536,8 @@ void MainWindow::loadDomainSettings(const QString &domain)
   ui->iterationsSpinBox->setValue(p["iterations"].toInt());
   ui->passwordLengthSpinBox->setValue(p["length"].toInt());
   ui->saltLineEdit->setText(p["salt"].toString());
+  mCreatedDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
+  mModifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
   updateValidator();
   updatePassword();
 }

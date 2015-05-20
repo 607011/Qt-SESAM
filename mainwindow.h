@@ -29,6 +29,9 @@
 #include <QMutex>
 #include <QJsonDocument>
 #include <QVariantMap>
+#include <QUrl>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "domainsettings.h"
 #include "password.h"
@@ -64,6 +67,10 @@ private slots:
   void newDomain(void);
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
+  void replyFinished(QNetworkReply*);
+  void sync(void);
+  void sslErrorsOccured(QNetworkReply*,QList<QSslError>);
+  void updateSaveButtonIcon(int frame = 0);
   void about(void);
   void aboutQt(void);
 
@@ -79,6 +86,11 @@ private: // methods
   void updateWindowTitle(void);
 
 private:
+  static const QString DefaultServerRoot;
+  static const QString DefaultWriteUrl;
+  static const QString DefaultReadUrl;
+  static const QString DefaultDeleteUrl;
+
   Ui::MainWindow *ui;
   QSettings mSettings;
   QVariantMap mDomains;
@@ -88,6 +100,14 @@ private:
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;
   Password mPassword;
+  QString mServerRoot;
+  QString mWriteUrl;
+  QString mReadUrl;
+  QString mDeleteUrl;
+  QNetworkAccessManager *mNAM;
+  QNetworkReply *mReply;
+  QDateTime mCreatedDate;
+  QDateTime mModifiedDate;
 };
 
 #endif // __MAINWINDOW_H_

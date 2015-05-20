@@ -17,7 +17,7 @@ TARGET = pwdgen
 
 TEMPLATE = app qt
 
-QT += core gui widgets concurrent
+QT += core gui widgets concurrent network
 
 CONFIG += warn_off
 

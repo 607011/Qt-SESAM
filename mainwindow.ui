@@ -468,7 +468,21 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionSyncOnStart"/>
+   </widget>
+   <widget class="QMenu" name="menuExtras">
+    <property name="title">
+     <string>Extras</string>
+    </property>
+    <addaction name="actionSyncNow"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuExtras"/>
+   <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -490,6 +504,25 @@
   <action name="actionAboutQt">
    <property name="text">
     <string>About Qt ...</string>
+   </property>
+  </action>
+  <action name="actionSyncOnStart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sync on start</string>
+   </property>
+  </action>
+  <action name="actionSyncNow">
+   <property name="text">
+    <string>Sync now</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Shift+S</string>
    </property>
   </action>
  </widget>
