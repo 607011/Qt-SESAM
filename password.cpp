@@ -177,7 +177,6 @@ bool Password::setValidCharacters(const QStringList &canContain, const QStringLi
   }
   reStr += "$";
   QRegExp re(reStr, Qt::CaseSensitive, QRegExp::RegExp2);
-  qDebug() << re << re.isValid();
   if (re.isValid()) {
     d->validator = re;
     return true;
