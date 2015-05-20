@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
@@ -111,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent)
   restoreSettings();
   updateUsedCharacters();
   updateValidator();
-  updateWindowTitle();
+  setDirty(false);
 
 #ifdef QT_DEBUG
   TestPBKDF2 tc;
@@ -174,6 +175,7 @@ void MainWindow::newDomain(void)
 void MainWindow::setDirty(bool dirty)
 {
   mParameterSetDirty = dirty;
+  updateWindowTitle();
 }
 
 
@@ -462,6 +464,7 @@ void MainWindow::loadSettings(const QString &domain)
 void MainWindow::domainSelected(const QString &domain)
 {
   loadSettings(domain);
+  setDirty(false);
 }
 
 
