@@ -73,7 +73,7 @@ signals:
 private: // methods
   void saveSettings(void);
   void restoreSettings(void);
-  void saveDomainSettings(DomainSettings &);
+  void saveDomainSettings(DomainSettings);
   void loadDomainSettings(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);

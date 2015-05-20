@@ -395,15 +395,19 @@ void MainWindow::saveCurrentSettings(void)
 }
 
 
-void MainWindow::saveDomainSettings(DomainSettings &domainSettings)
+void MainWindow::saveDomainSettings(DomainSettings domainSettings)
 {
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
-  if (!domains.contains(domainSettings.domain, Qt::CaseInsensitive)) {
+  if (domains.contains(domainSettings.domain, Qt::CaseInsensitive)) {
+    domainSettings.mDate = QDateTime::currentDateTime();
+  }
+  else {
     domains << domainSettings.domain;
     model->setStringList(domains);
-    mDomains[domainSettings.domain] = domainSettings.toVariant();
+    domainSettings.cDate = QDateTime::currentDateTime();
   }
+  mDomains[domainSettings.domain] = domainSettings.toVariant();
 }
 
 

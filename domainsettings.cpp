@@ -66,6 +66,8 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , salt(o.salt)
   , forceValidation(o.forceValidation)
   , validatorRegEx(o.validatorRegEx)
+  , cDate(o.cDate)
+  , mDate(o.mDate)
 { /* ... */ }
 
 
@@ -86,5 +88,7 @@ QVariantMap DomainSettings::toVariant(void) const
   map["salt"] = salt;
   map["forceValidation"] = forceValidation;
   map["validatorRegEx"] = validatorRegEx.pattern();
+  map["cDate"] = cDate;
+  map["mDate"] = mDate;
   return map;
 }

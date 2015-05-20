@@ -24,6 +24,7 @@
 #include <QString>
 #include <QRegExp>
 #include <QVariantMap>
+#include <QDateTime>
 
 class DomainSettings {
 public:
@@ -58,9 +59,9 @@ public:
   QString salt;
   bool forceValidation;
   QRegExp validatorRegEx;
-
+  QDateTime cDate;
+  QDateTime mDate;
 };
-
 
 
 
