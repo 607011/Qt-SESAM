@@ -35,6 +35,7 @@ static const QString AppAuthorMail = "ola@ct.de";
 
 
 #ifdef QT_DEBUG
+#include <QtDebug>
 #include "testpbkdf2.h"
 #endif
 
@@ -100,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
 #ifdef QT_DEBUG
   ui->saltLineEdit->setEnabled(true);
-  ui->domainLineEdit->setText("ct.de");
+  ui->domainLineEdit->setText("foo bar");
   ui->masterPasswordLineEdit1->setText("test");
   ui->masterPasswordLineEdit2->setText("test");
   ui->avoidAmbiguousCheckBox->setChecked(true);
@@ -387,41 +388,30 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.length = ui->passwordLengthSpinBox->value();
   domainSettings.validatorRegEx = mPassword.validator();
   domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
-  saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
+  saveDomainSettings(domainSettings);
   mSettings.sync();
   setDirty(false);
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
 }
 
 
-void MainWindow::saveDomainSettings(const QString &domain, const DomainSettings &domainSettings)
+void MainWindow::saveDomainSettings(DomainSettings &domainSettings)
 {
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
-  if (!domains.contains(domain, Qt::CaseInsensitive)) {
-    domains << domain;
+  if (!domains.contains(domainSettings.domain, Qt::CaseInsensitive)) {
+    domains << domainSettings.domain;
     model->setStringList(domains);
+    mDomains[domainSettings.domain] = domainSettings.toVariant();
   }
-  mSettings.setValue(domain + "/domain", domainSettings.domain);
-  mSettings.setValue(domain + "/username", domainSettings.username);
-  mSettings.setValue(domain + "/useUpperCase", domainSettings.useUpperCase);
-  mSettings.setValue(domain + "/useDigits", domainSettings.useDigits);
-  mSettings.setValue(domain + "/useExtra", domainSettings.useExtra);
-  mSettings.setValue(domain + "/useCustom", domainSettings.useCustom);
-  mSettings.setValue(domain + "/customCharacters", domainSettings.customCharacters);
-  mSettings.setValue(domain + "/iterations", domainSettings.iterations);
-  mSettings.setValue(domain + "/length", domainSettings.length);
-  mSettings.setValue(domain + "/salt", domainSettings.salt);
-  mSettings.setValue(domain + "/validator/pattern", domainSettings.validatorRegEx.pattern());
-  mSettings.setValue(domain + "/validator/force", domainSettings.forceValidation);
 }
 
 
 void MainWindow::saveSettings(void)
 {
   mSettings.setValue("mainwindow/geometry", geometry());
-  QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
-  mSettings.setValue("domains", model->stringList());
+  const QJsonDocument &json = QJsonDocument::fromVariant(mDomains);
+  mSettings.setValue("data/domains", json.toJson(QJsonDocument::Compact));
   mSettings.sync();
 }
 
@@ -429,33 +419,36 @@ void MainWindow::saveSettings(void)
 void MainWindow::restoreSettings(void)
 {
   restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
-  const QStringList &domains = mSettings.value("domains").toStringList();
+  const QJsonDocument &json = QJsonDocument::fromJson(mSettings.value("data/domains").toByteArray());
+  mDomains = json.toVariant().toMap();
+  const QStringList &domains = json.object().keys();
   if (mCompleter) {
-    QObject::disconnect(ui->domainLineEdit->completer(), SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+    QObject::disconnect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+    delete mCompleter;
   }
-  safeRenew(mCompleter, new QCompleter(domains));
+  mCompleter = new QCompleter(domains);
   ui->domainLineEdit->setCompleter(mCompleter);
   QObject::connect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
 }
 
 
-void MainWindow::loadSettings(const QString &domain)
+void MainWindow::loadDomainSettings(const QString &domain)
 {
-  ui->userLineEdit->setText(mSettings.value(domain + "/username").toString());
-  ui->useLowerCaseCheckBox->setChecked(mSettings.value(domain + "/useLowerCase", true).toBool());
-  ui->useUpperCaseCheckBox->setChecked(mSettings.value(domain + "/useUpperCase", true).toBool());
-  ui->useDigitsCheckBox->setChecked(mSettings.value(domain + "/useDigits", true).toBool());
-  ui->useExtrasCheckBox->setChecked(mSettings.value(domain + "/useExtra", false).toBool());
-  ui->useCustomCheckBox->setChecked(mSettings.value(domain + "/useCustom", false).toBool());
-  ui->avoidAmbiguousCheckBox->setChecked(mSettings.value(domain + "/avoidAmbiguous", false).toBool());
+  const QVariantMap &p = mDomains[domain].toMap();
+  ui->domainLineEdit->setText(p["domain"].toString());
+  ui->userLineEdit->setText(p["username"].toString());
+  ui->useLowerCaseCheckBox->setChecked(p["useLowerCase"].toBool());
+  ui->useUpperCaseCheckBox->setChecked(p["useUpperCase"].toBool());
+  ui->useDigitsCheckBox->setChecked(p["useDigits"].toBool());
+  ui->useExtrasCheckBox->setChecked(p["useExtra"].toBool());
+  ui->useCustomCheckBox->setChecked(p["useCustom"].toBool());
+  ui->avoidAmbiguousCheckBox->setChecked(p["avoidAmbiguous"].toBool());
   ui->customCharactersPlainTextEdit->blockSignals(true);
-  ui->customCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/customCharacters").toString());
+  ui->customCharactersPlainTextEdit->setPlainText(p["customCharacters"].toString());
   ui->customCharactersPlainTextEdit->blockSignals(false);
-  ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations", DomainSettings::DefaultIterations).toInt());
-  ui->passwordLengthSpinBox->setValue(mSettings.value(domain + "/length", DomainSettings::DefaultPasswordLength).toInt());
-  ui->saltLineEdit->setText(mSettings.value(domain + "/salt", DomainSettings::DefaultSalt).toString());
-  ui->forceRegexPlainTextEdit->setPlainText(mSettings.value(domain + "/validator/pattern", DomainSettings::DefaultValidatorPattern).toString());
-  ui->forceRegexCheckBox->setChecked(mSettings.value(domain + "/validator/force", false).toBool());
+  ui->iterationsSpinBox->setValue(p["iterations"].toInt());
+  ui->passwordLengthSpinBox->setValue(p["length"].toInt());
+  ui->saltLineEdit->setText(p["salt"].toString());
   updateValidator();
   updatePassword();
 }
@@ -463,7 +456,7 @@ void MainWindow::loadSettings(const QString &domain)
 
 void MainWindow::domainSelected(const QString &domain)
 {
-  loadSettings(domain);
+  loadDomainSettings(domain);
   setDirty(false);
 }
 

@@ -27,6 +27,8 @@
 #include <QSettings>
 #include <QCompleter>
 #include <QMutex>
+#include <QJsonDocument>
+#include <QVariantMap>
 
 #include "domainsettings.h"
 #include "password.h"
@@ -71,14 +73,15 @@ signals:
 private: // methods
   void saveSettings(void);
   void restoreSettings(void);
-  void saveDomainSettings(const QString &, const DomainSettings &);
-  void loadSettings(const QString &domain);
+  void saveDomainSettings(DomainSettings &);
+  void loadDomainSettings(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
 
 private:
   Ui::MainWindow *ui;
   QSettings mSettings;
+  QVariantMap mDomains;
   QMovie mLoaderIcon;
   bool mCustomCharacterSetDirty;
   bool mParameterSetDirty;

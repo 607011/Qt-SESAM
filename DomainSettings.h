@@ -23,37 +23,27 @@
 
 #include <QString>
 #include <QRegExp>
+#include <QVariantMap>
 
-struct DomainSettings {
-  DomainSettings(void)
-    : useLowerCase(true)
-    , useUpperCase(true)
-    , useDigits(true)
-    , useExtra(true)
-    , useCustom(false)
-    , avoidAmbiguous(false)
-    , iterations(DefaultIterations)
-    , length(DefaultPasswordLength)
-    , salt(DefaultSalt)
-    , forceValidation(false)
-    , validatorRegEx(DefaultValidatorPattern)
-  { /* ... */ }
-  DomainSettings(const DomainSettings &o)
-    : domain(o.domain)
-    , username(o.username)
-    , useLowerCase(o.useLowerCase)
-    , useUpperCase(o.useUpperCase)
-    , useDigits(o.useDigits)
-    , useExtra(o.useExtra)
-    , useCustom(o.useCustom)
-    , avoidAmbiguous(o.avoidAmbiguous)
-    , customCharacters(o.customCharacters)
-    , iterations(o.iterations)
-    , length(o.length)
-    , salt(o.salt)
-    , forceValidation(o.forceValidation)
-    , validatorRegEx(o.validatorRegEx)
-  { /* ... */ }
+class DomainSettings {
+public:
+  DomainSettings(void);
+  DomainSettings(const DomainSettings &o);
+
+  QVariantMap toVariant(void) const;
+
+  static const int DefaultIterations;
+  static const int DefaultPasswordLength;
+  static const bool DefaultUseLowerCase;
+  static const bool DefaultUseUpperCase;
+  static const bool DefaultUseDigits;
+  static const bool DefaultUseExtra;
+  static const bool DefaultUseCustom;
+  static const bool DefaultAvoidAmbiguous;
+  static const QString DefaultSalt;
+  static const bool DefaultForceValidation;
+  static const QString DefaultValidatorPattern;
+
   QString domain;
   QString username;
   bool useLowerCase;
@@ -69,10 +59,6 @@ struct DomainSettings {
   bool forceValidation;
   QRegExp validatorRegEx;
 
-  static const int DefaultIterations;
-  static const int DefaultPasswordLength;
-  static const QString DefaultSalt;
-  static const QString DefaultValidatorPattern;
 };
 
 
