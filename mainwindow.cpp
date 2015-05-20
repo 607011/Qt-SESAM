@@ -171,9 +171,9 @@ void MainWindow::newDomain(void)
 
 }
 
-void MainWindow::setDirty(void)
+void MainWindow::setDirty(bool dirty)
 {
-  mParameterSetDirty = true;
+  mParameterSetDirty = dirty;
 }
 
 
@@ -387,8 +387,8 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
   saveDomainSettings(ui->domainLineEdit->text(), domainSettings);
   mSettings.sync();
+  setDirty(false);
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
-  setDirty();
 }
 
 
@@ -446,7 +446,9 @@ void MainWindow::loadSettings(const QString &domain)
   ui->useExtrasCheckBox->setChecked(mSettings.value(domain + "/useExtra", false).toBool());
   ui->useCustomCheckBox->setChecked(mSettings.value(domain + "/useCustom", false).toBool());
   ui->avoidAmbiguousCheckBox->setChecked(mSettings.value(domain + "/avoidAmbiguous", false).toBool());
+  ui->customCharactersPlainTextEdit->blockSignals(true);
   ui->customCharactersPlainTextEdit->setPlainText(mSettings.value(domain + "/customCharacters").toString());
+  ui->customCharactersPlainTextEdit->blockSignals(false);
   ui->iterationsSpinBox->setValue(mSettings.value(domain + "/iterations", DomainSettings::DefaultIterations).toInt());
   ui->passwordLengthSpinBox->setValue(mSettings.value(domain + "/length", DomainSettings::DefaultPasswordLength).toInt());
   ui->saltLineEdit->setText(mSettings.value(domain + "/salt", DomainSettings::DefaultSalt).toString());

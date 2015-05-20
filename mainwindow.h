@@ -61,7 +61,7 @@ private slots:
   void domainSelected(const QString &);
   void newDomain(void);
   void stopPasswordGeneration(void);
-  void setDirty(void);
+  void setDirty(bool dirty = true);
   void about(void);
   void aboutQt(void);
 
