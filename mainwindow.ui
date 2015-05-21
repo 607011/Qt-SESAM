@@ -473,6 +473,7 @@
      <string>Options</string>
     </property>
     <addaction name="actionSyncOnStart"/>
+    <addaction name="actionReenterCredentials"/>
    </widget>
    <widget class="QMenu" name="menuExtras">
     <property name="title">
@@ -523,6 +524,11 @@
    </property>
    <property name="shortcut">
     <string>Alt+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionReenterCredentials">
+   <property name="text">
+    <string>Reenter credentials</string>
    </property>
   </action>
  </widget>

@@ -32,9 +32,11 @@
 #include <QUrl>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSystemTrayIcon>
 
 #include "domainsettings.h"
 #include "password.h"
+#include "credentialsdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -51,6 +53,7 @@ public:
 
 protected:
   void closeEvent(QCloseEvent *);
+  void changeEvent(QEvent *);
 
 private slots:
   void updatePassword(void);
@@ -69,10 +72,14 @@ private slots:
   void setDirty(bool dirty = true);
   void replyFinished(QNetworkReply*);
   void sync(void);
+  void clearClipboard(void);
   void sslErrorsOccured(QNetworkReply*,QList<QSslError>);
   void updateSaveButtonIcon(int frame = 0);
   void about(void);
   void aboutQt(void);
+  void enterCredentials(void);
+  void credentialsEntered(void);
+  void trayIconActivated(QSystemTrayIcon::ActivationReason);
 
 signals:
   void passwordGenerated(void);
@@ -92,6 +99,7 @@ private:
   static const QString DefaultDeleteUrl;
 
   Ui::MainWindow *ui;
+  CredentialsDialog *mCredentialsDialog;
   QSettings mSettings;
   QVariantMap mDomains;
   QMovie mLoaderIcon;
@@ -108,6 +116,8 @@ private:
   QNetworkReply *mReply;
   QDateTime mCreatedDate;
   QDateTime mModifiedDate;
+  QString mServerCredentials;
+  QSystemTrayIcon mTrayIcon;
 };
 
 #endif // __MAINWINDOW_H_

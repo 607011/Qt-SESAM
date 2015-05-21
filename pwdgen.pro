@@ -49,7 +49,8 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/fips140.cpp \
     3rdparty/cryptopp562/mqueue.cpp \
     domainsettings.cpp \
-    password.cpp
+    password.cpp \
+    credentialsdialog.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -71,9 +72,11 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/mqueue.h \
     util.h \
     domainsettings.h \
-    password.h
+    password.h \
+    credentialsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    credentialsdialog.ui
 
 
 INCLUDEPATH += $$PWD/3rdparty

@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
   , ui(new Ui::MainWindow)
   , mSettings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
   , mLoaderIcon(":/images/loader.gif")
+  , mTrayIcon(QIcon(":/images/ctpwdgen.ico"), this)
   , mCustomCharacterSetDirty(false)
   , mParameterSetDirty(false)
   , mAutoIncreaseIterations(true)
@@ -61,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
   , mDeleteUrl(DefaultDeleteUrl)
   , mNAM(new QNetworkAccessManager(this))
   , mReply(0)
+  , mCredentialsDialog(new CredentialsDialog(this))
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
@@ -112,9 +114,11 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
+  QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
   QObject::connect(mNAM, SIGNAL(finished(QNetworkReply*)), SLOT(replyFinished(QNetworkReply*)));
   QObject::connect(mNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&mLoaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
+  QObject::connect(mCredentialsDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
 
 #ifdef QT_DEBUG
   ui->saltLineEdit->setEnabled(true);
@@ -136,6 +140,36 @@ MainWindow::MainWindow(QWidget *parent)
   TestPBKDF2 tc;
   QTest::qExec(&tc, 0, 0);
 #endif
+
+  enterCredentials();
+
+  mTrayIcon.show();
+  QObject::connect(&mTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
+  QMenu *trayMenu = new QMenu(AppName);
+  QAction *actionSync = trayMenu->addAction(tr("Sync"));
+  QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
+  QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
+  QObject::connect(actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
+  QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(AppName));
+  QObject::connect(actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
+  QAction *actionQuit = trayMenu->addAction(tr("Quit"));
+  QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
+  mTrayIcon.setContextMenu(trayMenu);
+}
+
+
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+  if (reason == QSystemTrayIcon::DoubleClick) {
+    if (isVisible()) {
+      hide();
+    }
+    else {
+      show();
+      raise();
+      setFocus();
+    }
+  }
 }
 
 
@@ -166,7 +200,14 @@ void MainWindow::closeEvent(QCloseEvent *e)
     QMainWindow::closeEvent(e);
     e->accept();
     saveSettings();
+    // TODO: zero password memory
   }
+}
+
+
+void MainWindow::changeEvent(QEvent *)
+{
+
 }
 
 
@@ -429,16 +470,22 @@ void MainWindow::saveDomainSettings(DomainSettings domainSettings)
     model->setStringList(domains);
     domainSettings.cDate = QDateTime::currentDateTime();
   }
-  QUrlQuery params;
-  params.addQueryItem("data", QJsonDocument::fromVariant(domainSettings.toVariant()).toJson(QJsonDocument::Compact));
-  const QByteArray &data = params.query().toUtf8();
-  QNetworkRequest req(QUrl(mServerRoot + mWriteUrl));
-  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-  req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-  mReply = mNAM->post(req, data);
-  mDomains[domainSettings.domain] = domainSettings.toVariant();
-  mLoaderIcon.start();
-  updateSaveButtonIcon();
+  if (mServerCredentials.isEmpty()) {
+    enterCredentials();
+  }
+  else {
+    QUrlQuery params;
+    params.addQueryItem("data", QJsonDocument::fromVariant(domainSettings.toVariant()).toJson(QJsonDocument::Compact));
+    const QByteArray &data = params.query().toUtf8();
+    QNetworkRequest req(QUrl(mServerRoot + mWriteUrl));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+    req.setRawHeader("Authorization", mServerCredentials.toLocal8Bit());
+    mReply = mNAM->post(req, data);
+    mDomains[domainSettings.domain] = domainSettings.toVariant();
+    mLoaderIcon.start();
+    updateSaveButtonIcon();
+  }
 }
 
 
@@ -475,7 +522,25 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
 void MainWindow::sync(void)
 {
-  // ...
+  if (mServerCredentials.isEmpty()) {
+    enterCredentials();
+  }
+  else {
+    QUrlQuery params;
+    params.addQueryItem("what", "all");
+    const QByteArray &data = params.query().toUtf8();
+    QNetworkRequest req(QUrl(mServerRoot + mReadUrl));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+    req.setRawHeader("Authorization", mServerCredentials.toLocal8Bit());
+    mReply = mNAM->post(req, data);
+  }
+}
+
+
+void MainWindow::clearClipboard(void)
+{
+  QApplication::clipboard()->clear();
 }
 
 
@@ -585,4 +650,22 @@ void MainWindow::about(void)
 void MainWindow::aboutQt(void)
 {
   QMessageBox::aboutQt(this);
+}
+
+
+void MainWindow::enterCredentials(void)
+{
+  mCredentialsDialog->show();
+}
+
+
+void MainWindow::credentialsEntered(void)
+{
+  QString username = mCredentialsDialog->username();
+  QString password = mCredentialsDialog->password();
+  if (!username.isEmpty() && !password.isEmpty()) {
+    QString concatenated = username + ":" + password;
+    mServerCredentials = "Basic " + concatenated.toLocal8Bit().toBase64();
+    sync();
+  }
 }
