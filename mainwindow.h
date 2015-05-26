@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,9 +24,11 @@
 #include <QString>
 #include <QMovie>
 #include <QCloseEvent>
+#include <QLineEdit>
 #include <QSettings>
 #include <QCompleter>
 #include <QMutex>
+#include <QTimer>
 #include <QJsonDocument>
 #include <QVariantMap>
 #include <QUrl>
@@ -37,6 +39,7 @@
 #include "domainsettings.h"
 #include "password.h"
 #include "credentialsdialog.h"
+#include "optionsdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,7 +56,6 @@ public:
 
 protected:
   void closeEvent(QCloseEvent *);
-  void changeEvent(QEvent *);
 
 private slots:
   void updatePassword(void);
@@ -79,27 +81,38 @@ private slots:
   void aboutQt(void);
   void enterCredentials(void);
   void credentialsEntered(void);
+  void optionsChanged(void);
+  void invalidatePassword(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
+  void saveSettings(void);
 
 signals:
   void passwordGenerated(void);
 
 private: // methods
-  void saveSettings(void);
   void restoreSettings(void);
+  void saveDomainSettings(void);
   void saveDomainSettings(DomainSettings);
+  void restoreDomainSettings(void);
   void loadDomainSettings(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
+  void zeroize(QLineEdit *);
+  void zeroize(QChar *, int len);
+  void invalidatePassword(QLineEdit*);
 
 private:
   static const QString DefaultServerRoot;
   static const QString DefaultWriteUrl;
   static const QString DefaultReadUrl;
   static const QString DefaultDeleteUrl;
+  static const int DefaultMasterPasswordInvalidationTimerIntervalMs;
+  static const int AESKeySize = 256 / 8;
+  static const unsigned char IV[16];
 
   Ui::MainWindow *ui;
   CredentialsDialog *mCredentialsDialog;
+  OptionsDialog *mOptionsDialog;
   QSettings mSettings;
   QVariantMap mDomains;
   QMovie mLoaderIcon;
@@ -118,6 +131,8 @@ private:
   QDateTime mModifiedDate;
   QString mServerCredentials;
   QSystemTrayIcon mTrayIcon;
+  QTimer mMasterPasswordInvalidationTimer;
+  unsigned char mAESKey[AESKeySize];
 };
 
 #endif // __MAINWINDOW_H_

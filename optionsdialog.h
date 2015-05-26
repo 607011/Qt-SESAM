@@ -17,14 +17,30 @@
 
 */
 
-#include "mainwindow.h"
-#include <QApplication>
+#ifndef __OPTIONSDIALOG_H_
+#define __OPTIONSDIALOG_H_
 
-int main(int argc, char *argv[])
-{
-  QApplication a(argc, argv);
-  MainWindow w;
-  w.show();
+#include <QDialog>
 
-  return a.exec();
+namespace Ui {
+class OptionsDialog;
 }
+
+class OptionsDialog : public QDialog
+{
+  Q_OBJECT
+
+public:
+  explicit OptionsDialog(QWidget *parent = 0);
+  ~OptionsDialog();
+
+  QString syncFilename(void) const;
+
+private slots:
+  void chooseFile(void);
+
+private:
+  Ui::OptionsDialog *ui;
+};
+
+#endif // __OPTIONSDIALOG_H_

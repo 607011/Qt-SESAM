@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,9 @@ CredentialsDialog::CredentialsDialog(QWidget *parent)
   , ui(new Ui::CredentialsDialog)
 {
   ui->setupUi(this);
+  QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
 }
+
 
 CredentialsDialog::~CredentialsDialog()
 {
@@ -33,13 +35,13 @@ CredentialsDialog::~CredentialsDialog()
 }
 
 
-const QString &CredentialsDialog::username(void) const
+QString CredentialsDialog::username(void) const
 {
   return ui->usernameLineEdit->text();
 }
 
 
-const QString &CredentialsDialog::password(void) const
+QString CredentialsDialog::password(void) const
 {
   return ui->passwordLineEdit->text();
 }
@@ -49,4 +51,15 @@ void CredentialsDialog::showEvent(QShowEvent *)
 {
   ui->usernameLineEdit->selectAll();
   ui->usernameLineEdit->setFocus();
+}
+
+
+void CredentialsDialog::okClicked(void)
+{
+  if (!ui->usernameLineEdit->text().isEmpty() && !ui->passwordLineEdit->text().isEmpty())
+    accept();
+  if (ui->usernameLineEdit->text().isEmpty())
+    ui->usernameLineEdit->setFocus();
+  else
+    ui->passwordLineEdit->setFocus();
 }

@@ -1,3 +1,22 @@
+/*
+
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "password.h"
 
 #include "cryptopp562/sha.h"
@@ -23,6 +42,7 @@ public:
   { /* ... */ }
   ~PasswordPrivate()
   { /* ... */ }
+  QByteArray derivedKey;
   QString key;
   QString hexKey;
   QRegExp validator;
@@ -107,8 +127,8 @@ bool Password::generate(const PasswordParam &p)
   bool success = false;
   if (completed) {
     d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
-    const QByteArray &derivedKeyBuf = QByteArray(reinterpret_cast<char*>(derivedBuf), CryptoPP::SHA512::DIGESTSIZE);
-    d->hexKey = derivedKeyBuf.toHex();
+    d->derivedKey = QByteArray(reinterpret_cast<char*>(derivedBuf), CryptoPP::SHA512::DIGESTSIZE);
+    d->hexKey = d->derivedKey.toHex();
     const QString strModulus = QString("%1").arg(nChars);
     BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
@@ -188,6 +208,12 @@ bool Password::setValidCharacters(const QStringList &canContain, const QStringLi
 bool Password::isValid(void) const
 {
   return d_ptr->validator.exactMatch(d_ptr->key);
+}
+
+
+const QByteArray &Password::derivedKey(void) const
+{
+  return d_ptr->derivedKey;
 }
 
 

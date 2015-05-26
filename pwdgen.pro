@@ -23,7 +23,7 @@ CONFIG += warn_off
 
 win32 {
     QMAKE_CXXFLAGS += /wd4100
-    DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM
+    DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
     RC_FILE = ctpwdgen.rc
 }
 
@@ -50,7 +50,18 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/mqueue.cpp \
     domainsettings.cpp \
     password.cpp \
-    credentialsdialog.cpp
+    credentialsdialog.cpp \
+    3rdparty/cryptopp562/rijndael.cpp \
+    3rdparty/cryptopp562/ccm.cpp \
+    3rdparty/cryptopp562/authenc.cpp \
+    3rdparty/cryptopp562/modes.cpp \
+    3rdparty/cryptopp562/strciphr.cpp \
+    3rdparty/cryptopp562/des.cpp \
+    3rdparty/cryptopp562/rdtables.cpp \
+    3rdparty/cryptopp562/dessp.cpp \
+    3rdparty/cryptopp562/rng.cpp \
+    3rdparty/cryptopp562/osrng.cpp \
+    optionsdialog.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -73,10 +84,21 @@ HEADERS  += mainwindow.h \
     util.h \
     domainsettings.h \
     password.h \
-    credentialsdialog.h
+    credentialsdialog.h \
+    3rdparty/cryptopp562/aes.h \
+    3rdparty/cryptopp562/ccm.h \
+    3rdparty/cryptopp562/authenc.h \
+    3rdparty/cryptopp562/modes.h \
+    3rdparty/cryptopp562/strciphr.h \
+    3rdparty/cryptopp562/des.h \
+    3rdparty/cryptopp562/rijndael.h \
+    3rdparty/cryptopp562/seckey.h \
+    3rdparty/cryptopp562/rng.h \
+    optionsdialog.h
 
 FORMS    += mainwindow.ui \
-    credentialsdialog.ui
+    credentialsdialog.ui \
+    optionsdialog.ui
 
 
 INCLUDEPATH += $$PWD/3rdparty

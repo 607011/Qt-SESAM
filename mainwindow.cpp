@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@
 #include <QUrlQuery>
 
 #include "util.h"
+#include "cryptopp562/aes.h"
+#include "cryptopp562/ccm.h"
+#include "cryptopp562/filters.h"
 
 #ifdef QT_DEBUG
 #include <QtDebug>
@@ -44,7 +47,8 @@ const QString MainWindow::DefaultServerRoot = "http://localhost/ctpwdgen-server"
 const QString MainWindow::DefaultWriteUrl = "/ajax/write.php";
 const QString MainWindow::DefaultReadUrl = "/ajax/read.php";
 const QString MainWindow::DefaultDeleteUrl = "/ajax/delete.php";
-
+const int MainWindow::DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
+const unsigned char MainWindow::IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
@@ -63,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
   , mNAM(new QNetworkAccessManager(this))
   , mReply(0)
   , mCredentialsDialog(new CredentialsDialog(this))
+  , mOptionsDialog(new OptionsDialog(this))
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
@@ -115,10 +120,18 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
+  QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), mOptionsDialog, SLOT(show()));
   QObject::connect(mNAM, SIGNAL(finished(QNetworkReply*)), SLOT(replyFinished(QNetworkReply*)));
   QObject::connect(mNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&mLoaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(mCredentialsDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
+  QObject::connect(mOptionsDialog, SIGNAL(accepted()), SLOT(optionsChanged()));
+  QObject::connect(&mMasterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
+
+#ifdef QT_DEBUG
+  QObject::connect(ui->actionInvalidatePassword, SIGNAL(triggered(bool)), SLOT(invalidatePassword()));
+  QObject::connect(ui->actionSaveSettings, SIGNAL(triggered(bool)), SLOT(saveSettings()));
+#endif
 
 #ifdef QT_DEBUG
   ui->saltLineEdit->setEnabled(true);
@@ -131,6 +144,8 @@ MainWindow::MainWindow(QWidget *parent)
   ui->processLabel->setMovie(&mLoaderIcon);
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
+  mMasterPasswordInvalidationTimer.setSingleShot(true);
+  mMasterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
   restoreSettings();
   updateUsedCharacters();
   updateValidator();
@@ -191,23 +206,18 @@ void MainWindow::closeEvent(QCloseEvent *e)
           tr("Your domain parameters have changed. Do you want to save the changes before exiting?"),
           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
       : QMessageBox::NoButton;
-  if (rc == QMessageBox::Yes)
+  if (rc == QMessageBox::Yes) {
     saveCurrentSettings();
-  if (rc == QMessageBox::Cancel) {
+  }
+  else if (rc == QMessageBox::Cancel) {
     e->ignore();
   }
   else {
+    invalidatePassword();
     QMainWindow::closeEvent(e);
     e->accept();
     saveSettings();
-    // TODO: zero password memory
   }
-}
-
-
-void MainWindow::changeEvent(QEvent *)
-{
-
 }
 
 
@@ -263,6 +273,7 @@ void MainWindow::updatePassword(void)
       validConfiguration = true;
       stopPasswordGeneration();
       generatePassword();
+      mMasterPasswordInvalidationTimer.start(DefaultMasterPasswordInvalidationTimerIntervalMs);
     }
   }
   if (!validConfiguration) {
@@ -488,17 +499,66 @@ void MainWindow::saveDomainSettings(DomainSettings domainSettings)
   }
 }
 
+void MainWindow::saveDomainSettings(void)
+{
+  Q_ASSERT(!mServerCredentials.isEmpty());
+
+  Password pwd;
+  pwd.generate(PasswordParam(mServerCredentials.toLocal8Bit()));
+#ifdef WIN32
+  memcpy_s(mAESKey, AESKeySize, pwd.derivedKey().data(), AESKeySize);
+#else
+  memcpy(mAESKey, mPassword.derivedKey().data(), AESKeySize);
+#endif
+
+  std::string plain = QJsonDocument::fromVariant(mDomains).toJson(QJsonDocument::Compact).toStdString();
+  std::string cipher;
+  try {
+    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
+    enc.SetKeyWithIV(mAESKey, AESKeySize, IV);
+    CryptoPP::StringSource s(
+          plain,
+          true,
+          new CryptoPP::StreamTransformationFilter(
+            enc,
+            new CryptoPP::StringSink(cipher)
+            )
+          );
+    Q_UNUSED(s);
+  }
+  catch(const CryptoPP::Exception &e)
+  {
+    QMessageBox::critical(this, tr("Encryption error"), tr("Something bad has happened while encrypting your settings. Your settings may not have been saved. Error message: %1").arg(QString::fromStdString(e.what())));
+  }
+
+#ifdef QT_DEBUG
+  std::string recovered;
+  CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+  dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
+  CryptoPP::StringSource s(
+        cipher,
+        true,
+        new CryptoPP::StreamTransformationFilter(
+          dec,
+          new CryptoPP::StringSink(recovered)
+          )
+        );
+  Q_UNUSED(s);
+  Q_ASSERT(recovered == plain);
+#endif
+
+  mSettings.setValue("data/domains", QByteArray::fromStdString(cipher).toBase64());
+}
 
 void MainWindow::saveSettings(void)
 {
   mSettings.setValue("mainwindow/geometry", geometry());
-  const QJsonDocument &json = QJsonDocument::fromVariant(mDomains);
-  mSettings.setValue("data/domains", json.toJson(QJsonDocument::Compact));
   mSettings.setValue("sync/serverRoot", mServerRoot);
   mSettings.setValue("sync/writeUrl", mWriteUrl);
   mSettings.setValue("sync/readUrl", mReadUrl);
   mSettings.setValue("sync/deleteUrl", mDeleteUrl);
   mSettings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
+  saveDomainSettings();
   mSettings.sync();
 }
 
@@ -520,67 +580,75 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 }
 
 
-void MainWindow::sync(void)
+void MainWindow::restoreDomainSettings(void)
 {
-  if (mServerCredentials.isEmpty()) {
-    enterCredentials();
+  Q_ASSERT(!mServerCredentials.isEmpty());
+
+  Password pwd;
+  pwd.generate(PasswordParam(mServerCredentials.toLocal8Bit()));
+#ifdef WIN32
+  memcpy_s(mAESKey, AESKeySize, pwd.derivedKey().data(), AESKeySize);
+#else
+  memcpy(mAESKey, mPassword.derivedKey().data(), AESKeySize);
+#endif
+
+  QJsonDocument json;
+  const QByteArray &baDomains = mSettings.value("data/domains").toByteArray();
+  QStringList domains;
+  if (!baDomains.isEmpty()) {
+    std::string cipher = QByteArray::fromBase64(baDomains).toStdString();
+    std::string recovered;
+    try {
+      CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+      dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
+#if 1
+      CryptoPP::StringSource s(
+            cipher,
+            true,
+            new CryptoPP::StreamTransformationFilter(
+              dec,
+              new CryptoPP::StringSink(recovered)
+              )
+            );
+      Q_UNUSED(s);
+#else
+      CryptoPP::StreamTransformationFilter filter(dec);
+      filter.Put((const byte*)cipher.data(), cipher.size());
+      filter.MessageEnd();
+      const size_t ret = filter.MaxRetrievable();
+      recovered.resize(ret);
+      filter.Get((byte*)recovered.data(), recovered.size());
+#endif
+    }
+    catch(const CryptoPP::Exception &e)
+    {
+      QMessageBox::critical(this, tr("Decryption error"), tr("Something bad has happened while decrypting your settings. Your settings may not have been loaded. Error message: %1").arg(QString::fromStdString(e.what())));
+    }
+    json = QJsonDocument::fromJson(QByteArray::fromStdString(recovered));
+    domains = json.object().keys();
   }
-  else {
-    QUrlQuery params;
-    params.addQueryItem("what", "all");
-    const QByteArray &data = params.query().toUtf8();
-    QNetworkRequest req(QUrl(mServerRoot + mReadUrl));
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-    req.setRawHeader("Authorization", mServerCredentials.toLocal8Bit());
-    mReply = mNAM->post(req, data);
+
+  mDomains = json.toVariant().toMap();
+  ui->statusBar->showMessage(tr("Restored %1 domains.").arg(mDomains.count()), 5000);
+
+  if (mCompleter) {
+    QObject::disconnect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+    delete mCompleter;
   }
-}
-
-
-void MainWindow::clearClipboard(void)
-{
-  QApplication::clipboard()->clear();
-}
-
-
-void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
-{
-  Q_UNUSED(reply);
-  Q_UNUSED(errors);
-  // ...
-}
-
-
-void MainWindow::updateSaveButtonIcon(int)
-{
-  if (mReply && mReply->isRunning()) {
-    ui->savePushButton->setIcon(QIcon(mLoaderIcon.currentPixmap()));
-  }
-  else {
-    ui->savePushButton->setIcon(QIcon());
-  }
+  mCompleter = new QCompleter(domains);
+  QObject::connect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+  ui->domainLineEdit->setCompleter(mCompleter);
 }
 
 
 void MainWindow::restoreSettings(void)
 {
   restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
-  const QJsonDocument &json = QJsonDocument::fromJson(mSettings.value("data/domains").toByteArray());
-  const QStringList &domains = json.object().keys();
-  if (mCompleter) {
-    QObject::disconnect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
-    delete mCompleter;
-  }
-  mCompleter = new QCompleter(domains);
-  mDomains = json.toVariant().toMap();
   mServerRoot = mSettings.value("sync/serverRoot", DefaultServerRoot).toString();
   mWriteUrl = mSettings.value("sync/writeUrl", DefaultWriteUrl).toString();
   mReadUrl = mSettings.value("sync/readUrl", DefaultReadUrl).toString();
   mDeleteUrl = mSettings.value("sync/deleteUrl", DefaultDeleteUrl).toString();
   ui->actionSyncOnStart->setChecked(mSettings.value("sync/onStart", true).toBool());
-  ui->domainLineEdit->setCompleter(mCompleter);
-  QObject::connect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
 }
 
 
@@ -608,6 +676,24 @@ void MainWindow::loadDomainSettings(const QString &domain)
 }
 
 
+void MainWindow::sync(void)
+{
+  if (mServerCredentials.isEmpty()) {
+    enterCredentials();
+  }
+  else {
+    QUrlQuery params;
+    params.addQueryItem("what", "all");
+    const QByteArray &data = params.query().toUtf8();
+    QNetworkRequest req(QUrl(mServerRoot + mReadUrl));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+    req.setRawHeader("Authorization", mServerCredentials.toLocal8Bit());
+    mReply = mNAM->post(req, data);
+  }
+}
+
+
 void MainWindow::domainSelected(const QString &domain)
 {
   loadDomainSettings(domain);
@@ -618,6 +704,91 @@ void MainWindow::domainSelected(const QString &domain)
 void MainWindow::updateWindowTitle(void)
 {
   setWindowTitle(AppName + " " + AppVersion + (mParameterSetDirty ? "*" : ""));
+}
+
+void MainWindow::clearClipboard(void)
+{
+  QApplication::clipboard()->clear();
+}
+
+
+void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
+{
+  Q_UNUSED(reply);
+  Q_UNUSED(errors);
+  // ...
+}
+
+
+void MainWindow::updateSaveButtonIcon(int)
+{
+  if (mReply != nullptr && mReply->isRunning()) {
+    ui->savePushButton->setIcon(QIcon(mLoaderIcon.currentPixmap()));
+  }
+  else {
+    ui->savePushButton->setIcon(QIcon());
+  }
+}
+
+
+void MainWindow::enterCredentials(void)
+{
+  mCredentialsDialog->show();
+}
+
+
+void MainWindow::credentialsEntered(void)
+{
+  const QString &username = mCredentialsDialog->username();
+  const QString &password = mCredentialsDialog->password();
+  if (!username.isEmpty() && !password.isEmpty()) {
+    const QString &concatenated = username + ":" + password;
+    mServerCredentials = "Basic " + concatenated.toLocal8Bit().toBase64();
+    restoreDomainSettings();
+    sync();
+  }
+  else {
+    enterCredentials();
+  }
+}
+
+
+void MainWindow::optionsChanged(void)
+{
+  // TODO ...
+}
+
+
+void MainWindow::zeroize(QChar *pC, int len)
+{
+  Q_ASSERT(pC != 0);
+  Q_ASSERT(len > 0);
+  while (len--)
+    *pC++ = QChar('\0');
+}
+
+
+void MainWindow::zeroize(QLineEdit *lineEdit)
+{
+  Q_ASSERT(lineEdit != nullptr);
+  if (lineEdit->text().isEmpty())
+    return;
+  zeroize(lineEdit->text().data(), lineEdit->text().size());
+}
+
+
+void MainWindow::invalidatePassword(QLineEdit *lineEdit) {
+  zeroize(lineEdit);
+  lineEdit->clear();
+}
+
+
+void MainWindow::invalidatePassword(void)
+{
+  invalidatePassword(ui->masterPasswordLineEdit1);
+  invalidatePassword(ui->masterPasswordLineEdit2);
+  ui->masterPasswordLineEdit1->setFocus();
+  ui->statusBar->showMessage(tr("Password cleared for security"), 5000);
 }
 
 
@@ -650,22 +821,4 @@ void MainWindow::about(void)
 void MainWindow::aboutQt(void)
 {
   QMessageBox::aboutQt(this);
-}
-
-
-void MainWindow::enterCredentials(void)
-{
-  mCredentialsDialog->show();
-}
-
-
-void MainWindow::credentialsEntered(void)
-{
-  QString username = mCredentialsDialog->username();
-  QString password = mCredentialsDialog->password();
-  if (!username.isEmpty() && !password.isEmpty()) {
-    QString concatenated = username + ":" + password;
-    mServerCredentials = "Basic " + concatenated.toLocal8Bit().toBase64();
-    sync();
-  }
 }

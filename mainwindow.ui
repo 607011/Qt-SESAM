@@ -468,22 +468,19 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menuOptions">
-    <property name="title">
-     <string>Options</string>
-    </property>
-    <addaction name="actionSyncOnStart"/>
-    <addaction name="actionReenterCredentials"/>
-   </widget>
    <widget class="QMenu" name="menuExtras">
     <property name="title">
      <string>Extras</string>
     </property>
     <addaction name="actionSyncNow"/>
+    <addaction name="actionSyncOnStart"/>
+    <addaction name="actionReenterCredentials"/>
+    <addaction name="actionInvalidatePassword"/>
+    <addaction name="actionSaveSettings"/>
+    <addaction name="actionOptions"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>
-   <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -529,6 +526,21 @@
   <action name="actionReenterCredentials">
    <property name="text">
     <string>Reenter credentials</string>
+   </property>
+  </action>
+  <action name="actionInvalidatePassword">
+   <property name="text">
+    <string>Invalidate password</string>
+   </property>
+  </action>
+  <action name="actionSaveSettings">
+   <property name="text">
+    <string>Save settings</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>Options</string>
    </property>
   </action>
  </widget>

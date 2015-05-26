@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,11 +36,14 @@ public:
   explicit CredentialsDialog(QWidget *parent = 0);
   ~CredentialsDialog();
 
-  const QString &username(void) const;
-  const QString &password(void) const;
+  QString username(void) const;
+  QString password(void) const;
 
 protected:
   void showEvent(QShowEvent *);
+
+private slots:
+  void okClicked(void);
 
 private:
   Ui::CredentialsDialog *ui;
