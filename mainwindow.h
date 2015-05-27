@@ -43,6 +43,9 @@ namespace Ui {
 class MainWindow;
 }
 
+
+class MainWindowPrivate;
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
@@ -81,44 +84,31 @@ private slots:
 
 signals:
   void passwordGenerated(void);
+  void reenterCredentials(void);
 
 private: // methods
   void restoreSettings(void);
-  void saveDomainSettings(void);
-  void saveDomainSettings(DomainSettings);
-  void restoreDomainSettings(void);
-  void loadDomainSettings(const QString &domain);
+  void saveDomainDataToSettings(void);
+  void saveDomainDataToSettings(DomainSettings);
+  void restoreDomainDataFromSettings(void);
+  void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
   void zeroize(QLineEdit *);
-  void zeroize(QChar *, int len);
+  template <class T>
+  void zeroize(T *, int len);
   void invalidatePassword(QLineEdit*);
-  QByteArray decode(const QByteArray &);
-  QByteArray encode(const QByteArray &);
+  void wrongPasswordWarning(int errCode, QString errMsg);
+  QByteArray decode(const QByteArray &, int *errCode = nullptr, QString *errMsg = nullptr);
+  QByteArray encode(const QByteArray &, int *errCode = nullptr, QString *errMsg = nullptr);
 
 private:
-  static const int DefaultMasterPasswordInvalidationTimerIntervalMs;
-  static const int AESKeySize = 256 / 8;
-  static const unsigned char IV[16];
-
   Ui::MainWindow *ui;
-  CredentialsDialog *mCredentialsDialog;
-  OptionsDialog *mOptionsDialog;
-  QSettings mSettings;
-  QVariantMap mDomains;
-  QMovie mLoaderIcon;
-  bool mCustomCharacterSetDirty;
-  bool mParameterSetDirty;
-  bool mAutoIncreaseIterations;
-  QCompleter *mCompleter;
-  Password mPassword;
-  Password mCryptPassword;
-  QDateTime mCreatedDate;
-  QDateTime mModifiedDate;
-  QString mCredentials;
-  QSystemTrayIcon mTrayIcon;
-  QTimer mMasterPasswordInvalidationTimer;
-  unsigned char mAESKey[AESKeySize];
+
+  QScopedPointer<MainWindowPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(MainWindow)
+  Q_DISABLE_COPY(MainWindow)
+
 };
 
 #endif // __MAINWINDOW_H_

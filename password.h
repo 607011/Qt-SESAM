@@ -76,9 +76,9 @@ private:
 };
 
 
-class PasswordParam {
+class PasswordParamBase {
 public:
-  PasswordParam(void)
+  PasswordParamBase(void)
     : domain("none")
     , salt("This is my salt. There are many like it, but this one is mine.")
     , masterPwd("Pl4c3 4n Incr3d1bly h4rd 7o 6u355 p4SSw0rd h3r3!")
@@ -86,29 +86,7 @@ public:
     , passwordLength(10)
     , iterations(4096)
   { /* ... */ }
-  PasswordParam(const QByteArray &masterPwd)
-    : domain("none")
-    , salt("This is my salt. There are many like it, but this one is mine.")
-    , masterPwd(masterPwd)
-    , availableChars(Password::Digits)
-    , passwordLength(10)
-    , iterations(4096)
-  { /* ... */  }
-  PasswordParam(
-      const QByteArray &domain,
-      const QByteArray &salt,
-      const QByteArray &masterPwd,
-      const QString &availableChars,
-      const int passwordLength,
-      const int iterations)
-    : domain(domain)
-    , salt(salt)
-    , masterPwd(masterPwd)
-    , availableChars(availableChars)
-    , passwordLength(passwordLength)
-    , iterations(iterations)
-  { /* ... */  }
-  PasswordParam(const PasswordParam &o)
+  PasswordParamBase(const PasswordParamBase &o)
     : domain(o.domain)
     , salt(o.salt)
     , masterPwd(o.masterPwd)
@@ -116,12 +94,38 @@ public:
     , passwordLength(o.passwordLength)
     , iterations(o.iterations)
   { /* ... */  }
-  const QByteArray domain;
-  const QByteArray salt;
-  const QByteArray masterPwd;
-  const QString availableChars;
-  const int passwordLength;
-  const int iterations;
+  QByteArray domain;
+  QByteArray salt;
+  QByteArray masterPwd;
+  QString availableChars;
+  int passwordLength;
+  int iterations;
+};
+
+
+class PasswordParam : public PasswordParamBase {
+public:
+  PasswordParam(void)
+  { /* ... */ }
+  PasswordParam(const QByteArray &masterPwd)
+  {
+    this->masterPwd = masterPwd;
+  }
+  PasswordParam(
+      const QByteArray &domain,
+      const QByteArray &salt,
+      const QByteArray &masterPwd,
+      const QString &availableChars,
+      const int passwordLength,
+      const int iterations)
+  {
+    this->domain = domain;
+    this->salt = salt;
+    this->masterPwd = masterPwd;
+    this->availableChars = availableChars;
+    this->passwordLength = passwordLength;
+    this->iterations = iterations;
+  }
 };
 
 

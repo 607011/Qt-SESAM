@@ -31,6 +31,8 @@
 #include "cryptopp562/aes.h"
 #include "cryptopp562/ccm.h"
 #include "cryptopp562/filters.h"
+#include "cryptopp562/secblock.h"
+
 
 #ifdef QT_DEBUG
 #include <QtDebug>
@@ -44,28 +46,65 @@ static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
-const int MainWindow::DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
-const unsigned char MainWindow::IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
+
+class MainWindowPrivate {
+public:
+  MainWindowPrivate(QWidget *parent = 0)
+    : settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
+    , loaderIcon(":/images/loader.gif")
+    , trayIcon(QIcon(":/images/ctpwdgen.ico"), parent)
+    , customCharacterSetDirty(false)
+    , parameterSetDirty(false)
+    , autoIncreaseIterations(true)
+    , completer(0)
+    , credentialsDialog(new CredentialsDialog(parent))
+    , optionsDialog(new OptionsDialog(parent))
+    , masterPasswordValid(false)
+  { /* ... */ }
+  ~MainWindowPrivate()
+  { /* ... */ }
+
+  static const int DefaultMasterPasswordInvalidationTimerIntervalMs;
+  static const int AESKeySize = 256 / 8;
+  static const unsigned char IV[16];
+
+  CredentialsDialog *credentialsDialog;
+  OptionsDialog *optionsDialog;
+  QSettings settings;
+  QVariantMap domains;
+  QMovie loaderIcon;
+  bool customCharacterSetDirty;
+  bool parameterSetDirty;
+  bool autoIncreaseIterations;
+  QCompleter *completer;
+  Password password;
+  Password cryptPassword;
+  QDateTime createdDate;
+  QDateTime modifiedDate;
+  QSystemTrayIcon trayIcon;
+  QString masterPassword;
+  bool masterPasswordValid;
+  QTimer masterPasswordInvalidationTimer;
+  unsigned char AESKey[AESKeySize];
+
+};
+
+
+const int MainWindowPrivate::DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
+const unsigned char MainWindowPrivate::IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
+
+
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
-  , mSettings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
-  , mLoaderIcon(":/images/loader.gif")
-  , mTrayIcon(QIcon(":/images/ctpwdgen.ico"), this)
-  , mCustomCharacterSetDirty(false)
-  , mParameterSetDirty(false)
-  , mAutoIncreaseIterations(true)
-  , mCompleter(0)
-  , mCredentialsDialog(new CredentialsDialog(this))
-  , mOptionsDialog(new OptionsDialog(this))
+  , d_ptr(new MainWindowPrivate)
 {
+  Q_D(MainWindow);
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
@@ -84,8 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->forceExtrasCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->forceRegexCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  QObject::connect(ui->masterPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+  // QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(customCharacterSetChanged()));
@@ -102,18 +140,19 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
-  QObject::connect(&mPassword, SIGNAL(generated()), SLOT(onPasswordGenerated()));
-  QObject::connect(&mPassword, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
-  QObject::connect(&mPassword, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
+  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
+  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
+  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
-  QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), mOptionsDialog, SLOT(show()));
-  QObject::connect(mCredentialsDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
-  QObject::connect(&mMasterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
+  QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterCredentials()));
+  QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
+  QObject::connect(d->credentialsDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
+  QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
 #ifdef QT_DEBUG
   QObject::connect(ui->actionInvalidatePassword, SIGNAL(triggered(bool)), SLOT(invalidatePassword()));
@@ -123,16 +162,14 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef QT_DEBUG
   ui->saltLineEdit->setEnabled(true);
   ui->domainLineEdit->setText("foo bar");
-  ui->masterPasswordLineEdit1->setText("test");
-  ui->masterPasswordLineEdit2->setText("test");
   ui->avoidAmbiguousCheckBox->setChecked(true);
 #endif
   ui->domainLineEdit->selectAll();
-  ui->processLabel->setMovie(&mLoaderIcon);
+  ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
-  mMasterPasswordInvalidationTimer.setSingleShot(true);
-  mMasterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
+  d->masterPasswordInvalidationTimer.setSingleShot(true);
+  d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
   restoreSettings();
   updateUsedCharacters();
   updateValidator();
@@ -143,10 +180,10 @@ MainWindow::MainWindow(QWidget *parent)
   QTest::qExec(&tc, 0, 0);
 #endif
 
-  enterCredentials();
+  emit reenterCredentials();
 
-  mTrayIcon.show();
-  QObject::connect(&mTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
+  d->trayIcon.show();
+  QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
   QMenu *trayMenu = new QMenu(AppName);
   QAction *actionSync = trayMenu->addAction(tr("Sync"));
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
@@ -156,7 +193,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
-  mTrayIcon.setContextMenu(trayMenu);
+  d->trayIcon.setContextMenu(trayMenu);
 }
 
 
@@ -178,14 +215,15 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 MainWindow::~MainWindow()
 {
   delete ui;
-  safeDelete(mCompleter);
+  // safeDelete(d_ptr->mCompleter);
 }
 
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
+  Q_D(MainWindow);
   stopPasswordGeneration();
-  int rc = (mParameterSetDirty)
+  int rc = (d->parameterSetDirty)
       ? QMessageBox::question(
           this,
           tr("Save before exit?"),
@@ -199,10 +237,10 @@ void MainWindow::closeEvent(QCloseEvent *e)
     e->ignore();
   }
   else {
-    invalidatePassword();
     QMainWindow::closeEvent(e);
     e->accept();
     saveSettings();
+    invalidatePassword();
   }
 }
 
@@ -212,8 +250,6 @@ void MainWindow::newDomain(void)
   DomainSettings domainSettings;
   ui->domainLineEdit->setText(QString());
   ui->domainLineEdit->setFocus();
-  ui->masterPasswordLineEdit1->setText(QString());
-  ui->masterPasswordLineEdit2->setText(QString());
   ui->useLowerCaseCheckBox->setChecked(domainSettings.useLowerCase);
   ui->useUpperCaseCheckBox->setChecked(domainSettings.useUpperCase);
   ui->useDigitsCheckBox->setChecked(domainSettings.useDigits);
@@ -230,37 +266,33 @@ void MainWindow::newDomain(void)
 
 void MainWindow::setDirty(bool dirty)
 {
-  mParameterSetDirty = dirty;
+  Q_D(MainWindow);
+  d->parameterSetDirty = dirty;
   updateWindowTitle();
 }
 
 
 void MainWindow::onPasswordGenerationStarted(void)
 {
+  Q_D(MainWindow);
   ui->copyPasswordToClipboardPushButton->setEnabled(false);
   ui->processLabel->show();
   ui->cancelPushButton->show();
-  mLoaderIcon.start();
+  d->loaderIcon.start();
 }
 
 
 void MainWindow::updatePassword(void)
 {
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::updatePassword()";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 &&
-      !ui->masterPasswordLineEdit1->text().isEmpty() &&
-      !ui->masterPasswordLineEdit2->text().isEmpty())
-  {
-    if (ui->masterPasswordLineEdit1->text() != ui->masterPasswordLineEdit2->text()) {
-      ui->statusBar->showMessage(tr("Passwords do not match"), 2000);
-    }
-    else {
-      validConfiguration = true;
-      stopPasswordGeneration();
-      generatePassword();
-      mMasterPasswordInvalidationTimer.start(DefaultMasterPasswordInvalidationTimerIntervalMs);
-    }
+  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty()) {
+    validConfiguration = true;
+    stopPasswordGeneration();
+    generatePassword();
+    d->masterPasswordInvalidationTimer.start(d->DefaultMasterPasswordInvalidationTimerIntervalMs);
   }
   if (!validConfiguration) {
     ui->generatedPasswordLineEdit->setText(QString());
@@ -292,11 +324,12 @@ void MainWindow::updateUsedCharacters(void)
 
 void MainWindow::generatePassword(void)
 {
-  mPassword.generateAsync(
+  Q_D(MainWindow);
+  d->password.generateAsync(
         PasswordParam(
           ui->domainLineEdit->text().toUtf8(),
           ui->saltLineEdit->text().toUtf8(),
-          ui->masterPasswordLineEdit1->text().toUtf8(),
+          d->masterPassword.toUtf8(),
           ui->customCharactersPlainTextEdit->toPlainText(),
           ui->passwordLengthSpinBox->value(),
           ui->iterationsSpinBox->value()
@@ -307,31 +340,33 @@ void MainWindow::generatePassword(void)
 
 void MainWindow::stopPasswordGeneration(void)
 {
-  if (mPassword.isRunning()) {
-    mPassword.abortGeneration();
-    mPassword.waitForFinished();
+  Q_D(MainWindow);
+  if (d->password.isRunning()) {
+    d->password.abortGeneration();
+    d->password.waitForFinished();
   }
 }
 
 
 void MainWindow::onPasswordGenerated(void)
 {
+  Q_D(MainWindow);
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
-  mLoaderIcon.stop();
+  d->loaderIcon.stop();
   ui->copyPasswordToClipboardPushButton->setEnabled(true);
   bool setKey = true;
-  if (ui->forceRegexCheckBox->isChecked() && !mPassword.isValid())
+  if (ui->forceRegexCheckBox->isChecked() && !d->password.isValid())
     setKey = false;
   if (setKey) {
-    ui->generatedPasswordLineEdit->setText(mPassword.key());
-    ui->hashPlainTextEdit->setPlainText(mPassword.hexKey());
-    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(mPassword.elapsedSeconds(), 0, 'f', 4), 3000);
+    ui->generatedPasswordLineEdit->setText(d->password.key());
+    ui->hashPlainTextEdit->setPlainText(d->password.hexKey());
+    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(d->password.elapsedSeconds(), 0, 'f', 4), 3000);
   }
   else {
-    ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(mAutoIncreaseIterations ? tr("Increasing iteration count.") : QString()));
-    if (mAutoIncreaseIterations)
-      ui->iterationsSpinBox->setValue( ui->iterationsSpinBox->value() + 1);
+    ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(d->autoIncreaseIterations ? tr("Increasing iteration count.") : QString()));
+    if (d->autoIncreaseIterations)
+      ui->iterationsSpinBox->setValue(ui->iterationsSpinBox->value() + 1);
   }
 }
 
@@ -351,8 +386,9 @@ void MainWindow::copyPasswordToClipboard(void)
 
 void MainWindow::customCharacterSetCheckBoxToggled(bool checked)
 {
+  Q_D(MainWindow);
   bool reallyToggle = true;
-  if (!checked && mCustomCharacterSetDirty) {
+  if (!checked && d->customCharacterSetDirty) {
     int button = QMessageBox::warning(
           this,
           tr("Really uncheck this option?"),
@@ -371,20 +407,22 @@ void MainWindow::customCharacterSetCheckBoxToggled(bool checked)
     ui->useExtrasCheckBox->setEnabled(!checked);
     updateUsedCharacters();
     if (!checked)
-      mCustomCharacterSetDirty = false;
+      d->customCharacterSetDirty = false;
   }
 }
 
 
 void MainWindow::customCharacterSetChanged(void)
 {
+  Q_D(MainWindow);
   ui->useCustomCheckBox->setChecked(true);
-  mCustomCharacterSetDirty = true;
+  d->customCharacterSetDirty = true;
 }
 
 
 void MainWindow::updateValidator(void)
 {
+  Q_D(MainWindow);
   bool ok = false;
   QStringList canContain;
   QStringList mustContain;
@@ -393,7 +431,7 @@ void MainWindow::updateValidator(void)
   ui->forceDigitsCheckBox->setEnabled(!ui->forceRegexCheckBox->isChecked());
   ui->forceExtrasCheckBox->setEnabled(!ui->forceRegexCheckBox->isChecked());
   if (ui->forceRegexCheckBox->isChecked()) {
-    ok = mPassword.setValidator(QRegExp(ui->forceRegexPlainTextEdit->toPlainText()));
+    ok = d->password.setValidator(QRegExp(ui->forceRegexPlainTextEdit->toPlainText()));
   }
   else {
     if (ui->useLowerCaseCheckBox->isChecked())
@@ -412,10 +450,10 @@ void MainWindow::updateValidator(void)
       mustContain << "[0-9]";
     if (ui->forceExtrasCheckBox->isChecked())
       mustContain << "[" + Password::ExtraChars + "]";
-    ok = mPassword.setValidCharacters(canContain, mustContain);
+    ok = d->password.setValidCharacters(canContain, mustContain);
     if (ok) {
       ui->forceRegexPlainTextEdit->blockSignals(true);
-      ui->forceRegexPlainTextEdit->setPlainText(mPassword.validator().pattern());
+      ui->forceRegexPlainTextEdit->setPlainText(d->password.validator().pattern());
       ui->forceRegexPlainTextEdit->blockSignals(false);
     }
   }
@@ -424,13 +462,14 @@ void MainWindow::updateValidator(void)
     ui->statusBar->showMessage(QString());
   }
   else {
-    ui->statusBar->showMessage(tr("Bad regex: ") + mPassword.errorString());
+    ui->statusBar->showMessage(tr("Bad regex: ") + d->password.errorString());
   }
 }
 
 
 void MainWindow::saveCurrentSettings(void)
 {
+  Q_D(MainWindow);
   DomainSettings domainSettings;
   domainSettings.domain = ui->domainLineEdit->text();
   domainSettings.username = ui->userLineEdit->text();
@@ -444,19 +483,20 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.iterations = ui->iterationsSpinBox->value();
   domainSettings.salt = ui->saltLineEdit->text();
   domainSettings.length = ui->passwordLengthSpinBox->value();
-  domainSettings.validatorRegEx = mPassword.validator();
+  domainSettings.validatorRegEx = d->password.validator();
   domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
-  domainSettings.cDate = mCreatedDate.isValid() ? mCreatedDate : QDateTime::currentDateTime();
-  domainSettings.mDate = mModifiedDate.isValid() ? mModifiedDate : QDateTime::currentDateTime();
-  saveDomainSettings(domainSettings);
-  mSettings.sync();
+  domainSettings.cDate = d->createdDate.isValid() ? d->createdDate : QDateTime::currentDateTime();
+  domainSettings.mDate = d->modifiedDate.isValid() ? d->modifiedDate : QDateTime::currentDateTime();
+  saveDomainDataToSettings(domainSettings);
+  d->settings.sync();
   setDirty(false);
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
 }
 
 
-void MainWindow::saveDomainSettings(DomainSettings domainSettings)
+void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
 {
+  Q_D(MainWindow);
   qDebug() << "MainWindow::saveDomainSettings() for domain" << domainSettings.domain;
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
@@ -468,47 +508,23 @@ void MainWindow::saveDomainSettings(DomainSettings domainSettings)
     domains << domainSettings.domain;
     model->setStringList(domains);
   }
-  mDomains[domainSettings.domain] = domainSettings.toVariant();
+  d->domains[domainSettings.domain] = domainSettings.toVariant();
   sync();
 }
 
 
-QByteArray MainWindow::encode(const QByteArray &baPlain)
+void MainWindow::saveDomainDataToSettings(void)
 {
-  std::string cipher;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(mAESKey, AESKeySize, IV);
-    CryptoPP::StringSource s(
-          baPlain.toStdString(),
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            enc,
-            new CryptoPP::StringSink(cipher)
-            )
-          );
-    Q_UNUSED(s);
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    QMessageBox::critical(this, tr("Encryption error"), tr("Something bad has happened while encrypting your settings. Your settings may not have been saved. Error message: %1").arg(QString::fromStdString(e.what())));
-  }
-
-  return QByteArray::fromStdString(cipher);
-}
-
-
-void MainWindow::saveDomainSettings(void)
-{
+  Q_D(MainWindow);
 #ifdef QT_DEBUG
-  std::string plain = QJsonDocument::fromVariant(mDomains).toJson(QJsonDocument::Compact).toStdString();
+  std::string plain = QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact).toStdString();
 #endif
-  QByteArray cipher = encode(QJsonDocument::fromVariant(mDomains).toJson(QJsonDocument::Compact));
+  QByteArray cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact));
 
 #ifdef QT_DEBUG
   std::string recovered;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-  dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
+  dec.SetKeyWithIV(d->AESKey, d->AESKeySize, d->IV);
   CryptoPP::StringSource s(
         cipher.toStdString(),
         true,
@@ -521,28 +537,59 @@ void MainWindow::saveDomainSettings(void)
   Q_ASSERT(recovered == plain);
 #endif
 
-  mSettings.setValue("data/domains", cipher);
+  d->settings.setValue("data/domains", cipher);
   sync();
 }
 
 
 void MainWindow::saveSettings(void)
 {
-  mSettings.setValue("mainwindow/geometry", geometry());
-  mSettings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
-  mSettings.setValue("sync/filename", mOptionsDialog->syncFilename());
-  saveDomainSettings();
-  mSettings.sync();
+  Q_D(MainWindow);
+  d->settings.setValue("mainwindow/geometry", geometry());
+  d->settings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
+  d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
+  saveDomainDataToSettings();
+  d->settings.sync();
 }
 
 
-QByteArray MainWindow::decode(const QByteArray &baCipher)
+QByteArray MainWindow::encode(const QByteArray &baPlain, int *errCode, QString *errMsg)
 {
+  Q_D(MainWindow);
+  std::string cipher;
+  try {
+    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
+    enc.SetKeyWithIV(d->AESKey, d->AESKeySize, d->IV);
+    CryptoPP::StringSource s(
+          baPlain.toStdString(),
+          true,
+          new CryptoPP::StreamTransformationFilter(
+            enc,
+            new CryptoPP::StringSink(cipher)
+            )
+          );
+    Q_UNUSED(s);
+  }
+  catch(const CryptoPP::Exception &e)
+  {
+    if (errCode != nullptr)
+      *errCode = (int)e.GetErrorType();
+    if (errMsg != nullptr)
+      *errMsg = e.what();
+  }
+
+  return QByteArray::fromStdString(cipher);
+}
+
+
+QByteArray MainWindow::decode(const QByteArray &baCipher, int *errCode, QString *errMsg)
+{
+  Q_D(MainWindow);
   Q_ASSERT(!baCipher.isEmpty());
   std::string recovered;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
+    dec.SetKeyWithIV(d->AESKey, d->AESKeySize, d->IV);
     CryptoPP::StringSource s(
           baCipher.toStdString(),
           true,
@@ -555,48 +602,61 @@ QByteArray MainWindow::decode(const QByteArray &baCipher)
   }
   catch(const CryptoPP::Exception &e)
   {
-    QMessageBox::critical(this, tr("Decryption error"), tr("Something bad has happened while decrypting your settings. Your settings may not have been loaded. Error message: %1").arg(QString::fromStdString(e.what())));
+    if (errCode != nullptr)
+      *errCode = (int)e.GetErrorType();
+    if (errMsg != nullptr)
+      *errMsg = e.what();
   }
   return QByteArray::fromStdString(recovered);
 }
 
 
-void MainWindow::restoreDomainSettings(void)
+void MainWindow::restoreDomainDataFromSettings(void)
 {
-  Q_ASSERT(!mCredentials.isEmpty());
-  qDebug() << "MainWindow::restoreDomainSettings()";
+  Q_D(MainWindow);
+  Q_ASSERT(!d->masterPassword.isEmpty());
+  qDebug() << "MainWindow::restoreDomainDataFromSettings()";
   QJsonDocument json;
   QStringList domains;
-  const QByteArray &baDomains = mSettings.value("data/domains").toByteArray();
+  const QByteArray &baDomains = d->settings.value("data/domains").toByteArray();
   if (!baDomains.isEmpty()) {
-    QByteArray recovered = decode(baDomains);
+    int errCode = -1;
+    QString errMsg;
+    QByteArray recovered = decode(baDomains, &errCode, &errMsg);
+    d->masterPasswordValid = (errCode == -1);
+    if (!d->masterPasswordValid) {
+      wrongPasswordWarning(errCode, errMsg);
+      return;
+    }
     json = QJsonDocument::fromJson(recovered);
     domains = json.object().keys();
   }
-  mDomains = json.toVariant().toMap();
-  ui->statusBar->showMessage(tr("Restored %1 domains.").arg(mDomains.count()), 5000);
-  if (mCompleter) {
-    QObject::disconnect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
-    delete mCompleter;
+  d->domains = json.toVariant().toMap();
+  ui->statusBar->showMessage(tr("Restored %1 domains.").arg(d->domains.count()), 5000);
+  if (d->completer) {
+    QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+    delete d->completer;
   }
-  mCompleter = new QCompleter(domains);
-  QObject::connect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
-  ui->domainLineEdit->setCompleter(mCompleter);
+  d->completer = new QCompleter(domains);
+  QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+  ui->domainLineEdit->setCompleter(d->completer);
 }
 
 
 void MainWindow::restoreSettings(void)
 {
-  restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
+  Q_D(MainWindow);
+  restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
-  mOptionsDialog->setSyncFilename(mSettings.value("sync/filename", defaultSyncFilename).toString());
-  ui->actionSyncOnStart->setChecked(mSettings.value("sync/onStart", true).toBool());
+  d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
+  ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
 }
 
 
-void MainWindow::loadDomainSettings(const QString &domain)
+void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
-  const QVariantMap &p = mDomains[domain].toMap();
+  Q_D(MainWindow);
+  const QVariantMap &p = d->domains[domain].toMap();
   ui->domainLineEdit->setText(p["domain"].toString());
   ui->userLineEdit->setText(p["username"].toString());
   ui->useLowerCaseCheckBox->setChecked(p["useLowerCase"].toBool());
@@ -611,8 +671,8 @@ void MainWindow::loadDomainSettings(const QString &domain)
   ui->iterationsSpinBox->setValue(p["iterations"].toInt());
   ui->passwordLengthSpinBox->setValue(p["length"].toInt());
   ui->saltLineEdit->setText(p["salt"].toString());
-  mCreatedDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
-  mModifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
+  d->createdDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
+  d->modifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
   updateValidator();
   updatePassword();
 }
@@ -620,39 +680,65 @@ void MainWindow::loadDomainSettings(const QString &domain)
 
 void MainWindow::sync(void)
 {
+  Q_D(MainWindow);
   qDebug() << "MainWindow::sync()";
-  if (mCredentials.isEmpty()) {
-    enterCredentials();
+  if (d->masterPassword.isEmpty() || !d->masterPasswordValid) {
+    emit reenterCredentials();
   }
   else {
     // TODO: handle bad credentials
     bool rewriteSyncFile = false;
     QByteArray baDomains;
-    QFileInfo fi(mOptionsDialog->syncFilename());
-    qDebug() << "mOptionsDialog->syncFilename() =" << mOptionsDialog->syncFilename();
+    QFileInfo fi(d->optionsDialog->syncFilename());
+    qDebug() << "mOptionsDialog->syncFilename() =" << d->optionsDialog->syncFilename();
+    if (!fi.isFile()) {
+      qDebug() << "Sync file missing. Creating ...";
+      QFile syncFile(d->optionsDialog->syncFilename());
+      bool ok = syncFile.open(QIODevice::WriteOnly);
+      if (!ok) {
+        // TODO: handle error
+      }
+      const QByteArray &baDomains = encode(QByteArray("{}"));
+      syncFile.write(baDomains);
+      syncFile.close();
+    }
     if (fi.isFile() && fi.isReadable()) {
-      QFile syncFile(mOptionsDialog->syncFilename());
-      syncFile.open(QIODevice::ReadOnly);
+      QFile syncFile(d->optionsDialog->syncFilename());
+      bool ok = syncFile.open(QIODevice::ReadOnly);
+      if (!ok) {
+        // TODO: handle error
+      }
       baDomains = syncFile.readAll();
       syncFile.close();
     }
+    else {
+      // TODO: handle sync file not readable error
+    }
     QJsonDocument remoteJSON;
+    int errCode = -1;
+    QString errMsg;
     if (!baDomains.isEmpty()) {
-      std::string sDomains = decode(baDomains);
-      if (!sDomains.empty())
+      std::string sDomains = decode(baDomains, &errCode, &errMsg);
+      if (errCode == -1 && !sDomains.empty()) {
         remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
+      }
+      else {
+        d->masterPasswordValid = false;
+        wrongPasswordWarning(errCode, errMsg);
+        return;
+      }
     }
     QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
     qDebug() << "remoteDomains.keys() =" << remoteDomains.keys();
-    qDebug() << "mDomains.keys() =" << mDomains.keys();
-    const QSet<QString> &allDomainNames = (remoteDomains.keys() + mDomains.keys()).toSet();
+    qDebug() << "mDomains.keys() =" << d->domains.keys();
+    const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
     foreach(QString domainName, allDomainNames) {
       qDebug() << "Checking domain" << domainName;
       const QVariantMap &remoteDomain = remoteDomains.contains(domainName) ? remoteDomains[domainName].toMap() : QVariantMap();
-      const QVariantMap &localDomain = mDomains.contains(domainName) ? mDomains[domainName].toMap() : QVariantMap();
+      const QVariantMap &localDomain = d->domains.contains(domainName) ? d->domains[domainName].toMap() : QVariantMap();
       if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
         if (remoteDomain["mDate"].toDateTime() > localDomain["mDate"].toDateTime()) {
-          mDomains[domainName] = remoteDomain;
+          d->domains[domainName] = remoteDomain;
           qDebug() << "Updating local:" << domainName;
         }
         else {
@@ -667,18 +753,18 @@ void MainWindow::sync(void)
         rewriteSyncFile = true;
       }
       else {
-        mDomains[domainName] = remoteDomain;
+        d->domains[domainName] = remoteDomain;
         qDebug() << "Adding to local:" << domainName;
       }
     }
     remoteJSON = QJsonDocument::fromVariant(remoteDomains);
     qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
-    QJsonDocument localJSON = QJsonDocument::fromVariant(mDomains);
+    QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
     qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
     if (rewriteSyncFile) {
       qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
       const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
-      QFile syncFile(mOptionsDialog->syncFilename());
+      QFile syncFile(d->optionsDialog->syncFilename());
       syncFile.open(QIODevice::WriteOnly);
       qint64 bytesWritten = syncFile.write(baCipher);
       // TODO: handle bytesWritten < 0
@@ -691,14 +777,15 @@ void MainWindow::sync(void)
 
 void MainWindow::domainSelected(const QString &domain)
 {
-  loadDomainSettings(domain);
+  copyDomainSettingsToGUI(domain);
   setDirty(false);
 }
 
 
 void MainWindow::updateWindowTitle(void)
 {
-  setWindowTitle(AppName + " " + AppVersion + (mParameterSetDirty ? "*" : ""));
+  Q_D(MainWindow);
+  setWindowTitle(AppName + " " + AppVersion + (d->parameterSetDirty ? "*" : ""));
 }
 
 
@@ -710,37 +797,39 @@ void MainWindow::clearClipboard(void)
 
 void MainWindow::enterCredentials(void)
 {
-  mCredentialsDialog->show();
+  Q_D(MainWindow);
+  d->masterPasswordValid = false;
+  d->credentialsDialog->show();
 }
 
 
 void MainWindow::credentialsEntered(void)
 {
-  const QString &credentials = mCredentialsDialog->password();
+  Q_D(MainWindow);
+  const QString &credentials = d->credentialsDialog->password();
   if (!credentials.isEmpty()) {
-    mCredentials = credentials;
-    mCryptPassword.generate(PasswordParam(mCredentials.toLocal8Bit()));
+    d->masterPassword = credentials;
+    d->cryptPassword.generate(PasswordParam(d->masterPassword.toLocal8Bit()));
 #ifdef WIN32
-    memcpy_s(mAESKey, AESKeySize, mCryptPassword.derivedKey().data(), AESKeySize);
+    memcpy_s(d->AESKey, d->AESKeySize, d->cryptPassword.derivedKey().data(), d->AESKeySize);
 #else
-    memcpy(mAESKey, mCryptPassword.derivedKey().data(), AESKeySize);
+    memcpy(d->mAESKey, d->mCryptPassword.derivedKey().data(), d->AESKeySize);
 #endif
-    restoreDomainSettings();
-    if (ui->actionSyncOnStart->isChecked())
-      sync();
+    restoreDomainDataFromSettings();
+    updatePassword();
   }
   else {
-    enterCredentials();
+    emit reenterCredentials();
   }
 }
 
-
-void MainWindow::zeroize(QChar *pC, int len)
+template <class T>
+void MainWindow::zeroize(T *pC, int len)
 {
-  Q_ASSERT(pC != 0);
+  Q_ASSERT(pC != nullptr);
   Q_ASSERT(len > 0);
   while (len--)
-    *pC++ = QChar('\0');
+    *pC++ = T('\0');
 }
 
 
@@ -753,6 +842,19 @@ void MainWindow::zeroize(QLineEdit *lineEdit)
 }
 
 
+void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
+{
+  int button = QMessageBox::critical(
+        this,
+        tr("Decryption error"),
+        tr("An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Retry entering the correct password!").arg(errCode).arg(errMsg),
+        QMessageBox::Retry,
+        QMessageBox::NoButton);
+  if (button == QMessageBox::Retry)
+    emit reenterCredentials();
+}
+
+
 void MainWindow::invalidatePassword(QLineEdit *lineEdit) {
   zeroize(lineEdit);
   lineEdit->clear();
@@ -761,9 +863,9 @@ void MainWindow::invalidatePassword(QLineEdit *lineEdit) {
 
 void MainWindow::invalidatePassword(void)
 {
-  invalidatePassword(ui->masterPasswordLineEdit1);
-  invalidatePassword(ui->masterPasswordLineEdit2);
-  ui->masterPasswordLineEdit1->setFocus();
+  Q_D(MainWindow);
+  zeroize(d->masterPassword.data(), d->masterPassword.size());
+  d->masterPassword = QByteArray();
   ui->statusBar->showMessage(tr("Password cleared for security"), 5000);
 }
 
@@ -798,3 +900,5 @@ void MainWindow::aboutQt(void)
 {
   QMessageBox::aboutQt(this);
 }
+
+

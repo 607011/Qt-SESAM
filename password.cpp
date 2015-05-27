@@ -53,7 +53,6 @@ public:
 };
 
 
-
 const QString Password::LowerChars = "abcdefghijklmnopqrstuvwxyz";
 const QString Password::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const QString Password::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
