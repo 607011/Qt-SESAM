@@ -31,8 +31,6 @@
 #include "cryptopp562/aes.h"
 #include "cryptopp562/ccm.h"
 #include "cryptopp562/filters.h"
-#include "cryptopp562/secblock.h"
-
 
 #ifdef QT_DEBUG
 #include <QtDebug>
@@ -46,28 +44,29 @@ static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
+static const int DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
+static const int AESKeySize = 256 / 8;
+static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
+
 
 class MainWindowPrivate {
 public:
-  MainWindowPrivate(QWidget *parent = 0)
+  MainWindowPrivate(QWidget *parent = nullptr)
     : settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
     , trayIcon(QIcon(":/images/ctpwdgen.ico"), parent)
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
     , autoIncreaseIterations(true)
-    , completer(0)
+    , completer(nullptr)
     , credentialsDialog(new CredentialsDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , masterPasswordValid(false)
   { /* ... */ }
   ~MainWindowPrivate()
-  { /* ... */ }
-
-  static const int DefaultMasterPasswordInvalidationTimerIntervalMs;
-  static const int AESKeySize = 256 / 8;
-  static const unsigned char IV[16];
-
+  {
+    safeDelete(completer);
+  }
   CredentialsDialog *credentialsDialog;
   OptionsDialog *optionsDialog;
   QSettings settings;
@@ -86,12 +85,7 @@ public:
   bool masterPasswordValid;
   QTimer masterPasswordInvalidationTimer;
   unsigned char AESKey[AESKeySize];
-
 };
-
-
-const int MainWindowPrivate::DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
-const unsigned char MainWindowPrivate::IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
 
 
 
@@ -123,7 +117,6 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->forceExtrasCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->forceRegexCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  // QObject::connect(ui->masterPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(customCharacterSetChanged()));
@@ -215,7 +208,6 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 MainWindow::~MainWindow()
 {
   delete ui;
-  // safeDelete(d_ptr->mCompleter);
 }
 
 
@@ -292,7 +284,7 @@ void MainWindow::updatePassword(void)
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
-    d->masterPasswordInvalidationTimer.start(d->DefaultMasterPasswordInvalidationTimerIntervalMs);
+    d->masterPasswordInvalidationTimer.start(DefaultMasterPasswordInvalidationTimerIntervalMs);
   }
   if (!validConfiguration) {
     ui->generatedPasswordLineEdit->setText(QString());
@@ -524,7 +516,7 @@ void MainWindow::saveDomainDataToSettings(void)
 #ifdef QT_DEBUG
   std::string recovered;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-  dec.SetKeyWithIV(d->AESKey, d->AESKeySize, d->IV);
+  dec.SetKeyWithIV(d->AESKey, AESKeySize, IV);
   CryptoPP::StringSource s(
         cipher.toStdString(),
         true,
@@ -559,7 +551,7 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, int *errCode, QString *
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(d->AESKey, d->AESKeySize, d->IV);
+    enc.SetKeyWithIV(d->AESKey, AESKeySize, IV);
     CryptoPP::StringSource s(
           baPlain.toStdString(),
           true,
@@ -589,7 +581,7 @@ QByteArray MainWindow::decode(const QByteArray &baCipher, int *errCode, QString 
   std::string recovered;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(d->AESKey, d->AESKeySize, d->IV);
+    dec.SetKeyWithIV(d->AESKey, AESKeySize, IV);
     CryptoPP::StringSource s(
           baCipher.toStdString(),
           true,
@@ -811,9 +803,9 @@ void MainWindow::credentialsEntered(void)
     d->masterPassword = credentials;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toLocal8Bit()));
 #ifdef WIN32
-    memcpy_s(d->AESKey, d->AESKeySize, d->cryptPassword.derivedKey().data(), d->AESKeySize);
+    memcpy_s(d->AESKey, AESKeySize, d->cryptPassword.derivedKey().data(), AESKeySize);
 #else
-    memcpy(d->mAESKey, d->mCryptPassword.derivedKey().data(), d->AESKeySize);
+    memcpy(d->mAESKey, d->mCryptPassword.derivedKey().data(), AESKeySize);
 #endif
     restoreDomainDataFromSettings();
     updatePassword();
