@@ -21,7 +21,7 @@
 #include "ui_credentialsdialog.h"
 
 CredentialsDialog::CredentialsDialog(QWidget *parent)
-  : QDialog(parent)
+  : QDialog(parent, Qt::WindowTitleHint)
   , ui(new Ui::CredentialsDialog)
 {
   ui->setupUi(this);
@@ -35,12 +35,6 @@ CredentialsDialog::~CredentialsDialog()
 }
 
 
-QString CredentialsDialog::username(void) const
-{
-  return ui->usernameLineEdit->text();
-}
-
-
 QString CredentialsDialog::password(void) const
 {
   return ui->passwordLineEdit->text();
@@ -49,17 +43,17 @@ QString CredentialsDialog::password(void) const
 
 void CredentialsDialog::showEvent(QShowEvent *)
 {
-  ui->usernameLineEdit->selectAll();
-  ui->usernameLineEdit->setFocus();
+  ui->passwordLineEdit->selectAll();
+  ui->passwordLineEdit->setFocus();
 }
 
 
 void CredentialsDialog::okClicked(void)
 {
-  if (!ui->usernameLineEdit->text().isEmpty() && !ui->passwordLineEdit->text().isEmpty())
+  if (!ui->passwordLineEdit->text().isEmpty()) {
     accept();
-  if (ui->usernameLineEdit->text().isEmpty())
-    ui->usernameLineEdit->setFocus();
-  else
+  }
+  else {
     ui->passwordLineEdit->setFocus();
+  }
 }

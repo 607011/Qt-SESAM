@@ -35,9 +35,11 @@ public:
   ~OptionsDialog();
 
   QString syncFilename(void) const;
+  void setSyncFilename(const QString &);
 
 private slots:
   void chooseFile(void);
+  void okClicked(void);
 
 private:
   Ui::OptionsDialog *ui;

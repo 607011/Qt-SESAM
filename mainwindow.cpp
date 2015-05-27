@@ -23,8 +23,9 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QStringListModel>
-#include <QNetworkRequest>
-#include <QUrlQuery>
+#include <QStandardPaths>
+#include <QFile>
+#include <QFileInfo>
 
 #include "util.h"
 #include "cryptopp562/aes.h"
@@ -43,10 +44,6 @@ static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
-const QString MainWindow::DefaultServerRoot = "http://localhost/ctpwdgen-server";
-const QString MainWindow::DefaultWriteUrl = "/ajax/write.php";
-const QString MainWindow::DefaultReadUrl = "/ajax/read.php";
-const QString MainWindow::DefaultDeleteUrl = "/ajax/delete.php";
 const int MainWindow::DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
 const unsigned char MainWindow::IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
 
@@ -60,12 +57,6 @@ MainWindow::MainWindow(QWidget *parent)
   , mParameterSetDirty(false)
   , mAutoIncreaseIterations(true)
   , mCompleter(0)
-  , mServerRoot(DefaultServerRoot)
-  , mWriteUrl(DefaultWriteUrl)
-  , mReadUrl(DefaultReadUrl)
-  , mDeleteUrl(DefaultDeleteUrl)
-  , mNAM(new QNetworkAccessManager(this))
-  , mReply(0)
   , mCredentialsDialog(new CredentialsDialog(this))
   , mOptionsDialog(new OptionsDialog(this))
 {
@@ -121,11 +112,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), mOptionsDialog, SLOT(show()));
-  QObject::connect(mNAM, SIGNAL(finished(QNetworkReply*)), SLOT(replyFinished(QNetworkReply*)));
-  QObject::connect(mNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-  QObject::connect(&mLoaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(mCredentialsDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
-  QObject::connect(mOptionsDialog, SIGNAL(accepted()), SLOT(optionsChanged()));
   QObject::connect(&mMasterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
 #ifdef QT_DEBUG
@@ -192,7 +179,6 @@ MainWindow::~MainWindow()
 {
   delete ui;
   safeDelete(mCompleter);
-  safeDelete(mNAM);
 }
 
 
@@ -471,53 +457,30 @@ void MainWindow::saveCurrentSettings(void)
 
 void MainWindow::saveDomainSettings(DomainSettings domainSettings)
 {
+  qDebug() << "MainWindow::saveDomainSettings() for domain" << domainSettings.domain;
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
   if (domains.contains(domainSettings.domain, Qt::CaseInsensitive)) {
     domainSettings.mDate = QDateTime::currentDateTime();
   }
   else {
+    domainSettings.cDate = QDateTime::currentDateTime();
     domains << domainSettings.domain;
     model->setStringList(domains);
-    domainSettings.cDate = QDateTime::currentDateTime();
   }
-  if (mServerCredentials.isEmpty()) {
-    enterCredentials();
-  }
-  else {
-    QUrlQuery params;
-    params.addQueryItem("data", QJsonDocument::fromVariant(domainSettings.toVariant()).toJson(QJsonDocument::Compact));
-    const QByteArray &data = params.query().toUtf8();
-    QNetworkRequest req(QUrl(mServerRoot + mWriteUrl));
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-    req.setRawHeader("Authorization", mServerCredentials.toLocal8Bit());
-    mReply = mNAM->post(req, data);
-    mDomains[domainSettings.domain] = domainSettings.toVariant();
-    mLoaderIcon.start();
-    updateSaveButtonIcon();
-  }
+  mDomains[domainSettings.domain] = domainSettings.toVariant();
+  sync();
 }
 
-void MainWindow::saveDomainSettings(void)
+
+QByteArray MainWindow::encode(const QByteArray &baPlain)
 {
-  Q_ASSERT(!mServerCredentials.isEmpty());
-
-  Password pwd;
-  pwd.generate(PasswordParam(mServerCredentials.toLocal8Bit()));
-#ifdef WIN32
-  memcpy_s(mAESKey, AESKeySize, pwd.derivedKey().data(), AESKeySize);
-#else
-  memcpy(mAESKey, mPassword.derivedKey().data(), AESKeySize);
-#endif
-
-  std::string plain = QJsonDocument::fromVariant(mDomains).toJson(QJsonDocument::Compact).toStdString();
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
     enc.SetKeyWithIV(mAESKey, AESKeySize, IV);
     CryptoPP::StringSource s(
-          plain,
+          baPlain.toStdString(),
           true,
           new CryptoPP::StreamTransformationFilter(
             enc,
@@ -531,12 +494,23 @@ void MainWindow::saveDomainSettings(void)
     QMessageBox::critical(this, tr("Encryption error"), tr("Something bad has happened while encrypting your settings. Your settings may not have been saved. Error message: %1").arg(QString::fromStdString(e.what())));
   }
 
+  return QByteArray::fromStdString(cipher);
+}
+
+
+void MainWindow::saveDomainSettings(void)
+{
+#ifdef QT_DEBUG
+  std::string plain = QJsonDocument::fromVariant(mDomains).toJson(QJsonDocument::Compact).toStdString();
+#endif
+  QByteArray cipher = encode(QJsonDocument::fromVariant(mDomains).toJson(QJsonDocument::Compact));
+
 #ifdef QT_DEBUG
   std::string recovered;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
   dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
   CryptoPP::StringSource s(
-        cipher,
+        cipher.toStdString(),
         true,
         new CryptoPP::StreamTransformationFilter(
           dec,
@@ -547,90 +521,60 @@ void MainWindow::saveDomainSettings(void)
   Q_ASSERT(recovered == plain);
 #endif
 
-  mSettings.setValue("data/domains", QByteArray::fromStdString(cipher).toBase64());
+  mSettings.setValue("data/domains", cipher);
+  sync();
 }
+
 
 void MainWindow::saveSettings(void)
 {
   mSettings.setValue("mainwindow/geometry", geometry());
-  mSettings.setValue("sync/serverRoot", mServerRoot);
-  mSettings.setValue("sync/writeUrl", mWriteUrl);
-  mSettings.setValue("sync/readUrl", mReadUrl);
-  mSettings.setValue("sync/deleteUrl", mDeleteUrl);
   mSettings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
+  mSettings.setValue("sync/filename", mOptionsDialog->syncFilename());
   saveDomainSettings();
   mSettings.sync();
 }
 
 
-void MainWindow::replyFinished(QNetworkReply *reply)
+QByteArray MainWindow::decode(const QByteArray &baCipher)
 {
-  mLoaderIcon.stop();
-  updateSaveButtonIcon();
-  if (reply->error() == QNetworkReply::NoError) {
-    const QByteArray &result = reply->readAll();
-    QJsonParseError error;
-    QJsonDocument json = QJsonDocument::fromJson(result, &error);
-    QVariantMap map = json.toVariant().toMap();
-    QMessageBox::information(this, "Network Reply", result.trimmed(), QMessageBox::Ok);
+  Q_ASSERT(!baCipher.isEmpty());
+  std::string recovered;
+  try {
+    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+    dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
+    CryptoPP::StringSource s(
+          baCipher.toStdString(),
+          true,
+          new CryptoPP::StreamTransformationFilter(
+            dec,
+            new CryptoPP::StringSink(recovered)
+            )
+          );
+    Q_UNUSED(s);
   }
-  else {
-    QMessageBox::critical(this, "Critical Network Error", reply->errorString(), QMessageBox::Ok);
+  catch(const CryptoPP::Exception &e)
+  {
+    QMessageBox::critical(this, tr("Decryption error"), tr("Something bad has happened while decrypting your settings. Your settings may not have been loaded. Error message: %1").arg(QString::fromStdString(e.what())));
   }
+  return QByteArray::fromStdString(recovered);
 }
 
 
 void MainWindow::restoreDomainSettings(void)
 {
-  Q_ASSERT(!mServerCredentials.isEmpty());
-
-  Password pwd;
-  pwd.generate(PasswordParam(mServerCredentials.toLocal8Bit()));
-#ifdef WIN32
-  memcpy_s(mAESKey, AESKeySize, pwd.derivedKey().data(), AESKeySize);
-#else
-  memcpy(mAESKey, mPassword.derivedKey().data(), AESKeySize);
-#endif
-
+  Q_ASSERT(!mCredentials.isEmpty());
+  qDebug() << "MainWindow::restoreDomainSettings()";
   QJsonDocument json;
-  const QByteArray &baDomains = mSettings.value("data/domains").toByteArray();
   QStringList domains;
+  const QByteArray &baDomains = mSettings.value("data/domains").toByteArray();
   if (!baDomains.isEmpty()) {
-    std::string cipher = QByteArray::fromBase64(baDomains).toStdString();
-    std::string recovered;
-    try {
-      CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-      dec.SetKeyWithIV(mAESKey, AESKeySize, IV);
-#if 1
-      CryptoPP::StringSource s(
-            cipher,
-            true,
-            new CryptoPP::StreamTransformationFilter(
-              dec,
-              new CryptoPP::StringSink(recovered)
-              )
-            );
-      Q_UNUSED(s);
-#else
-      CryptoPP::StreamTransformationFilter filter(dec);
-      filter.Put((const byte*)cipher.data(), cipher.size());
-      filter.MessageEnd();
-      const size_t ret = filter.MaxRetrievable();
-      recovered.resize(ret);
-      filter.Get((byte*)recovered.data(), recovered.size());
-#endif
-    }
-    catch(const CryptoPP::Exception &e)
-    {
-      QMessageBox::critical(this, tr("Decryption error"), tr("Something bad has happened while decrypting your settings. Your settings may not have been loaded. Error message: %1").arg(QString::fromStdString(e.what())));
-    }
-    json = QJsonDocument::fromJson(QByteArray::fromStdString(recovered));
+    QByteArray recovered = decode(baDomains);
+    json = QJsonDocument::fromJson(recovered);
     domains = json.object().keys();
   }
-
   mDomains = json.toVariant().toMap();
   ui->statusBar->showMessage(tr("Restored %1 domains.").arg(mDomains.count()), 5000);
-
   if (mCompleter) {
     QObject::disconnect(mCompleter, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
     delete mCompleter;
@@ -644,10 +588,8 @@ void MainWindow::restoreDomainSettings(void)
 void MainWindow::restoreSettings(void)
 {
   restoreGeometry(mSettings.value("mainwindow/geometry").toByteArray());
-  mServerRoot = mSettings.value("sync/serverRoot", DefaultServerRoot).toString();
-  mWriteUrl = mSettings.value("sync/writeUrl", DefaultWriteUrl).toString();
-  mReadUrl = mSettings.value("sync/readUrl", DefaultReadUrl).toString();
-  mDeleteUrl = mSettings.value("sync/deleteUrl", DefaultDeleteUrl).toString();
+  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
+  mOptionsDialog->setSyncFilename(mSettings.value("sync/filename", defaultSyncFilename).toString());
   ui->actionSyncOnStart->setChecked(mSettings.value("sync/onStart", true).toBool());
 }
 
@@ -678,18 +620,71 @@ void MainWindow::loadDomainSettings(const QString &domain)
 
 void MainWindow::sync(void)
 {
-  if (mServerCredentials.isEmpty()) {
+  qDebug() << "MainWindow::sync()";
+  if (mCredentials.isEmpty()) {
     enterCredentials();
   }
   else {
-    QUrlQuery params;
-    params.addQueryItem("what", "all");
-    const QByteArray &data = params.query().toUtf8();
-    QNetworkRequest req(QUrl(mServerRoot + mReadUrl));
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-    req.setRawHeader("Authorization", mServerCredentials.toLocal8Bit());
-    mReply = mNAM->post(req, data);
+    // TODO: handle bad credentials
+    bool rewriteSyncFile = false;
+    QByteArray baDomains;
+    QFileInfo fi(mOptionsDialog->syncFilename());
+    qDebug() << "mOptionsDialog->syncFilename() =" << mOptionsDialog->syncFilename();
+    if (fi.isFile() && fi.isReadable()) {
+      QFile syncFile(mOptionsDialog->syncFilename());
+      syncFile.open(QIODevice::ReadOnly);
+      baDomains = syncFile.readAll();
+      syncFile.close();
+    }
+    QJsonDocument remoteJSON;
+    if (!baDomains.isEmpty()) {
+      std::string sDomains = decode(baDomains);
+      if (!sDomains.empty())
+        remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
+    }
+    QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
+    qDebug() << "remoteDomains.keys() =" << remoteDomains.keys();
+    qDebug() << "mDomains.keys() =" << mDomains.keys();
+    const QSet<QString> &allDomainNames = (remoteDomains.keys() + mDomains.keys()).toSet();
+    foreach(QString domainName, allDomainNames) {
+      qDebug() << "Checking domain" << domainName;
+      const QVariantMap &remoteDomain = remoteDomains.contains(domainName) ? remoteDomains[domainName].toMap() : QVariantMap();
+      const QVariantMap &localDomain = mDomains.contains(domainName) ? mDomains[domainName].toMap() : QVariantMap();
+      if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
+        if (remoteDomain["mDate"].toDateTime() > localDomain["mDate"].toDateTime()) {
+          mDomains[domainName] = remoteDomain;
+          qDebug() << "Updating local:" << domainName;
+        }
+        else {
+          remoteDomains[domainName] = localDomain;
+          rewriteSyncFile = true;
+          qDebug() << "Updating remote:" << domainName;
+        }
+      }
+      else if (remoteDomain.isEmpty()) {
+        remoteDomains[domainName] = localDomain;
+        qDebug() << "Adding to remote:" << domainName;
+        rewriteSyncFile = true;
+      }
+      else {
+        mDomains[domainName] = remoteDomain;
+        qDebug() << "Adding to local:" << domainName;
+      }
+    }
+    remoteJSON = QJsonDocument::fromVariant(remoteDomains);
+    qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
+    QJsonDocument localJSON = QJsonDocument::fromVariant(mDomains);
+    qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
+    if (rewriteSyncFile) {
+      qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
+      const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
+      QFile syncFile(mOptionsDialog->syncFilename());
+      syncFile.open(QIODevice::WriteOnly);
+      qint64 bytesWritten = syncFile.write(baCipher);
+      // TODO: handle bytesWritten < 0
+      qDebug() << "bytesWritten: " << bytesWritten;
+      syncFile.close();
+    }
   }
 }
 
@@ -706,28 +701,10 @@ void MainWindow::updateWindowTitle(void)
   setWindowTitle(AppName + " " + AppVersion + (mParameterSetDirty ? "*" : ""));
 }
 
+
 void MainWindow::clearClipboard(void)
 {
   QApplication::clipboard()->clear();
-}
-
-
-void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
-{
-  Q_UNUSED(reply);
-  Q_UNUSED(errors);
-  // ...
-}
-
-
-void MainWindow::updateSaveButtonIcon(int)
-{
-  if (mReply != nullptr && mReply->isRunning()) {
-    ui->savePushButton->setIcon(QIcon(mLoaderIcon.currentPixmap()));
-  }
-  else {
-    ui->savePushButton->setIcon(QIcon());
-  }
 }
 
 
@@ -739,23 +716,22 @@ void MainWindow::enterCredentials(void)
 
 void MainWindow::credentialsEntered(void)
 {
-  const QString &username = mCredentialsDialog->username();
-  const QString &password = mCredentialsDialog->password();
-  if (!username.isEmpty() && !password.isEmpty()) {
-    const QString &concatenated = username + ":" + password;
-    mServerCredentials = "Basic " + concatenated.toLocal8Bit().toBase64();
+  const QString &credentials = mCredentialsDialog->password();
+  if (!credentials.isEmpty()) {
+    mCredentials = credentials;
+    mCryptPassword.generate(PasswordParam(mCredentials.toLocal8Bit()));
+#ifdef WIN32
+    memcpy_s(mAESKey, AESKeySize, mCryptPassword.derivedKey().data(), AESKeySize);
+#else
+    memcpy(mAESKey, mCryptPassword.derivedKey().data(), AESKeySize);
+#endif
     restoreDomainSettings();
-    sync();
+    if (ui->actionSyncOnStart->isChecked())
+      sync();
   }
   else {
     enterCredentials();
   }
-}
-
-
-void MainWindow::optionsChanged(void)
-{
-  // TODO ...
 }
 
 

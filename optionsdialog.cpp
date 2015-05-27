@@ -21,13 +21,14 @@
 #include "ui_optionsdialog.h"
 
 #include <QFileDialog>
+#include <QFileInfo>
 
 OptionsDialog::OptionsDialog(QWidget *parent)
-  : QDialog(parent)
+  : QDialog(parent, Qt::Widget)
   , ui(new Ui::OptionsDialog)
 {
   ui->setupUi(this);
-  QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(accept()));
+  QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseFile()));
 }
@@ -45,9 +46,28 @@ QString OptionsDialog::syncFilename(void) const
 }
 
 
+void OptionsDialog::setSyncFilename(const QString &syncFilename)
+{
+  ui->syncFileLineEdit->setText(syncFilename);
+}
+
+
 void OptionsDialog::chooseFile(void)
 {
-  QString lastDir;
-  QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose sync file"), lastDir);
-  ui->syncFileLineEdit->setText(chosenFile);
+  QFileInfo fi(ui->syncFileLineEdit->text());
+  QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), fi.absolutePath());
+  if (!chosenFile.isEmpty())
+    ui->syncFileLineEdit->setText(chosenFile);
+}
+
+
+void OptionsDialog::okClicked(void)
+{
+  QFileInfo fi(ui->syncFileLineEdit->text());
+  if (fi.isFile()) {
+    accept();
+  }
+  else {
+    reject();
+  }
 }

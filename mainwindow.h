@@ -32,8 +32,6 @@
 #include <QJsonDocument>
 #include <QVariantMap>
 #include <QUrl>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QSystemTrayIcon>
 
 #include "domainsettings.h"
@@ -44,7 +42,6 @@
 namespace Ui {
 class MainWindow;
 }
-
 
 class MainWindow : public QMainWindow
 {
@@ -72,16 +69,12 @@ private slots:
   void newDomain(void);
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
-  void replyFinished(QNetworkReply*);
   void sync(void);
   void clearClipboard(void);
-  void sslErrorsOccured(QNetworkReply*,QList<QSslError>);
-  void updateSaveButtonIcon(int frame = 0);
   void about(void);
   void aboutQt(void);
   void enterCredentials(void);
   void credentialsEntered(void);
-  void optionsChanged(void);
   void invalidatePassword(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
@@ -100,12 +93,10 @@ private: // methods
   void zeroize(QLineEdit *);
   void zeroize(QChar *, int len);
   void invalidatePassword(QLineEdit*);
+  QByteArray decode(const QByteArray &);
+  QByteArray encode(const QByteArray &);
 
 private:
-  static const QString DefaultServerRoot;
-  static const QString DefaultWriteUrl;
-  static const QString DefaultReadUrl;
-  static const QString DefaultDeleteUrl;
   static const int DefaultMasterPasswordInvalidationTimerIntervalMs;
   static const int AESKeySize = 256 / 8;
   static const unsigned char IV[16];
@@ -121,15 +112,10 @@ private:
   bool mAutoIncreaseIterations;
   QCompleter *mCompleter;
   Password mPassword;
-  QString mServerRoot;
-  QString mWriteUrl;
-  QString mReadUrl;
-  QString mDeleteUrl;
-  QNetworkAccessManager *mNAM;
-  QNetworkReply *mReply;
+  Password mCryptPassword;
   QDateTime mCreatedDate;
   QDateTime mModifiedDate;
-  QString mServerCredentials;
+  QString mCredentials;
   QSystemTrayIcon mTrayIcon;
   QTimer mMasterPasswordInvalidationTimer;
   unsigned char mAESKey[AESKeySize];

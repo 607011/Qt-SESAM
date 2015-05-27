@@ -36,7 +36,8 @@ public:
   explicit CredentialsDialog(QWidget *parent = 0);
   ~CredentialsDialog();
 
-  QString username(void) const;
+  void enableUsernameField(bool);
+
   QString password(void) const;
 
 protected:
