@@ -43,7 +43,7 @@ public:
     , passwordLength(10)
     , iterations(4096)
   { /* ... */ }
-  PasswordParamBase(const PasswordParamBase &o)
+  explicit PasswordParamBase(const PasswordParamBase &o)
     : domain(o.domain)
     , salt(o.salt)
     , masterPwd(o.masterPwd)
@@ -62,7 +62,7 @@ public:
 
 class PasswordParam : public PasswordParamBase {
 public:
-  PasswordParam(const QByteArray &masterPwd)
+  explicit PasswordParam(const QByteArray &masterPwd)
   {
     this->masterPwd = masterPwd;
   }
@@ -95,7 +95,7 @@ class Password : public QObject
   Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
 
 public:
-  explicit Password(QObject *parent = 0);
+  explicit Password(QObject *parent = nullptr);
   ~Password();
 
   void abortGeneration(void);
