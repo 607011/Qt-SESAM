@@ -59,7 +59,7 @@ public:
     , parameterSetDirty(false)
     , autoIncreaseIterations(true)
     , completer(nullptr)
-    , credentialsDialog(new CredentialsDialog(parent))
+    , masterPasswordDialog(new CredentialsDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , masterPasswordValid(false)
   { /* ... */ }
@@ -67,7 +67,7 @@ public:
   {
     safeDelete(completer);
   }
-  CredentialsDialog *credentialsDialog;
+  CredentialsDialog *masterPasswordDialog;
   OptionsDialog *optionsDialog;
   QSettings settings;
   QVariantMap domains;
@@ -142,9 +142,9 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
-  QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterCredentials()));
+  QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterCredentials()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
-  QObject::connect(d->credentialsDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
+  QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
 #ifdef QT_DEBUG
@@ -277,10 +277,9 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::updatePassword()";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty()) {
+  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty() && d->masterPasswordValid) {
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
@@ -624,7 +623,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
     domains = json.object().keys();
   }
   d->domains = json.toVariant().toMap();
-  ui->statusBar->showMessage(tr("Restored %1 domains.").arg(d->domains.count()), 5000);
+  ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
   if (d->completer) {
     QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
     delete d->completer;
@@ -791,17 +790,17 @@ void MainWindow::enterCredentials(void)
 {
   Q_D(MainWindow);
   d->masterPasswordValid = false;
-  d->credentialsDialog->show();
+  d->masterPasswordDialog->show();
 }
 
 
 void MainWindow::credentialsEntered(void)
 {
   Q_D(MainWindow);
-  const QString &credentials = d->credentialsDialog->password();
-  if (!credentials.isEmpty()) {
-    d->masterPassword = credentials;
-    d->cryptPassword.generate(PasswordParam(d->masterPassword.toLocal8Bit()));
+  const QString &masterPwd = d->masterPasswordDialog->password();
+  if (!masterPwd.isEmpty()) {
+    d->masterPassword = masterPwd;
+    d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
 #ifdef WIN32
     memcpy_s(d->AESKey, AESKeySize, d->cryptPassword.derivedKey().data(), AESKeySize);
 #else
