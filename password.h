@@ -27,62 +27,19 @@
 #include <QStringList>
 #include <QScopedPointer>
 
-class PasswordPrivate;
-struct PasswordParam;
-
-class Password : public QObject
-{
-  Q_OBJECT
-  Q_PROPERTY(QString key READ key)
-  Q_PROPERTY(QString hexKey READ hexKey)
-  Q_PROPERTY(QString elapsedSeconds READ elapsedSeconds)
-  Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
-
+class PasswordParamBase {
 public:
-  explicit Password(QObject *parent = 0);
-  ~Password();
-
   static const QString LowerChars;
   static const QString UpperChars;
   static const QString UpperCharsNoAmbiguous;
   static const QString Digits;
   static const QString ExtraChars;
 
-  void abortGeneration(void);
-  bool generate(const PasswordParam &p);
-  void generateAsync(const PasswordParam &p);
-  bool setValidator(const QRegExp &);
-  const QRegExp &validator(void) const;
-  bool setValidCharacters(const QStringList &canContain, const QStringList &mustContain);
-  bool isValid(void) const;
-  const QByteArray &derivedKey(void) const;
-  const QString &key(void) const;
-  const QString &hexKey(void) const;
-  qreal elapsedSeconds(void) const;
-  bool isRunning(void) const;
-  void waitForFinished(void);
-
-  QString errorString(void) const;
-
-signals:
-  void generationStarted(void);
-  void generated(void);
-  void generationAborted(void);
-
-private:
-  QScopedPointer<PasswordPrivate> d_ptr;
-  Q_DECLARE_PRIVATE(Password)
-  Q_DISABLE_COPY(Password)
-};
-
-
-class PasswordParamBase {
-public:
   PasswordParamBase(void)
     : domain("none")
     , salt("This is my salt. There are many like it, but this one is mine.")
     , masterPwd("Pl4c3 4n Incr3d1bly h4rd 7o 6u355 p4SSw0rd h3r3!")
-    , availableChars(Password::Digits)
+    , availableChars(Digits)
     , passwordLength(10)
     , iterations(4096)
   { /* ... */ }
@@ -105,8 +62,6 @@ public:
 
 class PasswordParam : public PasswordParamBase {
 public:
-  PasswordParam(void)
-  { /* ... */ }
   PasswordParam(const QByteArray &masterPwd)
   {
     this->masterPwd = masterPwd;
@@ -126,6 +81,47 @@ public:
     this->passwordLength = passwordLength;
     this->iterations = iterations;
   }
+};
+
+
+class PasswordPrivate;
+
+class Password : public QObject
+{
+  Q_OBJECT
+  Q_PROPERTY(QString key READ key)
+  Q_PROPERTY(QString hexKey READ hexKey)
+  Q_PROPERTY(QString elapsedSeconds READ elapsedSeconds)
+  Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
+
+public:
+  explicit Password(QObject *parent = 0);
+  ~Password();
+
+  void abortGeneration(void);
+  bool generate(const PasswordParam &p);
+  void generateAsync(const PasswordParam &p);
+  bool setValidator(const QRegExp &);
+  const QRegExp &validator(void) const;
+  bool setValidCharacters(const QStringList &canContain, const QStringList &mustContain);
+  bool isValid(void) const;
+  const QByteArray &derivedKey(void) const;
+  const QString &key(void) const;
+  const QString &hexKey(void) const;
+  qreal elapsedSeconds(void) const;
+  bool isRunning(void) const;
+  void waitForFinished(void);
+  QString errorString(void) const;
+
+signals:
+  void generationStarted(void);
+  void generated(void);
+  void generationAborted(void);
+
+private:
+  QScopedPointer<PasswordPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Password)
+  Q_DISABLE_COPY(Password)
 };
 
 

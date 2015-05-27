@@ -53,11 +53,11 @@ public:
 };
 
 
-const QString Password::LowerChars = "abcdefghijklmnopqrstuvwxyz";
-const QString Password::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const QString Password::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
-const QString Password::Digits = "0123456789";
-const QString Password::ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
+const QString PasswordParamBase::LowerChars = "abcdefghijklmnopqrstuvwxyz";
+const QString PasswordParamBase::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const QString PasswordParamBase::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
+const QString PasswordParamBase::Digits = "0123456789";
+const QString PasswordParamBase::ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
 
 
 Password::Password(QObject *parent)

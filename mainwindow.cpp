@@ -307,13 +307,13 @@ void MainWindow::updateUsedCharacters(void)
     stopPasswordGeneration();
     QString passwordCharacters;
     if (ui->useLowerCaseCheckBox->isChecked())
-      passwordCharacters += Password::LowerChars;
+      passwordCharacters += PasswordParam::LowerChars;
     if (ui->useUpperCaseCheckBox->isChecked())
-      passwordCharacters += ui->avoidAmbiguousCheckBox->isChecked() ? Password::UpperCharsNoAmbiguous : Password::UpperChars;
+      passwordCharacters += ui->avoidAmbiguousCheckBox->isChecked() ? PasswordParam::UpperCharsNoAmbiguous : PasswordParam::UpperChars;
     if (ui->useDigitsCheckBox->isChecked())
-      passwordCharacters += Password::Digits;
+      passwordCharacters += PasswordParam::Digits;
     if (ui->useExtrasCheckBox->isChecked())
-      passwordCharacters += Password::ExtraChars;
+      passwordCharacters += PasswordParam::ExtraChars;
     ui->customCharactersPlainTextEdit->blockSignals(true);
     ui->customCharactersPlainTextEdit->setPlainText(passwordCharacters);
     ui->customCharactersPlainTextEdit->blockSignals(false);
@@ -441,7 +441,7 @@ void MainWindow::updateValidator(void)
     if (ui->useDigitsCheckBox->isChecked())
       canContain << "0-9";
     if (ui->useExtrasCheckBox->isChecked())
-      canContain << Password::ExtraChars;
+      canContain << PasswordParam::ExtraChars;
     if (ui->forceLowerCaseCheckBox->isChecked())
       mustContain << "[a-z]";
     if (ui->forceUpperCaseCheckBox->isChecked())
@@ -449,7 +449,7 @@ void MainWindow::updateValidator(void)
     if (ui->forceDigitsCheckBox->isChecked())
       mustContain << "[0-9]";
     if (ui->forceExtrasCheckBox->isChecked())
-      mustContain << "[" + Password::ExtraChars + "]";
+      mustContain << "[" + PasswordParam::ExtraChars + "]";
     ok = d->password.setValidCharacters(canContain, mustContain);
     if (ok) {
       ui->forceRegexPlainTextEdit->blockSignals(true);
