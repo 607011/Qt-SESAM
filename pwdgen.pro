@@ -112,3 +112,6 @@ DISTFILES += \
     README.md \
     ctpwdgen.rc \
     deploy/ctpwdgen.nsi
+
+OTHER_FILES += \
+    TODO.md
