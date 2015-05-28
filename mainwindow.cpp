@@ -44,6 +44,7 @@ static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
+static const QString Salt = "pepper";
 static const int DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
 static const int AESKeySize = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
@@ -99,7 +100,6 @@ MainWindow::MainWindow(QWidget *parent)
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->forceRegexPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
@@ -117,7 +117,6 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->forceExtrasCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->forceRegexCheckBox, SIGNAL(toggled(bool)), SLOT(updateValidator()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  QObject::connect(ui->saltLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(customCharacterSetChanged()));
   QObject::connect(ui->forceRegexPlainTextEdit, SIGNAL(textChanged()), SLOT(updateValidator()));
@@ -153,7 +152,6 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 
 #ifdef QT_DEBUG
-  ui->saltLineEdit->setEnabled(true);
   ui->domainLineEdit->setText("foo bar");
   ui->avoidAmbiguousCheckBox->setChecked(true);
 #endif
@@ -248,7 +246,6 @@ void MainWindow::newDomain(void)
   ui->useExtrasCheckBox->setChecked(domainSettings.useExtra);
   ui->iterationsSpinBox->setValue(domainSettings.iterations);
   ui->passwordLengthSpinBox->setValue(domainSettings.length);
-  ui->saltLineEdit->setText(domainSettings.salt);
   ui->forceRegexPlainTextEdit->setPlainText(domainSettings.validatorRegEx.pattern());
   ui->forceRegexCheckBox->setChecked(domainSettings.forceValidation);
   updateValidator();
@@ -319,7 +316,7 @@ void MainWindow::generatePassword(void)
   d->password.generateAsync(
         PasswordParam(
           ui->domainLineEdit->text().toUtf8(),
-          ui->saltLineEdit->text().toUtf8(),
+          Salt.toUtf8(),
           d->masterPassword.toUtf8(),
           ui->customCharactersPlainTextEdit->toPlainText(),
           ui->passwordLengthSpinBox->value(),
@@ -472,7 +469,7 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.avoidAmbiguous = ui->avoidAmbiguousCheckBox->isChecked();
   domainSettings.customCharacters = ui->customCharactersPlainTextEdit->toPlainText();
   domainSettings.iterations = ui->iterationsSpinBox->value();
-  domainSettings.salt = ui->saltLineEdit->text();
+  domainSettings.salt = Salt;
   domainSettings.length = ui->passwordLengthSpinBox->value();
   domainSettings.validatorRegEx = d->password.validator();
   domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
@@ -661,7 +658,6 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
   ui->customCharactersPlainTextEdit->blockSignals(false);
   ui->iterationsSpinBox->setValue(p["iterations"].toInt());
   ui->passwordLengthSpinBox->setValue(p["length"].toInt());
-  ui->saltLineEdit->setText(p["salt"].toString());
   d->createdDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
   d->modifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
   updateValidator();

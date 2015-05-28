@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>466</height>
+    <width>589</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ctpwdgen</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="title">
@@ -83,7 +83,7 @@
           </item>
           <item row="8" column="0">
            <widget class="QPlainTextEdit" name="customCharactersPlainTextEdit">
-            <property name="placeholderText">
+            <property name="placeholderText" stdset="0">
              <string>your custom characters</string>
             </property>
            </widget>
@@ -180,7 +180,7 @@
             <property name="plainText">
              <string/>
             </property>
-            <property name="placeholderText">
+            <property name="placeholderText" stdset="0">
              <string>regular expression to validate generated password</string>
             </property>
            </widget>
@@ -197,33 +197,10 @@
        </item>
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="iterationsSpinBox">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>16777216</number>
-           </property>
-           <property name="singleStep">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>4096</number>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
+         <item row="5" column="1">
           <widget class="QPushButton" name="savePushButton">
            <property name="text">
             <string>Save</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Salt</string>
            </property>
           </widget>
          </item>
@@ -240,12 +217,18 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Domain</string>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="passwordLengthSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>10</number>
            </property>
           </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="userLineEdit"/>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_8">
@@ -254,7 +237,37 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="iterationsSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>16777216</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>4096</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Min. iterations</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Domain</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -266,42 +279,6 @@
             </size>
            </property>
           </spacer>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="userLineEdit"/>
-         </item>
-         <item row="4" column="1">
-          <widget class="QSpinBox" name="passwordLengthSpinBox">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>10</number>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="saltLineEdit">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>pepper</string>
-           </property>
-           <property name="readOnly">
-            <bool>false</bool>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Min. iterations</string>
-           </property>
-          </widget>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_6">
@@ -316,84 +293,86 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_4">
-      <property name="text">
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="title">
        <string>Generated password</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLineEdit" name="generatedPasswordLineEdit">
-        <property name="font">
-         <font>
-          <family>Courier New</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="placeholderText">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="processLabel">
-        <property name="minimumSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cancelPushButton">
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QPushButton" name="copyPasswordToClipboardPushButton">
-      <property name="text">
-       <string>Copy password to clipboard</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPlainTextEdit" name="hashPlainTextEdit">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Courier New</family>
-       </font>
-      </property>
-      <property name="placeholderText">
-       <string>SHA512 hash (hex)</string>
-      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="generatedPasswordLineEdit">
+           <property name="font">
+            <font>
+             <family>Courier New</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="processLabel">
+           <property name="minimumSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cancelPushButton">
+           <property name="text">
+            <string>Cancel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="copyPasswordToClipboardPushButton">
+         <property name="text">
+          <string>Copy password to clipboard</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="hashPlainTextEdit">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Courier New</family>
+          </font>
+         </property>
+         <property name="placeholderText" stdset="0">
+          <string>SHA512 hash (hex)</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -403,7 +382,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>611</width>
+     <width>589</width>
      <height>21</height>
     </rect>
    </property>
@@ -504,7 +483,6 @@
   <tabstop>userLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>saltLineEdit</tabstop>
   <tabstop>savePushButton</tabstop>
   <tabstop>useLowerCaseCheckBox</tabstop>
   <tabstop>useUpperCaseCheckBox</tabstop>
