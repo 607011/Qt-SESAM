@@ -83,7 +83,7 @@
           </item>
           <item row="8" column="0">
            <widget class="QPlainTextEdit" name="customCharactersPlainTextEdit">
-            <property name="placeholderText" stdset="0">
+            <property name="placeholderText">
              <string>your custom characters</string>
             </property>
            </widget>
@@ -180,7 +180,7 @@
             <property name="plainText">
              <string/>
             </property>
-            <property name="placeholderText" stdset="0">
+            <property name="placeholderText">
              <string>regular expression to validate generated password</string>
             </property>
            </widget>
@@ -202,6 +202,9 @@
            <property name="text">
             <string>Save</string>
            </property>
+           <property name="shortcut">
+            <string>Ctrl+S</string>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -214,6 +217,9 @@
            </property>
            <property name="text">
             <string/>
+           </property>
+           <property name="placeholderText">
+            <string>mandatory</string>
            </property>
           </widget>
          </item>
@@ -228,7 +234,11 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="userLineEdit"/>
+          <widget class="QLineEdit" name="userLineEdit">
+           <property name="placeholderText">
+            <string>may be empty</string>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_8">
@@ -312,7 +322,7 @@
             <bool>true</bool>
            </property>
            <property name="placeholderText">
-            <string/>
+            <string>the generated password appears here</string>
            </property>
           </widget>
          </item>
@@ -367,7 +377,7 @@
            <family>Courier New</family>
           </font>
          </property>
-         <property name="placeholderText" stdset="0">
+         <property name="placeholderText">
           <string>SHA512 hash (hex)</string>
          </property>
         </widget>
@@ -426,6 +436,9 @@
    <property name="text">
     <string>New domain</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionAbout">
    <property name="text">
@@ -453,7 +466,7 @@
     <string>Sync now</string>
    </property>
    <property name="shortcut">
-    <string>Alt+Shift+S</string>
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionReenterCredentials">
