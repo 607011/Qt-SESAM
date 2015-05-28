@@ -497,7 +497,7 @@ void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
     model->setStringList(domains);
   }
   d->domains[domainSettings.domain] = domainSettings.toVariant();
-  sync();
+  // sync();
 }
 
 
@@ -675,6 +675,7 @@ void MainWindow::sync(void)
   else {
     // TODO: handle bad credentials
     bool rewriteSyncFile = false;
+    bool localDataHasChanged = false;
     QByteArray baDomains;
     QFileInfo fi(d->optionsDialog->syncFilename());
     qDebug() << "mOptionsDialog->syncFilename() =" << d->optionsDialog->syncFilename();
@@ -726,6 +727,7 @@ void MainWindow::sync(void)
       if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
         if (remoteDomain["mDate"].toDateTime() > localDomain["mDate"].toDateTime()) {
           d->domains[domainName] = remoteDomain;
+          localDataHasChanged = true;
           qDebug() << "Updating local:" << domainName;
         }
         else {
@@ -742,12 +744,13 @@ void MainWindow::sync(void)
       else {
         d->domains[domainName] = remoteDomain;
         qDebug() << "Adding to local:" << domainName;
+        localDataHasChanged = true;
       }
     }
+#ifdef QT_DEBUG
     remoteJSON = QJsonDocument::fromVariant(remoteDomains);
     qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
-    QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
-    qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
+#endif
     if (rewriteSyncFile) {
       qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
       const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
@@ -757,6 +760,14 @@ void MainWindow::sync(void)
       // TODO: handle bytesWritten < 0
       qDebug() << "bytesWritten: " << bytesWritten;
       syncFile.close();
+    }
+#ifdef QT_DEBUG
+    QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
+    qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
+#endif
+    if (localDataHasChanged) {
+      saveDomainDataToSettings();
+      restoreDomainDataFromSettings();
     }
   }
 }
@@ -814,7 +825,8 @@ template <class T>
 void MainWindow::zeroize(T *pC, int len)
 {
   Q_ASSERT(pC != nullptr);
-  Q_ASSERT(len > 0);
+  if (len == 0)
+    return;
   while (len--)
     *pC++ = T('\0');
 }
