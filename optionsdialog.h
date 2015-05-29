@@ -36,6 +36,11 @@ public:
 
   QString syncFilename(void) const;
   void setSyncFilename(const QString &);
+  bool useSyncServer(void) const;
+  bool useSyncFile(void) const;
+  QString serverRootUrl(void) const;
+  QString serverUsername(void) const;
+  QString serverPassword(void) const;
 
 private slots:
   void chooseFile(void);

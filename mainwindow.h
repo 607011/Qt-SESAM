@@ -33,6 +33,9 @@
 #include <QVariantMap>
 #include <QUrl>
 #include <QSystemTrayIcon>
+#include <QNetworkReply>
+#include <QList>
+#include <QSslError>
 
 #include "domainsettings.h"
 #include "password.h"
@@ -81,6 +84,9 @@ private slots:
   void invalidatePassword(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
+  void sslErrorsOccured(QNetworkReply*, QList<QSslError>);
+  void updateSaveButtonIcon(int frame = 0);
+  void readFinished(QNetworkReply*);
 
 signals:
   void passwordGenerated(void);
@@ -88,6 +94,7 @@ signals:
 
 private: // methods
   void restoreSettings(void);
+  void sendDomainToServer(void);
   void saveDomainDataToSettings(void);
   void saveDomainDataToSettings(DomainSettings);
   void restoreDomainDataFromSettings(void);

@@ -52,6 +52,36 @@ void OptionsDialog::setSyncFilename(const QString &syncFilename)
 }
 
 
+bool OptionsDialog::useSyncServer(void) const
+{
+  return ui->useSyncServerCheckBox->isChecked();
+}
+
+
+bool OptionsDialog::useSyncFile(void) const
+{
+  return ui->useSyncFileCheckBox->isChecked();
+}
+
+
+QString OptionsDialog::serverRootUrl(void) const
+{
+  return ui->serverRootURLLineEdit->text();
+}
+
+
+QString OptionsDialog::serverUsername(void) const
+{
+  return ui->usernameLineEdit->text();
+}
+
+
+QString OptionsDialog::serverPassword(void) const
+{
+  return ui->passwordLineEdit->text();
+}
+
+
 void OptionsDialog::chooseFile(void)
 {
   QFileInfo fi(ui->syncFileLineEdit->text());

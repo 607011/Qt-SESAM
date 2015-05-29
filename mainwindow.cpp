@@ -26,6 +26,8 @@
 #include <QStandardPaths>
 #include <QFile>
 #include <QFileInfo>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "util.h"
 #include "cryptopp562/aes.h"
@@ -43,6 +45,7 @@ static const QString AppVersion = "1.0 ALPHA";
 static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
 static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
+
 
 static const QString Salt = "pepper";
 static const int DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
@@ -63,6 +66,16 @@ public:
     , masterPasswordDialog(new CredentialsDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , masterPasswordValid(false)
+    , serverRoot(DefaultServerRoot)
+    , writeUrl(DefaultWriteUrl)
+    , readUrl(DefaultReadUrl)
+    , deleteUrl(DefaultDeleteUrl)
+    , readNAM(nullptr)
+    , readReply(nullptr)
+    , writeNAM(nullptr)
+    , writeReply(nullptr)
+    , deleteNAM(nullptr)
+    , deleteReply(nullptr)
   { /* ... */ }
   ~MainWindowPrivate()
   {
@@ -86,8 +99,31 @@ public:
   bool masterPasswordValid;
   QTimer masterPasswordInvalidationTimer;
   unsigned char AESKey[AESKeySize];
+
+  QString serverRoot;
+  QString writeUrl;
+  QString readUrl;
+  QString deleteUrl;
+  QNetworkAccessManager *readNAM;
+  QNetworkReply *readReply;
+  QNetworkAccessManager *writeNAM;
+  QNetworkReply *writeReply;
+  QNetworkAccessManager *deleteNAM;
+  QNetworkReply *deleteReply;
+  QString serverCredentials;
+
+  static const QString DefaultServerRoot;
+  static const QString DefaultWriteUrl;
+  static const QString DefaultReadUrl;
+  static const QString DefaultDeleteUrl;
+
 };
 
+
+const QString MainWindowPrivate::DefaultServerRoot = "https://localhost/ctpwdgen-server";
+const QString MainWindowPrivate::DefaultWriteUrl = "/ajax/write.php";
+const QString MainWindowPrivate::DefaultReadUrl = "/ajax/read.php";
+const QString MainWindowPrivate::DefaultDeleteUrl = "/ajax/delete.php";
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -146,15 +182,28 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
+  d->readNAM = new QNetworkAccessManager(this);
+  QObject::connect(d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(readFinished(QNetworkReply*)));
+  QObject::connect(d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
+  d->writeNAM = new QNetworkAccessManager(this);
+  QObject::connect(d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(writeFinished(QNetworkReply*)));
+  QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
+  d->deleteNAM = new QNetworkAccessManager(this);
+  QObject::connect(d->deleteNAM, SIGNAL(finished(QNetworkReply*)), SLOT(deleteFinished(QNetworkReply*)));
+  QObject::connect(d->deleteNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
+
 #ifdef QT_DEBUG
   QObject::connect(ui->actionInvalidatePassword, SIGNAL(triggered(bool)), SLOT(invalidatePassword()));
   QObject::connect(ui->actionSaveSettings, SIGNAL(triggered(bool)), SLOT(saveSettings()));
 #endif
 
 #ifdef QT_DEBUG
-  ui->domainLineEdit->setText("foo bar");
   ui->avoidAmbiguousCheckBox->setChecked(true);
 #endif
+
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
@@ -467,7 +516,7 @@ void MainWindow::saveCurrentSettings(void)
   domainSettings.useExtra = ui->useExtrasCheckBox->isChecked();
   domainSettings.useCustom = ui->useCustomCheckBox->isChecked();
   domainSettings.avoidAmbiguous = ui->avoidAmbiguousCheckBox->isChecked();
-  domainSettings.customCharacters = ui->customCharactersPlainTextEdit->toPlainText();
+  domainSettings.customCharacterSet = ui->customCharactersPlainTextEdit->toPlainText();
   domainSettings.iterations = ui->iterationsSpinBox->value();
   domainSettings.salt = Salt;
   domainSettings.length = ui->passwordLengthSpinBox->value();
@@ -536,6 +585,12 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
+
+  d->settings.setValue("sync/serverRoot", d->serverRoot);
+  d->settings.setValue("sync/writeUrl", d->writeUrl);
+  d->settings.setValue("sync/readUrl", d->readUrl);
+  d->settings.setValue("sync/deleteUrl", d->deleteUrl);
+
   saveDomainDataToSettings();
   d->settings.sync();
 }
@@ -638,6 +693,28 @@ void MainWindow::restoreSettings(void)
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
+
+  d->serverRoot = d->settings.value("sync/serverRoot", MainWindowPrivate::DefaultServerRoot).toString();
+  d->writeUrl = d->settings.value("sync/writeUrl", MainWindowPrivate::DefaultWriteUrl).toString();
+  d->readUrl = d->settings.value("sync/readUrl", MainWindowPrivate::DefaultReadUrl).toString();
+  d->deleteUrl = d->settings.value("sync/deleteUrl", MainWindowPrivate::DefaultDeleteUrl).toString();
+}
+
+
+void MainWindow::sendDomainToServer(void)
+{
+//  Q_D(MainWindow);
+//  QUrlQuery params;
+//  params.addQueryItem("data", QJsonDocument::fromVariant(domainSettings.toVariant()).toJson(QJsonDocument::Compact));
+//  const QByteArray &data = params.query().toUtf8();
+//  QNetworkRequest req(QUrl(d->serverRoot + d->writeUrl));
+//  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+//  req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+//  req.setRawHeader("Authorization", d->serverCredentials.toLocal8Bit());
+//  d->writeReply = d->writeNAM->post(req, data);
+//  d->domains[domainSettings.domain] = domainSettings.toVariant();
+//  d->loaderIcon.start();
+//  updateSaveButtonIcon();
 }
 
 
@@ -672,7 +749,14 @@ void MainWindow::sync(void)
   if (d->masterPassword.isEmpty() || !d->masterPasswordValid) {
     emit reenterCredentials();
   }
-  else {
+  else if (d->optionsDialog->useSyncServer()) {
+    // TODO
+    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->readUrl));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setRawHeader("Authorization", d->serverCredentials.toLocal8Bit());
+    d->readReply = d->readNAM->post(req, QByteArray());
+  }
+  else if (d->optionsDialog->useSyncFile()){
     // TODO: handle bad credentials
     bool rewriteSyncFile = false;
     bool localDataHasChanged = false;
@@ -866,6 +950,45 @@ void MainWindow::invalidatePassword(void)
   zeroize(d->masterPassword.data(), d->masterPassword.size());
   d->masterPassword = QByteArray();
   ui->statusBar->showMessage(tr("Password cleared for security"), 5000);
+}
+
+
+void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
+{
+  Q_UNUSED(reply);
+  Q_UNUSED(errors);
+  // ...
+}
+
+
+void MainWindow::updateSaveButtonIcon(int)
+{
+  Q_D(MainWindow);
+  if (d->readReply != nullptr && d->readReply->isRunning()) {
+    ui->savePushButton->setIcon(QIcon(d->loaderIcon.currentPixmap()));
+  }
+  else {
+    ui->savePushButton->setIcon(QIcon());
+  }
+}
+
+
+void MainWindow::readFinished(QNetworkReply *reply)
+{
+  Q_D(MainWindow);
+  d->loaderIcon.stop();
+  updateSaveButtonIcon();
+  if (reply->error() == QNetworkReply::NoError) {
+    const QByteArray &result = reply->readAll();
+    QJsonParseError error;
+    QJsonDocument json = QJsonDocument::fromJson(result, &error);
+    QVariantMap map = json.toVariant().toMap();
+    QMessageBox::information(this, "Network Reply", result.trimmed(), QMessageBox::Ok);
+    // TODO: sync ...
+  }
+  else {
+    QMessageBox::critical(this, "Critical Network Error", reply->errorString(), QMessageBox::Ok);
+  }
 }
 
 
