@@ -48,6 +48,7 @@ DomainSettings::DomainSettings(void)
   , salt(DefaultSalt)
   , forceValidation(DefaultForceValidation)
   , validatorRegEx(DefaultValidatorPattern)
+  , deleted(false)
 { /* ... */ }
 
 
@@ -68,6 +69,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , validatorRegEx(o.validatorRegEx)
   , cDate(o.cDate)
   , mDate(o.mDate)
+  , deleted(o.deleted)
 { /* ... */ }
 
 
@@ -90,5 +92,6 @@ QVariantMap DomainSettings::toVariant(void) const
   map["validatorRegEx"] = validatorRegEx.pattern();
   map["cDate"] = cDate;
   map["mDate"] = mDate;
+  map["deleted"] = deleted;
   return map;
 }

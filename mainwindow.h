@@ -76,6 +76,7 @@ private slots:
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
   void sync(void);
+  void sync(QByteArray baDomains);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);

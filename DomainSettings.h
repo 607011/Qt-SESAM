@@ -61,6 +61,7 @@ public:
   QRegExp validatorRegEx;
   QDateTime cDate;
   QDateTime mDate;
+  bool deleted;
 };
 
 

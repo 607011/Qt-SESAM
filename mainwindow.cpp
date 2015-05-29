@@ -28,6 +28,11 @@
 #include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSslCipher>
+#include <QSslCertificate>
+#include <QSslConfiguration>
+#include <QSslSocket>
+#include <QSslError>
 
 #include "util.h"
 #include "cryptopp562/aes.h"
@@ -66,16 +71,12 @@ public:
     , masterPasswordDialog(new CredentialsDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , masterPasswordValid(false)
-    , serverRoot(DefaultServerRoot)
-    , writeUrl(DefaultWriteUrl)
-    , readUrl(DefaultReadUrl)
-    , deleteUrl(DefaultDeleteUrl)
     , readNAM(nullptr)
-    , readReply(nullptr)
+    , readReq(nullptr)
     , writeNAM(nullptr)
-    , writeReply(nullptr)
+    , writeReq(nullptr)
     , deleteNAM(nullptr)
-    , deleteReply(nullptr)
+    , deleteReq(nullptr)
   { /* ... */ }
   ~MainWindowPrivate()
   {
@@ -100,16 +101,13 @@ public:
   QTimer masterPasswordInvalidationTimer;
   unsigned char AESKey[AESKeySize];
 
-  QString serverRoot;
-  QString writeUrl;
-  QString readUrl;
-  QString deleteUrl;
+  QSslCertificate cert;
   QNetworkAccessManager *readNAM;
-  QNetworkReply *readReply;
+  QNetworkReply *readReq;
   QNetworkAccessManager *writeNAM;
-  QNetworkReply *writeReply;
+  QNetworkReply *writeReq;
   QNetworkAccessManager *deleteNAM;
-  QNetworkReply *deleteReply;
+  QNetworkReply *deleteReq;
   QString serverCredentials;
 
   static const QString DefaultServerRoot;
@@ -169,8 +167,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
   QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
-  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
-  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
+  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
@@ -587,12 +585,12 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
-
-  d->settings.setValue("sync/serverRoot", d->serverRoot);
-  d->settings.setValue("sync/writeUrl", d->writeUrl);
-  d->settings.setValue("sync/readUrl", d->readUrl);
-  d->settings.setValue("sync/deleteUrl", d->deleteUrl);
-
+  d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
+  d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
+  d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
+  d->settings.setValue("sync/writeUrl", d->optionsDialog->writeUrl());
+  d->settings.setValue("sync/readUrl", d->optionsDialog->readUrl());
+  d->settings.setValue("sync/deleteUrl", d->optionsDialog->deleteUrl());
   saveDomainDataToSettings();
   d->settings.sync();
 }
@@ -695,11 +693,12 @@ void MainWindow::restoreSettings(void)
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
-
-  d->serverRoot = d->settings.value("sync/serverRoot", MainWindowPrivate::DefaultServerRoot).toString();
-  d->writeUrl = d->settings.value("sync/writeUrl", MainWindowPrivate::DefaultWriteUrl).toString();
-  d->readUrl = d->settings.value("sync/readUrl", MainWindowPrivate::DefaultReadUrl).toString();
-  d->deleteUrl = d->settings.value("sync/deleteUrl", MainWindowPrivate::DefaultDeleteUrl).toString();
+  d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
+  d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
+  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", MainWindowPrivate::DefaultServerRoot).toString());
+  d->optionsDialog->setWriteUrl(d->settings.value("sync/writeUrl", MainWindowPrivate::DefaultWriteUrl).toString());
+  d->optionsDialog->setReadUrl(d->settings.value("sync/readUrl", MainWindowPrivate::DefaultReadUrl).toString());
+  d->optionsDialog->setDeleteUrl(d->settings.value("sync/deleteUrl", MainWindowPrivate::DefaultDeleteUrl).toString());
 }
 
 
@@ -750,18 +749,27 @@ void MainWindow::sync(void)
   qDebug() << "MainWindow::sync()";
   if (d->masterPassword.isEmpty() || !d->masterPasswordValid) {
     emit reenterCredentials();
+    return;
   }
-  else if (d->optionsDialog->useSyncServer()) {
+  if (d->optionsDialog->useSyncServer()) {
     // TODO
-    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->readUrl));
+    QList<QSslCertificate> cert = QSslCertificate::fromPath(":/ssl/my.cer", QSsl::Der);
+    QSslConfiguration sslConf(QSslConfiguration::defaultConfiguration());
+    sslConf.setCiphers(QSslSocket::supportedCiphers());
+    sslConf.setCaCertificates(cert);
+    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl() + "?t=" + QDateTime::currentDateTime().toString(Qt::ISODate)));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    d->serverCredentials = QString("Basic ") + (d->optionsDialog->serverUsername() + ":" + d->optionsDialog->serverPassword()).toLocal8Bit().toBase64();
     req.setRawHeader("Authorization", d->serverCredentials.toLocal8Bit());
-    d->readReply = d->readNAM->post(req, QByteArray());
+    req.setSslConfiguration(sslConf);
+    d->readReq = d->readNAM->post(req, QByteArray());
+    QList<QSslError> expectedSslErrors;
+    expectedSslErrors.append(QSslError::SelfSignedCertificate);
+    // expectedSslErrors.append(QSslError::CertificateUntrusted);
+    d->readReq->ignoreSslErrors(expectedSslErrors);
   }
-  else if (d->optionsDialog->useSyncFile()){
+  if (d->optionsDialog->useSyncFile()) {
     // TODO: handle bad credentials
-    bool rewriteSyncFile = false;
-    bool localDataHasChanged = false;
     QByteArray baDomains;
     QFileInfo fi(d->optionsDialog->syncFilename());
     qDebug() << "mOptionsDialog->syncFilename() =" << d->optionsDialog->syncFilename();
@@ -784,78 +792,88 @@ void MainWindow::sync(void)
       }
       baDomains = syncFile.readAll();
       syncFile.close();
+      sync(baDomains);
     }
     else {
       // TODO: handle sync file not readable error
     }
-    QJsonDocument remoteJSON;
-    int errCode = -1;
-    QString errMsg;
-    if (!baDomains.isEmpty()) {
-      std::string sDomains = decode(baDomains, &errCode, &errMsg);
-      if (errCode == -1 && !sDomains.empty()) {
-        remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
-      }
-      else {
-        d->masterPasswordValid = false;
-        wrongPasswordWarning(errCode, errMsg);
-        return;
-      }
+  }
+}
+
+
+void MainWindow::sync(QByteArray baDomains)
+{
+  Q_D(MainWindow);
+  bool rewriteSyncFile = false;
+  bool localDataHasChanged = false;
+  QJsonDocument remoteJSON;
+  int errCode = -1;
+  QString errMsg;
+  if (!baDomains.isEmpty()) {
+    std::string sDomains = decode(baDomains, &errCode, &errMsg);
+    if (errCode == -1 && !sDomains.empty()) {
+      remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
     }
-    QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
-    qDebug() << "remoteDomains.keys() =" << remoteDomains.keys();
-    qDebug() << "mDomains.keys() =" << d->domains.keys();
-    const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
-    foreach(QString domainName, allDomainNames) {
-      qDebug() << "Checking domain" << domainName;
-      const QVariantMap &remoteDomain = remoteDomains.contains(domainName) ? remoteDomains[domainName].toMap() : QVariantMap();
-      const QVariantMap &localDomain = d->domains.contains(domainName) ? d->domains[domainName].toMap() : QVariantMap();
-      if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
-        if (remoteDomain["mDate"].toDateTime() > localDomain["mDate"].toDateTime()) {
-          d->domains[domainName] = remoteDomain;
-          localDataHasChanged = true;
-          qDebug() << "Updating local:" << domainName;
-        }
-        else {
-          remoteDomains[domainName] = localDomain;
-          rewriteSyncFile = true;
-          qDebug() << "Updating remote:" << domainName;
-        }
-      }
-      else if (remoteDomain.isEmpty()) {
-        remoteDomains[domainName] = localDomain;
-        qDebug() << "Adding to remote:" << domainName;
-        rewriteSyncFile = true;
-      }
-      else {
-        d->domains[domainName] = remoteDomain;
-        qDebug() << "Adding to local:" << domainName;
-        localDataHasChanged = true;
-      }
-    }
-#ifdef QT_DEBUG
-    remoteJSON = QJsonDocument::fromVariant(remoteDomains);
-    qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
-#endif
-    if (rewriteSyncFile) {
-      qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
-      const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
-      QFile syncFile(d->optionsDialog->syncFilename());
-      syncFile.open(QIODevice::WriteOnly);
-      qint64 bytesWritten = syncFile.write(baCipher);
-      // TODO: handle bytesWritten < 0
-      qDebug() << "bytesWritten: " << bytesWritten;
-      syncFile.close();
-    }
-#ifdef QT_DEBUG
-    QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
-    qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
-#endif
-    if (localDataHasChanged) {
-      saveDomainDataToSettings();
-      restoreDomainDataFromSettings();
+    else {
+      d->masterPasswordValid = false;
+      wrongPasswordWarning(errCode, errMsg);
+      return;
     }
   }
+  QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
+  qDebug() << "remoteDomains.keys() =" << remoteDomains.keys();
+  qDebug() << "mDomains.keys() =" << d->domains.keys();
+  const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
+  foreach(QString domainName, allDomainNames) {
+    qDebug() << "Checking domain" << domainName;
+    const QVariantMap &remoteDomain = remoteDomains.contains(domainName) ? remoteDomains[domainName].toMap() : QVariantMap();
+    const QVariantMap &localDomain = d->domains.contains(domainName) ? d->domains[domainName].toMap() : QVariantMap();
+    if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
+      if (remoteDomain["mDate"].toDateTime() > localDomain["mDate"].toDateTime()) {
+        d->domains[domainName] = remoteDomain;
+        localDataHasChanged = true;
+        qDebug() << "Updating local:" << domainName;
+      }
+      else {
+        remoteDomains[domainName] = localDomain;
+        rewriteSyncFile = true;
+        qDebug() << "Updating remote:" << domainName;
+      }
+    }
+    else if (remoteDomain.isEmpty()) {
+      remoteDomains[domainName] = localDomain;
+      qDebug() << "Adding to remote:" << domainName;
+      rewriteSyncFile = true;
+    }
+    else {
+      d->domains[domainName] = remoteDomain;
+      qDebug() << "Adding to local:" << domainName;
+      localDataHasChanged = true;
+    }
+  }
+#ifdef QT_DEBUG
+  remoteJSON = QJsonDocument::fromVariant(remoteDomains);
+  qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
+#endif
+  if (rewriteSyncFile) {
+    qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
+    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
+    QFile syncFile(d->optionsDialog->syncFilename());
+    syncFile.open(QIODevice::WriteOnly);
+    qint64 bytesWritten = syncFile.write(baCipher);
+    // TODO: handle bytesWritten < 0
+    qDebug() << "bytesWritten: " << bytesWritten;
+    syncFile.close();
+  }
+#ifdef QT_DEBUG
+  QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
+  qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
+#endif
+  if (localDataHasChanged) {
+    saveDomainDataToSettings();
+    restoreDomainDataFromSettings();
+  }
+
 }
 
 
@@ -967,7 +985,7 @@ void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
 void MainWindow::updateSaveButtonIcon(int)
 {
   Q_D(MainWindow);
-  if (d->readReply != nullptr && d->readReply->isRunning()) {
+  if (d->readReq != nullptr && d->readReq->isRunning()) {
     ui->savePushButton->setIcon(QIcon(d->loaderIcon.currentPixmap()));
   }
   else {
@@ -982,12 +1000,15 @@ void MainWindow::readFinished(QNetworkReply *reply)
   d->loaderIcon.stop();
   updateSaveButtonIcon();
   if (reply->error() == QNetworkReply::NoError) {
-    const QByteArray &result = reply->readAll();
+    const QByteArray &res = reply->readAll();
+    qDebug() << "MainWindow::readFinished()" << res;
     QJsonParseError error;
-    QJsonDocument json = QJsonDocument::fromJson(result, &error);
+    QJsonDocument json = QJsonDocument::fromJson(res, &error);
     QVariantMap map = json.toVariant().toMap();
-    QMessageBox::information(this, "Network Reply", result.trimmed(), QMessageBox::Ok);
-    // TODO: sync ...
+    QByteArray baDomains = map["result"].toMap()["data"].toByteArray();
+    qDebug() << map["result"].toList();
+    qDebug() << baDomains;
+    sync(baDomains);
   }
   else {
     QMessageBox::critical(this, "Critical Network Error", reply->errorString(), QMessageBox::Ok);

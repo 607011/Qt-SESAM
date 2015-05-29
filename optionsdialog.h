@@ -41,6 +41,16 @@ public:
   QString serverRootUrl(void) const;
   QString serverUsername(void) const;
   QString serverPassword(void) const;
+  QString writeUrl(void) const;
+  QString readUrl(void) const;
+  QString deleteUrl(void) const;
+
+  void setUseSyncServer(bool);
+  void setUseSyncFile(bool);
+  void setServerRootUrl(QString);
+  void setWriteUrl(QString);
+  void setReadUrl(QString);
+  void setDeleteUrl(QString);
 
 private slots:
   void chooseFile(void);

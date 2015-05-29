@@ -70,6 +70,36 @@ QString OptionsDialog::serverRootUrl(void) const
 }
 
 
+QString OptionsDialog::writeUrl(void) const
+{
+  return ui->writeUrlLineEdit->text();
+}
+
+
+QString OptionsDialog::readUrl(void) const
+{
+  return ui->readUrlLineEdit->text();
+}
+
+
+QString OptionsDialog::deleteUrl(void) const
+{
+  return ui->deleteUrlLineEdit->text();
+}
+
+
+void OptionsDialog::setUseSyncServer(bool enabled)
+{
+  ui->useSyncServerCheckBox->setChecked(enabled);
+}
+
+
+void OptionsDialog::setUseSyncFile(bool enabled)
+{
+  ui->useSyncFileCheckBox->setChecked(enabled);
+}
+
+
 QString OptionsDialog::serverUsername(void) const
 {
   return ui->usernameLineEdit->text();
@@ -79,6 +109,30 @@ QString OptionsDialog::serverUsername(void) const
 QString OptionsDialog::serverPassword(void) const
 {
   return ui->passwordLineEdit->text();
+}
+
+
+void OptionsDialog::setServerRootUrl(QString url)
+{
+  ui->serverRootURLLineEdit->setText(url);
+}
+
+
+void OptionsDialog::setWriteUrl(QString url)
+{
+  ui->writeUrlLineEdit->setText(url);
+}
+
+
+void OptionsDialog::setReadUrl(QString url)
+{
+  ui->readUrlLineEdit->setText(url);
+}
+
+
+void OptionsDialog::setDeleteUrl(QString url)
+{
+  ui->deleteUrlLineEdit->setText(url);
 }
 
 
