@@ -87,6 +87,8 @@ private slots:
   void sslErrorsOccured(QNetworkReply*, QList<QSslError>);
   void updateSaveButtonIcon(int frame = 0);
   void readFinished(QNetworkReply*);
+  void writeFinished(QNetworkReply*);
+  void deleteFinished(QNetworkReply*);
 
 signals:
   void passwordGenerated(void);

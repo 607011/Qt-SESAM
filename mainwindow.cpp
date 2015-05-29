@@ -220,6 +220,8 @@ MainWindow::MainWindow(QWidget *parent)
   QTest::qExec(&tc, 0, 0);
 #endif
 
+  setEnabled(false);
+
   emit reenterCredentials();
 
   d->trayIcon.show();
@@ -890,6 +892,7 @@ void MainWindow::credentialsEntered(void)
   Q_D(MainWindow);
   const QString &masterPwd = d->masterPasswordDialog->password();
   if (!masterPwd.isEmpty()) {
+    setEnabled(true);
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
 #ifdef WIN32
@@ -991,6 +994,23 @@ void MainWindow::readFinished(QNetworkReply *reply)
   }
 }
 
+
+void MainWindow::writeFinished(QNetworkReply *reply)
+{
+  Q_D(MainWindow);
+  d->loaderIcon.stop();
+  updateSaveButtonIcon();
+  // TODO
+}
+
+
+void MainWindow::deleteFinished(QNetworkReply *reply)
+{
+  Q_D(MainWindow);
+  d->loaderIcon.stop();
+  updateSaveButtonIcon();
+  // TODO
+}
 
 void MainWindow::about(void)
 {
