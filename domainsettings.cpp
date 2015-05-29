@@ -60,7 +60,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , useExtra(o.useExtra)
   , useCustom(o.useCustom)
   , avoidAmbiguous(o.avoidAmbiguous)
-  , customCharacters(o.customCharacters)
+  , customCharacterSet(o.customCharacterSet)
   , iterations(o.iterations)
   , length(o.length)
   , salt(o.salt)
@@ -82,7 +82,7 @@ QVariantMap DomainSettings::toVariant(void) const
   map["useExtra"] = useExtra;
   map["useCustom"] = useCustom;
   map["avoidAmbiguous"] = avoidAmbiguous;
-  map["customCharacters"] = customCharacters;
+  map["customCharacterSet"] = customCharacterSet;
   map["iterations"] = iterations;
   map["length"] = length;
   map["salt"] = salt;

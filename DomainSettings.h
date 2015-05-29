@@ -53,7 +53,7 @@ public:
   bool useExtra;
   bool useCustom;
   bool avoidAmbiguous;
-  QString customCharacters;
+  QString customCharacterSet;
   int iterations;
   int length;
   QString salt;
