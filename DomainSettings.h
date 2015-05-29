@@ -33,6 +33,8 @@ public:
 
   QVariantMap toVariant(void) const;
 
+  static DomainSettings fromVariantMap(const QVariantMap &);
+
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
   static const bool DefaultUseLowerCase;

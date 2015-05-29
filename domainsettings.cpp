@@ -95,3 +95,27 @@ QVariantMap DomainSettings::toVariant(void) const
   map["deleted"] = deleted;
   return map;
 }
+
+
+DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
+{
+  DomainSettings d;
+  d.domain = map["domain"].toString();
+  d.username = map["username"].toString();
+  d.useLowerCase = map["useLowerCase"].toBool();
+  d.useUpperCase = map["useUpperCase"].toBool();
+  d.useDigits = map["useDigits"].toBool();
+  d.useExtra = map["useExtra"].toBool();
+  d.useCustom = map["useCustom"].toBool();
+  d.avoidAmbiguous = map["avoidAmbiguous"].toBool();
+  d.customCharacterSet = map["customCharacterSet"].toString();
+  d.iterations = map["iterations"].toInt();
+  d.length = map["length"].toInt();
+  d.salt = map["salt"].toInt();
+  d.forceValidation = map["forceValidation"].toBool();
+  d.validatorRegEx.setPattern(map["validatorRegEx"].toString());
+  d.cDate = QDateTime::fromString(map["cDate"].toString());
+  d.mDate = QDateTime::fromString(map["mDate"].toString());
+  d.deleted = map["deleted"].toBool();
+  return d;
+}
