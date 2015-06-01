@@ -45,6 +45,8 @@ public:
   QString readUrl(void) const;
   QString deleteUrl(void) const;
 
+  QByteArray serverCredentials(void) const;
+
   void setUseSyncServer(bool);
   void setUseSyncFile(bool);
   void setServerRootUrl(QString);

@@ -94,10 +94,11 @@ private slots:
 signals:
   void passwordGenerated(void);
   void reenterCredentials(void);
+  void domainSent(int);
 
 private: // methods
   void restoreSettings(void);
-  void sendDomainToServer(void);
+  void sendDomainToServer(const QString &domain, const QByteArray &data);
   void saveDomainDataToSettings(void);
   void saveDomainDataToSettings(DomainSettings);
   void restoreDomainDataFromSettings(void);

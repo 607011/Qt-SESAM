@@ -88,6 +88,15 @@ QString OptionsDialog::deleteUrl(void) const
 }
 
 
+QByteArray OptionsDialog::serverCredentials(void) const
+{
+  return QString("Basic %1")
+      .arg(QString((ui->usernameLineEdit->text() + ":" + ui->passwordLineEdit->text())
+           .toLocal8Bit().toBase64()))
+      .toLocal8Bit();
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);
