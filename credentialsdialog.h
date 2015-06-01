@@ -33,7 +33,7 @@ class CredentialsDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit CredentialsDialog(QWidget *parent = 0);
+  explicit CredentialsDialog(QWidget *parent = nullptr);
   ~CredentialsDialog();
 
   void enableUsernameField(bool);

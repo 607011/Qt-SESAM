@@ -54,11 +54,17 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = 0);
+  explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
 protected:
   void closeEvent(QCloseEvent *);
+
+private:
+  typedef enum _Target {
+    File,
+    Server
+  } SyncTarget;
 
 private slots:
   void updatePassword(void);
@@ -76,7 +82,7 @@ private slots:
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
   void sync(void);
-  void sync(QByteArray baDomains);
+  void sync(SyncTarget, QByteArray baDomains);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);
@@ -90,14 +96,15 @@ private slots:
   void readFinished(QNetworkReply*);
   void writeFinished(QNetworkReply*);
   void deleteFinished(QNetworkReply*);
+  void cancelServerOperation(void);
 
 signals:
   void passwordGenerated(void);
   void reenterCredentials(void);
-  void domainSent(int);
 
 private: // methods
   void restoreSettings(void);
+  void readDomainsFromServer(void);
   void sendDomainToServer(const QString &domain, const QByteArray &data);
   void saveDomainDataToSettings(void);
   void saveDomainDataToSettings(DomainSettings);

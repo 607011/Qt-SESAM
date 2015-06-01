@@ -75,13 +75,22 @@ public:
     , optionsDialog(new OptionsDialog(parent))
     , masterPasswordValid(false)
     , progressDialog(nullptr)
+    , sslConf(QSslConfiguration::defaultConfiguration())
     , readNAM(nullptr)
     , readReq(nullptr)
     , writeNAM(nullptr)
     , writeReq(nullptr)
     , deleteNAM(nullptr)
     , deleteReq(nullptr)
-  { /* ... */ }
+    , counter(0)
+    , maxCounter(0)
+  {
+    cert = QSslCertificate::fromPath(":/ssl/my.cer", QSsl::Der);
+    sslConf.setCiphers(QSslSocket::supportedCiphers());
+    sslConf.setCaCertificates(cert);
+    expectedSslErrors.append(QSslError::SelfSignedCertificate);
+    // expectedSslErrors.append(QSslError::CertificateUntrusted);
+  }
   ~MainWindowPrivate()
   {
     safeDelete(completer);
@@ -105,13 +114,17 @@ public:
   QTimer masterPasswordInvalidationTimer;
   unsigned char AESKey[AESKeySize];
   ProgressDialog *progressDialog;
-  QSslCertificate cert;
+  QList<QSslCertificate> cert;
+  QList<QSslError> expectedSslErrors;
+  QSslConfiguration sslConf;
   QNetworkAccessManager *readNAM;
   QNetworkReply *readReq;
   QNetworkAccessManager *writeNAM;
   QNetworkReply *writeReq;
   QNetworkAccessManager *deleteNAM;
   QNetworkReply *deleteReq;
+  int counter;
+  int maxCounter;
 
   static const QString DefaultServerRoot;
   static const QString DefaultWriteUrl;
@@ -184,7 +197,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
   d->progressDialog = new ProgressDialog(this);
-  QObject::connect(this, SIGNAL(domainSent(int)), d->progressDialog, SLOT(setValue(int)));
+  QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
   d->readNAM = new QNetworkAccessManager(this);
   QObject::connect(d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(readFinished(QNetworkReply*)));
@@ -710,6 +723,22 @@ void MainWindow::restoreSettings(void)
 }
 
 
+void MainWindow::readDomainsFromServer(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::readDomainsFromServer()";
+  d->progressDialog->setText(tr("Reading from server ..."));
+  d->counter = 0;
+  d->progressDialog->setValue(0);
+  QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl() + "?t=" + QDateTime::currentDateTime().toString(Qt::ISODate)));
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+  req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
+  req.setSslConfiguration(d->sslConf);
+  QNetworkReply *reply = d->readNAM->post(req, QByteArray());
+  reply->ignoreSslErrors(d->expectedSslErrors);
+}
+
+
 void MainWindow::sendDomainToServer(const QString &domain, const QByteArray &baCipher)
 {
   Q_D(MainWindow);
@@ -722,11 +751,9 @@ void MainWindow::sendDomainToServer(const QString &domain, const QByteArray &baC
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
   req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
   req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
+  req.setSslConfiguration(d->sslConf);
   QNetworkReply *reply = d->writeNAM->post(req, data);
-  QList<QSslError> expectedSslErrors;
-  expectedSslErrors.append(QSslError::SelfSignedCertificate);
-  // expectedSslErrors.append(QSslError::CertificateUntrusted);
-  reply->ignoreSslErrors(expectedSslErrors);
+  reply->ignoreSslErrors(d->expectedSslErrors);
   d->loaderIcon.start();
   updateSaveButtonIcon();
 }
@@ -735,10 +762,19 @@ void MainWindow::sendDomainToServer(const QString &domain, const QByteArray &baC
 void MainWindow::writeFinished(QNetworkReply *reply)
 {
   Q_D(MainWindow);
-//  d->loaderIcon.stop();
-//  updateSaveButtonIcon();
-
+  qDebug() << "MainWindow::writeFinished()" << "counter =" << d->counter << "of" << d->maxCounter;
+  d->progressDialog->setValue(++d->counter);
+  if (d->counter == d->maxCounter) {
+      d->loaderIcon.stop();
+      updateSaveButtonIcon();
+  }
   // TODO ...
+}
+
+
+void MainWindow::cancelServerOperation(void)
+{
+
 }
 
 
@@ -775,19 +811,7 @@ void MainWindow::sync(void)
     return;
   }
   if (d->optionsDialog->useSyncServer()) {
-    // TODO
-    QList<QSslCertificate> cert = QSslCertificate::fromPath(":/ssl/my.cer", QSsl::Der);
-    QSslConfiguration sslConf(QSslConfiguration::defaultConfiguration());
-    sslConf.setCiphers(QSslSocket::supportedCiphers());
-    sslConf.setCaCertificates(cert);
-    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl() + "?t=" + QDateTime::currentDateTime().toString(Qt::ISODate)));
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
-    req.setSslConfiguration(sslConf);
-    QNetworkReply *reply = d->readNAM->post(req, QByteArray());
-    QList<QSslError> expectedSslErrors;
-    expectedSslErrors.append(QSslError::SelfSignedCertificate);
-    reply->ignoreSslErrors(expectedSslErrors);
+    readDomainsFromServer();
   }
   if (d->optionsDialog->useSyncFile()) {
     // TODO: handle bad credentials
@@ -813,7 +837,7 @@ void MainWindow::sync(void)
       }
       baDomains = syncFile.readAll();
       syncFile.close();
-      sync(baDomains);
+      sync(SyncTarget::File, baDomains);
     }
     else {
       // TODO: handle sync file not readable error
@@ -822,11 +846,10 @@ void MainWindow::sync(void)
 }
 
 
-void MainWindow::sync(QByteArray baDomains)
+void MainWindow::sync(SyncTarget target, QByteArray baDomains)
 {
   Q_D(MainWindow);
-  bool updateServerData = false;
-  bool rewriteSyncFile = false;
+  bool updateTarget = false;
   bool localDataHasChanged = false;
   QJsonDocument remoteJSON;
   int errCode = -1;
@@ -858,14 +881,14 @@ void MainWindow::sync(QByteArray baDomains)
       }
       else {
         remoteDomains[domainName] = localDomain;
-        rewriteSyncFile = true;
+        updateTarget = true;
         qDebug() << "Updating remote:" << domainName;
       }
     }
     else if (remoteDomain.isEmpty()) {
       remoteDomains[domainName] = localDomain;
       qDebug() << "Adding to remote:" << domainName;
-      rewriteSyncFile = true;
+      updateTarget = true;
     }
     else {
       d->domains[domainName] = remoteDomain;
@@ -875,34 +898,40 @@ void MainWindow::sync(QByteArray baDomains)
   }
 #ifdef QT_DEBUG
   remoteJSON = QJsonDocument::fromVariant(remoteDomains);
-  qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
+  // qDebug() << "REMOTE:" << remoteJSON.toJson(QJsonDocument::Compact);
 #endif
-  if (rewriteSyncFile && d->optionsDialog->useSyncFile()) {
-    qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
-    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
-    QFile syncFile(d->optionsDialog->syncFilename());
-    syncFile.open(QIODevice::WriteOnly);
-    qint64 bytesWritten = syncFile.write(baCipher);
-    // TODO: handle bytesWritten < 0
-    qDebug() << "bytesWritten: " << bytesWritten;
-    syncFile.close();
-  }
-
-  if (updateServerData && d->optionsDialog->useSyncServer()) {
-    qDebug() << "syncing with server ...";
-    d->progressDialog->setRange(0, d->domains.size());
-    d->progressDialog->show();
-    foreach (QString domName, d->domains.keys()) {
-      const QVariantMap &dom = d->domains[domName].toMap();
-      const QJsonDocument &jsonDom = QJsonDocument::fromVariant(dom);
-      const QByteArray &baCipher = encode(jsonDom.toJson(QJsonDocument::Compact));
-      sendDomainToServer(domName, baCipher);
+  if (updateTarget) {
+    if (target == SyncTarget::Server && d->optionsDialog->useSyncServer()) {
+      qDebug() << "syncing with server ...";
+      ui->statusBar->showMessage(tr("Syncing with server ..."));
+      d->counter = 0;
+      d->maxCounter = d->domains.size();
+      d->progressDialog->setText(tr("Sending to server ..."));
+      d->progressDialog->setRange(0, d->maxCounter);
+      d->progressDialog->setValue(0);
+      d->progressDialog->show();
+      foreach (QString domName, d->domains.keys()) {
+        const QVariantMap &dom = d->domains[domName].toMap();
+        const QJsonDocument &jsonDom = QJsonDocument::fromVariant(dom);
+        const QByteArray &baCipher = encode(jsonDom.toJson(QJsonDocument::Compact));
+        sendDomainToServer(domName, baCipher);
+      }
+    }
+    if (target == SyncTarget::File && d->optionsDialog->useSyncFile()) {
+      qDebug() << "rewriting sync file ..." << remoteJSON.toJson();
+      const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact));
+      QFile syncFile(d->optionsDialog->syncFilename());
+      syncFile.open(QIODevice::WriteOnly);
+      qint64 bytesWritten = syncFile.write(baCipher);
+      // TODO: handle bytesWritten < 0
+      qDebug() << "bytesWritten: " << bytesWritten;
+      syncFile.close();
     }
   }
 
 #ifdef QT_DEBUG
-  QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
-  qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
+  // QJsonDocument localJSON = QJsonDocument::fromVariant(d->domains);
+  // qDebug() << "LOCAL:" << localJSON.toJson(QJsonDocument::Compact);
 #endif
   if (localDataHasChanged) {
     saveDomainDataToSettings();
@@ -1042,7 +1071,7 @@ void MainWindow::readFinished(QNetworkReply *reply)
     QByteArray baDomains = map["result"].toMap()["data"].toByteArray();
     qDebug() << map["result"].toList();
     qDebug() << baDomains;
-    sync(baDomains);
+    sync(SyncTarget::Server, baDomains);
   }
   else {
     QMessageBox::critical(this, "Critical Network Error", reply->errorString(), QMessageBox::Ok);
@@ -1057,6 +1086,7 @@ void MainWindow::deleteFinished(QNetworkReply *reply)
   updateSaveButtonIcon();
   // TODO
 }
+
 
 void MainWindow::about(void)
 {

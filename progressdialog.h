@@ -17,7 +17,6 @@
 
 */
 
-
 #ifndef __PROGRESSDIALOG_H_
 #define __PROGRESSDIALOG_H_
 
@@ -36,6 +35,9 @@ public:
   explicit ProgressDialog(QWidget *parent = nullptr);
   ~ProgressDialog();
 
+protected:
+  void showEvent(QShowEvent *);
+
 public slots:
   void setText(QString);
   void setRange(int, int);
@@ -43,6 +45,8 @@ public slots:
   void setMaximum(int);
   void setValue(int);
 
+signals:
+  void cancelled(void);
 
 private:
   Ui::ProgressDialog *ui;
