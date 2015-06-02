@@ -88,7 +88,7 @@ public:
     cert = QSslCertificate::fromPath(":/ssl/my.cer", QSsl::Der);
     sslConf.setCiphers(QSslSocket::supportedCiphers());
     sslConf.setCaCertificates(cert);
-    expectedSslErrors.append(QSslError::SelfSignedCertificate);
+    // expectedSslErrors.append(QSslError::SelfSignedCertificate);
     // expectedSslErrors.append(QSslError::CertificateUntrusted);
   }
   ~MainWindowPrivate()
