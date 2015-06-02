@@ -61,10 +61,10 @@ protected:
   void closeEvent(QCloseEvent *);
 
 private:
-  typedef enum _Target {
-    File,
-    Server
-  } SyncTarget;
+  typedef enum _Type {
+    FileSource,
+    ServerSource
+  } SyncSource;
 
 private slots:
   void updatePassword(void);
@@ -82,7 +82,7 @@ private slots:
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
   void sync(void);
-  void sync(SyncTarget, QByteArray baDomains);
+  void sync(SyncSource, const QByteArray &baDomains);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);
@@ -104,8 +104,6 @@ signals:
 
 private: // methods
   void restoreSettings(void);
-  void readDomainsFromServer(void);
-  void sendDomainToServer(const QString &domain, const QByteArray &data);
   void saveDomainDataToSettings(void);
   void saveDomainDataToSettings(DomainSettings);
   void restoreDomainDataFromSettings(void);
@@ -117,8 +115,8 @@ private: // methods
   void zeroize(T *, int len);
   void invalidatePassword(QLineEdit*);
   void wrongPasswordWarning(int errCode, QString errMsg);
-  QByteArray decode(const QByteArray &, int *errCode = nullptr, QString *errMsg = nullptr);
-  QByteArray encode(const QByteArray &, int *errCode = nullptr, QString *errMsg = nullptr);
+  QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
+  QByteArray decode(const QByteArray &, bool decompress, int *errCode = nullptr, QString *errMsg = nullptr);
 
 private:
   Ui::MainWindow *ui;

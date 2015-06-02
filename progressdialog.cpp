@@ -35,6 +35,7 @@ ProgressDialog::~ProgressDialog()
   delete ui;
 }
 
+
 void ProgressDialog::showEvent(QShowEvent *e)
 {
   QDialog::showEvent(e);

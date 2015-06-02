@@ -82,12 +82,6 @@ QString OptionsDialog::readUrl(void) const
 }
 
 
-QString OptionsDialog::deleteUrl(void) const
-{
-  return ui->deleteUrlLineEdit->text();
-}
-
-
 QByteArray OptionsDialog::serverCredentials(void) const
 {
   return QString("Basic %1")
@@ -127,6 +121,18 @@ void OptionsDialog::setServerRootUrl(QString url)
 }
 
 
+void OptionsDialog::setServerUsername(QString username)
+{
+  ui->usernameLineEdit->setText(username);
+}
+
+
+void OptionsDialog::setServerPassword(QString password)
+{
+  ui->passwordLineEdit->setText(password);
+}
+
+
 void OptionsDialog::setWriteUrl(QString url)
 {
   ui->writeUrlLineEdit->setText(url);
@@ -136,12 +142,6 @@ void OptionsDialog::setWriteUrl(QString url)
 void OptionsDialog::setReadUrl(QString url)
 {
   ui->readUrlLineEdit->setText(url);
-}
-
-
-void OptionsDialog::setDeleteUrl(QString url)
-{
-  ui->deleteUrlLineEdit->setText(url);
 }
 
 

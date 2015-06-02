@@ -41,6 +41,13 @@ QString CredentialsDialog::password(void) const
 }
 
 
+
+void CredentialsDialog::reject(void)
+{
+  // do nothing
+}
+
+
 void CredentialsDialog::showEvent(QShowEvent *)
 {
   ui->passwordLineEdit->selectAll();

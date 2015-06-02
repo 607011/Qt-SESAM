@@ -40,6 +40,9 @@ public:
 
   QString password(void) const;
 
+public slots:
+  virtual void reject(void);
+
 protected:
   void showEvent(QShowEvent *);
 

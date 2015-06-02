@@ -26,7 +26,7 @@
          <string>Use</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -85,7 +85,7 @@
         <item row="1" column="1">
          <widget class="QLineEdit" name="usernameLineEdit">
           <property name="text">
-           <string>test</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -99,31 +99,10 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="passwordLineEdit">
           <property name="text">
-           <string>osteron</string>
+           <string/>
           </property>
           <property name="echoMode">
            <enum>QLineEdit::Password</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="writeUrlLineEdit">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="readUrlLineEdit">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="deleteUrlLineEdit">
-          <property name="enabled">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -134,6 +113,13 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="writeUrlLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
@@ -141,10 +127,10 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Delete URL</string>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="readUrlLineEdit">
+          <property name="enabled">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
