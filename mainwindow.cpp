@@ -125,15 +125,12 @@ public:
   static const QString DefaultServerRoot;
   static const QString DefaultWriteUrl;
   static const QString DefaultReadUrl;
-  static const QString DefaultDeleteUrl;
-
 };
 
 
 const QString MainWindowPrivate::DefaultServerRoot = "https://localhost/ctpwdgen-server";
 const QString MainWindowPrivate::DefaultWriteUrl = "/ajax/write.php";
 const QString MainWindowPrivate::DefaultReadUrl = "/ajax/read.php";
-const QString MainWindowPrivate::DefaultDeleteUrl = "/ajax/delete.php";
 
 
 MainWindow::MainWindow(QWidget *parent)
