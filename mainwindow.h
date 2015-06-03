@@ -65,6 +65,7 @@ private:
     FileSource,
     ServerSource
   } SyncSource;
+  static const int NoCryptError = -1;
 
 private slots:
   void updatePassword(void);
