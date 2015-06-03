@@ -55,7 +55,6 @@ static const QString AppAuthor = "Oliver Lau";
 static const QString AppAuthorMail = "ola@ct.de";
 
 
-static const QString Salt = "pepper";
 static const int DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
 static const int AESKeySize = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
@@ -125,6 +124,7 @@ public:
   static const QString DefaultServerRoot;
   static const QString DefaultWriteUrl;
   static const QString DefaultReadUrl;
+  static const int DefaultCompressionLevel = 0;
 };
 
 
@@ -192,12 +192,11 @@ MainWindow::MainWindow(QWidget *parent)
   d->progressDialog = new ProgressDialog(this);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
+  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(readFinished(QNetworkReply*)));
   QObject::connect(d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(writeFinished(QNetworkReply*)));
   QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
 
 #ifdef QT_DEBUG
   QObject::connect(ui->actionInvalidatePassword, SIGNAL(triggered(bool)), SLOT(invalidatePassword()));
@@ -301,7 +300,7 @@ void MainWindow::newDomain(void)
   ui->iterationsSpinBox->setValue(domainSettings.iterations);
   ui->passwordLengthSpinBox->setValue(domainSettings.length);
   ui->forceRegexPlainTextEdit->setPlainText(domainSettings.validatorRegEx.pattern());
-  ui->forceRegexCheckBox->setChecked(domainSettings.forceValidation);
+  ui->forceRegexCheckBox->setChecked(domainSettings.forceRegexValidation);
   updateValidator();
   updatePassword();
 
@@ -370,7 +369,6 @@ void MainWindow::generatePassword(void)
   d->password.generateAsync(
         PasswordParam(
           ui->domainLineEdit->text().toUtf8(),
-          Salt.toUtf8(),
           d->masterPassword.toUtf8(),
           ui->customCharactersPlainTextEdit->toPlainText(),
           ui->passwordLengthSpinBox->value(),
@@ -509,27 +507,61 @@ void MainWindow::updateValidator(void)
 }
 
 
+void MainWindow::copyDomainSettingsToGUI(const QString &domain)
+{
+  Q_D(MainWindow);
+  const QVariantMap &p = d->domains[domain].toMap();
+  ui->domainLineEdit->setText(p["domain"].toString());
+  ui->userLineEdit->setText(p["username"].toString());
+  ui->useLowerCaseCheckBox->setChecked(p["useLowerCase"].toBool());
+  ui->useUpperCaseCheckBox->setChecked(p["useUpperCase"].toBool());
+  ui->useDigitsCheckBox->setChecked(p["useDigits"].toBool());
+  ui->useExtrasCheckBox->setChecked(p["useExtra"].toBool());
+  ui->useCustomCheckBox->setChecked(p["useCustom"].toBool());
+  ui->avoidAmbiguousCheckBox->setChecked(p["avoidAmbiguous"].toBool());
+  ui->customCharactersPlainTextEdit->blockSignals(true);
+  ui->customCharactersPlainTextEdit->setPlainText(p["customCharacters"].toString());
+  ui->customCharactersPlainTextEdit->blockSignals(false);
+  ui->iterationsSpinBox->setValue(p["iterations"].toInt());
+  ui->passwordLengthSpinBox->setValue(p["length"].toInt());
+  ui->forceLowerCaseCheckBox->setChecked(p["forceLowerCase"].toBool());
+  ui->forceUpperCaseCheckBox->setChecked(p["forceUpperCase"].toBool());
+  ui->forceDigitsCheckBox->setChecked(p["forceDigits"].toBool());
+  ui->forceExtrasCheckBox->setChecked(p["forceExtra"].toBool());
+  ui->forceRegexCheckBox->setChecked(p["forceRegexValidation"].toBool());
+  d->createdDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
+  d->modifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
+  updateValidator();
+  updatePassword();
+}
+
+
 void MainWindow::saveCurrentSettings(void)
 {
   Q_D(MainWindow);
-  DomainSettings domainSettings;
-  domainSettings.domain = ui->domainLineEdit->text();
-  domainSettings.username = ui->userLineEdit->text();
-  domainSettings.useLowerCase = ui->useLowerCaseCheckBox->isChecked();
-  domainSettings.useUpperCase = ui->useUpperCaseCheckBox->isChecked();
-  domainSettings.useDigits = ui->useDigitsCheckBox->isChecked();
-  domainSettings.useExtra = ui->useExtrasCheckBox->isChecked();
-  domainSettings.useCustom = ui->useCustomCheckBox->isChecked();
-  domainSettings.avoidAmbiguous = ui->avoidAmbiguousCheckBox->isChecked();
-  domainSettings.customCharacterSet = ui->customCharactersPlainTextEdit->toPlainText();
-  domainSettings.iterations = ui->iterationsSpinBox->value();
-  domainSettings.salt = Salt;
-  domainSettings.length = ui->passwordLengthSpinBox->value();
-  domainSettings.validatorRegEx = d->password.validator();
-  domainSettings.forceValidation = ui->forceRegexCheckBox->isChecked();
-  domainSettings.cDate = d->createdDate.isValid() ? d->createdDate : QDateTime::currentDateTime();
-  domainSettings.mDate = d->modifiedDate.isValid() ? d->modifiedDate : QDateTime::currentDateTime();
-  saveDomainDataToSettings(domainSettings);
+  qDebug() << "MainWindow::saveCurrentSettings()";
+  DomainSettings ds;
+  ds.domain = ui->domainLineEdit->text();
+  ds.username = ui->userLineEdit->text();
+  ds.useLowerCase = ui->useLowerCaseCheckBox->isChecked();
+  ds.useUpperCase = ui->useUpperCaseCheckBox->isChecked();
+  ds.useDigits = ui->useDigitsCheckBox->isChecked();
+  ds.useExtra = ui->useExtrasCheckBox->isChecked();
+  ds.useCustom = ui->useCustomCheckBox->isChecked();
+  ds.avoidAmbiguous = ui->avoidAmbiguousCheckBox->isChecked();
+  ds.customCharacterSet = ui->customCharactersPlainTextEdit->toPlainText();
+  ds.iterations = ui->iterationsSpinBox->value();
+  ds.salt = PasswordParam::Salt;
+  ds.length = ui->passwordLengthSpinBox->value();
+  ds.validatorRegEx = d->password.validator();
+  ds.forceLowerCase = ui->forceLowerCaseCheckBox->isChecked();
+  ds.forceUpperCase = ui->forceUpperCaseCheckBox->isChecked();
+  ds.forceDigits = ui->forceDigitsCheckBox->isChecked();
+  ds.forceExtra = ui->forceExtrasCheckBox->isChecked();
+  ds.forceRegexValidation = ui->forceRegexCheckBox->isChecked();
+  ds.cDate = d->createdDate.isValid() ? d->createdDate : QDateTime::currentDateTime();
+  ds.mDate = d->modifiedDate.isValid() ? d->modifiedDate : QDateTime::currentDateTime();
+  saveDomainDataToSettings(ds);
   d->settings.sync();
   setDirty(false);
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
@@ -539,7 +571,7 @@ void MainWindow::saveCurrentSettings(void)
 void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveDomainSettings() for domain" << domainSettings.domain;
+  qDebug() << "MainWindow::saveDomainDataToSettings() for domain" << domainSettings.domain;
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
   if (domains.contains(domainSettings.domain, Qt::CaseInsensitive)) {
@@ -551,7 +583,7 @@ void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
     model->setStringList(domains);
   }
   d->domains[domainSettings.domain] = domainSettings.toVariant();
-  // sync();
+  saveDomainDataToSettings();
 }
 
 
@@ -561,14 +593,47 @@ void MainWindow::saveDomainDataToSettings(void)
   qDebug() << "MainWindow::saveDomainDataToSettings()";
   int errCode;
   QString errMsg;
-  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), true, &errCode, &errMsg);
+  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), d->optionsDialog->compressionLevel(), &errCode, &errMsg);
   if (errCode == NoCryptError) {
     d->settings.setValue("data/domains", cipher.toHex());
+    d->settings.sync();
   }
   else {
     // TODO
     qWarning() << errMsg;
   }
+}
+
+
+void MainWindow::restoreDomainDataFromSettings(void)
+{
+  Q_D(MainWindow);
+  Q_ASSERT(!d->masterPassword.isEmpty());
+  qDebug() << "MainWindow::restoreDomainDataFromSettings()";
+  QJsonDocument json;
+  QStringList domains;
+  const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
+  if (!baDomains.isEmpty()) {
+    int errCode;
+    QString errMsg;
+    const QByteArray &recovered = decode(baDomains, &errCode, &errMsg);
+    d->masterPasswordValid = (errCode == NoCryptError);
+    if (!d->masterPasswordValid) {
+      wrongPasswordWarning(errCode, errMsg);
+      return;
+    }
+    json = QJsonDocument::fromJson(recovered);
+    domains = json.object().keys();
+  }
+  d->domains = json.toVariant().toMap();
+  ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
+  if (d->completer) {
+    QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+    delete d->completer;
+  }
+  d->completer = new QCompleter(domains);
+  QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
+  ui->domainLineEdit->setCompleter(d->completer);
 }
 
 
@@ -584,21 +649,50 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  d->settings.setValue("sync/serverUsername", encode(d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex());
-  d->settings.setValue("sync/serverPassword", encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex());
+  d->settings.setValue("sync/serverUsername", encode(d->optionsDialog->serverUsername().toUtf8(), 0, &errCode, &errMsg).toHex());
+  qDebug() << "username =" << d->optionsDialog->serverUsername().toUtf8() << errCode << errMsg;
+  d->settings.setValue("sync/serverPassword", encode(d->optionsDialog->serverPassword().toUtf8(), 0, &errCode, &errMsg).toHex());
+  qDebug() << "password =" << d->optionsDialog->serverPassword().toUtf8() << errCode << errMsg;
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
+  d->settings.setValue("sync/compressionLevel", d->optionsDialog->compressionLevel());
   saveDomainDataToSettings();
   d->settings.sync();
 }
 
 
-QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *errCode, QString *errMsg)
+void MainWindow::restoreSettings(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::restoreSettings()";
+  int errCode;
+  QString errMsg;
+  restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
+  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
+  d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
+  ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
+  d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
+  d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
+  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", MainWindowPrivate::DefaultServerRoot).toString());
+  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", MainWindowPrivate::DefaultWriteUrl).toString());
+  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", MainWindowPrivate::DefaultReadUrl).toString());
+  d->optionsDialog->setCompressionLevel(d->settings.value("sync/compressionLevel", MainWindowPrivate::DefaultCompressionLevel).toInt());
+  QByteArray serverUsername = d->settings.value("sync/serverUsername").toByteArray();
+  QByteArray serverUsernameBin = QByteArray::fromHex(serverUsername);
+  QByteArray serverUsernameDecoded = decode(serverUsernameBin, &errCode, &errMsg);
+  qDebug() << "username:" << serverUsername << serverUsername.size() << "=>" << serverUsernameBin.toHex() << serverUsernameBin.size() << "=>" << serverUsernameDecoded;
+  d->optionsDialog->setServerUsername(serverUsernameDecoded);
+  QByteArray password = decode(QByteArray::fromHex(d->settings.value("sync/serverPassword").toByteArray()), &errCode, &errMsg);
+  d->optionsDialog->setServerPassword(password);
+}
+
+
+QByteArray MainWindow::encode(const QByteArray &baPlain, int compressionLevel, int *errCode, QString *errMsg)
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
     *errCode = NoCryptError;
-  std::string plain = (compress ? qCompress(baPlain, 9) : baPlain).toStdString();
+  std::string plain = qCompress(baPlain, compressionLevel).toStdString();
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
@@ -608,7 +702,8 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
           true,
           new CryptoPP::StreamTransformationFilter(
             enc,
-            new CryptoPP::StringSink(cipher)
+            new CryptoPP::StringSink(cipher),
+            CryptoPP::StreamTransformationFilter::PKCS_PADDING
             )
           );
     Q_UNUSED(s);
@@ -624,7 +719,7 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
 }
 
 
-QByteArray MainWindow::decode(const QByteArray &baCipher, bool uncompress, int *errCode, QString *errMsg)
+QByteArray MainWindow::decode(const QByteArray &baCipher, int *errCode, QString *errMsg)
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
@@ -651,59 +746,7 @@ QByteArray MainWindow::decode(const QByteArray &baCipher, bool uncompress, int *
       *errMsg = e.what();
   }
   const QByteArray &plain = QByteArray::fromStdString(recovered);
-  return uncompress ? qUncompress(plain) : plain;
-}
-
-
-void MainWindow::restoreDomainDataFromSettings(void)
-{
-  Q_D(MainWindow);
-  Q_ASSERT(!d->masterPassword.isEmpty());
-  qDebug() << "MainWindow::restoreDomainDataFromSettings()";
-  QJsonDocument json;
-  QStringList domains;
-  const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
-  if (!baDomains.isEmpty()) {
-    int errCode;
-    QString errMsg;
-    QByteArray recovered = decode(baDomains, true, &errCode, &errMsg);
-    d->masterPasswordValid = (errCode == NoCryptError);
-    if (!d->masterPasswordValid) {
-      wrongPasswordWarning(errCode, errMsg);
-      return;
-    }
-    json = QJsonDocument::fromJson(recovered);
-    domains = json.object().keys();
-  }
-  d->domains = json.toVariant().toMap();
-  ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
-  if (d->completer) {
-    QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
-    delete d->completer;
-  }
-  d->completer = new QCompleter(domains);
-  QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
-  ui->domainLineEdit->setCompleter(d->completer);
-}
-
-
-void MainWindow::restoreSettings(void)
-{
-  Q_D(MainWindow);
-  qDebug() << "MainWindow::restoreSettings()";
-  int errCode;
-  QString errMsg;
-  restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
-  d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
-  ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
-  d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
-  d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
-  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", MainWindowPrivate::DefaultServerRoot).toString());
-  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", MainWindowPrivate::DefaultWriteUrl).toString());
-  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", MainWindowPrivate::DefaultReadUrl).toString());
-  d->optionsDialog->setServerUsername(decode(QByteArray::fromHex(d->settings.value("sync/serverUsername").toByteArray()), false, &errCode, &errMsg));
-  d->optionsDialog->setServerPassword(decode(QByteArray::fromHex(d->settings.value("sync/serverPassword").toByteArray()), false, &errCode, &errMsg));
+  return qUncompress(plain);
 }
 
 
@@ -727,31 +770,11 @@ void MainWindow::writeFinished(QNetworkReply *reply)
 
 void MainWindow::cancelServerOperation(void)
 {
-  // TODO:
-}
-
-
-void MainWindow::copyDomainSettingsToGUI(const QString &domain)
-{
   Q_D(MainWindow);
-  const QVariantMap &p = d->domains[domain].toMap();
-  ui->domainLineEdit->setText(p["domain"].toString());
-  ui->userLineEdit->setText(p["username"].toString());
-  ui->useLowerCaseCheckBox->setChecked(p["useLowerCase"].toBool());
-  ui->useUpperCaseCheckBox->setChecked(p["useUpperCase"].toBool());
-  ui->useDigitsCheckBox->setChecked(p["useDigits"].toBool());
-  ui->useExtrasCheckBox->setChecked(p["useExtra"].toBool());
-  ui->useCustomCheckBox->setChecked(p["useCustom"].toBool());
-  ui->avoidAmbiguousCheckBox->setChecked(p["avoidAmbiguous"].toBool());
-  ui->customCharactersPlainTextEdit->blockSignals(true);
-  ui->customCharactersPlainTextEdit->setPlainText(p["customCharacters"].toString());
-  ui->customCharactersPlainTextEdit->blockSignals(false);
-  ui->iterationsSpinBox->setValue(p["iterations"].toInt());
-  ui->passwordLengthSpinBox->setValue(p["length"].toInt());
-  d->createdDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
-  d->modifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
-  updateValidator();
-  updatePassword();
+  if (d->readReq->isRunning())
+    d->readReq->abort();
+  if (d->writeReq->isRunning())
+    d->writeReq->abort();
 }
 
 
@@ -772,7 +795,7 @@ void MainWindow::sync(void)
       if (!ok) {
         // TODO: handle error
       }
-      const QByteArray &baDomains = encode(QByteArray("{}"), true);
+      const QByteArray &baDomains = encode(QByteArray("{}"), d->optionsDialog->compressionLevel());
       syncFile.write(baDomains);
       syncFile.close();
     }
@@ -813,7 +836,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    std::string sDomains = decode(remoteDomainsEncoded, true, &errCode, &errMsg);
+    std::string sDomains = decode(remoteDomainsEncoded, &errCode, &errMsg);
     if (errCode == NoCryptError && !sDomains.empty()) {
       remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
     }
@@ -859,36 +882,43 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
 
   remoteJSON = QJsonDocument::fromVariant(remoteDomains);
   if (updateRemote) {
-    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), true);
-    if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
-      qDebug() << "rewriting sync file ...";
-      QFile syncFile(d->optionsDialog->syncFilename());
-      syncFile.open(QIODevice::WriteOnly);
-      qint64 bytesWritten = syncFile.write(baCipher);
-      Q_UNUSED(bytesWritten); // TODO: handle bytesWritten < 0
-      syncFile.close();
+    int errCode;
+    QString errMsg;
+    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), d->optionsDialog->compressionLevel(), &errCode, &errMsg);
+    if (errCode == NoCryptError) {
+      if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
+        qDebug() << "rewriting sync file ...";
+        QFile syncFile(d->optionsDialog->syncFilename());
+        syncFile.open(QIODevice::WriteOnly);
+        qint64 bytesWritten = syncFile.write(baCipher);
+        Q_UNUSED(bytesWritten); // TODO: handle bytesWritten < 0
+        syncFile.close();
+      }
+      if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
+        qDebug() << "sending to server ..." << baCipher.toBase64();
+        ui->statusBar->showMessage(tr("Sending data to server ..."));
+        d->counter = 0;
+        d->maxCounter = 1;
+        d->progressDialog->setText(tr("Sending data to server ..."));
+        d->progressDialog->setRange(0, d->maxCounter);
+        d->progressDialog->setValue(0);
+        d->progressDialog->show();
+        QUrlQuery params;
+        params.addQueryItem("data", baCipher.toBase64()); // TODO: baCipher.toBase64().toPercentEncoding()
+        const QByteArray &data = params.query().toUtf8();
+        QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->writeUrl()));
+        req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+        req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
+        req.setSslConfiguration(d->sslConf);
+        QNetworkReply *reply = d->writeNAM->post(req, data);
+        reply->ignoreSslErrors(d->expectedSslErrors);
+        d->loaderIcon.start();
+        updateSaveButtonIcon();
+      }
     }
-    if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
-      qDebug() << "sending to server ..." << baCipher.toBase64();
-      ui->statusBar->showMessage(tr("Sending data to server ..."));
-      d->counter = 0;
-      d->maxCounter = 1;
-      d->progressDialog->setText(tr("Sending data to server ..."));
-      d->progressDialog->setRange(0, d->maxCounter);
-      d->progressDialog->setValue(0);
-      d->progressDialog->show();
-      QUrlQuery params;
-      params.addQueryItem("data", baCipher.toBase64()); // TODO: baCipher.toBase64().toPercentEncoding()
-      const QByteArray &data = params.query().toUtf8();
-      QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->writeUrl()));
-      req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-      req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-      req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
-      req.setSslConfiguration(d->sslConf);
-      QNetworkReply *reply = d->writeNAM->post(req, data);
-      reply->ignoreSslErrors(d->expectedSslErrors);
-      d->loaderIcon.start();
-      updateSaveButtonIcon();
+    else {
+      // TODO: catch encryption error
     }
   }
 
@@ -937,11 +967,7 @@ void MainWindow::credentialsEntered(void)
     ui->encryptionLabel->setPixmap(QPixmap(":/images/encrypted.png"));
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
-#ifdef WIN32
-    memcpy_s(d->AESKey, AESKeySize, d->cryptPassword.derivedKey().data(), AESKeySize);
-#else
-    memcpy(d->mAESKey, d->mCryptPassword.derivedKey().data(), AESKeySize);
-#endif
+    d->cryptPassword.extractAESKey((char*)d->AESKey, AESKeySize);
     restoreDomainDataFromSettings();
     updatePassword();
   }

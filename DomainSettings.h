@@ -59,7 +59,11 @@ public:
   int iterations;
   int length;
   QString salt;
-  bool forceValidation;
+  bool forceLowerCase;
+  bool forceUpperCase;
+  bool forceDigits;
+  bool forceExtra;
+  bool forceRegexValidation;
   QRegExp validatorRegEx;
   QDateTime cDate;
   QDateTime mDate;

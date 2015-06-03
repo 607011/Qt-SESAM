@@ -66,6 +66,7 @@ private:
     ServerSource
   } SyncSource;
   static const int NoCryptError = -1;
+  static const bool EnableCompression = false;
 
 private slots:
   void updatePassword(void);
@@ -116,8 +117,8 @@ private: // methods
   void zeroize(T *, int len);
   void invalidatePassword(QLineEdit*);
   void wrongPasswordWarning(int errCode, QString errMsg);
-  QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
-  QByteArray decode(const QByteArray &, bool decompress, int *errCode = nullptr, QString *errMsg = nullptr);
+  QByteArray encode(const QByteArray &, int compressionLevel, int *errCode = nullptr, QString *errMsg = nullptr);
+  QByteArray decode(const QByteArray &, int *errCode = nullptr, QString *errMsg = nullptr);
 
 private:
   Ui::MainWindow *ui;

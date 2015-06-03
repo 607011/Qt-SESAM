@@ -46,7 +46,11 @@ DomainSettings::DomainSettings(void)
   , iterations(DefaultIterations)
   , length(DefaultPasswordLength)
   , salt(DefaultSalt)
-  , forceValidation(DefaultForceValidation)
+  , forceLowerCase(false)
+  , forceUpperCase(false)
+  , forceDigits(false)
+  , forceExtra(false)
+  , forceRegexValidation(DefaultForceValidation)
   , validatorRegEx(DefaultValidatorPattern)
   , deleted(false)
 { /* ... */ }
@@ -65,7 +69,11 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , iterations(o.iterations)
   , length(o.length)
   , salt(o.salt)
-  , forceValidation(o.forceValidation)
+  , forceLowerCase(o.forceLowerCase)
+  , forceUpperCase(o.forceUpperCase)
+  , forceDigits(o.forceDigits)
+  , forceExtra(o.forceExtra)
+  , forceRegexValidation(o.forceRegexValidation)
   , validatorRegEx(o.validatorRegEx)
   , cDate(o.cDate)
   , mDate(o.mDate)
@@ -88,7 +96,11 @@ QVariantMap DomainSettings::toVariant(void) const
   map["iterations"] = iterations;
   map["length"] = length;
   map["salt"] = salt;
-  map["forceValidation"] = forceValidation;
+  map["forceLowerCase"] = forceLowerCase;
+  map["forceUpperCase"] = forceUpperCase;
+  map["forceDigits"] = forceDigits;
+  map["forceExtra"] = forceExtra;
+  map["forceRegexValidation"] = forceRegexValidation;
   map["validatorRegEx"] = validatorRegEx.pattern();
   map["cDate"] = cDate;
   map["mDate"] = mDate;
@@ -112,7 +124,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   d.iterations = map["iterations"].toInt();
   d.length = map["length"].toInt();
   d.salt = map["salt"].toInt();
-  d.forceValidation = map["forceValidation"].toBool();
+  d.forceRegexValidation = map["forceRegexValidation"].toBool();
   d.validatorRegEx.setPattern(map["validatorRegEx"].toString());
   d.cDate = QDateTime::fromString(map["cDate"].toString());
   d.mDate = QDateTime::fromString(map["mDate"].toString());

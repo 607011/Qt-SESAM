@@ -31,6 +31,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseFile()));
+  QObject::connect(ui->compressionSlider, SIGNAL(valueChanged(int)), SLOT(compressionLevelChanged(int)));
 }
 
 
@@ -79,6 +80,12 @@ QString OptionsDialog::writeUrl(void) const
 QString OptionsDialog::readUrl(void) const
 {
   return ui->readUrlLineEdit->text();
+}
+
+
+int OptionsDialog::compressionLevel(void) const
+{
+  return ui->compressionSlider->value();
 }
 
 
@@ -145,6 +152,12 @@ void OptionsDialog::setReadUrl(QString url)
 }
 
 
+void OptionsDialog::setCompressionLevel(int level)
+{
+  ui->compressionSlider->setValue(level);
+}
+
+
 void OptionsDialog::chooseFile(void)
 {
   QFileInfo fi(ui->syncFileLineEdit->text());
@@ -163,4 +176,11 @@ void OptionsDialog::okClicked(void)
   else {
     reject();
   }
+}
+
+
+void OptionsDialog::compressionLevelChanged(int level)
+{
+  const QString &text = (level == 0) ? tr("off") : QString("%1").arg(level);
+  ui->compressionLevelLabel->setText(text);
 }

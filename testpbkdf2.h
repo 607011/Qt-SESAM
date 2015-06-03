@@ -37,7 +37,7 @@ private slots:
   void simple1(void);
   void simple2(void);
   void pin(void);
-
+  void aesKey(void);
 
 };
 

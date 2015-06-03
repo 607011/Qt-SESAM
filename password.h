@@ -29,6 +29,7 @@
 
 class PasswordParamBase {
 public:
+  static const QByteArray Salt;
   static const QString LowerChars;
   static const QString UpperChars;
   static const QString UpperCharsNoAmbiguous;
@@ -36,9 +37,7 @@ public:
   static const QString ExtraChars;
 
   PasswordParamBase(void)
-    : domain("none")
-    , salt("This is my salt. There are many like it, but this one is mine.")
-    , masterPwd("Pl4c3 4n Incr3d1bly h4rd 7o 6u355 p4SSw0rd h3r3!")
+    : salt(Salt)
     , availableChars(Digits)
     , passwordLength(10)
     , iterations(4096)
@@ -68,14 +67,12 @@ public:
   }
   PasswordParam(
       const QByteArray &domain,
-      const QByteArray &salt,
       const QByteArray &masterPwd,
       const QString &availableChars,
       const int passwordLength,
       const int iterations)
   {
     this->domain = domain;
-    this->salt = salt;
     this->masterPwd = masterPwd;
     this->availableChars = availableChars;
     this->passwordLength = passwordLength;
@@ -112,6 +109,7 @@ public:
   bool isRunning(void) const;
   void waitForFinished(void);
   QString errorString(void) const;
+  void extractAESKey(char* aesKey, int nBytes);
 
 signals:
   void generationStarted(void);

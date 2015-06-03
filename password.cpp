@@ -17,6 +17,8 @@
 
 */
 
+#include <cstring>
+
 #include "password.h"
 
 #include "cryptopp562/sha.h"
@@ -52,7 +54,7 @@ public:
   QFuture<void> future;
 };
 
-
+const QByteArray PasswordParamBase::Salt = QString("pepper").toUtf8();
 const QString PasswordParamBase::LowerChars = "abcdefghijklmnopqrstuvwxyz";
 const QString PasswordParamBase::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const QString PasswordParamBase::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
@@ -135,7 +137,7 @@ bool Password::generate(const PasswordParam &p)
     d->key = QString();
     int n = p.passwordLength;
     while (v > Zero && n-- > 0) {
-      BigInt::Rossi mod = v % Modulus;
+      const BigInt::Rossi &mod = v % Modulus;
       d->key += p.availableChars.at(mod.toUlong());
       v = v / Modulus;
     }
@@ -225,6 +227,21 @@ const QString &Password::key(void) const
 const QString &Password::hexKey(void) const
 {
   return d_ptr->hexKey;
+}
+
+
+void Password::extractAESKey(char* aesKey, int nBytes)
+{
+  Q_D(Password);
+  Q_ASSERT(aesKey != nullptr);
+  Q_ASSERT(nBytes > 0);
+  Q_ASSERT(nBytes % 16 == 0);
+  Q_ASSERT(nBytes <= CryptoPP::SHA512::DIGESTSIZE);
+#ifdef WIN32
+    memcpy_s(aesKey, nBytes, d->derivedKey.data(), nBytes);
+#else
+    memcpy(aesKey, d->derivedKey.data(), nBytes);
+#endif
 }
 
 

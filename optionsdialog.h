@@ -43,6 +43,7 @@ public:
   QString serverPassword(void) const;
   QString writeUrl(void) const;
   QString readUrl(void) const;
+  int compressionLevel(void) const;
 
   QByteArray serverCredentials(void) const;
 
@@ -53,10 +54,12 @@ public:
   void setServerPassword(QString);
   void setWriteUrl(QString);
   void setReadUrl(QString);
+  void setCompressionLevel(int);
 
 private slots:
   void chooseFile(void);
   void okClicked(void);
+  void compressionLevelChanged(int);
 
 private:
   Ui::OptionsDialog *ui;
