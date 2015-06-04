@@ -109,7 +109,7 @@ public:
   bool isRunning(void) const;
   void waitForFinished(void);
   QString errorString(void) const;
-  void extractAESKey(char* aesKey, int nBytes);
+  void extractAESKey(char *aesKey, int size);
 
 signals:
   void generationStarted(void);

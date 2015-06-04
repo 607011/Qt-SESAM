@@ -230,17 +230,17 @@ const QString &Password::hexKey(void) const
 }
 
 
-void Password::extractAESKey(char* aesKey, int nBytes)
+void Password::extractAESKey(char *aesKey, int size)
 {
   Q_D(Password);
   Q_ASSERT(aesKey != nullptr);
-  Q_ASSERT(nBytes > 0);
-  Q_ASSERT(nBytes % 16 == 0);
-  Q_ASSERT(nBytes <= CryptoPP::SHA512::DIGESTSIZE);
+  Q_ASSERT(size > 0);
+  Q_ASSERT(size % 16 == 0);
+  Q_ASSERT(size <= CryptoPP::SHA512::DIGESTSIZE);
 #ifdef WIN32
-    memcpy_s(aesKey, nBytes, d->derivedKey.data(), nBytes);
+    memcpy_s(aesKey, size, d->derivedKey.data(), size);
 #else
-    memcpy(aesKey, d->derivedKey.data(), nBytes);
+    memcpy(aesKey, d->derivedKey.data(), size);
 #endif
 }
 
