@@ -58,6 +58,13 @@ static const QString AppAuthorMail = "ola@ct.de";
 static const int DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
 static const int AESKeySize = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
+static const int NoCryptError = -1;
+static const bool CompressionEnabled = true;
+
+static const QString DefaultServerRoot = "https://localhost/ctpwdgen-server";
+static const QString DefaultWriteUrl = "/ajax/write.php";
+static const QString DefaultReadUrl = "/ajax/read.php";
+
 
 
 class MainWindowPrivate {
@@ -121,16 +128,7 @@ public:
   int counter;
   int maxCounter;
 
-  static const QString DefaultServerRoot;
-  static const QString DefaultWriteUrl;
-  static const QString DefaultReadUrl;
-  static const int DefaultCompressionLevel = 0;
 };
-
-
-const QString MainWindowPrivate::DefaultServerRoot = "https://localhost/ctpwdgen-server";
-const QString MainWindowPrivate::DefaultWriteUrl = "/ajax/write.php";
-const QString MainWindowPrivate::DefaultReadUrl = "/ajax/read.php";
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -593,7 +591,7 @@ void MainWindow::saveDomainDataToSettings(void)
   qDebug() << "MainWindow::saveDomainDataToSettings()";
   int errCode;
   QString errMsg;
-  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), d->optionsDialog->compressionLevel(), &errCode, &errMsg);
+  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), CompressionEnabled, &errCode, &errMsg);
   if (errCode == NoCryptError) {
     d->settings.setValue("data/domains", cipher.toHex());
     d->settings.sync();
@@ -616,7 +614,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
   if (!baDomains.isEmpty()) {
     int errCode;
     QString errMsg;
-    const QByteArray &recovered = decode(baDomains, &errCode, &errMsg);
+    const QByteArray &recovered = decode(baDomains, CompressionEnabled, &errCode, &errMsg);
     d->masterPasswordValid = (errCode == NoCryptError);
     if (!d->masterPasswordValid) {
       wrongPasswordWarning(errCode, errMsg);
@@ -649,13 +647,13 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  d->settings.setValue("sync/serverUsername", encode(d->optionsDialog->serverUsername().toUtf8(), 0, &errCode, &errMsg).toHex());
+  QByteArray serverUsername = encode(d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg);
+  d->settings.setValue("sync/serverUsername", serverUsername.toHex());
   qDebug() << "username =" << d->optionsDialog->serverUsername().toUtf8() << errCode << errMsg;
-  d->settings.setValue("sync/serverPassword", encode(d->optionsDialog->serverPassword().toUtf8(), 0, &errCode, &errMsg).toHex());
+  d->settings.setValue("sync/serverPassword", encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex());
   qDebug() << "password =" << d->optionsDialog->serverPassword().toUtf8() << errCode << errMsg;
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
-  d->settings.setValue("sync/compressionLevel", d->optionsDialog->compressionLevel());
   saveDomainDataToSettings();
   d->settings.sync();
 }
@@ -673,26 +671,35 @@ void MainWindow::restoreSettings(void)
   ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
   d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
   d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
-  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", MainWindowPrivate::DefaultServerRoot).toString());
-  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", MainWindowPrivate::DefaultWriteUrl).toString());
-  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", MainWindowPrivate::DefaultReadUrl).toString());
-  d->optionsDialog->setCompressionLevel(d->settings.value("sync/compressionLevel", MainWindowPrivate::DefaultCompressionLevel).toInt());
+  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DefaultServerRoot).toString());
+  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DefaultWriteUrl).toString());
+  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DefaultReadUrl).toString());
+
+  qDebug() << "Reading sync/serverUsername ...";
   QByteArray serverUsername = d->settings.value("sync/serverUsername").toByteArray();
-  QByteArray serverUsernameBin = QByteArray::fromHex(serverUsername);
-  QByteArray serverUsernameDecoded = decode(serverUsernameBin, &errCode, &errMsg);
-  qDebug() << "username:" << serverUsername << serverUsername.size() << "=>" << serverUsernameBin.toHex() << serverUsernameBin.size() << "=>" << serverUsernameDecoded;
-  d->optionsDialog->setServerUsername(serverUsernameDecoded);
-  QByteArray password = decode(QByteArray::fromHex(d->settings.value("sync/serverPassword").toByteArray()), &errCode, &errMsg);
-  d->optionsDialog->setServerPassword(password);
+  if (!serverUsername.isEmpty()) {
+    QByteArray serverUsernameBin = QByteArray::fromHex(serverUsername);
+    QByteArray serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
+    qDebug() << "username:" << serverUsername << serverUsername.size() << "=>" << serverUsernameBin.toHex() << serverUsernameBin.size() << "=>" << serverUsernameDecoded;
+    d->optionsDialog->setServerUsername(serverUsernameDecoded);
+  }
+
+  qDebug() << "Reading sync/serverPassword ...";
+  QByteArray serverPassword = d->settings.value("sync/serverPassword").toByteArray();
+  if (!serverPassword.isEmpty()) {
+    QByteArray serverPasswordBin = QByteArray::fromHex(serverPassword);
+    QByteArray password = decode(serverPasswordBin, false, &errCode, &errMsg);
+    d->optionsDialog->setServerPassword(password);
+  }
 }
 
 
-QByteArray MainWindow::encode(const QByteArray &baPlain, int compressionLevel, int *errCode, QString *errMsg)
+QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *errCode, QString *errMsg)
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
     *errCode = NoCryptError;
-  std::string plain = qCompress(baPlain, compressionLevel).toStdString();
+  std::string plain = (compress) ? qCompress(baPlain, 9).toStdString() : baPlain.toStdString();
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
@@ -714,12 +721,14 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, int compressionLevel, i
       *errCode = (int)e.GetErrorType();
     if (errMsg != nullptr)
       *errMsg = e.what();
+    if (e.GetErrorType() >= 0)
+      qErrnoWarning(e.GetErrorType(), e.what());
   }
   return QByteArray::fromStdString(cipher);
 }
 
 
-QByteArray MainWindow::decode(const QByteArray &baCipher, int *errCode, QString *errMsg)
+QByteArray MainWindow::decode(const QByteArray &baCipher, bool uncompress, int *errCode, QString *errMsg)
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
@@ -744,9 +753,11 @@ QByteArray MainWindow::decode(const QByteArray &baCipher, int *errCode, QString 
       *errCode = (int)e.GetErrorType();
     if (errMsg != nullptr)
       *errMsg = e.what();
+    if (e.GetErrorType() >= 0)
+      qErrnoWarning(e.GetErrorType(), e.what());
   }
   const QByteArray &plain = QByteArray::fromStdString(recovered);
-  return qUncompress(plain);
+  return (uncompress) ? qUncompress(plain) : plain;
 }
 
 
@@ -795,7 +806,7 @@ void MainWindow::sync(void)
       if (!ok) {
         // TODO: handle error
       }
-      const QByteArray &baDomains = encode(QByteArray("{}"), d->optionsDialog->compressionLevel());
+      const QByteArray &baDomains = encode(QByteArray("{}"), CompressionEnabled);
       syncFile.write(baDomains);
       syncFile.close();
     }
@@ -836,7 +847,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    std::string sDomains = decode(remoteDomainsEncoded, &errCode, &errMsg);
+    std::string sDomains = decode(remoteDomainsEncoded, CompressionEnabled, &errCode, &errMsg);
     if (errCode == NoCryptError && !sDomains.empty()) {
       remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
     }
@@ -884,7 +895,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   if (updateRemote) {
     int errCode;
     QString errMsg;
-    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), d->optionsDialog->compressionLevel(), &errCode, &errMsg);
+    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), CompressionEnabled, &errCode, &errMsg);
     if (errCode == NoCryptError) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         qDebug() << "rewriting sync file ...";
@@ -962,12 +973,12 @@ void MainWindow::credentialsEntered(void)
   Q_D(MainWindow);
   const QString &masterPwd = d->masterPasswordDialog->password();
   if (!masterPwd.isEmpty()) {
-    restoreSettings();
     setEnabled(true);
     ui->encryptionLabel->setPixmap(QPixmap(":/images/encrypted.png"));
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
     d->cryptPassword.extractAESKey((char*)d->AESKey, AESKeySize);
+    restoreSettings();
     restoreDomainDataFromSettings();
     updatePassword();
   }
