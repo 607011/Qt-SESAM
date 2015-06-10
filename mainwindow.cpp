@@ -35,6 +35,7 @@
 #include <QSslError>
 #include <QUrlQuery>
 #include <QProgressDialog>
+#include <QSysInfo>
 
 #include "util.h"
 #include "progressdialog.h"
@@ -50,11 +51,16 @@
 
 static const QString APP_COMPANY_NAME = "c't";
 static const QString APP_NAME = "ctpwdgen";
-static const QString APP_VERSION = "1.0 ALPHA";
+static const QString APP_VERSION = "1.0-ALPHA";
 static const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 static const QString APP_AUTHOR = "Oliver Lau";
 static const QString APP_AUTHOR_MAIL = "ola@ct.de";
-
+static const QString APP_USER_AGENT = QString("ctpwdgen/%1 (%2) Qt/%3 (%4; %5)")
+    .arg(APP_VERSION)
+    .arg(APP_URL)
+    .arg(qVersion())
+    .arg(QSysInfo::prettyProductName())
+    .arg(QSysInfo::currentCpuArchitecture());
 
 static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MS = 5 * 60 * 1000;
 static const int AES_KEY_SIZE = 256 / 8;
@@ -201,6 +207,8 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef QT_DEBUG
   ui->avoidAmbiguousCheckBox->setChecked(true);
 #endif
+
+  qDebug() << APP_USER_AGENT;
 
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
@@ -849,6 +857,7 @@ void MainWindow::sync(void)
     d->progressDialog->setValue(d->counter);
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl() + "?t=" + QDateTime::currentDateTime().toString(Qt::ISODate)));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::UserAgentHeader, APP_USER_AGENT);
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
     QNetworkReply *reply = d->readNAM->post(req, QByteArray());
@@ -939,6 +948,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->writeUrl()));
         req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+        req.setHeader(QNetworkRequest::UserAgentHeader, APP_USER_AGENT);
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
         QNetworkReply *reply = d->writeNAM->post(req, data);
