@@ -1002,8 +1002,12 @@ void MainWindow::clearClipboard(void)
 void MainWindow::enterCredentials(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::enterCredentials()";
+  ui->encryptionLabel->setPixmap(QPixmap());
+  setEnabled(false);
   d->masterPasswordValid = false;
   d->masterPasswordDialog->show();
+  d->masterPasswordDialog->raise();
 }
 
 
@@ -1039,14 +1043,15 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 }
 
 
-
 void MainWindow::invalidatePassword(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::invalidatePassword()" << (sender() != nullptr ? "called via signal" : "");
   CryptoPP::memset_z(d->masterPassword.data(), 0, d->masterPassword.size());
   d->masterPassword = QByteArray();
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
+  emit reenterCredentials();
 }
 
 
