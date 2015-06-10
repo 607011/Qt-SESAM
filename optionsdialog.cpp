@@ -22,6 +22,7 @@
 
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QtDebug>
 
 OptionsDialog::OptionsDialog(QWidget *parent)
   : QDialog(parent, Qt::Widget)
@@ -32,6 +33,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));
   QObject::connect(ui->chooseCertFilePushButton, SIGNAL(pressed()), SLOT(chooseCertFile()));
+  QObject::connect(ui->certFileLineEdit, SIGNAL(textChanged(QString)), SLOT(loadCertificatesFromFile(QString)));
 }
 
 
@@ -104,6 +106,30 @@ void OptionsDialog::setMasterPasswordInvalidationTimeMins(int minutes)
 }
 
 
+bool OptionsDialog::selfSignedCertificatesAccepted(void) const
+{
+  return ui->acceptSelfSignedCertificatesCheckBox->isChecked();
+}
+
+
+void OptionsDialog::setSelfSignedCertificatesAccepted(bool accepted)
+{
+  ui->acceptSelfSignedCertificatesCheckBox->setChecked(accepted);
+}
+
+
+bool OptionsDialog::untrustedCertificatesAccepted(void) const
+{
+  return ui->acceptUntrustedCertificatesCheckBox->isChecked();
+}
+
+
+void OptionsDialog::setUntrustedCertificatesAccepted(bool accepted)
+{
+  ui->acceptUntrustedCertificatesCheckBox->setChecked(accepted);
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);
@@ -164,16 +190,6 @@ const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
 }
 
 
-QList<QByteArray> OptionsDialog::serverCertificatesPEM(void) const
-{
-  QList<QByteArray> chain;
-  foreach (QSslCertificate cert, mServerCertificates) {
-    chain << cert.toPem();
-  }
-  return chain;
-}
-
-
 void OptionsDialog::setWriteUrl(QString url)
 {
   ui->writeUrlLineEdit->setText(url);
@@ -199,11 +215,7 @@ void OptionsDialog::chooseCertFile(void)
 {
   QFileInfo fi(ui->certFileLineEdit->text());
   QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose certificate file"), fi.absolutePath());
-  if (!chosenFile.isEmpty()) {
-    mServerCertificates = QSslCertificate::fromPath(chosenFile, QSsl::Der);
-    if (!mServerCertificates.isEmpty())
-      ui->certFileLineEdit->setText(chosenFile);
-  }
+  loadCertificatesFromFile(chosenFile);
 }
 
 
@@ -215,5 +227,17 @@ void OptionsDialog::okClicked(void)
   }
   else {
     reject();
+  }
+}
+
+
+void OptionsDialog::loadCertificatesFromFile(const QString &filename)
+{
+  if (!filename.isEmpty()) {
+    mServerCertificates = QSslCertificate::fromPath(filename, QSsl::Der);
+    if (!mServerCertificates.isEmpty()) {
+      ui->certFileLineEdit->setText(filename);
+      emit certificatesUpdated();
+    }
   }
 }

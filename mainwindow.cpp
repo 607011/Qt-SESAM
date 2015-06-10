@@ -188,6 +188,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterCredentials()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
   QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(saveSettings()));
+  QObject::connect(d->optionsDialog, SIGNAL(certificatesUpdated()), SLOT(loadCertificate()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
@@ -654,16 +655,27 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
   d->settings.setValue("sync/serverCertificateFilename", d->optionsDialog->serverCertificateFilename());
-  int i = 0;
-  foreach(QByteArray cert, d->optionsDialog->serverCertificatesPEM()) {
-    d->settings.setValue(QString("sync/serverCertificates/%1").arg(i), QString(cert));
-  }
+  d->settings.setValue("sync/acceptSelfSignedCertificates", d->optionsDialog->selfSignedCertificatesAccepted());
+  d->settings.setValue("sync/acceptUntrustedCertificates", d->optionsDialog->untrustedCertificatesAccepted());
   d->settings.setValue("sync/serverUsername", QString(encode(d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverPassword", QString(encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
   saveDomainDataToSettings();
   d->settings.sync();
+}
+
+
+void MainWindow::loadCertificate(void)
+{
+  Q_D(MainWindow);
+  d->sslConf.setCiphers(QSslSocket::supportedCiphers());
+  d->sslConf.setCaCertificates(d->optionsDialog->serverCertificates());
+  d->expectedSslErrors.clear();
+  if (d->optionsDialog->selfSignedCertificatesAccepted())
+    d->expectedSslErrors.append(QSslError::SelfSignedCertificate);
+  if (d->optionsDialog->untrustedCertificatesAccepted())
+    d->expectedSslErrors.append(QSslError::CertificateUntrusted);
 }
 
 
@@ -680,21 +692,11 @@ void MainWindow::restoreSettings(void)
   d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
   d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
   d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DEFAULT_SERVER_ROOT).toString());
+  d->optionsDialog->setSelfSignedCertificatesAccepted(d->settings.value("sync/acceptSelfSignedCertificates", false).toBool());
+  d->optionsDialog->setUntrustedCertificatesAccepted(d->settings.value("sync/acceptUntrustedCertificates", false).toBool());
   d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DEFAULT_WRITE_URL).toString());
   d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DEFAULT_READ_URL).toString());
   d->optionsDialog->setServerCertificateFilename(d->settings.value("sync/serverCertificateFilename").toString());
-  for (int i = 0; /* */; ++i) {
-    const QString &certKey = QString("sync/serverCertificates/%1").arg(i);
-    if (!d->settings.contains(certKey))
-      break;
-    const QByteArray &baCert = d->settings.value(certKey).toByteArray();
-    d->cert << QSslCertificate::fromData(baCert);
-  }
-  d->sslConf.setCiphers(QSslSocket::supportedCiphers());
-  d->sslConf.setCaCertificates(d->cert);
-  // expectedSslErrors.append(QSslError::SelfSignedCertificate);
-  // expectedSslErrors.append(QSslError::CertificateUntrusted);
-
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);

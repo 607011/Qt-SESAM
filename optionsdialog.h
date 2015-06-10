@@ -37,12 +37,13 @@ class OptionsDialog : public QDialog
   Q_PROPERTY(bool useSyncFile READ useSyncFile WRITE setUseSyncFile)
   Q_PROPERTY(QString serverCertificateFilename READ serverCertificateFilename WRITE setServerCertificateFilename)
   Q_PROPERTY(QList<QSslCertificate> serverCertificates READ serverCertificates)
-  Q_PROPERTY(QList<QByteArray> serverCertificatesPEM READ serverCertificatesPEM)
   Q_PROPERTY(QString serverUsername READ serverUsername WRITE setServerUsername)
   Q_PROPERTY(QString serverPassword READ serverPassword WRITE setServerPassword)
   Q_PROPERTY(QString writeUrl READ writeUrl WRITE setWriteUrl)
   Q_PROPERTY(QString readUrl READ readUrl WRITE setReadUrl)
   Q_PROPERTY(int masterPasswordInvalidationTimeMins READ masterPasswordInvalidationTimeMins WRITE setMasterPasswordInvalidationTimeMins)
+  Q_PROPERTY(bool selfSignedCertificatesAccepted READ selfSignedCertificatesAccepted)
+  Q_PROPERTY(bool untrustedCertificatesAccepted READ untrustedCertificatesAccepted)
 
 
 public:
@@ -71,7 +72,6 @@ public:
   void setServerCertificateFilename(QString);
 
   const QList<QSslCertificate> &serverCertificates(void) const;
-  QList<QByteArray> serverCertificatesPEM(void) const;
 
   QString writeUrl(void) const;
   void setWriteUrl(QString);
@@ -84,11 +84,20 @@ public:
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
 
+  bool selfSignedCertificatesAccepted(void) const;
+  void setSelfSignedCertificatesAccepted(bool);
+
+  bool untrustedCertificatesAccepted(void) const;
+  void setUntrustedCertificatesAccepted(bool);
 
 private slots:
   void chooseSyncFile(void);
   void chooseCertFile(void);
   void okClicked(void);
+  void loadCertificatesFromFile(const QString &filename);
+
+signals:
+  void certificatesUpdated(void);
 
 private:
   Ui::OptionsDialog *ui;

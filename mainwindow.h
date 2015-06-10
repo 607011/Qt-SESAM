@@ -97,6 +97,7 @@ private slots:
   void writeFinished(QNetworkReply*);
   void deleteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+  void loadCertificate(void);
 
 signals:
   void passwordGenerated(void);
