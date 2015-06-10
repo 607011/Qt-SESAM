@@ -36,6 +36,29 @@ const bool DomainSettings::DefaultForceValidation = false;
 const QString DomainSettings::DefaultValidatorPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$";
 
 
+const QString DomainSettings::DOMAINNAME = "domain";
+const QString DomainSettings::USERNAME = "username";
+const QString DomainSettings::USELOWERCASE = "useLowerCase";
+const QString DomainSettings::USEUPPERCASE = "useUpperCase";
+const QString DomainSettings::USEDIGITS = "useDigits";
+const QString DomainSettings::USEEXTRA = "useExtra";
+const QString DomainSettings::USECUSTOM = "useCustom";
+const QString DomainSettings::AVOIDAMBIGUOUS = "avoidAmbiguous";
+const QString DomainSettings::CUSTOMCHARACTERSET = "customCharacterSet";
+const QString DomainSettings::ITERATIONS = "iterations";
+const QString DomainSettings::SALT = "salt";
+const QString DomainSettings::LENGTH = "length";
+const QString DomainSettings::FORCELOWERCASE = "forceLowerCase";
+const QString DomainSettings::FORCEUPPERCASE = "forceUpperCase";
+const QString DomainSettings::FORCEDIGITS = "forceDigits";
+const QString DomainSettings::FORCEEXTRA = "forceExtra";
+const QString DomainSettings::FORCEREGEXVALIDATION = "forceRegexValidation";
+const QString DomainSettings::VALIDATORREGEX = "validatorRegex";
+const QString DomainSettings::CDATE = "cDate";
+const QString DomainSettings::MDATE = "mDate";
+const QString DomainSettings::DELETED = "deleted";
+
+
 DomainSettings::DomainSettings(void)
   : useLowerCase(DefaultUseLowerCase)
   , useUpperCase(DefaultUseUpperCase)
@@ -57,7 +80,7 @@ DomainSettings::DomainSettings(void)
 
 
 DomainSettings::DomainSettings(const DomainSettings &o)
-  : domain(o.domain)
+  : domainName(o.domainName)
   , username(o.username)
   , useLowerCase(o.useLowerCase)
   , useUpperCase(o.useUpperCase)
@@ -81,53 +104,29 @@ DomainSettings::DomainSettings(const DomainSettings &o)
 { /* ... */ }
 
 
-QVariantMap DomainSettings::toVariant(void) const
+QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
-  map["domain"] = domain;
-  map["username"] = username;
-  map["useLowerCase"] = useLowerCase;
-  map["useUpperCase"] = useUpperCase;
-  map["useDigits"] = useDigits;
-  map["useExtra"] = useExtra;
-  map["useCustom"] = useCustom;
-  map["avoidAmbiguous"] = avoidAmbiguous;
-  map["customCharacterSet"] = customCharacterSet;
-  map["iterations"] = iterations;
-  map["length"] = length;
-  map["salt"] = salt;
-  map["forceLowerCase"] = forceLowerCase;
-  map["forceUpperCase"] = forceUpperCase;
-  map["forceDigits"] = forceDigits;
-  map["forceExtra"] = forceExtra;
-  map["forceRegexValidation"] = forceRegexValidation;
-  map["validatorRegEx"] = validatorRegEx.pattern();
-  map["cDate"] = cDate;
-  map["mDate"] = mDate;
-  map["deleted"] = deleted;
+  map[DOMAINNAME] = domainName;
+  map[USERNAME] = username;
+  map[USELOWERCASE] = useLowerCase;
+  map[USEUPPERCASE] = useUpperCase;
+  map[USEDIGITS] = useDigits;
+  map[USEEXTRA] = useExtra;
+  map[USECUSTOM] = useCustom;
+  map[AVOIDAMBIGUOUS] = avoidAmbiguous;
+  map[CUSTOMCHARACTERSET] = customCharacterSet;
+  map[ITERATIONS] = iterations;
+  map[LENGTH] = length;
+  map[SALT] = salt;
+  map[FORCELOWERCASE] = forceLowerCase;
+  map[FORCEUPPERCASE] = forceUpperCase;
+  map[FORCEDIGITS] = forceDigits;
+  map[FORCEEXTRA] = forceExtra;
+  map[FORCEREGEXVALIDATION] = forceRegexValidation;
+  map[VALIDATORREGEX] = validatorRegEx.pattern();
+  map[CDATE] = cDate;
+  map[MDATE] = mDate;
+  map[DELETED] = deleted;
   return map;
-}
-
-
-DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
-{
-  DomainSettings d;
-  d.domain = map["domain"].toString();
-  d.username = map["username"].toString();
-  d.useLowerCase = map["useLowerCase"].toBool();
-  d.useUpperCase = map["useUpperCase"].toBool();
-  d.useDigits = map["useDigits"].toBool();
-  d.useExtra = map["useExtra"].toBool();
-  d.useCustom = map["useCustom"].toBool();
-  d.avoidAmbiguous = map["avoidAmbiguous"].toBool();
-  d.customCharacterSet = map["customCharacterSet"].toString();
-  d.iterations = map["iterations"].toInt();
-  d.length = map["length"].toInt();
-  d.salt = map["salt"].toInt();
-  d.forceRegexValidation = map["forceRegexValidation"].toBool();
-  d.validatorRegEx.setPattern(map["validatorRegEx"].toString());
-  d.cDate = QDateTime::fromString(map["cDate"].toString());
-  d.mDate = QDateTime::fromString(map["mDate"].toString());
-  d.deleted = map["deleted"].toBool();
-  return d;
 }

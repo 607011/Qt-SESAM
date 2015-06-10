@@ -513,27 +513,28 @@ void MainWindow::updateValidator(void)
 void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
   const QVariantMap &p = d->domains[domain].toMap();
-  ui->domainLineEdit->setText(p["domain"].toString());
-  ui->userLineEdit->setText(p["username"].toString());
-  ui->useLowerCaseCheckBox->setChecked(p["useLowerCase"].toBool());
-  ui->useUpperCaseCheckBox->setChecked(p["useUpperCase"].toBool());
-  ui->useDigitsCheckBox->setChecked(p["useDigits"].toBool());
-  ui->useExtrasCheckBox->setChecked(p["useExtra"].toBool());
-  ui->useCustomCheckBox->setChecked(p["useCustom"].toBool());
-  ui->avoidAmbiguousCheckBox->setChecked(p["avoidAmbiguous"].toBool());
+  ui->domainLineEdit->setText(p[DomainSettings::DOMAINNAME].toString());
+  ui->userLineEdit->setText(p[DomainSettings::USERNAME].toString());
+  ui->useLowerCaseCheckBox->setChecked(p[DomainSettings::USELOWERCASE].toBool());
+  ui->useUpperCaseCheckBox->setChecked(p[DomainSettings::USEUPPERCASE].toBool());
+  ui->useDigitsCheckBox->setChecked(p[DomainSettings::USEDIGITS].toBool());
+  ui->useExtrasCheckBox->setChecked(p[DomainSettings::USEEXTRA].toBool());
+  ui->useCustomCheckBox->setChecked(p[DomainSettings::USECUSTOM].toBool());
+  ui->avoidAmbiguousCheckBox->setChecked(p[DomainSettings::AVOIDAMBIGUOUS].toBool());
   ui->customCharactersPlainTextEdit->blockSignals(true);
-  ui->customCharactersPlainTextEdit->setPlainText(p["customCharacters"].toString());
+  ui->customCharactersPlainTextEdit->setPlainText(p[DomainSettings::CUSTOMCHARACTERSET].toString());
   ui->customCharactersPlainTextEdit->blockSignals(false);
-  ui->iterationsSpinBox->setValue(p["iterations"].toInt());
-  ui->passwordLengthSpinBox->setValue(p["length"].toInt());
-  ui->forceLowerCaseCheckBox->setChecked(p["forceLowerCase"].toBool());
-  ui->forceUpperCaseCheckBox->setChecked(p["forceUpperCase"].toBool());
-  ui->forceDigitsCheckBox->setChecked(p["forceDigits"].toBool());
-  ui->forceExtrasCheckBox->setChecked(p["forceExtra"].toBool());
-  ui->forceRegexCheckBox->setChecked(p["forceRegexValidation"].toBool());
-  d->createdDate = QDateTime::fromString(p["cDate"].toString(), Qt::ISODate);
-  d->modifiedDate = QDateTime::fromString(p["mDate"].toString(), Qt::ISODate);
+  ui->iterationsSpinBox->setValue(p[DomainSettings::ITERATIONS].toInt());
+  ui->passwordLengthSpinBox->setValue(p[DomainSettings::LENGTH].toInt());
+  ui->forceLowerCaseCheckBox->setChecked(p[DomainSettings::FORCELOWERCASE].toBool());
+  ui->forceUpperCaseCheckBox->setChecked(p[DomainSettings::FORCEUPPERCASE].toBool());
+  ui->forceDigitsCheckBox->setChecked(p[DomainSettings::FORCEDIGITS].toBool());
+  ui->forceExtrasCheckBox->setChecked(p[DomainSettings::FORCEEXTRA].toBool());
+  ui->forceRegexCheckBox->setChecked(p[DomainSettings::FORCEREGEXVALIDATION].toBool());
+  d->createdDate = QDateTime::fromString(p[DomainSettings::CDATE].toString(), Qt::ISODate);
+  d->modifiedDate = QDateTime::fromString(p[DomainSettings::MDATE].toString(), Qt::ISODate);
   updateValidator();
   updatePassword();
 }

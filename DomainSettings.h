@@ -31,9 +31,7 @@ public:
   DomainSettings(void);
   DomainSettings(const DomainSettings &o);
 
-  QVariantMap toVariant(void) const;
-
-  static DomainSettings fromVariantMap(const QVariantMap &);
+  QVariantMap toVariantMap(void) const;
 
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
@@ -47,7 +45,29 @@ public:
   static const bool DefaultForceValidation;
   static const QString DefaultValidatorPattern;
 
-  QString domain;
+  static const QString DOMAINNAME;
+  static const QString USERNAME;
+  static const QString USELOWERCASE;
+  static const QString USEUPPERCASE;
+  static const QString USEDIGITS;
+  static const QString USEEXTRA;
+  static const QString USECUSTOM;
+  static const QString AVOIDAMBIGUOUS;
+  static const QString SALT;
+  static const QString CUSTOMCHARACTERSET;
+  static const QString ITERATIONS;
+  static const QString LENGTH;
+  static const QString FORCELOWERCASE;
+  static const QString FORCEUPPERCASE;
+  static const QString FORCEDIGITS;
+  static const QString FORCEEXTRA;
+  static const QString FORCEREGEXVALIDATION;
+  static const QString VALIDATORREGEX;
+  static const QString CDATE;
+  static const QString MDATE;
+  static const QString DELETED;
+
+  QString domainName;
   QString username;
   bool useLowerCase;
   bool useUpperCase;
