@@ -92,6 +92,18 @@ QByteArray OptionsDialog::serverCredentials(void) const
 }
 
 
+int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
+{
+  return ui->masterPasswordInvalidationTimeMinsSpinBox->value();
+}
+
+
+void OptionsDialog::setMasterPasswordInvalidationTimeMins(int minutes)
+{
+  ui->masterPasswordInvalidationTimeMinsSpinBox->setValue(minutes);
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);

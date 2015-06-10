@@ -42,6 +42,8 @@ class OptionsDialog : public QDialog
   Q_PROPERTY(QString serverPassword READ serverPassword WRITE setServerPassword)
   Q_PROPERTY(QString writeUrl READ writeUrl WRITE setWriteUrl)
   Q_PROPERTY(QString readUrl READ readUrl WRITE setReadUrl)
+  Q_PROPERTY(int masterPasswordInvalidationTimeMins READ masterPasswordInvalidationTimeMins WRITE setMasterPasswordInvalidationTimeMins)
+
 
 public:
   explicit OptionsDialog(QWidget *parent = nullptr);
@@ -78,6 +80,9 @@ public:
   void setReadUrl(QString);
 
   QByteArray serverCredentials(void) const;
+
+  int masterPasswordInvalidationTimeMins(void) const;
+  void setMasterPasswordInvalidationTimeMins(int minutes);
 
 
 private slots:

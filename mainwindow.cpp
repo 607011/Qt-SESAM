@@ -317,6 +317,13 @@ void MainWindow::setDirty(bool dirty)
 }
 
 
+void MainWindow::restartInvalidationTimer(void)
+{
+  Q_D(MainWindow);
+  d->masterPasswordInvalidationTimer.start(d->optionsDialog->masterPasswordInvalidationTimeMins() * 60 * 1000);
+}
+
+
 void MainWindow::onPasswordGenerationStarted(void)
 {
   Q_D(MainWindow);
@@ -648,6 +655,7 @@ void MainWindow::saveSettings(void)
   int errCode;
   QString errMsg;
   d->settings.setValue("mainwindow/geometry", geometry());
+  d->settings.setValue("mainwindow/masterPasswordInvalidationTimerMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
@@ -674,6 +682,7 @@ void MainWindow::restoreSettings(void)
   int errCode;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
+  d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("mainwindow/masterPasswordInvalidationTimerMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
