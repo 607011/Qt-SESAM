@@ -41,7 +41,6 @@ QString CredentialsDialog::password(void) const
 }
 
 
-
 void CredentialsDialog::reject(void)
 {
   // do nothing

@@ -32,6 +32,8 @@ class CredentialsDialog : public QDialog
 {
   Q_OBJECT
 
+  Q_PROPERTY(QString password READ password)
+
 public:
   explicit CredentialsDialog(QWidget *parent = nullptr);
   ~CredentialsDialog();
