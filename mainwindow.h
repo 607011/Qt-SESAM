@@ -110,10 +110,6 @@ private: // methods
   void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
-  void zeroize(QLineEdit *);
-  template <class T>
-  void zeroize(T *, int len);
-  void invalidatePassword(QLineEdit*);
   void wrongPasswordWarning(int errCode, QString errMsg);
   QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
   QByteArray decode(const QByteArray &, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);

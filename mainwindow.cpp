@@ -1016,26 +1016,6 @@ void MainWindow::credentialsEntered(void)
   }
 }
 
-template <class T>
-void MainWindow::zeroize(T *pC, int len)
-{
-  Q_ASSERT(pC != nullptr);
-  if (len == 0)
-    return;
-  while (len--)
-    *pC++ = T('\0');
-}
-
-
-void MainWindow::zeroize(QLineEdit *lineEdit)
-{
-  Q_ASSERT(lineEdit != nullptr);
-  if (lineEdit->text().isEmpty())
-    return;
-  zeroize(lineEdit->text().data(), lineEdit->text().size());
-}
-
-
 void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 {
   int button = QMessageBox::critical(
@@ -1049,18 +1029,14 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 }
 
 
-void MainWindow::invalidatePassword(QLineEdit *lineEdit) {
-  zeroize(lineEdit);
-  lineEdit->clear();
-}
-
 
 void MainWindow::invalidatePassword(void)
 {
   Q_D(MainWindow);
-  zeroize(d->masterPassword.data(), d->masterPassword.size());
+  CryptoPP::memset_z(d->masterPassword.data(), 0, d->masterPassword.size());
   d->masterPassword = QByteArray();
-  ui->statusBar->showMessage(tr("Password cleared for security"), 5000);
+  d->masterPasswordDialog->invalidatePassword();
+  ui->statusBar->showMessage(tr("Master password cleared for security"));
 }
 
 

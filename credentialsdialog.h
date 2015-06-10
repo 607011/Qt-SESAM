@@ -40,6 +40,8 @@ public:
 
   void enableUsernameField(bool);
 
+  void invalidatePassword(void);
+
   QString password(void) const;
 
 public slots:

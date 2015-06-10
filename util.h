@@ -21,19 +21,18 @@
 #define __UTIL_H_
 
 template <class T>
-void safeDelete(T& a)
+void safeRenew(T& a, T obj)
 {
-  if (a)
+  if (a != nullptr)
     delete a;
-  a = 0;
+  a = obj;
 }
 
 
 template <class T>
-void safeRenew(T& a, T obj)
+void safeDelete(T& a)
 {
-  safeDelete(a);
-  a = obj;
+  safeRenew<T>(a, nullptr);
 }
 
 

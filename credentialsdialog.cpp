@@ -17,6 +17,7 @@
 
 */
 
+#include "3rdparty/cryptopp562/misc.h"
 #include "credentialsdialog.h"
 #include "ui_credentialsdialog.h"
 
@@ -32,6 +33,13 @@ CredentialsDialog::CredentialsDialog(QWidget *parent)
 CredentialsDialog::~CredentialsDialog()
 {
   delete ui;
+}
+
+
+void CredentialsDialog::invalidatePassword(void)
+{
+  CryptoPP::memset_z(ui->passwordLineEdit->text().data(), 0, ui->passwordLineEdit->text().size());
+  ui->passwordLineEdit->clear();
 }
 
 
