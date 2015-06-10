@@ -38,6 +38,7 @@
 
 #include "util.h"
 #include "progressdialog.h"
+
 #include "cryptopp562/aes.h"
 #include "cryptopp562/ccm.h"
 #include "cryptopp562/filters.h"
@@ -47,30 +48,30 @@
 #include "testpbkdf2.h"
 #endif
 
-static const QString CompanyName = "c't";
-static const QString AppName = "ctpwdgen";
-static const QString AppVersion = "1.0 ALPHA";
-static const QString AppUrl = "https://github.com/ola-ct/ctpwdgen";
-static const QString AppAuthor = "Oliver Lau";
-static const QString AppAuthorMail = "ola@ct.de";
+static const QString APP_COMPANY_NAME = "c't";
+static const QString APP_NAME = "ctpwdgen";
+static const QString APP_VERSION = "1.0 ALPHA";
+static const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
+static const QString APP_AUTHOR = "Oliver Lau";
+static const QString APP_AUTHOR_MAIL = "ola@ct.de";
 
 
-static const int DefaultMasterPasswordInvalidationTimerIntervalMs = 5 * 60 * 1000;
-static const int AESKeySize = 256 / 8;
+static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MS = 5 * 60 * 1000;
+static const int AES_KEY_SIZE = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
-static const int NoCryptError = -1;
-static const bool CompressionEnabled = true;
+static const int NO_CRYPT_ERROR = -1;
+static const bool COMPRESSION_ENABLED = true;
 
-static const QString DefaultServerRoot = "https://localhost/ctpwdgen-server";
-static const QString DefaultWriteUrl = "/ajax/write.php";
-static const QString DefaultReadUrl = "/ajax/read.php";
+static const QString DEFAULT_SERVER_ROOT = "https://localhost/ctpwdgen-server";
+static const QString DEFAULT_WRITE_URL = "/ajax/write.php";
+static const QString DEFAULT_READ_URL = "/ajax/read.php";
 
 
 
 class MainWindowPrivate {
 public:
   MainWindowPrivate(QWidget *parent = nullptr)
-    : settings(QSettings::IniFormat, QSettings::UserScope, CompanyName, AppName)
+    : settings(QSettings::IniFormat, QSettings::UserScope, APP_COMPANY_NAME, APP_NAME)
     , loaderIcon(":/images/loader.gif")
     , trayIcon(QIcon(":/images/ctpwdgen.ico"), parent)
     , customCharacterSetDirty(false)
@@ -110,7 +111,7 @@ public:
   QString masterPassword;
   bool masterPasswordValid;
   QTimer masterPasswordInvalidationTimer;
-  unsigned char AESKey[AESKeySize];
+  unsigned char AESKey[AES_KEY_SIZE];
   ProgressDialog *progressDialog;
   QList<QSslCertificate> cert;
   QList<QSslError> expectedSslErrors;
@@ -131,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent)
   , d_ptr(new MainWindowPrivate)
 {
   Q_D(MainWindow);
+
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
@@ -178,6 +180,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
   QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterCredentials()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
+  QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(saveSettings()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
@@ -220,12 +223,12 @@ MainWindow::MainWindow(QWidget *parent)
 
   d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
-  QMenu *trayMenu = new QMenu(AppName);
+  QMenu *trayMenu = new QMenu(APP_NAME);
   QAction *actionSync = trayMenu->addAction(tr("Sync"));
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
   QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
   QObject::connect(actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
-  QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(AppName));
+  QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(APP_NAME));
   QObject::connect(actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
@@ -325,7 +328,7 @@ void MainWindow::updatePassword(void)
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
-    d->masterPasswordInvalidationTimer.start(DefaultMasterPasswordInvalidationTimerIntervalMs);
+    d->masterPasswordInvalidationTimer.start(DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MS);
   }
   if (!validConfiguration) {
     ui->generatedPasswordLineEdit->setText(QString());
@@ -585,9 +588,9 @@ void MainWindow::saveDomainDataToSettings(void)
   qDebug() << "MainWindow::saveDomainDataToSettings()";
   int errCode;
   QString errMsg;
-  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), CompressionEnabled, &errCode, &errMsg);
-  if (errCode == NoCryptError) {
-    d->settings.setValue("data/domains", cipher.toHex());
+  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), COMPRESSION_ENABLED, &errCode, &errMsg);
+  if (errCode == NO_CRYPT_ERROR) {
+    d->settings.setValue("data/domains", QString(cipher.toHex()));
     d->settings.sync();
   }
   else {
@@ -608,8 +611,8 @@ void MainWindow::restoreDomainDataFromSettings(void)
   if (!baDomains.isEmpty()) {
     int errCode;
     QString errMsg;
-    const QByteArray &recovered = decode(baDomains, CompressionEnabled, &errCode, &errMsg);
-    d->masterPasswordValid = (errCode == NoCryptError);
+    const QByteArray &recovered = decode(baDomains, COMPRESSION_ENABLED, &errCode, &errMsg);
+    d->masterPasswordValid = (errCode == NO_CRYPT_ERROR);
     if (!d->masterPasswordValid) {
       wrongPasswordWarning(errCode, errMsg);
       return;
@@ -641,11 +644,13 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  QByteArray serverUsername = encode(d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg);
-  d->settings.setValue("sync/serverUsername", serverUsername.toHex());
-  qDebug() << "username =" << d->optionsDialog->serverUsername().toUtf8() << errCode << errMsg;
-  d->settings.setValue("sync/serverPassword", encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex());
-  qDebug() << "password =" << d->optionsDialog->serverPassword().toUtf8() << errCode << errMsg;
+  d->settings.setValue("sync/serverCertificateFilename", d->optionsDialog->serverCertificateFilename());
+  int i = 0;
+  foreach(QByteArray cert, d->optionsDialog->serverCertificatesPEM()) {
+    d->settings.setValue(QString("sync/serverCertificates/%1").arg(i), QString(cert));
+  }
+  d->settings.setValue("sync/serverUsername", QString(encode(d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
+  d->settings.setValue("sync/serverPassword", QString(encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
   saveDomainDataToSettings();
@@ -660,30 +665,50 @@ void MainWindow::restoreSettings(void)
   int errCode;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
+  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
   d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
   d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
-  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DefaultServerRoot).toString());
-  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DefaultWriteUrl).toString());
-  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DefaultReadUrl).toString());
+  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DEFAULT_SERVER_ROOT).toString());
+  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DEFAULT_WRITE_URL).toString());
+  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DEFAULT_READ_URL).toString());
+  d->optionsDialog->setServerCertificateFilename(d->settings.value("sync/serverCertificateFilename").toString());
+  for (int i = 0; /* */; ++i) {
+    const QString &certKey = QString("sync/serverCertificates/%1").arg(i);
+    qDebug() << "trying to restore certificate" << i;
+    if (!d->settings.contains(certKey))
+      break;
+    const QByteArray &baCert = d->settings.value(certKey).toByteArray();
+    d->cert << QSslCertificate::fromData(baCert);
+  }
+  d->sslConf.setCiphers(QSslSocket::supportedCiphers());
+  d->sslConf.setCaCertificates(d->cert);
+  // expectedSslErrors.append(QSslError::SelfSignedCertificate);
+  // expectedSslErrors.append(QSslError::CertificateUntrusted);
 
-  qDebug() << "Reading sync/serverUsername ...";
-  QByteArray serverUsername = d->settings.value("sync/serverUsername").toByteArray();
+  const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
-    QByteArray serverUsernameBin = QByteArray::fromHex(serverUsername);
-    QByteArray serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
-    qDebug() << "username:" << serverUsername << serverUsername.size() << "=>" << serverUsernameBin.toHex() << serverUsernameBin.size() << "=>" << serverUsernameDecoded;
-    d->optionsDialog->setServerUsername(serverUsernameDecoded);
+    const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
+    const QByteArray &serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
+    if (errCode == NO_CRYPT_ERROR) {
+      d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
+    }
+    else {
+      qWarning() << "decode() error:" << errMsg;
+    }
   }
 
-  qDebug() << "Reading sync/serverPassword ...";
-  QByteArray serverPassword = d->settings.value("sync/serverPassword").toByteArray();
+  const QByteArray &serverPassword = d->settings.value("sync/serverPassword").toByteArray();
   if (!serverPassword.isEmpty()) {
-    QByteArray serverPasswordBin = QByteArray::fromHex(serverPassword);
-    QByteArray password = decode(serverPasswordBin, false, &errCode, &errMsg);
-    d->optionsDialog->setServerPassword(password);
+    const QByteArray &serverPasswordBin = QByteArray::fromHex(serverPassword);
+    const QByteArray &password = decode(serverPasswordBin, false, &errCode, &errMsg);
+    if (errCode == NO_CRYPT_ERROR) {
+      d->optionsDialog->setServerPassword(QString::fromUtf8(password));
+    }
+    else {
+      qWarning() << "decode() error:" << errMsg;
+    }
   }
 }
 
@@ -692,12 +717,12 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
-    *errCode = NoCryptError;
+    *errCode = NO_CRYPT_ERROR;
   std::string plain = (compress) ? qCompress(baPlain, 9).toStdString() : baPlain.toStdString();
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(d->AESKey, AESKeySize, IV);
+    enc.SetKeyWithIV(d->AESKey, AES_KEY_SIZE, IV);
     CryptoPP::StringSource s(
           plain,
           true,
@@ -715,7 +740,7 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
       *errCode = (int)e.GetErrorType();
     if (errMsg != nullptr)
       *errMsg = e.what();
-    if (e.GetErrorType() >= 0)
+    if (e.GetErrorType() > NO_CRYPT_ERROR)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
   return QByteArray::fromStdString(cipher);
@@ -726,11 +751,11 @@ QByteArray MainWindow::decode(const QByteArray &baCipher, bool uncompress, int *
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
-    *errCode = NoCryptError;
+    *errCode = NO_CRYPT_ERROR;
   std::string recovered;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(d->AESKey, AESKeySize, IV);
+    dec.SetKeyWithIV(d->AESKey, AES_KEY_SIZE, IV);
     CryptoPP::StringSource s(
           baCipher.toStdString(),
           true,
@@ -747,7 +772,7 @@ QByteArray MainWindow::decode(const QByteArray &baCipher, bool uncompress, int *
       *errCode = (int)e.GetErrorType();
     if (errMsg != nullptr)
       *errMsg = e.what();
-    if (e.GetErrorType() >= 0)
+    if (e.GetErrorType() > NO_CRYPT_ERROR)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
   const QByteArray &plain = QByteArray::fromStdString(recovered);
@@ -800,7 +825,7 @@ void MainWindow::sync(void)
       if (!ok) {
         // TODO: handle error
       }
-      const QByteArray &baDomains = encode(QByteArray("{}"), CompressionEnabled);
+      const QByteArray &baDomains = encode(QByteArray("{}"), COMPRESSION_ENABLED);
       syncFile.write(baDomains);
       syncFile.close();
     }
@@ -841,8 +866,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    std::string sDomains = decode(remoteDomainsEncoded, CompressionEnabled, &errCode, &errMsg);
-    if (errCode == NoCryptError && !sDomains.empty()) {
+    std::string sDomains = decode(remoteDomainsEncoded, COMPRESSION_ENABLED, &errCode, &errMsg);
+    if (errCode == NO_CRYPT_ERROR && !sDomains.empty()) {
       remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
     }
     else {
@@ -889,8 +914,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   if (updateRemote) {
     int errCode;
     QString errMsg;
-    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), CompressionEnabled, &errCode, &errMsg);
-    if (errCode == NoCryptError) {
+    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), COMPRESSION_ENABLED, &errCode, &errMsg);
+    if (errCode == NO_CRYPT_ERROR) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         qDebug() << "rewriting sync file ...";
         QFile syncFile(d->optionsDialog->syncFilename());
@@ -944,7 +969,7 @@ void MainWindow::domainSelected(const QString &domain)
 void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
-  setWindowTitle(AppName + " " + AppVersion + (d->parameterSetDirty ? "*" : ""));
+  setWindowTitle(APP_NAME + " " + APP_VERSION + (d->parameterSetDirty ? "*" : ""));
 }
 
 
@@ -971,7 +996,7 @@ void MainWindow::credentialsEntered(void)
     ui->encryptionLabel->setPixmap(QPixmap(":/images/encrypted.png"));
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
-    d->cryptPassword.extractAESKey((char*)d->AESKey, AESKeySize);
+    d->cryptPassword.extractAESKey((char*)d->AESKey, AES_KEY_SIZE);
     restoreSettings();
     restoreDomainDataFromSettings();
     updatePassword();
@@ -1086,7 +1111,7 @@ void MainWindow::deleteFinished(QNetworkReply *reply)
 void MainWindow::about(void)
 {
   QMessageBox::about(
-        this, tr("About %1 %2").arg(AppName).arg(AppVersion),
+        this, tr("About %1 %2").arg(APP_NAME).arg(APP_VERSION),
         tr("<p><b>%1</b> is a domain specific password generator. "
            "See <a href=\"%2\" title=\"%1 project homepage\">%2</a> for more info.</p>"
            "<p>This program is free software: you can redistribute it and/or modify "
@@ -1105,7 +1130,7 @@ void MainWindow::about(void)
            "It's vegan, free of antibiotics and hypoallergenic.</p>"
            "<p>Copyright &copy; 2015 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
            )
-        .arg(AppName).arg(AppUrl).arg(AppAuthor).arg(AppAuthorMail));
+        .arg(APP_NAME).arg(APP_URL).arg(APP_AUTHOR).arg(APP_AUTHOR_MAIL));
 }
 
 
