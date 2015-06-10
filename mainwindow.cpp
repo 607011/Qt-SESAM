@@ -279,10 +279,11 @@ void MainWindow::closeEvent(QCloseEvent *e)
     e->ignore();
   }
   else {
+    d->masterPasswordDialog->close();
+    saveSettings();
+    invalidatePassword(false);
     QMainWindow::closeEvent(e);
     e->accept();
-    saveSettings();
-    invalidatePassword();
   }
 }
 
@@ -1054,7 +1055,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 }
 
 
-void MainWindow::invalidatePassword(void)
+void MainWindow::invalidatePassword(bool reenter)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::invalidatePassword()" << (sender() != nullptr ? "called via signal" : "");
@@ -1062,7 +1063,8 @@ void MainWindow::invalidatePassword(void)
   d->masterPassword = QByteArray();
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
-  emit reenterCredentials();
+  if (reenter)
+    emit reenterCredentials();
 }
 
 

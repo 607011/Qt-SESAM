@@ -88,7 +88,7 @@ private slots:
   void aboutQt(void);
   void enterCredentials(void);
   void credentialsEntered(void);
-  void invalidatePassword(void);
+  void invalidatePassword(bool reenter = true);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
   void sslErrorsOccured(QNetworkReply*, QList<QSslError>);
