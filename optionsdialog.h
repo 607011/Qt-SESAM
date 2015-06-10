@@ -21,6 +21,7 @@
 #define __OPTIONSDIALOG_H_
 
 #include <QDialog>
+#include <QSslCertificate>
 
 namespace Ui {
 class OptionsDialog;
@@ -30,36 +31,65 @@ class OptionsDialog : public QDialog
 {
   Q_OBJECT
 
+  Q_PROPERTY(QByteArray serverCredentials MEMBER mServerCredentials READ serverCredentials)
+  Q_PROPERTY(QString validator READ syncFilename WRITE setSyncFilename)
+  Q_PROPERTY(bool useSyncServer READ useSyncServer WRITE setUseSyncServer)
+  Q_PROPERTY(bool useSyncFile READ useSyncFile WRITE setUseSyncFile)
+  Q_PROPERTY(QString serverCertificateFilename READ serverCertificateFilename WRITE setServerCertificateFilename)
+  Q_PROPERTY(QList<QSslCertificate> serverCertificates READ serverCertificates)
+  Q_PROPERTY(QList<QByteArray> serverCertificatesPEM READ serverCertificatesPEM)
+  Q_PROPERTY(QString serverUsername READ serverUsername WRITE setServerUsername)
+  Q_PROPERTY(QString serverPassword READ serverPassword WRITE setServerPassword)
+  Q_PROPERTY(QString writeUrl READ writeUrl WRITE setWriteUrl)
+  Q_PROPERTY(QString readUrl READ readUrl WRITE setReadUrl)
+
 public:
   explicit OptionsDialog(QWidget *parent = nullptr);
   ~OptionsDialog();
 
   QString syncFilename(void) const;
   void setSyncFilename(const QString &);
+
   bool useSyncServer(void) const;
-  bool useSyncFile(void) const;
-  QString serverRootUrl(void) const;
-  QString serverUsername(void) const;
-  QString serverPassword(void) const;
-  QString writeUrl(void) const;
-  QString readUrl(void) const;
-
-  QByteArray serverCredentials(void) const;
-
   void setUseSyncServer(bool);
+
+  bool useSyncFile(void) const;
   void setUseSyncFile(bool);
+
+  QString serverRootUrl(void) const;
   void setServerRootUrl(QString);
+
+  QString serverUsername(void) const;
   void setServerUsername(QString);
+
+  QString serverPassword(void) const;
   void setServerPassword(QString);
+
+  QString serverCertificateFilename(void) const;
+  void setServerCertificateFilename(QString);
+
+  const QList<QSslCertificate> &serverCertificates(void) const;
+  QList<QByteArray> serverCertificatesPEM(void) const;
+
+  QString writeUrl(void) const;
   void setWriteUrl(QString);
+
+  QString readUrl(void) const;
   void setReadUrl(QString);
 
+  const QByteArray &serverCredentials(void) const;
+
+
 private slots:
-  void chooseFile(void);
+  void chooseSyncFile(void);
+  void chooseCertFile(void);
   void okClicked(void);
 
 private:
   Ui::OptionsDialog *ui;
+
+  QByteArray mServerCredentials;
+  QList<QSslCertificate> mServerCertificates;
 };
 
 #endif // __OPTIONSDIALOG_H_

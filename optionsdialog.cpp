@@ -30,7 +30,8 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   ui->setupUi(this);
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
-  QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseFile()));
+  QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));
+  QObject::connect(ui->chooseCertFilePushButton, SIGNAL(pressed()), SLOT(chooseCertFile()));
 }
 
 
@@ -82,12 +83,9 @@ QString OptionsDialog::readUrl(void) const
 }
 
 
-QByteArray OptionsDialog::serverCredentials(void) const
+const QByteArray &OptionsDialog::serverCredentials(void) const
 {
-  return QString("Basic %1")
-      .arg(QString((ui->usernameLineEdit->text() + ":" + ui->passwordLineEdit->text())
-           .toLocal8Bit().toBase64()))
-      .toLocal8Bit();
+  return mServerCredentials;
 }
 
 
@@ -133,6 +131,34 @@ void OptionsDialog::setServerPassword(QString password)
 }
 
 
+QString OptionsDialog::serverCertificateFilename(void) const
+{
+  return ui->certFileLineEdit->text();
+}
+
+
+void OptionsDialog::setServerCertificateFilename(QString filename)
+{
+  ui->certFileLineEdit->setText(filename);
+}
+
+
+const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
+{
+  return mServerCertificates;
+}
+
+
+QList<QByteArray> OptionsDialog::serverCertificatesPEM(void) const
+{
+  QList<QByteArray> chain;
+  foreach (QSslCertificate cert, mServerCertificates) {
+    chain << cert.toPem();
+  }
+  return chain;
+}
+
+
 void OptionsDialog::setWriteUrl(QString url)
 {
   ui->writeUrlLineEdit->setText(url);
@@ -145,7 +171,7 @@ void OptionsDialog::setReadUrl(QString url)
 }
 
 
-void OptionsDialog::chooseFile(void)
+void OptionsDialog::chooseSyncFile(void)
 {
   QFileInfo fi(ui->syncFileLineEdit->text());
   QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), fi.absolutePath());
@@ -154,8 +180,25 @@ void OptionsDialog::chooseFile(void)
 }
 
 
+void OptionsDialog::chooseCertFile(void)
+{
+  QFileInfo fi(ui->certFileLineEdit->text());
+  QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose certificate file"), fi.absolutePath());
+  if (!chosenFile.isEmpty()) {
+    mServerCertificates = QSslCertificate::fromPath(chosenFile, QSsl::Der);
+    if (!mServerCertificates.isEmpty())
+      ui->certFileLineEdit->setText(chosenFile);
+  }
+}
+
+
 void OptionsDialog::okClicked(void)
 {
+  mServerCredentials = QString("Basic %1")
+      .arg(QString((ui->usernameLineEdit->text() + ":" + ui->passwordLineEdit->text())
+                   .toLocal8Bit().toBase64()))
+      .toLocal8Bit();
+
   QFileInfo fi(ui->syncFileLineEdit->text());
   if (fi.isFile()) {
     accept();
