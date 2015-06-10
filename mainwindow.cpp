@@ -28,6 +28,7 @@
 #include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QNetworkSession>
 #include <QSslCipher>
 #include <QSslCertificate>
 #include <QSslConfiguration>
@@ -62,7 +63,7 @@ static const QString APP_USER_AGENT = QString("ctpwdgen/%1 (%2) Qt/%3 (%4; %5)")
     .arg(QSysInfo::prettyProductName())
     .arg(QSysInfo::currentCpuArchitecture());
 
-static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MS = 5 * 60 * 1000;
+static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS = 5;
 static const int AES_KEY_SIZE = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
 static const int NO_CRYPT_ERROR = -1;
@@ -71,7 +72,6 @@ static const bool COMPRESSION_ENABLED = true;
 static const QString DEFAULT_SERVER_ROOT = "https://localhost/ctpwdgen-server";
 static const QString DEFAULT_WRITE_URL = "/ajax/write.php";
 static const QString DEFAULT_READ_URL = "/ajax/read.php";
-
 
 
 class MainWindowPrivate {
@@ -208,8 +208,6 @@ MainWindow::MainWindow(QWidget *parent)
   ui->avoidAmbiguousCheckBox->setChecked(true);
 #endif
 
-  qDebug() << APP_USER_AGENT;
-
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
@@ -224,8 +222,6 @@ MainWindow::MainWindow(QWidget *parent)
   TestPBKDF2 tc;
   QTest::qExec(&tc, 0, 0);
 #endif
-
-  setEnabled(false);
 
   emit reenterCredentials();
 
@@ -337,13 +333,18 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::updatePassword()";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
+  qDebug() << "ui->customCharactersPlainTextEdit->toPlainText().count() =" << ui->customCharactersPlainTextEdit->toPlainText().count();
+  qDebug() << "d->masterPassword.isEmpty() =" << d->masterPassword.isEmpty();
+  qDebug() << "d->masterPasswordValid =" << d->masterPasswordValid;
   if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty() && d->masterPasswordValid) {
+    qDebug() << "MainWindow::updatePassword(): generating new password ...";
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
-    d->masterPasswordInvalidationTimer.start(DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MS);
+    restartInvalidationTimer();
   }
   if (!validConfiguration) {
     ui->generatedPasswordLineEdit->setText(QString());
@@ -354,6 +355,7 @@ void MainWindow::updatePassword(void)
 
 void MainWindow::updateUsedCharacters(void)
 {
+  qDebug() << "MainWindow::updateUsedCharacters()";
   if (!ui->useCustomCheckBox->isChecked()) {
     stopPasswordGeneration();
     QString passwordCharacters;
@@ -552,7 +554,7 @@ void MainWindow::saveCurrentSettings(void)
   Q_D(MainWindow);
   qDebug() << "MainWindow::saveCurrentSettings()";
   DomainSettings ds;
-  ds.domain = ui->domainLineEdit->text();
+  ds.domainName = ui->domainLineEdit->text();
   ds.username = ui->userLineEdit->text();
   ds.useLowerCase = ui->useLowerCaseCheckBox->isChecked();
   ds.useUpperCase = ui->useUpperCaseCheckBox->isChecked();
@@ -582,18 +584,18 @@ void MainWindow::saveCurrentSettings(void)
 void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveDomainDataToSettings() for domain" << domainSettings.domain;
+  qDebug() << "MainWindow::saveDomainDataToSettings() for domain" << domainSettings.domainName;
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
-  if (domains.contains(domainSettings.domain, Qt::CaseInsensitive)) {
+  if (domains.contains(domainSettings.domainName, Qt::CaseInsensitive)) {
     domainSettings.mDate = QDateTime::currentDateTime();
   }
   else {
     domainSettings.cDate = QDateTime::currentDateTime();
-    domains << domainSettings.domain;
+    domains << domainSettings.domainName;
     model->setStringList(domains);
   }
-  d->domains[domainSettings.domain] = domainSettings.toVariant();
+  d->domains[domainSettings.domainName] = domainSettings.toVariantMap();
   saveDomainDataToSettings();
 }
 
@@ -635,9 +637,9 @@ void MainWindow::restoreDomainDataFromSettings(void)
     }
     json = QJsonDocument::fromJson(recovered);
     domains = json.object().keys();
+    ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
   }
   d->domains = json.toVariant().toMap();
-  ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
   if (d->completer) {
     QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
     delete d->completer;
@@ -808,10 +810,10 @@ void MainWindow::writeFinished(QNetworkReply *reply)
     if (d->counter == d->maxCounter) {
       d->loaderIcon.stop();
       updateSaveButtonIcon();
+      ui->statusBar->showMessage(tr("Sync to server finished."), 5000);
     }
   }
   else {
-    // TODO: https://forum.qt.io/topic/17601/how-to-properly-cancel-qnetworkaccessmanager-request/2
   }
 }
 
@@ -819,10 +821,14 @@ void MainWindow::writeFinished(QNetworkReply *reply)
 void MainWindow::cancelServerOperation(void)
 {
   Q_D(MainWindow);
-  if (d->readReq->isRunning())
+  if (d->readReq->isRunning()) {
     d->readReq->abort();
-  if (d->writeReq->isRunning())
+    ui->statusBar->showMessage(tr("Server read operation aborted."), 3000);
+  }
+  if (d->writeReq->isRunning()) {
     d->writeReq->abort();
+    ui->statusBar->showMessage(tr("Sync to server aborted."), 3000);
+  }
 }
 
 
@@ -910,11 +916,12 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
       const QDateTime &remoteT = QDateTime::fromString(remoteDomain["mDate"].toString(), Qt::ISODate);
       const QDateTime &localT = QDateTime::fromString(localDomain["mDate"].toString(), Qt::ISODate);
+      qDebug() << "comparing mDates ... local:" << localT << ", remote:" << remoteT;
       if (remoteT > localT) {
         d->domains[domainName] = remoteDomain;
         updateLocal = true;
       }
-      else if (localT < remoteT){
+      else if (remoteT < localT){
         remoteDomains[domainName] = localDomain;
         updateRemote = true;
       }
@@ -995,6 +1002,7 @@ void MainWindow::updateWindowTitle(void)
 
 void MainWindow::clearClipboard(void)
 {
+  qDebug() << "MainWindow::clearClipboard()";
   QApplication::clipboard()->clear();
 }
 
@@ -1014,9 +1022,11 @@ void MainWindow::enterCredentials(void)
 void MainWindow::credentialsEntered(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::credentialsEntered()";
   const QString &masterPwd = d->masterPasswordDialog->password();
   if (!masterPwd.isEmpty()) {
     setEnabled(true);
+    d->masterPasswordDialog->hide();
     ui->encryptionLabel->setPixmap(QPixmap(":/images/encrypted.png"));
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
@@ -1029,6 +1039,7 @@ void MainWindow::credentialsEntered(void)
     emit reenterCredentials();
   }
 }
+
 
 void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 {

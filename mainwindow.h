@@ -111,6 +111,7 @@ private: // methods
   void generatePassword(void);
   void updateWindowTitle(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
+  void restartInvalidationTimer(void);
   QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
   QByteArray decode(const QByteArray &, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);
 
