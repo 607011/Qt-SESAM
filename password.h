@@ -88,8 +88,10 @@ class Password : public QObject
   Q_OBJECT
   Q_PROPERTY(QString key READ key)
   Q_PROPERTY(QString hexKey READ hexKey)
-  Q_PROPERTY(QString elapsedSeconds READ elapsedSeconds)
   Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
+  Q_PROPERTY(bool isValid READ isValid)
+  Q_PROPERTY(qreal elapsedSeconds READ elapsedSeconds)
+  Q_PROPERTY(QByteArray derivedKey READ derivedKey)
 
 public:
   explicit Password(QObject *parent = nullptr);
@@ -98,15 +100,19 @@ public:
   void abortGeneration(void);
   bool generate(const PasswordParam &p);
   void generateAsync(const PasswordParam &p);
-  bool setValidator(const QRegExp &);
+
   const QRegExp &validator(void) const;
+  bool setValidator(const QRegExp &);
+
   bool setValidCharacters(const QStringList &canContain, const QStringList &mustContain);
+
   bool isValid(void) const;
   const QByteArray &derivedKey(void) const;
   const QString &key(void) const;
   const QString &hexKey(void) const;
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
+
   void waitForFinished(void);
   QString errorString(void) const;
   void extractAESKey(char *aesKey, int size);
