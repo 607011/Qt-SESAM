@@ -89,7 +89,8 @@ bool Password::generate(const PasswordParam &p)
   size_t passwordLen = pwd.count();
   const byte *saltPtr = reinterpret_cast<const byte*>(p.salt.data());
   size_t saltLen = p.salt.count();
-  CryptoPP::HMAC<CryptoPP::SHA512> hmac(password, passwordLen);
+  CryptoPP::HMAC<CryptoPP::SHA512> hmac;
+  hmac.SetKey(password, passwordLen);
   CryptoPP::SecByteBlock buffer(hmac.DigestSize());
 
   QElapsedTimer elapsedTimer;
