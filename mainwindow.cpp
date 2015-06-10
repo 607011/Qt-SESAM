@@ -56,7 +56,8 @@ static const QString APP_VERSION = "1.0-ALPHA";
 static const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 static const QString APP_AUTHOR = "Oliver Lau";
 static const QString APP_AUTHOR_MAIL = "ola@ct.de";
-static const QString APP_USER_AGENT = QString("ctpwdgen/%1 (%2) Qt/%3 (%4; %5)")
+static const QString APP_USER_AGENT = QString("%1/%2 (%3) Qt/%4 (%5; %6)")
+    .arg(APP_NAME)
     .arg(APP_VERSION)
     .arg(APP_URL)
     .arg(qVersion())
@@ -334,14 +335,9 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::updatePassword()";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  qDebug() << "ui->customCharactersPlainTextEdit->toPlainText().count() =" << ui->customCharactersPlainTextEdit->toPlainText().count();
-  qDebug() << "d->masterPassword.isEmpty() =" << d->masterPassword.isEmpty();
-  qDebug() << "d->masterPasswordValid =" << d->masterPasswordValid;
   if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty() && d->masterPasswordValid) {
-    qDebug() << "MainWindow::updatePassword(): generating new password ...";
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
@@ -356,7 +352,6 @@ void MainWindow::updatePassword(void)
 
 void MainWindow::updateUsedCharacters(void)
 {
-  qDebug() << "MainWindow::updateUsedCharacters()";
   if (!ui->useCustomCheckBox->isChecked()) {
     stopPasswordGeneration();
     QString passwordCharacters;
@@ -523,7 +518,6 @@ void MainWindow::updateValidator(void)
 void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
   const QVariantMap &p = d->domains[domain].toMap();
   ui->domainLineEdit->setText(p[DomainSettings::DOMAINNAME].toString());
   ui->userLineEdit->setText(p[DomainSettings::USERNAME].toString());
@@ -553,7 +547,6 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 void MainWindow::saveCurrentSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveCurrentSettings()";
   DomainSettings ds;
   ds.domainName = ui->domainLineEdit->text();
   ds.username = ui->userLineEdit->text();
@@ -585,7 +578,6 @@ void MainWindow::saveCurrentSettings(void)
 void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveDomainDataToSettings() for domain" << domainSettings.domainName;
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
   if (domains.contains(domainSettings.domainName, Qt::CaseInsensitive)) {
@@ -604,7 +596,6 @@ void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
 void MainWindow::saveDomainDataToSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveDomainDataToSettings()";
   int errCode;
   QString errMsg;
   const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), COMPRESSION_ENABLED, &errCode, &errMsg);
@@ -623,7 +614,6 @@ void MainWindow::restoreDomainDataFromSettings(void)
 {
   Q_D(MainWindow);
   Q_ASSERT(!d->masterPassword.isEmpty());
-  qDebug() << "MainWindow::restoreDomainDataFromSettings()";
   QJsonDocument json;
   QStringList domains;
   const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
@@ -654,7 +644,6 @@ void MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveSettings()";
   int errCode;
   QString errMsg;
   d->settings.setValue("mainwindow/geometry", geometry());
@@ -681,7 +670,6 @@ void MainWindow::saveSettings(void)
 void MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::restoreSettings()";
   int errCode;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
@@ -697,7 +685,6 @@ void MainWindow::restoreSettings(void)
   d->optionsDialog->setServerCertificateFilename(d->settings.value("sync/serverCertificateFilename").toString());
   for (int i = 0; /* */; ++i) {
     const QString &certKey = QString("sync/serverCertificates/%1").arg(i);
-    qDebug() << "trying to restore certificate" << i;
     if (!d->settings.contains(certKey))
       break;
     const QByteArray &baCert = d->settings.value(certKey).toByteArray();
@@ -806,7 +793,6 @@ void MainWindow::writeFinished(QNetworkReply *reply)
   Q_D(MainWindow);
   if (reply->error() == QNetworkReply::NoError) {
     ++d->counter;
-    qDebug() << "MainWindow::writeFinished()" << "counter =" << d->counter << "of" << d->maxCounter;
     d->progressDialog->setValue(d->counter);
     if (d->counter == d->maxCounter) {
       d->loaderIcon.stop();
@@ -836,11 +822,13 @@ void MainWindow::cancelServerOperation(void)
 void MainWindow::sync(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::sync()";
   if (d->masterPassword.isEmpty() || !d->masterPasswordValid) {
     emit reenterCredentials();
     return;
   }
+
+  ui->statusBar->showMessage(tr("Syncing started ..."));
+
   if (d->optionsDialog->useSyncFile()) {
     QByteArray baDomains;
     QFileInfo fi(d->optionsDialog->syncFilename());
@@ -868,11 +856,14 @@ void MainWindow::sync(void)
       // TODO: handle sync file not readable error
     }
   }
+
   if (d->optionsDialog->useSyncServer()) {
+    d->progressDialog->show();
+    d->progressDialog->raise();
     d->progressDialog->setText(tr("Reading from server ..."));
     d->counter = 0;
     d->progressDialog->setValue(d->counter);
-    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl() + "?t=" + QDateTime::currentDateTime().toString(Qt::ISODate)));
+    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     req.setHeader(QNetworkRequest::UserAgentHeader, APP_USER_AGENT);
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
@@ -903,11 +894,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     }
   }
   QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
-  qDebug() << "remoteDomains.keys() =" << remoteDomains.keys();
-  qDebug() << "mDomains.keys() =" << d->domains.keys();
   const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
   foreach(QString domainName, allDomainNames) {
-    qDebug() << "Checking domain" << domainName << "...";
     QVariantMap remoteDomain;
     QVariantMap localDomain;
     if (remoteDomains.contains(domainName))
@@ -917,7 +905,6 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
       const QDateTime &remoteT = QDateTime::fromString(remoteDomain["mDate"].toString(), Qt::ISODate);
       const QDateTime &localT = QDateTime::fromString(localDomain["mDate"].toString(), Qt::ISODate);
-      qDebug() << "comparing mDates ... local:" << localT << ", remote:" << remoteT;
       if (remoteT > localT) {
         d->domains[domainName] = remoteDomain;
         updateLocal = true;
@@ -944,7 +931,6 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), COMPRESSION_ENABLED, &errCode, &errMsg);
     if (errCode == NO_CRYPT_ERROR) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
-        qDebug() << "rewriting sync file ...";
         QFile syncFile(d->optionsDialog->syncFilename());
         syncFile.open(QIODevice::WriteOnly);
         qint64 bytesWritten = syncFile.write(baCipher);
@@ -952,7 +938,6 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         syncFile.close();
       }
       if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
-        qDebug() << "sending to server ..." << baCipher.toBase64();
         ui->statusBar->showMessage(tr("Sending data to server ..."));
         d->counter = 0;
         d->maxCounter = 1;
@@ -1003,7 +988,6 @@ void MainWindow::updateWindowTitle(void)
 
 void MainWindow::clearClipboard(void)
 {
-  qDebug() << "MainWindow::clearClipboard()";
   QApplication::clipboard()->clear();
 }
 
@@ -1011,7 +995,6 @@ void MainWindow::clearClipboard(void)
 void MainWindow::enterCredentials(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::enterCredentials()";
   ui->encryptionLabel->setPixmap(QPixmap());
   setEnabled(false);
   d->masterPasswordValid = false;
@@ -1023,7 +1006,6 @@ void MainWindow::enterCredentials(void)
 void MainWindow::credentialsEntered(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::credentialsEntered()";
   const QString &masterPwd = d->masterPasswordDialog->password();
   if (!masterPwd.isEmpty()) {
     setEnabled(true);
@@ -1058,7 +1040,6 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 void MainWindow::invalidatePassword(bool reenter)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::invalidatePassword()" << (sender() != nullptr ? "called via signal" : "");
   CryptoPP::memset_z(d->masterPassword.data(), 0, d->masterPassword.size());
   d->masterPassword = QByteArray();
   d->masterPasswordDialog->invalidatePassword();
@@ -1093,6 +1074,7 @@ void MainWindow::readFinished(QNetworkReply *reply)
   Q_D(MainWindow);
   d->loaderIcon.stop();
   updateSaveButtonIcon();
+  d->progressDialog->hide();
   if (reply->error() == QNetworkReply::NoError) {
     const QByteArray &res = reply->readAll();
     QJsonParseError error;
