@@ -83,9 +83,12 @@ QString OptionsDialog::readUrl(void) const
 }
 
 
-const QByteArray &OptionsDialog::serverCredentials(void) const
+QByteArray OptionsDialog::serverCredentials(void) const
 {
-  return mServerCredentials;
+  return QString("Basic %1")
+      .arg(QString((ui->usernameLineEdit->text() + ":" + ui->passwordLineEdit->text())
+                   .toLocal8Bit().toBase64()))
+      .toLocal8Bit();
 }
 
 
@@ -194,11 +197,6 @@ void OptionsDialog::chooseCertFile(void)
 
 void OptionsDialog::okClicked(void)
 {
-  mServerCredentials = QString("Basic %1")
-      .arg(QString((ui->usernameLineEdit->text() + ":" + ui->passwordLineEdit->text())
-                   .toLocal8Bit().toBase64()))
-      .toLocal8Bit();
-
   QFileInfo fi(ui->syncFileLineEdit->text());
   if (fi.isFile()) {
     accept();

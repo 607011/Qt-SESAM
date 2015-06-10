@@ -31,7 +31,7 @@ class OptionsDialog : public QDialog
 {
   Q_OBJECT
 
-  Q_PROPERTY(QByteArray serverCredentials MEMBER mServerCredentials READ serverCredentials)
+  Q_PROPERTY(QByteArray serverCredentials READ serverCredentials)
   Q_PROPERTY(QString validator READ syncFilename WRITE setSyncFilename)
   Q_PROPERTY(bool useSyncServer READ useSyncServer WRITE setUseSyncServer)
   Q_PROPERTY(bool useSyncFile READ useSyncFile WRITE setUseSyncFile)
@@ -77,7 +77,7 @@ public:
   QString readUrl(void) const;
   void setReadUrl(QString);
 
-  const QByteArray &serverCredentials(void) const;
+  QByteArray serverCredentials(void) const;
 
 
 private slots:
@@ -88,7 +88,6 @@ private slots:
 private:
   Ui::OptionsDialog *ui;
 
-  QByteArray mServerCredentials;
   QList<QSslCertificate> mServerCertificates;
 };
 
