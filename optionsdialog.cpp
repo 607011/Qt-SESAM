@@ -43,6 +43,18 @@ OptionsDialog::~OptionsDialog()
 }
 
 
+bool OptionsDialog::syncOnStart(void) const
+{
+  return ui->syncOnStartCheckBox->isChecked();
+}
+
+
+void OptionsDialog::setSyncOnStart(bool doSync)
+{
+  ui->syncOnStartCheckBox->setChecked(doSync);
+}
+
+
 QString OptionsDialog::syncFilename(void) const
 {
   return ui->syncFileLineEdit->text();

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>385</width>
-    <height>446</height>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,16 @@
        <string>Sync</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QCheckBox" name="syncOnStartCheckBox">
+         <property name="text">
+          <string>Sync on start</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">

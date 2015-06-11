@@ -683,7 +683,7 @@ void MainWindow::saveSettings(void)
   QString errMsg;
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("mainwindow/masterPasswordInvalidationTimerMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
-  d->settings.setValue("sync/onStart", ui->actionSyncOnStart->isChecked());
+  d->settings.setValue("sync/onStart", d->optionsDialog->syncOnStart());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
@@ -722,7 +722,7 @@ void MainWindow::restoreSettings(void)
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("mainwindow/masterPasswordInvalidationTimerMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
-  ui->actionSyncOnStart->setChecked(d->settings.value("sync/onStart", true).toBool());
+  d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());
   d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
   d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
   d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DEFAULT_SERVER_ROOT).toString());

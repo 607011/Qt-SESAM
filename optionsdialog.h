@@ -50,6 +50,9 @@ public:
   explicit OptionsDialog(QWidget *parent = nullptr);
   ~OptionsDialog();
 
+  bool syncOnStart(void) const;
+  void setSyncOnStart(bool);
+
   QString syncFilename(void) const;
   void setSyncFilename(const QString &);
 
