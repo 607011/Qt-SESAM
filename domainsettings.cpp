@@ -57,6 +57,7 @@ const QString DomainSettings::VALIDATORREGEX = "validatorRegex";
 const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
 const QString DomainSettings::DELETED = "deleted";
+const QString DomainSettings::LEGACY_PASSWORD = "legacyPassword";
 
 
 DomainSettings::DomainSettings(void)
@@ -101,6 +102,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , cDate(o.cDate)
   , mDate(o.mDate)
   , deleted(o.deleted)
+  , legacyPassword(o.legacyPassword)
 { /* ... */ }
 
 
@@ -128,5 +130,6 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[CDATE] = cDate;
   map[MDATE] = mDate;
   map[DELETED] = deleted;
+  map[LEGACY_PASSWORD] = legacyPassword;
   return map;
 }

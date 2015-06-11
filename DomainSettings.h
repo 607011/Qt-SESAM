@@ -66,6 +66,7 @@ public:
   static const QString CDATE;
   static const QString MDATE;
   static const QString DELETED;
+  static const QString LEGACY_PASSWORD;
 
   QString domainName;
   QString username;
@@ -88,6 +89,7 @@ public:
   QDateTime cDate;
   QDateTime mDate;
   bool deleted;
+  QString legacyPassword;
 };
 
 
