@@ -210,6 +210,10 @@ MainWindow::MainWindow(QWidget *parent)
   ui->avoidAmbiguousCheckBox->setChecked(true);
 #endif
 
+#ifndef QT_DEBUG
+  ui->hashPlainTextEdit->setVisible(false);
+#endif
+
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
@@ -1019,6 +1023,8 @@ void MainWindow::credentialsEntered(void)
     restoreSettings();
     restoreDomainDataFromSettings();
     updatePassword();
+    if (ui->actionSyncOnStart->isChecked())
+      sync();
   }
   else {
     emit reenterCredentials();
