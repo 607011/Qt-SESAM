@@ -38,9 +38,9 @@ public:
   explicit CredentialsDialog(QWidget *parent = nullptr);
   ~CredentialsDialog();
 
-  void enableUsernameField(bool);
-
   void invalidatePassword(void);
+
+  void setRepeatPassword(bool);
 
   QString password(void) const;
 
@@ -52,6 +52,7 @@ protected:
 
 private slots:
   void okClicked(void);
+  void checkRepetition(QString);
 
 private:
   Ui::CredentialsDialog *ui;

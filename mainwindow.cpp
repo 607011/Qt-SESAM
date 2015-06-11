@@ -224,6 +224,7 @@ MainWindow::MainWindow(QWidget *parent)
   updateValidator();
   setDirty(false);
 
+
 #ifdef QT_DEBUG
   TestPBKDF2 tc;
   QTest::qExec(&tc, 0, 0);
@@ -1038,6 +1039,7 @@ void MainWindow::enterCredentials(void)
   ui->encryptionLabel->setPixmap(QPixmap());
   setEnabled(false);
   d->masterPasswordValid = false;
+  d->masterPasswordDialog->setRepeatPassword(d->settings.value("mainwindow/masterPasswordEntered", false).toBool() == false);
   d->masterPasswordDialog->show();
   d->masterPasswordDialog->raise();
 }
@@ -1057,10 +1059,12 @@ void MainWindow::credentialsEntered(void)
     restoreSettings();
     restoreDomainDataFromSettings();
     updatePassword();
+    d->settings.setValue("mainwindow/masterPasswordEntered", true);
     if (ui->actionSyncOnStart->isChecked())
       sync();
   }
   else {
+    d->settings.setValue("mainwindow/masterPasswordEntered", false);
     emit reenterCredentials();
   }
 }

@@ -441,12 +441,12 @@
     <property name="title">
      <string>Extras</string>
     </property>
-    <addaction name="actionSyncNow"/>
-    <addaction name="actionSyncOnStart"/>
-    <addaction name="actionReenterCredentials"/>
-    <addaction name="actionInvalidatePassword"/>
-    <addaction name="actionSaveSettings"/>
     <addaction name="actionOptions"/>
+    <addaction name="actionSyncNow"/>
+    <addaction name="actionChange_master_password"/>
+    <addaction name="actionSaveSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionInvalidatePassword"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>
@@ -497,7 +497,7 @@
   </action>
   <action name="actionReenterCredentials">
    <property name="text">
-    <string>Reenter credentials</string>
+    <string>Reenter master password</string>
    </property>
   </action>
   <action name="actionInvalidatePassword">
@@ -513,6 +513,11 @@
   <action name="actionOptions">
    <property name="text">
     <string>Options</string>
+   </property>
+  </action>
+  <action name="actionChange_master_password">
+   <property name="text">
+    <string>Change master password</string>
    </property>
   </action>
  </widget>

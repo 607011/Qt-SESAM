@@ -27,6 +27,8 @@ CredentialsDialog::CredentialsDialog(QWidget *parent)
 {
   ui->setupUi(this);
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
+  QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(checkRepetition(QString)));
+  setRepeatPassword(false);
 }
 
 
@@ -40,6 +42,21 @@ void CredentialsDialog::invalidatePassword(void)
 {
   CryptoPP::memset_z(ui->passwordLineEdit->text().data(), 0, ui->passwordLineEdit->text().size());
   ui->passwordLineEdit->clear();
+}
+
+
+void CredentialsDialog::setRepeatPassword(bool doRepeat)
+{
+  if (doRepeat) {
+    ui->repeatPasswordLabel->show();
+    ui->repeatPasswordLineEdit->show();
+    setWindowTitle(tr("New master password"));
+  }
+  else {
+    ui->repeatPasswordLabel->hide();
+    ui->repeatPasswordLineEdit->hide();
+    setWindowTitle(tr("Enter master password"));
+  }
 }
 
 
@@ -65,9 +82,23 @@ void CredentialsDialog::showEvent(QShowEvent *)
 void CredentialsDialog::okClicked(void)
 {
   if (!ui->passwordLineEdit->text().isEmpty()) {
-    accept();
+    if (ui->repeatPasswordLineEdit->isVisible()) {
+      if (ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
+        accept();
+      }
+    }
+    else {
+      accept();
+    }
   }
   else {
     ui->passwordLineEdit->setFocus();
   }
+}
+
+
+void CredentialsDialog::checkRepetition(QString repeatedPassword)
+{
+  Q_UNUSED(repeatedPassword);
+  // TODO ...
 }
