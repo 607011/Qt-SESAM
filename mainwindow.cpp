@@ -234,6 +234,8 @@ MainWindow::MainWindow(QWidget *parent)
   d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
   QMenu *trayMenu = new QMenu(APP_NAME);
+  QAction *actionShow = trayMenu->addAction(tr("Restore window"));
+  QObject::connect(actionShow, SIGNAL(triggered(bool)), SLOT(showHide()));
   QAction *actionSync = trayMenu->addAction(tr("Sync"));
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
   QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
@@ -246,23 +248,29 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 
+void MainWindow::showHide(void) {
+  if (isVisible()) {
+    hide();
+  }
+  else {
+    show();
+    raise();
+    setFocus();
+  }
+}
+
+
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
   if (reason == QSystemTrayIcon::DoubleClick) {
-    if (isVisible()) {
-      hide();
-    }
-    else {
-      show();
-      raise();
-      setFocus();
-    }
+    showHide();
   }
 }
 
 
 MainWindow::~MainWindow()
 {
+  d_ptr->trayIcon.hide();
   delete ui;
 }
 
@@ -294,6 +302,27 @@ void MainWindow::closeEvent(QCloseEvent *e)
 }
 
 
+void MainWindow::changeEvent(QEvent *e)
+{
+  switch (e->type()) {
+  case QEvent::LanguageChange:
+  {
+    ui->retranslateUi(this);
+    break;
+  }
+  case QEvent::WindowStateChange:
+  {
+    if (windowState() & Qt::WindowMinimized) {
+      QTimer::singleShot(200, this, SLOT(hide()));
+    }
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+
 void MainWindow::newDomain(void)
 {
   DomainSettings domainSettings;
@@ -309,8 +338,8 @@ void MainWindow::newDomain(void)
   ui->forceRegexCheckBox->setChecked(domainSettings.forceRegexValidation);
   updateValidator();
   updatePassword();
-
 }
+
 
 void MainWindow::setDirty(bool dirty)
 {
@@ -807,6 +836,7 @@ void MainWindow::writeFinished(QNetworkReply *reply)
     }
   }
   else {
+    // TODO: ...
   }
 }
 
@@ -833,9 +863,8 @@ void MainWindow::sync(void)
     return;
   }
 
-  ui->statusBar->showMessage(tr("Syncing started ..."));
-
   if (d->optionsDialog->useSyncFile()) {
+    ui->statusBar->showMessage(tr("Syncing with file ..."));
     QByteArray baDomains;
     QFileInfo fi(d->optionsDialog->syncFilename());
     if (!fi.isFile()) {
@@ -864,6 +893,7 @@ void MainWindow::sync(void)
   }
 
   if (d->optionsDialog->useSyncServer()) {
+    ui->statusBar->showMessage(tr("Syncing with server ..."));
     d->progressDialog->show();
     d->progressDialog->raise();
     d->progressDialog->setText(tr("Reading from server ..."));
@@ -909,8 +939,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     if (d->domains.contains(domainName))
       localDomain = d->domains[domainName].toMap();
     if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
-      const QDateTime &remoteT = QDateTime::fromString(remoteDomain["mDate"].toString(), Qt::ISODate);
-      const QDateTime &localT = QDateTime::fromString(localDomain["mDate"].toString(), Qt::ISODate);
+      const QDateTime &remoteT = QDateTime::fromString(remoteDomain[DomainSettings::MDATE].toString(), Qt::ISODate);
+      const QDateTime &localT = QDateTime::fromString(localDomain[DomainSettings::MDATE].toString(), Qt::ISODate);
       if (remoteT > localT) {
         d->domains[domainName] = remoteDomain;
         updateLocal = true;
@@ -918,6 +948,9 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
       else if (remoteT < localT){
         remoteDomains[domainName] = localDomain;
         updateRemote = true;
+      }
+      else {
+        // timestamps are equal, do nothing
       }
     }
     else if (remoteDomain.isEmpty()) {
@@ -968,6 +1001,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     }
     else {
       // TODO: catch encryption error
+      throw std::string("encryption error:" );
     }
   }
 
@@ -1037,7 +1071,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
   int button = QMessageBox::critical(
         this,
         tr("Decryption error"),
-        tr("An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Retry entering the correct password!").arg(errCode).arg(errMsg),
+        tr("An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Please enter the correct password!").arg(errCode).arg(errMsg),
         QMessageBox::Retry,
         QMessageBox::NoButton);
   if (button == QMessageBox::Retry)

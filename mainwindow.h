@@ -59,6 +59,7 @@ public:
 
 protected:
   void closeEvent(QCloseEvent *);
+  void changeEvent(QEvent *);
 
 private:
   typedef enum _Type {
@@ -89,6 +90,7 @@ private slots:
   void enterCredentials(void);
   void credentialsEntered(void);
   void invalidatePassword(bool reenter = true);
+  void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
   void sslErrorsOccured(QNetworkReply*, QList<QSslError>);
