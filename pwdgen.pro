@@ -62,8 +62,7 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/rng.cpp \
     3rdparty/cryptopp562/osrng.cpp \
     optionsdialog.cpp \
-    progressdialog.cpp \
-    newcredentialsdialog.cpp
+    progressdialog.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -97,8 +96,7 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/seckey.h \
     3rdparty/cryptopp562/rng.h \
     optionsdialog.h \
-    progressdialog.h \
-    newcredentialsdialog.h
+    progressdialog.h
 
 FORMS    += mainwindow.ui \
     credentialsdialog.ui \
