@@ -370,7 +370,7 @@ void MainWindow::updatePassword(void)
   Q_D(MainWindow);
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty() && d->masterPasswordValid) {
+  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty()) {
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
@@ -731,7 +731,13 @@ void MainWindow::restoreSettings(void)
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
-    const QByteArray &serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
+    QByteArray serverUsernameDecoded;
+    try {
+      serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
+    }
+    catch (const CryptoPP::Exception &e) {
+      qErrnoWarning(e.GetErrorType(), e.what());
+    }
     if (errCode == NO_CRYPT_ERROR) {
       d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
     }
@@ -834,7 +840,9 @@ void MainWindow::writeFinished(QNetworkReply *reply)
     }
   }
   else {
-    // TODO: ...
+    QMessageBox::warning(this, tr("Sync server error"),
+                         tr("Writing to the server failed. Reason: %1")
+                         .arg(reply->errorString()), QMessageBox::Ok);
   }
 }
 
@@ -869,7 +877,10 @@ void MainWindow::sync(void)
       QFile syncFile(d->optionsDialog->syncFilename());
       bool ok = syncFile.open(QIODevice::WriteOnly);
       if (!ok) {
-        // TODO: handle error
+        QMessageBox::warning(this, tr("Sync file creation error"),
+                             tr("The sync file %1 cannot be created. Reason: %2")
+                             .arg(d->optionsDialog->syncFilename())
+                             .arg(syncFile.errorString()), QMessageBox::Ok);
       }
       const QByteArray &baDomains = encode(QByteArray("{}"), COMPRESSION_ENABLED);
       syncFile.write(baDomains);
@@ -879,14 +890,18 @@ void MainWindow::sync(void)
       QFile syncFile(d->optionsDialog->syncFilename());
       bool ok = syncFile.open(QIODevice::ReadOnly);
       if (!ok) {
-        // TODO: handle error
+        QMessageBox::warning(this, tr("Sync file read error"),
+                             tr("The sync file %1 cannot be opened for reading. Reason: %2")
+                             .arg(d->optionsDialog->syncFilename()).arg(syncFile.errorString()), QMessageBox::Ok);
       }
       baDomains = syncFile.readAll();
       syncFile.close();
       sync(FileSource, baDomains);
     }
     else {
-      // TODO: handle sync file not readable error
+      QMessageBox::warning(this, tr("Sync file read error"),
+                           tr("The sync file %1 cannot be opened for reading.")
+                           .arg(d->optionsDialog->syncFilename()), QMessageBox::Ok);
     }
   }
 
@@ -970,7 +985,11 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         QFile syncFile(d->optionsDialog->syncFilename());
         syncFile.open(QIODevice::WriteOnly);
         qint64 bytesWritten = syncFile.write(baCipher);
-        Q_UNUSED(bytesWritten); // TODO: handle bytesWritten < 0
+        if (bytesWritten < 0) {
+          QMessageBox::warning(this, tr("Sync file write error"), tr("Writing to your sync file %1 failed: %2")
+                               .arg(d->optionsDialog->syncFilename())
+                               .arg(syncFile.errorString()), QMessageBox::Ok);
+        }
         syncFile.close();
       }
       if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
@@ -1121,13 +1140,14 @@ void MainWindow::readFinished(QNetworkReply *reply)
     QJsonParseError error;
     QJsonDocument json = QJsonDocument::fromJson(res, &error);
     QVariantMap map = json.toVariant().toMap();
-    if (map["status"] == "ok") {
+    if (map["status"].toString() == "ok") {
       const QByteArray &domainData = map["result"].toByteArray();
       sync(ServerSource, QByteArray::fromBase64(domainData));
     }
     else {
-       // TODO
-      throw std::string("server error:" ) + map["error"].toString().toStdString();
+      QMessageBox::warning(this, tr("Sync server error"),
+                           tr("Reading from the sync server failed. status: %1, error: %2")
+                           .arg(map["status"].toString()).arg(map["error"].toString()), QMessageBox::Ok);
     }
   }
   else {
