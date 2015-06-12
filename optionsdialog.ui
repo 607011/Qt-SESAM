@@ -137,7 +137,7 @@
              </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QLineEdit" name="writeUrlLineEdit">
+             <widget class="QLineEdit" name="readUrlLineEdit">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -151,7 +151,7 @@
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QLineEdit" name="readUrlLineEdit">
+             <widget class="QLineEdit" name="writeUrlLineEdit">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -306,8 +306,8 @@
   <tabstop>serverRootURLLineEdit</tabstop>
   <tabstop>usernameLineEdit</tabstop>
   <tabstop>passwordLineEdit</tabstop>
-  <tabstop>writeUrlLineEdit</tabstop>
   <tabstop>readUrlLineEdit</tabstop>
+  <tabstop>writeUrlLineEdit</tabstop>
   <tabstop>cancelPushButton</tabstop>
  </tabstops>
  <resources/>
