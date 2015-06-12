@@ -22,7 +22,8 @@
 
 #include <QDialog>
 #include <QShowEvent>
-
+#include <QLabel>
+#include <QLineEdit>
 
 namespace Ui {
 class CredentialsDialog;
@@ -32,7 +33,7 @@ class CredentialsDialog : public QDialog
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString password READ password)
+  Q_PROPERTY(QString masterPassword READ masterPassword)
 
 public:
   explicit CredentialsDialog(QWidget *parent = nullptr);
@@ -42,7 +43,7 @@ public:
 
   void setRepeatPassword(bool);
 
-  QString password(void) const;
+  QString masterPassword(void) const;
 
 public slots:
   virtual void reject(void);
@@ -52,10 +53,12 @@ protected:
 
 private slots:
   void okClicked(void);
-  void checkRepetition(QString);
+  void comparePasswords(void);
 
 private:
   Ui::CredentialsDialog *ui;
+
+  QLineEdit *mRepeatPasswordLineEdit;
 };
 
 #endif // __CREDENTIALSDIALOG_H_
