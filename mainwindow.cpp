@@ -87,7 +87,6 @@ public:
     , completer(nullptr)
     , masterPasswordDialog(new CredentialsDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
-    , masterPasswordValid(false)
     , progressDialog(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readNAM(new QNetworkAccessManager(parent))
@@ -116,7 +115,6 @@ public:
   QDateTime modifiedDate;
   QSystemTrayIcon trayIcon;
   QString masterPassword;
-  bool masterPasswordValid;
   QTimer masterPasswordInvalidationTimer;
   unsigned char AESKey[AES_KEY_SIZE];
   ProgressDialog *progressDialog;
@@ -656,8 +654,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
     int errCode;
     QString errMsg;
     const QByteArray &recovered = decode(baDomains, COMPRESSION_ENABLED, &errCode, &errMsg);
-    d->masterPasswordValid = (errCode == NO_CRYPT_ERROR);
-    if (!d->masterPasswordValid) {
+    if (errCode != NO_CRYPT_ERROR) {
       wrongPasswordWarning(errCode, errMsg);
       return;
     }
@@ -859,7 +856,7 @@ void MainWindow::cancelServerOperation(void)
 void MainWindow::sync(void)
 {
   Q_D(MainWindow);
-  if (d->masterPassword.isEmpty() || !d->masterPasswordValid) {
+  if (d->masterPassword.isEmpty()) {
     emit reenterCredentials();
     return;
   }
@@ -925,7 +922,6 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
       remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
     }
     else {
-      d->masterPasswordValid = false;
       wrongPasswordWarning(errCode, errMsg);
       return;
     }
@@ -1038,7 +1034,6 @@ void MainWindow::enterCredentials(void)
   Q_D(MainWindow);
   ui->encryptionLabel->setPixmap(QPixmap());
   setEnabled(false);
-  d->masterPasswordValid = false;
   d->masterPasswordDialog->setRepeatPassword(d->settings.value("mainwindow/masterPasswordEntered", false).toBool() == false);
   d->masterPasswordDialog->show();
   d->masterPasswordDialog->raise();
