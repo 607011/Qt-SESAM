@@ -93,7 +93,7 @@
               </item>
               <item row="8" column="0">
                <widget class="QPlainTextEdit" name="customCharactersPlainTextEdit">
-                <property name="placeholderText" stdset="0">
+                <property name="placeholderText">
                  <string>your custom characters</string>
                 </property>
                </widget>
@@ -190,7 +190,7 @@
                 <property name="plainText">
                  <string/>
                 </property>
-                <property name="placeholderText" stdset="0">
+                <property name="placeholderText">
                  <string>regular expression to validate generated password</string>
                 </property>
                </widget>
@@ -394,7 +394,7 @@
                <family>Courier New</family>
               </font>
              </property>
-             <property name="placeholderText" stdset="0">
+             <property name="placeholderText">
               <string>SHA512 hash (hex)</string>
              </property>
             </widget>
@@ -443,8 +443,6 @@
     </property>
     <addaction name="actionOptions"/>
     <addaction name="actionSyncNow"/>
-    <addaction name="actionChange_master_password"/>
-    <addaction name="actionSaveSettings"/>
     <addaction name="separator"/>
     <addaction name="actionInvalidatePassword"/>
    </widget>
@@ -476,17 +474,6 @@
     <string>About Qt ...</string>
    </property>
   </action>
-  <action name="actionSyncOnStart">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Sync on start</string>
-   </property>
-  </action>
   <action name="actionSyncNow">
    <property name="text">
     <string>Sync now</string>
@@ -495,29 +482,22 @@
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
-  <action name="actionReenterCredentials">
-   <property name="text">
-    <string>Reenter master password</string>
-   </property>
-  </action>
   <action name="actionInvalidatePassword">
    <property name="text">
-    <string>Invalidate password</string>
-   </property>
-  </action>
-  <action name="actionSaveSettings">
-   <property name="text">
-    <string>Save settings</string>
+    <string>[DEBUG] Invalidate password</string>
    </property>
   </action>
   <action name="actionOptions">
    <property name="text">
-    <string>Options</string>
+    <string>Options ...</string>
    </property>
   </action>
-  <action name="actionChange_master_password">
+  <action name="actionChangeMasterPassword">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Change master password</string>
+    <string>Change master password ...</string>
    </property>
   </action>
  </widget>
