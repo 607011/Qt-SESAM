@@ -87,8 +87,8 @@ private slots:
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);
-  void enterCredentials(void);
-  void credentialsEntered(void);
+  void enterMasterPassword(void);
+  void masterPasswordEntered(void);
   void invalidatePassword(bool reenter = true);
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);

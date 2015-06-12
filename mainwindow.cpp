@@ -127,7 +127,6 @@ public:
   QNetworkReply *writeReq;
   int counter;
   int maxCounter;
-
 };
 
 
@@ -182,12 +181,11 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
-  QObject::connect(ui->actionReenterCredentials, SIGNAL(triggered(bool)), SLOT(enterCredentials()));
-  QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterCredentials()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterMasterPassword()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
   QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(saveSettings()));
   QObject::connect(d->optionsDialog, SIGNAL(certificatesUpdated()), SLOT(loadCertificate()));
-  QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(credentialsEntered()));
+  QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(masterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
 
   d->progressDialog = new ProgressDialog(this);
@@ -201,7 +199,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 #ifdef QT_DEBUG
   QObject::connect(ui->actionInvalidatePassword, SIGNAL(triggered(bool)), SLOT(invalidatePassword()));
-  QObject::connect(ui->actionSaveSettings, SIGNAL(triggered(bool)), SLOT(saveSettings()));
 #endif
 
 #ifdef QT_DEBUG
@@ -368,6 +365,7 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::updatePassword()";
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
   if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty()) {
@@ -646,11 +644,13 @@ void MainWindow::saveDomainDataToSettings(void)
 void MainWindow::restoreDomainDataFromSettings(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::restoreDomainDataFromSettings()";
   Q_ASSERT(!d->masterPassword.isEmpty());
   QJsonDocument json;
   QStringList domains;
   const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
   if (!baDomains.isEmpty()) {
+    qDebug() << "MainWindow::restoreDomainDataFromSettings() trying to decode ...";
     int errCode;
     QString errMsg;
     const QByteArray &recovered = decode(baDomains, COMPRESSION_ENABLED, &errCode, &errMsg);
@@ -660,6 +660,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
     }
     json = QJsonDocument::fromJson(recovered);
     domains = json.object().keys();
+    qDebug() << "Password accepted. Restored" << d->domains.count() << "domains";
     ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
   }
   d->domains = json.toVariant().toMap();
@@ -676,6 +677,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::saveSettings()";
   int errCode;
   QString errMsg;
   d->settings.setValue("mainwindow/geometry", geometry());
@@ -713,6 +715,7 @@ void MainWindow::loadCertificate(void)
 void MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::restoreSettings()";
   int errCode;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
@@ -870,6 +873,7 @@ void MainWindow::sync(void)
   }
 
   if (d->optionsDialog->useSyncFile()) {
+    qDebug() << "Trying to sync with file ...";
     ui->statusBar->showMessage(tr("Syncing with file ..."));
     QByteArray baDomains;
     QFileInfo fi(d->optionsDialog->syncFilename());
@@ -906,6 +910,7 @@ void MainWindow::sync(void)
   }
 
   if (d->optionsDialog->useSyncServer()) {
+    qDebug() << "Trying to sync with server ...";
     ui->statusBar->showMessage(tr("Syncing with server ..."));
     d->progressDialog->show();
     d->progressDialog->raise();
@@ -1038,7 +1043,10 @@ void MainWindow::domainSelected(const QString &domain)
 void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
-  setWindowTitle(APP_NAME + " " + APP_VERSION + (d->parameterSetDirty ? "*" : ""));
+  setWindowTitle(QString("%1 %2%3")
+                 .arg(APP_NAME)
+                 .arg(APP_VERSION)
+                 .arg(d->parameterSetDirty ? "*" : ""));
 }
 
 
@@ -1048,9 +1056,10 @@ void MainWindow::clearClipboard(void)
 }
 
 
-void MainWindow::enterCredentials(void)
+void MainWindow::enterMasterPassword(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::enterCredentials()";
   ui->encryptionLabel->setPixmap(QPixmap());
   setEnabled(false);
   d->masterPasswordDialog->setRepeatPassword(d->settings.value("mainwindow/masterPasswordEntered", false).toBool() == false);
@@ -1059,10 +1068,11 @@ void MainWindow::enterCredentials(void)
 }
 
 
-void MainWindow::credentialsEntered(void)
+void MainWindow::masterPasswordEntered(void)
 {
   Q_D(MainWindow);
-  const QString &masterPwd = d->masterPasswordDialog->password();
+  qDebug() << "MainWindow::masterPasswordEntered()";
+  QString masterPwd = d->masterPasswordDialog->masterPassword();
   if (!masterPwd.isEmpty()) {
     setEnabled(true);
     d->masterPasswordDialog->hide();
@@ -1074,11 +1084,13 @@ void MainWindow::credentialsEntered(void)
     restoreDomainDataFromSettings();
     updatePassword();
     d->settings.setValue("mainwindow/masterPasswordEntered", true);
-    if (ui->actionSyncOnStart->isChecked())
+    d->settings.sync();
+    if (d->optionsDialog->syncOnStart())
       sync();
   }
   else {
     d->settings.setValue("mainwindow/masterPasswordEntered", false);
+    d->settings.sync();
     emit reenterCredentials();
   }
 }
