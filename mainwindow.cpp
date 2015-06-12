@@ -56,7 +56,7 @@ static const QString APP_VERSION = "1.0-ALPHA";
 static const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 static const QString APP_AUTHOR = "Oliver Lau";
 static const QString APP_AUTHOR_MAIL = "ola@ct.de";
-static const QString APP_USER_AGENT = QString("%1/%2 (%3) Qt/%4 (%5; %6)")
+static const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6)")
     .arg(APP_NAME)
     .arg(APP_VERSION)
     .arg(APP_URL)
