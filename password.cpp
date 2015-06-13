@@ -54,7 +54,7 @@ public:
   QFuture<void> future;
 };
 
-const QByteArray PasswordParamBase::Salt = QString("pepper").toUtf8();
+const QByteArray PasswordParamBase::DefaultSalt = QString("pepper").toUtf8();
 const QString PasswordParamBase::LowerChars = "abcdefghijklmnopqrstuvwxyz";
 const QString PasswordParamBase::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const QString PasswordParamBase::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";

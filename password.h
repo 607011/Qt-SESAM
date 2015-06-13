@@ -29,7 +29,7 @@
 
 class PasswordParamBase {
 public:
-  static const QByteArray Salt;
+  static const QByteArray DefaultSalt;
   static const QString LowerChars;
   static const QString UpperChars;
   static const QString UpperCharsNoAmbiguous;
@@ -37,7 +37,7 @@ public:
   static const QString ExtraChars;
 
   PasswordParamBase(void)
-    : salt(Salt)
+    : salt(DefaultSalt)
     , availableChars(Digits)
     , passwordLength(10)
     , iterations(4096)
