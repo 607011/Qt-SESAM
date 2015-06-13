@@ -141,6 +141,8 @@ MainWindow::MainWindow(QWidget *parent)
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->customCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->forceRegexPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
@@ -170,7 +172,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->useCustomCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
   QObject::connect(ui->useCustomCheckBox, SIGNAL(toggled(bool)), SLOT(customCharacterSetCheckBoxToggled(bool)));
   QObject::connect(ui->avoidAmbiguousCheckBox, SIGNAL(toggled(bool)), SLOT(updateUsedCharacters()));
-  QObject::connect(ui->copyPasswordToClipboardPushButton, SIGNAL(pressed()), SLOT(copyPasswordToClipboard()));
+  QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
+  QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
   QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
@@ -356,7 +359,7 @@ void MainWindow::restartInvalidationTimer(void)
 void MainWindow::onPasswordGenerationStarted(void)
 {
   Q_D(MainWindow);
-  ui->copyPasswordToClipboardPushButton->setEnabled(false);
+  ui->copyGeneratedPasswordToClipboardPushButton->setEnabled(false);
   ui->processLabel->show();
   ui->cancelPushButton->show();
   d->loaderIcon.start();
@@ -434,7 +437,7 @@ void MainWindow::onPasswordGenerated(void)
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
   d->loaderIcon.stop();
-  ui->copyPasswordToClipboardPushButton->setEnabled(true);
+  ui->copyGeneratedPasswordToClipboardPushButton->setEnabled(true);
   bool setKey = true;
   if (ui->forceRegexCheckBox->isChecked() && !d->password.isValid())
     setKey = false;
@@ -457,10 +460,17 @@ void MainWindow::onPasswordGenerationAborted(void)
 }
 
 
-void MainWindow::copyPasswordToClipboard(void)
+void MainWindow::copyLegacyPasswordToClipboard(void)
+{
+  QApplication::clipboard()->setText(ui->legacyPasswordLineEdit->text());
+  ui->statusBar->showMessage(tr("Legacy password copied to clipboard."));
+}
+
+
+void MainWindow::copyGeneratedPasswordToClipboard(void)
 {
   QApplication::clipboard()->setText(ui->generatedPasswordLineEdit->text());
-  ui->statusBar->showMessage(tr("Password copied to clipboard."));
+  ui->statusBar->showMessage(tr("Generated password copied to clipboard."));
 }
 
 
@@ -553,6 +563,8 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
   const QVariantMap &p = d->domains[domain].toMap();
   ui->domainLineEdit->setText(p[DomainSettings::DOMAIN_NAME].toString());
   ui->userLineEdit->setText(p[DomainSettings::USER_NAME].toString());
+  ui->legacyPasswordLineEdit->setText(p[DomainSettings::LEGACY_PASSWORD].toString());
+  ui->notesPlainTextEdit->setPlainText(p[DomainSettings::NOTES].toString());
   ui->useLowerCaseCheckBox->setChecked(p[DomainSettings::USE_LOWERCASE].toBool());
   ui->useUpperCaseCheckBox->setChecked(p[DomainSettings::USE_UPPERCASE].toBool());
   ui->useDigitsCheckBox->setChecked(p[DomainSettings::USE_DIGITS].toBool());
@@ -582,6 +594,8 @@ void MainWindow::saveCurrentSettings(void)
   DomainSettings ds;
   ds.domainName = ui->domainLineEdit->text();
   ds.username = ui->userLineEdit->text();
+  ds.notes = ui->notesPlainTextEdit->toPlainText();
+  ds.legacyPassword = ui->legacyPasswordLineEdit->text();
   ds.useLowerCase = ui->useLowerCaseCheckBox->isChecked();
   ds.useUpperCase = ui->useUpperCaseCheckBox->isChecked();
   ds.useDigits = ui->useDigitsCheckBox->isChecked();
@@ -683,6 +697,7 @@ void MainWindow::saveSettings(void)
   QString errMsg;
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("mainwindow/masterPasswordInvalidationTimerMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
+  d->settings.setValue("mainwindow/parametersToolBoxIndex", ui->parametersToolBox->currentIndex());
   d->settings.setValue("sync/onStart", d->optionsDialog->syncOnStart());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
@@ -721,6 +736,7 @@ void MainWindow::restoreSettings(void)
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("mainwindow/masterPasswordInvalidationTimerMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
+  ui->parametersToolBox->setCurrentIndex(d->settings.value("mainwindow/parametersToolBoxIndex", 0).toInt());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());

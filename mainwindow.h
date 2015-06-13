@@ -70,7 +70,8 @@ private:
 private slots:
   void updatePassword(void);
   void updateUsedCharacters(void);
-  void copyPasswordToClipboard(void);
+  void copyGeneratedPasswordToClipboard(void);
+  void copyLegacyPasswordToClipboard(void);
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);

@@ -47,6 +47,8 @@ public:
 
   static const QString DOMAIN_NAME;
   static const QString USER_NAME;
+  static const QString NOTES;
+  static const QString LEGACY_PASSWORD;
   static const QString USE_LOWERCASE;
   static const QString USE_UPPERCASE;
   static const QString USE_DIGITS;
@@ -66,10 +68,12 @@ public:
   static const QString CDATE;
   static const QString MDATE;
   static const QString DELETED;
-  static const QString LEGACY_PASSWORD;
+
 
   QString domainName;
   QString username;
+  QString legacyPassword;
+  QString notes;
   bool useLowerCase;
   bool useUpperCase;
   bool useDigits;
@@ -89,7 +93,6 @@ public:
   QDateTime cDate;
   QDateTime mDate;
   bool deleted;
-  QString legacyPassword;
 };
 
 

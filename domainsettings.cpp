@@ -38,6 +38,8 @@ const QString DomainSettings::DefaultValidatorPattern = "^(?=.*\\d)(?=.*[a-z])(?
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
 const QString DomainSettings::USER_NAME = "username";
+const QString DomainSettings::LEGACY_PASSWORD = "legacyPassword";
+const QString DomainSettings::NOTES = "notes";
 const QString DomainSettings::USE_LOWERCASE = "useLowerCase";
 const QString DomainSettings::USE_UPPERCASE = "useUpperCase";
 const QString DomainSettings::USE_DIGITS = "useDigits";
@@ -57,7 +59,6 @@ const QString DomainSettings::VALIDATOR_REGEX = "validatorRegex";
 const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
 const QString DomainSettings::DELETED = "deleted";
-const QString DomainSettings::LEGACY_PASSWORD = "legacyPassword";
 
 
 DomainSettings::DomainSettings(void)
@@ -83,6 +84,8 @@ DomainSettings::DomainSettings(void)
 DomainSettings::DomainSettings(const DomainSettings &o)
   : domainName(o.domainName)
   , username(o.username)
+  , legacyPassword(o.legacyPassword)
+  , notes(o.notes)
   , useLowerCase(o.useLowerCase)
   , useUpperCase(o.useUpperCase)
   , useDigits(o.useDigits)
@@ -102,7 +105,6 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , cDate(o.cDate)
   , mDate(o.mDate)
   , deleted(o.deleted)
-  , legacyPassword(o.legacyPassword)
 { /* ... */ }
 
 
@@ -111,6 +113,8 @@ QVariantMap DomainSettings::toVariantMap(void) const
   QVariantMap map;
   map[DOMAIN_NAME] = domainName;
   map[USER_NAME] = username;
+  map[LEGACY_PASSWORD] = legacyPassword;
+  map[NOTES] = notes;
   map[USE_LOWERCASE] = useLowerCase;
   map[USE_UPPERCASE] = useUpperCase;
   map[USE_DIGITS] = useDigits;
@@ -130,6 +134,5 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[CDATE] = cDate;
   map[MDATE] = mDate;
   map[DELETED] = deleted;
-  map[LEGACY_PASSWORD] = legacyPassword;
   return map;
 }
