@@ -184,7 +184,6 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
-  QObject::connect(this, SIGNAL(reenterCredentials()), SLOT(enterMasterPassword()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
   QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(saveSettings()));
   QObject::connect(d->optionsDialog, SIGNAL(certificatesUpdated()), SLOT(loadCertificate()));
@@ -885,7 +884,7 @@ void MainWindow::sync(void)
 {
   Q_D(MainWindow);
   if (d->masterPassword.isEmpty()) {
-    emit reenterCredentials();
+    enterMasterPassword();
     return;
   }
 
@@ -1110,7 +1109,7 @@ void MainWindow::masterPasswordEntered(void)
   else {
     d->settings.setValue("mainwindow/masterPasswordEntered", false);
     d->settings.sync();
-    emit reenterCredentials();
+    enterMasterPassword();
   }
 }
 
@@ -1124,7 +1123,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
         QMessageBox::Retry,
         QMessageBox::NoButton);
   if (button == QMessageBox::Retry)
-    emit reenterCredentials();
+    enterMasterPassword();
 }
 
 
@@ -1136,7 +1135,7 @@ void MainWindow::invalidatePassword(bool reenter)
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
   if (reenter)
-    emit reenterCredentials();
+    enterMasterPassword();
 }
 
 

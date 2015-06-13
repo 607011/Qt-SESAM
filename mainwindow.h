@@ -104,7 +104,6 @@ private slots:
 
 signals:
   void passwordGenerated(void);
-  void reenterCredentials(void);
 
 private: // methods
   void restoreSettings(void);
