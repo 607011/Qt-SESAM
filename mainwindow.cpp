@@ -229,7 +229,7 @@ MainWindow::MainWindow(QWidget *parent)
   QTest::qExec(&tc, 0, 0);
 #endif
 
-  emit reenterCredentials();
+  enterMasterPassword();
 
   d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -963,6 +963,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
       return;
     }
   }
+
+  // merge local and remote domain data
   QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
   const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
   foreach(QString domainName, allDomainNames) {
@@ -1076,7 +1078,7 @@ void MainWindow::clearClipboard(void)
 void MainWindow::enterMasterPassword(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::enterCredentials()";
+  qDebug() << "MainWindow::enterMasterPassword()";
   ui->encryptionLabel->setPixmap(QPixmap());
   setEnabled(false);
   d->masterPasswordDialog->setRepeatPassword(d->settings.value("mainwindow/masterPasswordEntered", false).toBool() == false);
