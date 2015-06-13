@@ -52,7 +52,7 @@
 
 static const QString APP_COMPANY_NAME = "c't";
 static const QString APP_NAME = "ctpwdgen";
-static const QString APP_VERSION = "1.0-ALPHA";
+static const QString APP_VERSION = "1.0-BETA";
 static const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 static const QString APP_AUTHOR = "Oliver Lau";
 static const QString APP_AUTHOR_MAIL = "ola@ct.de";
