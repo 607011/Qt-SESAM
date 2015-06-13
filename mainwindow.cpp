@@ -209,6 +209,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->hashPlainTextEdit->setVisible(false);
 #endif
 
+  d->optionsDialog->setSalt(PasswordParam::DefaultSalt);
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
@@ -589,7 +590,7 @@ void MainWindow::saveCurrentSettings(void)
   ds.avoidAmbiguous = ui->avoidAmbiguousCheckBox->isChecked();
   ds.customCharacterSet = ui->customCharactersPlainTextEdit->toPlainText();
   ds.iterations = ui->iterationsSpinBox->value();
-  ds.salt = PasswordParam::Salt;
+  ds.salt = d->optionsDialog->salt();
   ds.length = ui->passwordLengthSpinBox->value();
   ds.validatorRegEx = d->password.validator();
   ds.forceLowerCase = ui->forceLowerCaseCheckBox->isChecked();

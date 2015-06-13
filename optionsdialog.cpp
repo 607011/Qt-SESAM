@@ -142,6 +142,18 @@ void OptionsDialog::setUntrustedCertificatesAccepted(bool accepted)
 }
 
 
+QByteArray OptionsDialog::salt(void) const
+{
+  return ui->saltLineEdit->text().toUtf8();
+}
+
+
+void OptionsDialog::setSalt(const QByteArray &salt)
+{
+  ui->saltLineEdit->setText(QString::fromUtf8(salt));
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);

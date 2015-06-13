@@ -44,6 +44,7 @@ class OptionsDialog : public QDialog
   Q_PROPERTY(int masterPasswordInvalidationTimeMins READ masterPasswordInvalidationTimeMins WRITE setMasterPasswordInvalidationTimeMins)
   Q_PROPERTY(bool selfSignedCertificatesAccepted READ selfSignedCertificatesAccepted)
   Q_PROPERTY(bool untrustedCertificatesAccepted READ untrustedCertificatesAccepted)
+  Q_PROPERTY(QByteArray salt READ salt WRITE setSalt)
 
 
 public:
@@ -92,6 +93,9 @@ public:
 
   bool untrustedCertificatesAccepted(void) const;
   void setUntrustedCertificatesAccepted(bool);
+
+  QByteArray salt(void) const;
+  void setSalt(const QByteArray &salt);
 
 private slots:
   void chooseSyncFile(void);
