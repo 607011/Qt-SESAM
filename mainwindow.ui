@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
-    <height>461</height>
+    <width>311</width>
+    <height>473</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,98 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Domain</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="domainLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>128</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>mandatory</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>User name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="userLineEdit">
+        <property name="placeholderText">
+         <string>may be empty</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Legacy password</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="legacyPasswordLineEdit">
+          <property name="echoMode">
+           <enum>QLineEdit::PasswordEchoOnEdit</enum>
+          </property>
+          <property name="placeholderText">
+           <string>don't fill unless service requires fixed password</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="copyLegacyPasswordToClipboardPushButton">
+          <property name="toolTip">
+           <string>Copy password to clipboard</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="pwdgen.qrc">
+            <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="savePushButton">
+        <property name="text">
+         <string>Save</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+S</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QToolBox" name="parametersToolBox">
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
@@ -23,13 +115,16 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="tabSpacing">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="mainParamPage">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>383</width>
-         <height>237</height>
+         <width>293</width>
+         <height>146</height>
         </rect>
        </property>
        <attribute name="label">
@@ -38,16 +133,6 @@
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="6" column="2">
-           <widget class="QPushButton" name="savePushButton">
-            <property name="text">
-             <string>Save</string>
-            </property>
-            <property name="shortcut">
-             <string>Ctrl+S</string>
-            </property>
-           </widget>
-          </item>
           <item row="7" column="2">
            <spacer name="verticalSpacer">
             <property name="orientation">
@@ -61,22 +146,6 @@
             </property>
            </spacer>
           </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="domainLineEdit">
-            <property name="minimumSize">
-             <size>
-              <width>128</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="placeholderText">
-             <string>mandatory</string>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="2">
            <widget class="QSpinBox" name="passwordLengthSpinBox">
             <property name="minimum">
@@ -84,20 +153,6 @@
             </property>
             <property name="value">
              <number>10</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Domain</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>User name</string>
             </property>
            </widget>
           </item>
@@ -114,13 +169,6 @@
             </property>
             <property name="value">
              <number>4096</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="userLineEdit">
-            <property name="placeholderText">
-             <string>may be empty</string>
             </property>
            </widget>
           </item>
@@ -168,41 +216,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Legacy password</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QLineEdit" name="legacyPasswordLineEdit">
-              <property name="echoMode">
-               <enum>QLineEdit::PasswordEchoOnEdit</enum>
-              </property>
-              <property name="placeholderText">
-               <string>don't fill unless password is fixed</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="copyLegacyPasswordToClipboardPushButton">
-              <property name="toolTip">
-               <string>Copy password to clipboard</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="pwdgen.qrc">
-                <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
          </layout>
         </item>
        </layout>
@@ -212,7 +225,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>195</width>
+         <width>276</width>
          <height>503</height>
         </rect>
        </property>
@@ -495,7 +508,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>401</width>
+     <width>311</width>
      <height>21</height>
     </rect>
    </property>
@@ -580,11 +593,8 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>domainLineEdit</tabstop>
-  <tabstop>userLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>savePushButton</tabstop>
   <tabstop>useLowerCaseCheckBox</tabstop>
   <tabstop>useUpperCaseCheckBox</tabstop>
   <tabstop>useDigitsCheckBox</tabstop>
