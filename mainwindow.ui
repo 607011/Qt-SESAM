@@ -105,6 +105,22 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="encryptionLabel">
+        <property name="minimumSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>A secure connection to your sync server has been established</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -193,13 +209,6 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="encryptionLabel">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="2">
            <widget class="QPlainTextEdit" name="notesPlainTextEdit">
             <property name="sizePolicy">
@@ -225,7 +234,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>276</width>
+         <width>195</width>
          <height>503</height>
         </rect>
        </property>
