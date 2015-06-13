@@ -327,6 +327,8 @@ void MainWindow::newDomain(void)
   DomainSettings domainSettings;
   ui->domainLineEdit->setText(QString());
   ui->domainLineEdit->setFocus();
+  ui->userLineEdit->setText(QString());
+  ui->legacyPasswordLineEdit->setText(QString());
   ui->useLowerCaseCheckBox->setChecked(domainSettings.useLowerCase);
   ui->useUpperCaseCheckBox->setChecked(domainSettings.useUpperCase);
   ui->useDigitsCheckBox->setChecked(domainSettings.useDigits);
@@ -335,6 +337,7 @@ void MainWindow::newDomain(void)
   ui->passwordLengthSpinBox->setValue(domainSettings.length);
   ui->forceRegexPlainTextEdit->setPlainText(domainSettings.validatorRegEx.pattern());
   ui->forceRegexCheckBox->setChecked(domainSettings.forceRegexValidation);
+  ui->notesPlainTextEdit->setPlainText(QString());
   updateValidator();
   updatePassword();
 }
