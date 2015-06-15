@@ -103,7 +103,7 @@ public:
   CredentialsDialog *masterPasswordDialog;
   OptionsDialog *optionsDialog;
   QSettings settings;
-  QVariantMap domains;
+  DomainList domains;
   QMovie loaderIcon;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
@@ -563,29 +563,29 @@ void MainWindow::updateValidator(void)
 void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
-  const QVariantMap &p = d->domains[domain].toMap();
-  ui->domainLineEdit->setText(p[DomainSettings::DOMAIN_NAME].toString());
-  ui->userLineEdit->setText(p[DomainSettings::USER_NAME].toString());
-  ui->legacyPasswordLineEdit->setText(p[DomainSettings::LEGACY_PASSWORD].toString());
-  ui->notesPlainTextEdit->setPlainText(p[DomainSettings::NOTES].toString());
-  ui->useLowerCaseCheckBox->setChecked(p[DomainSettings::USE_LOWERCASE].toBool());
-  ui->useUpperCaseCheckBox->setChecked(p[DomainSettings::USE_UPPERCASE].toBool());
-  ui->useDigitsCheckBox->setChecked(p[DomainSettings::USE_DIGITS].toBool());
-  ui->useExtrasCheckBox->setChecked(p[DomainSettings::USE_EXTRA].toBool());
-  ui->useCustomCheckBox->setChecked(p[DomainSettings::USE_CUSTOM].toBool());
-  ui->avoidAmbiguousCheckBox->setChecked(p[DomainSettings::AVOID_AMBIGUOUS].toBool());
+  const DomainSettings &p = d->domains.at(domain);
+  ui->domainLineEdit->setText(p.domainName);
+  ui->userLineEdit->setText(p.userName);
+  ui->legacyPasswordLineEdit->setText(p.legacyPassword);
+  ui->notesPlainTextEdit->setPlainText(p.notes);
+  ui->useLowerCaseCheckBox->setChecked(p.useLowerCase);
+  ui->useUpperCaseCheckBox->setChecked(p.useUpperCase);
+  ui->useDigitsCheckBox->setChecked(p.useDigits);
+  ui->useExtrasCheckBox->setChecked(p.useExtra);
+  ui->useCustomCheckBox->setChecked(p.useCustom);
+  ui->avoidAmbiguousCheckBox->setChecked(p.avoidAmbiguous);
   ui->customCharactersPlainTextEdit->blockSignals(true);
-  ui->customCharactersPlainTextEdit->setPlainText(p[DomainSettings::CUSTOM_CHARACTER_SET].toString());
+  ui->customCharactersPlainTextEdit->setPlainText(p.customCharacterSet);
   ui->customCharactersPlainTextEdit->blockSignals(false);
-  ui->iterationsSpinBox->setValue(p[DomainSettings::ITERATIONS].toInt());
-  ui->passwordLengthSpinBox->setValue(p[DomainSettings::LENGTH].toInt());
-  ui->forceLowerCaseCheckBox->setChecked(p[DomainSettings::FORCE_LOWERCASE].toBool());
-  ui->forceUpperCaseCheckBox->setChecked(p[DomainSettings::FORCE_UPPERCASE].toBool());
-  ui->forceDigitsCheckBox->setChecked(p[DomainSettings::FORCE_DIGITS].toBool());
-  ui->forceExtrasCheckBox->setChecked(p[DomainSettings::FORCE_EXTRA].toBool());
-  ui->forceRegexCheckBox->setChecked(p[DomainSettings::FORCE_REGEX_VALIDATION].toBool());
-  d->createdDate = QDateTime::fromString(p[DomainSettings::CDATE].toString(), Qt::ISODate);
-  d->modifiedDate = QDateTime::fromString(p[DomainSettings::MDATE].toString(), Qt::ISODate);
+  ui->iterationsSpinBox->setValue(p.iterations);
+  ui->passwordLengthSpinBox->setValue(p.length);
+  ui->forceLowerCaseCheckBox->setChecked(p.forceLowerCase);
+  ui->forceUpperCaseCheckBox->setChecked(p.forceUpperCase);
+  ui->forceDigitsCheckBox->setChecked(p.forceDigits);
+  ui->forceExtrasCheckBox->setChecked(p.forceExtra);
+  ui->forceRegexCheckBox->setChecked(p.forceRegexValidation);
+  d->createdDate = p.cDate;
+  d->modifiedDate = p.mDate;
   updateValidator();
   updatePassword();
 }
@@ -637,7 +637,7 @@ void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
     domains << domainSettings.domainName;
     model->setStringList(domains);
   }
-  d->domains[domainSettings.domainName] = domainSettings.toVariantMap();
+  d->domains.updateWith(domainSettings);
   saveDomainDataToSettings();
 }
 
@@ -647,7 +647,7 @@ void MainWindow::saveDomainDataToSettings(void)
   Q_D(MainWindow);
   int errCode;
   QString errMsg;
-  const QByteArray &cipher = encode(QJsonDocument::fromVariant(d->domains).toJson(QJsonDocument::Compact), COMPRESSION_ENABLED, &errCode, &errMsg);
+  const QByteArray &cipher = encode(d->domains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
   if (errCode == NO_CRYPT_ERROR) {
     d->settings.setValue("data/domains", QString(cipher.toHex()));
     d->settings.sync();
@@ -681,7 +681,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
     qDebug() << "Password accepted. Restored" << d->domains.count() << "domains";
     ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
   }
-  d->domains = json.toVariant().toMap();
+  d->domains = DomainList::fromQJsonDocument(json);
   if (d->completer) {
     QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
     delete d->completer;
@@ -969,48 +969,38 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   }
 
   // merge local and remote domain data
-  QVariantMap remoteDomains = remoteJSON.toVariant().toMap();
+  DomainList remoteDomains = DomainList::fromQJsonDocument(remoteJSON);
   const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
   foreach(QString domainName, allDomainNames) {
-    QVariantMap remoteDomain;
-    QVariantMap localDomain;
-    if (remoteDomains.contains(domainName))
-      remoteDomain = remoteDomains[domainName].toMap();
-    if (d->domains.contains(domainName))
-      localDomain = d->domains[domainName].toMap();
+    const DomainSettings &remoteDomain = remoteDomains.at(domainName);
+    const DomainSettings &localDomain = d->domains.at(domainName);
     if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
-      const QDateTime &remoteT = QDateTime::fromString(remoteDomain[DomainSettings::MDATE].toString(), Qt::ISODate);
-      const QDateTime &localT = QDateTime::fromString(localDomain[DomainSettings::MDATE].toString(), Qt::ISODate);
-
-      if (remoteDomain[DomainSettings::DELETED].toBool() || localDomain[DomainSettings::DELETED].toBool())
-        continue;
-      if (remoteT > localT) {
-        d->domains[domainName] = remoteDomain;
+      if (remoteDomain.mDate > localDomain.mDate) {
+        d->domains.updateWith(remoteDomain);
         updateLocal = true;
       }
-      else if (remoteT < localT){
-        remoteDomains[domainName] = localDomain;
+      else if (remoteDomain.mDate < localDomain.mDate){
+        remoteDomains.updateWith(localDomain);
         updateRemote = true;
       }
       else {
-        // timestamps are equal, do nothing
+        // timestamps are identical, do nothing
       }
     }
     else if (remoteDomain.isEmpty()) {
-      remoteDomains[domainName] = localDomain;
+      remoteDomains.updateWith(localDomain);
       updateRemote = true;
     }
     else {
-      d->domains[domainName] = remoteDomain;
+      d->domains.updateWith(remoteDomain);
       updateLocal = true;
     }
   }
 
-  remoteJSON = QJsonDocument::fromVariant(remoteDomains);
   if (updateRemote) {
     int errCode;
     QString errMsg;
-    const QByteArray &baCipher = encode(remoteJSON.toJson(QJsonDocument::Compact), COMPRESSION_ENABLED, &errCode, &errMsg);
+    const QByteArray &baCipher = encode(remoteDomains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
     if (errCode == NO_CRYPT_ERROR) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         QFile syncFile(d->optionsDialog->syncFilename());

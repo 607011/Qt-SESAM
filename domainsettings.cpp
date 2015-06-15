@@ -23,6 +23,9 @@
 #include <QtDebug>
 #endif
 
+#include <QByteArray>
+#include <QJsonDocument>
+
 const int DomainSettings::DefaultIterations = 4096;
 const int DomainSettings::DefaultPasswordLength = 10;
 const QString DomainSettings::DefaultSalt = "pepper";
@@ -169,5 +172,57 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
 
 bool DomainSettings::isEmpty(void) const
 {
-  return !domainName.isEmpty();
+  return domainName.isEmpty();
+}
+
+
+DomainSettings DomainList::at(const QString &domainName)
+{
+  for (DomainList::const_iterator ds = constBegin(); ds != constEnd(); ++ds)
+    if (ds->domainName == domainName)
+      return *ds;
+  return DomainSettings();
+}
+
+
+int DomainList::updateWith(const DomainSettings &src)
+{
+  int idx = 0;
+  for (DomainList::iterator d = begin(); d != end(); ++d) {
+    if (d->domainName == src.domainName) {
+      *d = src;
+      return idx;
+    }
+    ++idx;
+  }
+  append(src);
+  return idx;
+}
+
+
+QByteArray DomainList::toJson(void) const
+{
+  QVariantMap domains;
+  for (DomainList::const_iterator d = constBegin(); d != constEnd(); ++d)
+    domains[d->domainName] = d->toVariantMap();
+  return QJsonDocument::fromVariant(domains).toJson(QJsonDocument::Compact);
+}
+
+
+QStringList DomainList::keys(void) const
+{
+  QStringList names;
+  for (DomainList::const_iterator d = constBegin(); d != constEnd(); ++d)
+    names << d->domainName;
+  return names;
+}
+
+
+DomainList DomainList::fromQJsonDocument(const QJsonDocument &json)
+{
+  DomainList dl;
+  const QVariantMap &map = json.toVariant().toMap();
+  foreach(QString key, map.keys())
+    dl << DomainSettings::fromVariantMap(map[key].toMap());
+  return dl;
 }

@@ -25,6 +25,8 @@
 #include <QRegExp>
 #include <QVariantMap>
 #include <QDateTime>
+#include <QList>
+#include <QStringList>
 
 class DomainSettings {
 public:
@@ -72,7 +74,6 @@ public:
   static const QString MDATE;
   static const QString DELETED;
 
-
   QString domainName;
   QString userName;
   QString legacyPassword;
@@ -98,6 +99,15 @@ public:
   bool deleted;
 };
 
+
+class DomainList : public QList<DomainSettings> {
+public:
+  DomainSettings at(const QString &domainName);
+  int updateWith(const DomainSettings &);
+  QByteArray toJson(void) const;
+  QStringList keys(void) const;
+  static DomainList fromQJsonDocument(const QJsonDocument &);
+};
 
 
 #endif // __DOMAINSETTINGS_H_
