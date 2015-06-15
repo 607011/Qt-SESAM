@@ -32,6 +32,9 @@ public:
   DomainSettings(const DomainSettings &o);
 
   QVariantMap toVariantMap(void) const;
+  bool isEmpty(void) const;
+
+  static DomainSettings fromVariantMap(const QVariantMap &);
 
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
@@ -71,7 +74,7 @@ public:
 
 
   QString domainName;
-  QString username;
+  QString userName;
   QString legacyPassword;
   QString notes;
   bool useLowerCase;

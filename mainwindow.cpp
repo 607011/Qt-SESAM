@@ -247,7 +247,8 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 
-void MainWindow::showHide(void) {
+void MainWindow::showHide(void)
+{
   if (isVisible()) {
     hide();
   }
@@ -595,7 +596,7 @@ void MainWindow::saveCurrentSettings(void)
   Q_D(MainWindow);
   DomainSettings ds;
   ds.domainName = ui->domainLineEdit->text();
-  ds.username = ui->userLineEdit->text();
+  ds.userName = ui->userLineEdit->text();
   ds.notes = ui->notesPlainTextEdit->toPlainText();
   ds.legacyPassword = ui->legacyPasswordLineEdit->text();
   ds.useLowerCase = ui->useLowerCaseCheckBox->isChecked();
@@ -872,11 +873,11 @@ void MainWindow::writeFinished(QNetworkReply *reply)
 void MainWindow::cancelServerOperation(void)
 {
   Q_D(MainWindow);
-  if (d->readReq->isRunning()) {
+  if (d->readReq != nullptr && d->readReq->isRunning()) {
     d->readReq->abort();
     ui->statusBar->showMessage(tr("Server read operation aborted."), 3000);
   }
-  if (d->writeReq->isRunning()) {
+  if (d->writeReq != nullptr && d->writeReq->isRunning()) {
     d->writeReq->abort();
     ui->statusBar->showMessage(tr("Sync to server aborted."), 3000);
   }

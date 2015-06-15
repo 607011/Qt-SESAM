@@ -83,7 +83,7 @@ DomainSettings::DomainSettings(void)
 
 DomainSettings::DomainSettings(const DomainSettings &o)
   : domainName(o.domainName)
-  , username(o.username)
+  , userName(o.userName)
   , legacyPassword(o.legacyPassword)
   , notes(o.notes)
   , useLowerCase(o.useLowerCase)
@@ -112,7 +112,7 @@ QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
   map[DOMAIN_NAME] = domainName;
-  map[USER_NAME] = username;
+  map[USER_NAME] = userName;
   map[LEGACY_PASSWORD] = legacyPassword;
   map[NOTES] = notes;
   map[USE_LOWERCASE] = useLowerCase;
@@ -135,4 +135,39 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[MDATE] = mDate;
   map[DELETED] = deleted;
   return map;
+}
+
+
+DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
+{
+  DomainSettings ds;
+  ds.domainName = map[DOMAIN_NAME].toString();
+  ds.userName = map[USER_NAME].toString();
+  ds.notes = map[NOTES].toString();
+  ds.legacyPassword = map[LEGACY_PASSWORD].toString();
+  ds.useLowerCase = map[USE_LOWERCASE].toBool();
+  ds.useUpperCase = map[USE_UPPERCASE].toBool();
+  ds.useDigits = map[USE_DIGITS].toBool();
+  ds.useExtra = map[USE_EXTRA].toBool();
+  ds.useCustom = map[USE_CUSTOM].toBool();
+  ds.avoidAmbiguous = map[AVOID_AMBIGUOUS].toBool();
+  ds.customCharacterSet = map[CUSTOM_CHARACTER_SET].toString();
+  ds.iterations = map[ITERATIONS].toInt();
+  ds.salt = map[SALT].toString();
+  ds.length = map[LENGTH].toInt();
+  ds.validatorRegEx = QRegExp(map[VALIDATOR_REGEX].toString());
+  ds.forceLowerCase = map[FORCE_LOWERCASE].toBool();
+  ds.forceUpperCase = map[FORCE_UPPERCASE].toBool();
+  ds.forceDigits = map[FORCE_DIGITS].toBool();
+  ds.forceExtra = map[FORCE_EXTRA].toBool();
+  ds.forceRegexValidation = map[FORCE_REGEX_VALIDATION].toBool();
+  ds.cDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
+  ds.mDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
+  return ds;
+}
+
+
+bool DomainSettings::isEmpty(void) const
+{
+  return !domainName.isEmpty();
 }
