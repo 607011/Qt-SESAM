@@ -25,8 +25,6 @@
 #include <QRegExp>
 #include <QVariantMap>
 #include <QDateTime>
-#include <QList>
-#include <QStringList>
 
 class DomainSettings {
 public:
@@ -72,7 +70,7 @@ public:
   static const QString VALIDATOR_REGEX;
   static const QString CDATE;
   static const QString MDATE;
-  static const QString DELETED;
+  static const QString CAN_BE_DELETED_BY_REMOTE;
 
   QString domainName;
   QString userName;
@@ -96,6 +94,8 @@ public:
   QRegExp validatorRegEx;
   QDateTime cDate;
   QDateTime mDate;
+
+  bool canBeDeletedByRemote;
   bool deleted;
 };
 

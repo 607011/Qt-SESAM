@@ -103,7 +103,7 @@ public:
   CredentialsDialog *masterPasswordDialog;
   OptionsDialog *optionsDialog;
   QSettings settings;
-  DomainList domains;
+  DomainSettingsList domains;
   QMovie loaderIcon;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
@@ -327,7 +327,6 @@ void MainWindow::newDomain(void)
 {
   DomainSettings domainSettings;
   ui->domainLineEdit->setText(QString());
-  ui->domainLineEdit->setFocus();
   ui->userLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
   ui->useLowerCaseCheckBox->setChecked(domainSettings.useLowerCase);
@@ -339,6 +338,8 @@ void MainWindow::newDomain(void)
   ui->forceRegexPlainTextEdit->setPlainText(domainSettings.validatorRegEx.pattern());
   ui->forceRegexCheckBox->setChecked(domainSettings.forceRegexValidation);
   ui->notesPlainTextEdit->setPlainText(QString());
+  ui->domainLineEdit->setFocus();
+  setDirty(false);
   updateValidator();
   updatePassword();
 }
@@ -617,6 +618,7 @@ void MainWindow::saveCurrentSettings(void)
   ds.forceRegexValidation = ui->forceRegexCheckBox->isChecked();
   ds.cDate = d->createdDate.isValid() ? d->createdDate : QDateTime::currentDateTime();
   ds.mDate = d->modifiedDate.isValid() ? d->modifiedDate : QDateTime::currentDateTime();
+  ds.canBeDeletedByRemote = false;
   saveDomainDataToSettings(ds);
   d->settings.sync();
   setDirty(false);
@@ -631,12 +633,15 @@ void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
   QStringList domains = model->stringList();
   if (domains.contains(domainSettings.domainName, Qt::CaseInsensitive)) {
     domainSettings.mDate = QDateTime::currentDateTime();
+    if (domainSettings.deleted)
+      domains.removeOne(domainSettings.domainName);
   }
   else {
     domainSettings.cDate = QDateTime::currentDateTime();
-    domains << domainSettings.domainName;
-    model->setStringList(domains);
+    if (!domainSettings.deleted)
+      domains << domainSettings.domainName;
   }
+  model->setStringList(domains);
   d->domains.updateWith(domainSettings);
   saveDomainDataToSettings();
 }
@@ -676,18 +681,26 @@ void MainWindow::restoreDomainDataFromSettings(void)
       wrongPasswordWarning(errCode, errMsg);
       return;
     }
-    json = QJsonDocument::fromJson(recovered);
-    domains = json.object().keys();
-    qDebug() << "Password accepted. Restored" << d->domains.count() << "domains";
-    ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(d->domains.count()), 5000);
+    QJsonParseError parseError;
+    json = QJsonDocument::fromJson(recovered, &parseError);
+    if (parseError.error == QJsonParseError::NoError) {
+      domains = json.object().keys();
+      qDebug() << "Password accepted. Restored" << domains.count() << "domains";
+      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(domains.count()), 5000);
+    }
+    else {
+      QMessageBox::warning(this, tr("Bad data from sync server"),
+                           tr("Decoding the data from the sync server failed: %1")
+                           .arg(parseError.errorString()), QMessageBox::Ok);
+
+    }
   }
-  d->domains = DomainList::fromQJsonDocument(json);
+  d->domains = DomainSettingsList::fromQJsonDocument(json);
   if (d->completer) {
     QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
     delete d->completer;
   }
   d->completer = new QCompleter(domains);
-
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
   ui->domainLineEdit->setCompleter(d->completer);
 }
@@ -952,15 +965,19 @@ void MainWindow::sync(void)
 void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
-  bool updateRemote = false;
-  bool updateLocal = false;
   int errCode;
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
     std::string sDomains = decode(remoteDomainsEncoded, COMPRESSION_ENABLED, &errCode, &errMsg);
+    QJsonParseError parseError;
     if (errCode == NO_CRYPT_ERROR && !sDomains.empty()) {
-      remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains));
+      remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains), &parseError);
+      if (parseError.error != QJsonParseError::NoError) {
+        QMessageBox::warning(this, tr("Bad data from sync server"),
+                             tr("Decoding the data from the sync server failed: %1")
+                             .arg(parseError.errorString()), QMessageBox::Ok);
+      }
     }
     else {
       wrongPasswordWarning(errCode, errMsg);
@@ -969,35 +986,41 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   }
 
   // merge local and remote domain data
-  DomainList remoteDomains = DomainList::fromQJsonDocument(remoteJSON);
-  const QSet<QString> &allDomainNames = (remoteDomains.keys() + d->domains.keys()).toSet();
+  d->domains.setDirty(false);
+  DomainSettingsList remoteDomains = DomainSettingsList::fromQJsonDocument(remoteJSON);
+  QStringList allDomainNames = remoteDomains.keys() + d->domains.keys();
+  allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
-    const DomainSettings &remoteDomain = remoteDomains.at(domainName);
-    const DomainSettings &localDomain = d->domains.at(domainName);
-    if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
-      if (remoteDomain.mDate > localDomain.mDate) {
-        d->domains.updateWith(remoteDomain);
-        updateLocal = true;
+    const DomainSettings &remote = remoteDomains.at(domainName);
+    const DomainSettings &local = d->domains.at(domainName);
+    if (!local.isEmpty() && !remote.isEmpty()) {
+      if (remote.mDate > local.mDate) {
+        d->domains.updateWith(remote);
       }
-      else if (remoteDomain.mDate < localDomain.mDate){
-        remoteDomains.updateWith(localDomain);
-        updateRemote = true;
+      else if (remote.mDate < local.mDate){
+        remoteDomains.updateWith(local);
       }
       else {
         // timestamps are identical, do nothing
       }
     }
-    else if (remoteDomain.isEmpty()) {
-      remoteDomains.updateWith(localDomain);
-      updateRemote = true;
+    else if (remote.isEmpty()) {
+      if (local.canBeDeletedByRemote) {
+        d->domains.remove(domainName);
+      }
+      else {
+        DomainSettings ds = local;
+        ds.canBeDeletedByRemote = true;
+        d->domains.updateWith(ds);
+        remoteDomains.updateWith(local);
+      }
     }
     else {
-      d->domains.updateWith(remoteDomain);
-      updateLocal = true;
+      d->domains.updateWith(remote);
     }
   }
 
-  if (updateRemote) {
+  if (remoteDomains.isDirty()) {
     int errCode;
     QString errMsg;
     const QByteArray &baCipher = encode(remoteDomains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
@@ -1042,9 +1065,10 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     }
   }
 
-  if (updateLocal) {
+  if (d->domains.isDirty()) {
     saveDomainDataToSettings();
     restoreDomainDataFromSettings();
+    d->domains.setDirty(false);
   }
 }
 
@@ -1165,17 +1189,24 @@ void MainWindow::readFinished(QNetworkReply *reply)
   d->progressDialog->hide();
   if (reply->error() == QNetworkReply::NoError) {
     const QByteArray &res = reply->readAll();
-    QJsonParseError error;
-    QJsonDocument json = QJsonDocument::fromJson(res, &error);
-    QVariantMap map = json.toVariant().toMap();
-    if (map["status"].toString() == "ok") {
-      const QByteArray &domainData = map["result"].toByteArray();
-      sync(ServerSource, QByteArray::fromBase64(domainData));
+    QJsonParseError parseError;
+    const QJsonDocument &json = QJsonDocument::fromJson(res, &parseError);
+    if (parseError.error == QJsonParseError::NoError) {
+      QVariantMap map = json.toVariant().toMap();
+      if (map["status"].toString() == "ok") {
+        const QByteArray &domainData = map["result"].toByteArray();
+        sync(ServerSource, QByteArray::fromBase64(domainData));
+      }
+      else {
+        QMessageBox::warning(this, tr("Sync server error"),
+                             tr("Reading from the sync server failed. status: %1, error: %2")
+                             .arg(map["status"].toString()).arg(map["error"].toString()), QMessageBox::Ok);
+      }
     }
     else {
-      QMessageBox::warning(this, tr("Sync server error"),
-                           tr("Reading from the sync server failed. status: %1, error: %2")
-                           .arg(map["status"].toString()).arg(map["error"].toString()), QMessageBox::Ok);
+      QMessageBox::warning(this, tr("Bad data from sync server"),
+                           tr("Decoding the data from the sync server failed: %1")
+                           .arg(parseError.errorString()), QMessageBox::Ok);
     }
   }
   else {
