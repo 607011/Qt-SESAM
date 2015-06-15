@@ -687,6 +687,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
     delete d->completer;
   }
   d->completer = new QCompleter(domains);
+
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
   ui->domainLineEdit->setCompleter(d->completer);
 }
@@ -980,6 +981,9 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     if (!localDomain.isEmpty() && !remoteDomain.isEmpty()) {
       const QDateTime &remoteT = QDateTime::fromString(remoteDomain[DomainSettings::MDATE].toString(), Qt::ISODate);
       const QDateTime &localT = QDateTime::fromString(localDomain[DomainSettings::MDATE].toString(), Qt::ISODate);
+
+      if (remoteDomain[DomainSettings::DELETED].toBool() || localDomain[DomainSettings::DELETED].toBool())
+        continue;
       if (remoteT > localT) {
         d->domains[domainName] = remoteDomain;
         updateLocal = true;
