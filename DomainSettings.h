@@ -100,14 +100,5 @@ public:
 };
 
 
-class DomainList : public QList<DomainSettings> {
-public:
-  DomainSettings at(const QString &domainName);
-  int updateWith(const DomainSettings &);
-  QByteArray toJson(void) const;
-  QStringList keys(void) const;
-  static DomainList fromQJsonDocument(const QJsonDocument &);
-};
-
 
 #endif // __DOMAINSETTINGS_H_

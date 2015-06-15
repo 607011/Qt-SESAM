@@ -37,7 +37,7 @@
 #include <QList>
 #include <QSslError>
 
-#include "domainsettings.h"
+#include "domainsettingslist.h"
 #include "password.h"
 #include "credentialsdialog.h"
 #include "optionsdialog.h"
