@@ -92,8 +92,8 @@ public:
   bool forceExtra;
   bool forceRegexValidation;
   QRegExp validatorRegEx;
-  QDateTime cDate;
-  QDateTime mDate;
+  QDateTime createdDate;
+  QDateTime modifiedDate;
 
   bool canBeDeletedByRemote;
   bool deleted;

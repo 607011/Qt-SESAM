@@ -590,8 +590,11 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
   ui->forceDigitsCheckBox->setChecked(p.forceDigits);
   ui->forceExtrasCheckBox->setChecked(p.forceExtra);
   ui->forceRegexCheckBox->setChecked(p.forceRegexValidation);
-  d->createdDate = p.cDate;
-  d->modifiedDate = p.mDate;
+  ui->createdLabel->setText(p.createdDate.toString(Qt::ISODate));
+  ui->modifiedLabel->setText(p.modifiedDate.toString(Qt::ISODate));
+  d->createdDate = p.createdDate;
+  d->modifiedDate = p.modifiedDate;
+  ui->deleteCheckBox->setChecked(false);
   updateValidator();
   updatePassword();
 }
@@ -621,9 +624,11 @@ void MainWindow::saveCurrentSettings(void)
   ds.forceDigits = ui->forceDigitsCheckBox->isChecked();
   ds.forceExtra = ui->forceExtrasCheckBox->isChecked();
   ds.forceRegexValidation = ui->forceRegexCheckBox->isChecked();
-  ds.cDate = d->createdDate.isValid() ? d->createdDate : QDateTime::currentDateTime();
-  ds.mDate = d->modifiedDate.isValid() ? d->modifiedDate : QDateTime::currentDateTime();
-  ds.canBeDeletedByRemote = false;
+  ds.createdDate = d->createdDate.isValid() ? d->createdDate : QDateTime::currentDateTime();
+  ds.modifiedDate = d->modifiedDate.isValid() ? d->modifiedDate : QDateTime::currentDateTime();
+  ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
+  ds.deleted = ui->deleteCheckBox->isChecked();
+  ds.canBeDeletedByRemote = ds.deleted;
   saveDomainDataToSettings(ds);
   d->settings.sync();
   setDirty(false);
@@ -637,22 +642,22 @@ void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
   QStringList domains = model->stringList();
   if (domains.contains(domainSettings.domainName, Qt::CaseInsensitive)) {
-    domainSettings.mDate = QDateTime::currentDateTime();
+    domainSettings.modifiedDate = QDateTime::currentDateTime();
     if (domainSettings.deleted)
       domains.removeOne(domainSettings.domainName);
   }
   else {
-    domainSettings.cDate = QDateTime::currentDateTime();
+    domainSettings.createdDate = QDateTime::currentDateTime();
     if (!domainSettings.deleted)
       domains << domainSettings.domainName;
   }
   model->setStringList(domains);
   d->domains.updateWith(domainSettings);
-  saveDomainDataToSettings();
+  saveAllDomainDataToSettings();
 }
 
 
-void MainWindow::saveDomainDataToSettings(void)
+void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
   int errCode;
@@ -734,7 +739,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/serverPassword", QString(encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
-  saveDomainDataToSettings();
+  saveAllDomainDataToSettings();
   d->settings.sync();
 }
 
@@ -996,10 +1001,10 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     const DomainSettings &remote = remoteDomains.at(domainName);
     const DomainSettings &local = d->domains.at(domainName);
     if (!local.isEmpty() && !remote.isEmpty()) {
-      if (remote.mDate > local.mDate) {
+      if (remote.modifiedDate > local.modifiedDate) {
         d->domains.updateWith(remote);
       }
-      else if (remote.mDate < local.mDate){
+      else if (remote.modifiedDate < local.modifiedDate){
         remoteDomains.updateWith(local);
       }
       else {
@@ -1068,7 +1073,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   }
 
   if (d->domains.isDirty()) {
-    saveDomainDataToSettings();
+    saveAllDomainDataToSettings();
     restoreDomainDataFromSettings();
     d->domains.setDirty(false);
   }

@@ -106,8 +106,8 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , forceExtra(o.forceExtra)
   , forceRegexValidation(o.forceRegexValidation)
   , validatorRegEx(o.validatorRegEx)
-  , cDate(o.cDate)
-  , mDate(o.mDate)
+  , createdDate(o.createdDate)
+  , modifiedDate(o.modifiedDate)
   , canBeDeletedByRemote(o.canBeDeletedByRemote)
   , deleted(o.deleted)
 { /* ... */ }
@@ -136,8 +136,8 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[FORCE_EXTRA] = forceExtra;
   map[FORCE_REGEX_VALIDATION] = forceRegexValidation;
   map[VALIDATOR_REGEX] = validatorRegEx.pattern();
-  map[CDATE] = cDate;
-  map[MDATE] = mDate;
+  map[CDATE] = createdDate;
+  map[MDATE] = modifiedDate;
   map[CAN_BE_DELETED_BY_REMOTE] = canBeDeletedByRemote;
   return map;
 }
@@ -166,8 +166,8 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.forceDigits = map[FORCE_DIGITS].toBool();
   ds.forceExtra = map[FORCE_EXTRA].toBool();
   ds.forceRegexValidation = map[FORCE_REGEX_VALIDATION].toBool();
-  ds.cDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
-  ds.mDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
+  ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
+  ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
   if (map.contains(CAN_BE_DELETED_BY_REMOTE))
     ds.canBeDeletedByRemote = map[CAN_BE_DELETED_BY_REMOTE].toBool();
   return ds;
