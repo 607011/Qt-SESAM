@@ -111,7 +111,6 @@ signals:
 
 private: // methods
   bool restoreSettings(void);
-  void saveDomainDataToSettings(DomainSettings);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
   void copyDomainSettingsToGUI(const QString &domain);

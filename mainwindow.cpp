@@ -631,31 +631,31 @@ void MainWindow::saveCurrentSettings(void)
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
   ds.deleted = ui->deleteCheckBox->isChecked();
   ds.canBeDeletedByRemote = ds.deleted;
-  saveDomainDataToSettings(ds);
-  d->settings.sync();
-  setDirty(false);
-  ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
-}
 
-
-void MainWindow::saveDomainDataToSettings(DomainSettings domainSettings)
-{
-  Q_D(MainWindow);
   QStringListModel *model = reinterpret_cast<QStringListModel*>(ui->domainLineEdit->completer()->model());
-  QStringList domains = model->stringList();
-  if (domains.contains(domainSettings.domainName, Qt::CaseInsensitive)) {
-    domainSettings.modifiedDate = QDateTime::currentDateTime();
-    if (domainSettings.deleted)
-      domains.removeOne(domainSettings.domainName);
+  QStringList domainModelList = model->stringList();
+  if (domainModelList.contains(ds.domainName, Qt::CaseInsensitive)) {
+    ds.modifiedDate = QDateTime::currentDateTime();
+    if (ds.deleted)
+      domainModelList.removeOne(ds.domainName);
   }
   else {
-    domainSettings.createdDate = QDateTime::currentDateTime();
-    if (!domainSettings.deleted)
-      domains << domainSettings.domainName;
+    ds.createdDate = QDateTime::currentDateTime();
+    ds.modifiedDate = ds.createdDate;
+    if (!ds.deleted)
+      domainModelList << ds.domainName;
   }
-  model->setStringList(domains);
-  d->domains.updateWith(domainSettings);
+  model->setStringList(domainModelList);
+  d->domains.updateWith(ds);
+
   saveAllDomainDataToSettings();
+
+  setDirty(false);
+
+  if (ds.deleted)
+    newDomain();
+
+  ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
 }
 
 
@@ -1006,8 +1006,14 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
       if (remote.modifiedDate > local.modifiedDate) {
         d->domains.updateWith(remote);
       }
-      else if (remote.modifiedDate < local.modifiedDate){
-        remoteDomains.updateWith(local);
+      else if (remote.modifiedDate < local.modifiedDate) {
+        if (local.deleted) {
+          remoteDomains.remove(domainName);
+          d->domains.remove(domainName);
+        }
+        else {
+          remoteDomains.updateWith(local);
+        }
       }
       else {
         // timestamps are identical, do nothing
@@ -1044,6 +1050,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
                                .arg(syncFile.errorString()), QMessageBox::Ok);
         }
         syncFile.close();
+
       }
       if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
         ui->statusBar->showMessage(tr("Sending data to server ..."));
