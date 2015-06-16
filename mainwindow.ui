@@ -533,7 +533,6 @@
     <addaction name="actionOptions"/>
     <addaction name="actionSyncNow"/>
     <addaction name="separator"/>
-    <addaction name="actionInvalidatePassword"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>

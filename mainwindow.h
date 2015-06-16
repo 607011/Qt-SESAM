@@ -107,12 +107,13 @@ private slots:
 
 signals:
   void passwordGenerated(void);
+  void badMasterPassword(void);
 
 private: // methods
-  void restoreSettings(void);
+  bool restoreSettings(void);
   void saveDomainDataToSettings(void);
   void saveDomainDataToSettings(DomainSettings);
-  void restoreDomainDataFromSettings(void);
+  bool restoreDomainDataFromSettings(void);
   void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);

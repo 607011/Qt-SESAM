@@ -202,17 +202,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(writeFinished(QNetworkReply*)));
   QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
-#ifdef QT_DEBUG
-  QObject::connect(ui->actionInvalidatePassword, SIGNAL(triggered(bool)), SLOT(invalidatePassword()));
-#endif
-
-#ifdef QT_DEBUG
-  ui->avoidAmbiguousCheckBox->setChecked(true);
-#endif
-
-#ifndef QT_DEBUG
-  ui->hashPlainTextEdit->setVisible(false);
-#endif
+  QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
 
   d->optionsDialog->setSalt(PasswordParam::DefaultSalt);
   ui->domainLineEdit->selectAll();
@@ -224,14 +214,6 @@ MainWindow::MainWindow(QWidget *parent)
   updateUsedCharacters();
   updateValidator();
   setDirty(false);
-
-
-#ifdef QT_DEBUG
-  TestPBKDF2 tc;
-  QTest::qExec(&tc, 0, 0);
-#endif
-
-  enterMasterPassword();
 
   d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -247,7 +229,24 @@ MainWindow::MainWindow(QWidget *parent)
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
+
+  emit badMasterPassword();
+
+#ifndef QT_DEBUG
+  ui->hashPlainTextEdit->setVisible(false);
+#endif
+
+#if defined(QT_DEBUG)
+#if defined(WIN32)
   ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(tr("Alt+Shift+D")));
+#endif
+  ui->menuExtras->addAction(tr("[DEBUG] Invalidate password"), this, SLOT(invalidatePassword()), QKeySequence(tr("Alt+Shift+I")));
+#endif
+
+#ifdef QT_DEBUG
+  TestPBKDF2 tc;
+  QTest::qExec(&tc, 0, 0);
+#endif
 }
 
 
@@ -378,9 +377,11 @@ void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::updatePassword()";
+  if (d->masterPassword.isEmpty())
+    return;
   bool validConfiguration = false;
   ui->statusBar->showMessage(QString());
-  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0 && !d->masterPassword.isEmpty()) {
+  if (ui->customCharactersPlainTextEdit->toPlainText().count() > 0) {
     validConfiguration = true;
     stopPasswordGeneration();
     generatePassword();
@@ -668,11 +669,11 @@ void MainWindow::saveDomainDataToSettings(void)
 }
 
 
-void MainWindow::restoreDomainDataFromSettings(void)
+bool MainWindow::restoreDomainDataFromSettings(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::restoreDomainDataFromSettings()";
-  Q_ASSERT(!d->masterPassword.isEmpty());
+  Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::restoreDomainDataFromSettings()", "d->masterPassword must not be empty");
   QJsonDocument json;
   QStringList domains;
   const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
@@ -683,7 +684,7 @@ void MainWindow::restoreDomainDataFromSettings(void)
     const QByteArray &recovered = decode(baDomains, COMPRESSION_ENABLED, &errCode, &errMsg);
     if (errCode != NO_CRYPT_ERROR) {
       wrongPasswordWarning(errCode, errMsg);
-      return;
+      return false;
     }
     QJsonParseError parseError;
     json = QJsonDocument::fromJson(recovered, &parseError);
@@ -707,6 +708,8 @@ void MainWindow::restoreDomainDataFromSettings(void)
   d->completer = new QCompleter(domains);
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(domainSelected(QString)));
   ui->domainLineEdit->setCompleter(d->completer);
+
+  return true;
 }
 
 
@@ -748,12 +751,11 @@ void MainWindow::loadCertificate(void)
     d->expectedSslErrors.append(QSslError::CertificateUntrusted);
 }
 
-
-void MainWindow::restoreSettings(void)
+bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::restoreSettings()";
-  int errCode;
+  int errCode = NO_CRYPT_ERROR;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("mainwindow/masterPasswordInvalidationTimerMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
@@ -773,31 +775,31 @@ void MainWindow::restoreSettings(void)
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
     QByteArray serverUsernameDecoded;
-    try {
-      serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
-    }
-    catch (const CryptoPP::Exception &e) {
-      qErrnoWarning(e.GetErrorType(), e.what());
-    }
+    serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
     if (errCode == NO_CRYPT_ERROR) {
       d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
     }
     else {
-      qWarning() << "decode() error:" << errMsg;
+      qWarning() << "ERROR: decode() if server user name failed:" << errMsg;
     }
   }
+
+  if (errCode != NO_CRYPT_ERROR)
+    return false;
 
   const QByteArray &serverPassword = d->settings.value("sync/serverPassword").toByteArray();
   if (!serverPassword.isEmpty()) {
     const QByteArray &serverPasswordBin = QByteArray::fromHex(serverPassword);
-    const QByteArray &password = decode(serverPasswordBin, false, &errCode, &errMsg);
+    QByteArray password;
+      password = decode(serverPasswordBin, false, &errCode, &errMsg);
     if (errCode == NO_CRYPT_ERROR) {
       d->optionsDialog->setServerPassword(QString::fromUtf8(password));
     }
     else {
-      qWarning() << "decode() error:" << errMsg;
+      qWarning() << "ERROR: decode() if server password failed:" << errMsg;
     }
   }
+  return errCode == NO_CRYPT_ERROR;
 }
 
 
@@ -905,11 +907,7 @@ void MainWindow::cancelServerOperation(void)
 void MainWindow::sync(void)
 {
   Q_D(MainWindow);
-  if (d->masterPassword.isEmpty()) {
-    enterMasterPassword();
-    return;
-  }
-
+  Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
   if (d->optionsDialog->useSyncFile()) {
     qDebug() << "Trying to sync with file ...";
     ui->statusBar->showMessage(tr("Syncing with file ..."));
@@ -1115,6 +1113,7 @@ void MainWindow::enterMasterPassword(void)
 void MainWindow::masterPasswordEntered(void)
 {
   Q_D(MainWindow);
+  bool ok = true;
   qDebug() << "MainWindow::masterPasswordEntered()";
   QString masterPwd = d->masterPasswordDialog->masterPassword();
   if (!masterPwd.isEmpty()) {
@@ -1124,24 +1123,28 @@ void MainWindow::masterPasswordEntered(void)
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
     d->cryptPassword.extractAESKey((char*)d->AESKey, AES_KEY_SIZE);
-    restoreSettings();
-    restoreDomainDataFromSettings();
-    updatePassword();
-    d->settings.setValue("mainwindow/masterPasswordEntered", true);
-    d->settings.sync();
-    if (d->optionsDialog->syncOnStart())
-      sync();
+    ok = restoreSettings();
+    if (ok) {
+      ok = restoreDomainDataFromSettings();
+      if (ok) {
+        updatePassword();
+        d->settings.setValue("mainwindow/masterPasswordEntered", true);
+        d->settings.sync();
+        if (d->optionsDialog->syncOnStart())
+          sync();
+      }
+    }
   }
-  else {
+  if (!ok ) {
     d->settings.setValue("mainwindow/masterPasswordEntered", false);
-    d->settings.sync();
-    enterMasterPassword();
+    emit badMasterPassword();
   }
 }
 
 
 void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 {
+  qDebug() << "MainWindow::wrongPasswordWarning(" << errCode << "," << errMsg << ")";
   int button = QMessageBox::critical(
         this,
         tr("Decryption error"),
@@ -1149,7 +1152,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
         QMessageBox::Retry,
         QMessageBox::NoButton);
   if (button == QMessageBox::Retry)
-    enterMasterPassword();
+    emit badMasterPassword();
 }
 
 
@@ -1161,7 +1164,7 @@ void MainWindow::invalidatePassword(bool reenter)
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
   if (reenter)
-    enterMasterPassword();
+    emit badMasterPassword();
 }
 
 
@@ -1260,3 +1263,16 @@ void MainWindow::aboutQt(void)
 }
 
 
+void MainWindow::createFullDump(void)
+{
+#if defined(QT_DEBUG)
+#if defined(WIN32)
+   make_minidump();
+   ui->statusBar->showMessage(tr("Dump created."), 4000);
+   qDebug() << "Mini dump created.";
+#else
+   ui->statusBar->showMessage(tr("Dump not implemented."), 4000);
+   qDebug() << "Dump not implemented.";
+#endif
+#endif
+}
