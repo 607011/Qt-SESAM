@@ -60,13 +60,14 @@ static const QString APP_VERSION = "1.0-BETA";
 static const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 static const QString APP_AUTHOR = "Oliver Lau";
 static const QString APP_AUTHOR_MAIL = "ola@ct.de";
-static const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6)")
+static const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
     .arg(APP_NAME)
     .arg(APP_VERSION)
     .arg(APP_URL)
     .arg(qVersion())
     .arg(QSysInfo::prettyProductName())
-    .arg(QSysInfo::currentCpuArchitecture());
+    .arg(QSysInfo::currentCpuArchitecture())
+    .arg(QSysInfo::buildCpuArchitecture());
 
 static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS = 5;
 static const int AES_KEY_SIZE = 256 / 8;
