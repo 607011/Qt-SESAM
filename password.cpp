@@ -31,10 +31,7 @@
 #include <QElapsedTimer>
 #include <QMutexLocker>
 #include <QtConcurrent>
-
-#ifdef QT_DEBUG
 #include <QtDebug>
-#endif
 
 class PasswordPrivate {
 public:

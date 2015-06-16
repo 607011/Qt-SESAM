@@ -19,9 +19,7 @@
 
 #include "DomainSettings.h"
 
-#ifdef QT_DEBUG
 #include <QtDebug>
-#endif
 
 #include <QByteArray>
 #include <QJsonDocument>

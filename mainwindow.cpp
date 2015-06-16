@@ -45,8 +45,9 @@
 #include "cryptopp562/ccm.h"
 #include "cryptopp562/filters.h"
 
-#ifdef QT_DEBUG
 #include <QtDebug>
+
+#ifdef QT_DEBUG
 #include "testpbkdf2.h"
 #endif
 
