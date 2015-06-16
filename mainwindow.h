@@ -101,6 +101,9 @@ private slots:
   void deleteFinished(QNetworkReply*);
   void cancelServerOperation(void);
   void loadCertificate(void);
+#ifdef WIN32
+  void createFullDump(void);
+#endif
 
 signals:
   void passwordGenerated(void);

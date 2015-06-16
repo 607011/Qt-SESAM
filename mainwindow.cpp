@@ -50,6 +50,9 @@
 #include "testpbkdf2.h"
 #endif
 
+#include "dump.h"
+
+
 static const QString APP_COMPANY_NAME = "c't";
 static const QString APP_NAME = "ctpwdgen";
 static const QString APP_VERSION = "1.0-BETA";
@@ -244,6 +247,7 @@ MainWindow::MainWindow(QWidget *parent)
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
+  ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(tr("Alt+Shift+D")));
 }
 
 
