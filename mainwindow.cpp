@@ -1109,7 +1109,6 @@ void MainWindow::enterMasterPassword(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::enterMasterPassword()";
-  ui->encryptionLabel->setPixmap(QPixmap());
   setEnabled(false);
   d->masterPasswordDialog->setRepeatPassword(d->settings.value("mainwindow/masterPasswordEntered", false).toBool() == false);
   d->masterPasswordDialog->show();
@@ -1126,7 +1125,6 @@ void MainWindow::masterPasswordEntered(void)
   if (!masterPwd.isEmpty()) {
     setEnabled(true);
     d->masterPasswordDialog->hide();
-    ui->encryptionLabel->setPixmap(QPixmap(":/images/encrypted.png"));
     d->masterPassword = masterPwd;
     d->cryptPassword.generate(PasswordParam(d->masterPassword.toUtf8()));
     d->cryptPassword.extractAESKey((char*)d->AESKey, AES_KEY_SIZE);
