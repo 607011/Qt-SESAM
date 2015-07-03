@@ -5,6 +5,7 @@
         <file alias="ctpwdgen.ico">resources/images/ctpwdgen.ico</file>
         <file alias="encrypted.png">resources/images/encrypted.png</file>
         <file alias="clipboard_add.png">resources/images/clipboard_add.png</file>
+        <file alias="refresh.png">resources/images/refresh.png</file>
     </qresource>
     <qresource prefix="/ssl">
         <file alias="my.cer">resources/ssl/ersatzworld.net-DER-X509.cer</file>

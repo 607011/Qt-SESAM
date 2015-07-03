@@ -17,14 +17,21 @@
 
 */
 
-#include "mainwindow.h"
-#include <QApplication>
 
-int main(int argc, char *argv[])
-{
-  QApplication a(argc, argv);
-  MainWindow w;
-  w.activateWindow();
+#ifndef __GLOBAL_H_
+#define __GLOBAL_H_
 
-  return a.exec();
-}
+#include <QString>
+
+// #define EXEC_SPEED_TEST
+// #define NO_RANDOM_SALT
+
+extern const QString APP_COMPANY_NAME;
+extern const QString APP_NAME;
+extern const QString APP_VERSION;
+extern const QString APP_URL;
+extern const QString APP_AUTHOR;
+extern const QString APP_AUTHOR_MAIL;
+extern const QString APP_USER_AGENT;
+
+#endif // __GLOBAL_H_

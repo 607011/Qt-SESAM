@@ -17,14 +17,21 @@
 
 */
 
-#include "mainwindow.h"
-#include <QApplication>
 
-int main(int argc, char *argv[])
-{
-  QApplication a(argc, argv);
-  MainWindow w;
-  w.activateWindow();
+#include "global.h"
+#include <QSysInfo>
 
-  return a.exec();
-}
+const QString APP_COMPANY_NAME = "c't";
+const QString APP_NAME = "ctpwdgen";
+const QString APP_VERSION = "1.0-BETA";
+const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
+const QString APP_AUTHOR = "Oliver Lau";
+const QString APP_AUTHOR_MAIL = "ola@ct.de";
+const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
+    .arg(APP_NAME)
+    .arg(APP_VERSION)
+    .arg(APP_URL)
+    .arg(qVersion())
+    .arg(QSysInfo::prettyProductName())
+    .arg(QSysInfo::currentCpuArchitecture())
+    .arg(QSysInfo::buildCpuArchitecture());

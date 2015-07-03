@@ -65,7 +65,8 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/osrng.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
-    domainsettingslist.cpp
+    domainsettingslist.cpp \
+    global.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -100,7 +101,8 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/rng.h \
     optionsdialog.h \
     progressdialog.h \
-    domainsettingslist.h
+    domainsettingslist.h \
+    global.h
 
 FORMS    += mainwindow.ui \
     credentialsdialog.ui \

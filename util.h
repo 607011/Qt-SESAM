@@ -20,8 +20,10 @@
 #ifndef __UTIL_H_
 #define __UTIL_H_
 
+#include "cryptopp562/misc.h"
+
 template <class T>
-void safeRenew(T& a, T obj)
+void SafeRenew(T& a, T obj)
 {
   if (a != nullptr)
     delete a;
@@ -30,9 +32,24 @@ void safeRenew(T& a, T obj)
 
 
 template <class T>
-void safeDelete(T& a)
+void SafeDelete(T& a)
 {
-  safeRenew<T>(a, nullptr);
+  SafeRenew<T>(a, nullptr);
+}
+
+
+template <class T>
+void SecureErase(T &obj)
+{
+  CryptoPP::memset_z(obj.data(), 0, obj.size());
+  obj.clear();
+}
+
+
+template <typename T>
+void SecureErase(T *m, int size)
+{
+  CryptoPP::memset_z(m, 0, size);
 }
 
 

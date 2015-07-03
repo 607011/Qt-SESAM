@@ -37,6 +37,7 @@
 #include <QList>
 #include <QSslError>
 
+#include "global.h"
 #include "domainsettingslist.h"
 #include "password.h"
 #include "credentialsdialog.h"
@@ -81,6 +82,8 @@ private slots:
   void saveCurrentSettings(void);
   void domainSelected(const QString &);
   void newDomain(void);
+  void renewSalt(void);
+  void onRenewSalt(void);
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
   void sync(void);

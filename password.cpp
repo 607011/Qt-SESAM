@@ -20,6 +20,7 @@
 #include <cstring>
 
 #include "password.h"
+#include "util.h"
 
 #include "cryptopp562/sha.h"
 #include "cryptopp562/cryptlib.h"
@@ -40,7 +41,12 @@ public:
     , abort(false)
   { /* ... */ }
   ~PasswordPrivate()
-  { /* ... */ }
+  {
+    SecureErase(derivedKey);
+    SecureErase(key);
+    SecureErase(hexKey);
+  }
+  QByteArray salt;
   QByteArray derivedKey;
   QString key;
   QString hexKey;
@@ -51,7 +57,6 @@ public:
   QFuture<void> future;
 };
 
-const QByteArray PasswordParamBase::DefaultSalt = QString("pepper").toUtf8();
 const QString PasswordParamBase::LowerChars = "abcdefghijklmnopqrstuvwxyz";
 const QString PasswordParamBase::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const QString PasswordParamBase::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
@@ -86,6 +91,7 @@ bool Password::generate(const PasswordParam &p)
   size_t passwordLen = pwd.count();
   const byte *saltPtr = reinterpret_cast<const byte*>(p.salt.data());
   size_t saltLen = p.salt.count();
+  d->salt = p.salt;
   CryptoPP::HMAC<CryptoPP::SHA512> hmac;
   hmac.SetKey(password, passwordLen);
   CryptoPP::SecByteBlock buffer(hmac.DigestSize());
@@ -228,7 +234,7 @@ const QString &Password::hexKey(void) const
 }
 
 
-void Password::extractAESKey(char *aesKey, int size)
+void Password::extractAESKey(char *const aesKey, int size)
 {
   Q_D(Password);
   Q_ASSERT(aesKey != nullptr);
@@ -252,6 +258,12 @@ qreal Password::elapsedSeconds(void) const
 bool Password::isRunning(void) const
 {
   return d_ptr->future.isRunning();
+}
+
+
+const QByteArray &Password::salt(void) const
+{
+  return d_ptr->salt;
 }
 
 

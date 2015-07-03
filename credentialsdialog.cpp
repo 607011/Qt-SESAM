@@ -21,6 +21,7 @@
 #include "credentialsdialog.h"
 #include "ui_credentialsdialog.h"
 #include "util.h"
+#include "global.h"
 
 CredentialsDialog::CredentialsDialog(QWidget *parent)
   : QDialog(parent, Qt::WindowTitleHint)
@@ -28,6 +29,8 @@ CredentialsDialog::CredentialsDialog(QWidget *parent)
   , mRepeatPasswordLineEdit(nullptr)
 {
   ui->setupUi(this);
+  ui->infoLabel->setStyleSheet("font-weight: bold");
+  setWindowTitle(QString("%1 %2").arg(APP_NAME).arg(APP_VERSION));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   setRepeatPassword(false);
@@ -52,15 +55,15 @@ void CredentialsDialog::setRepeatPassword(bool doRepeat)
 {
   if (doRepeat) {
     invalidatePassword();
-    safeRenew(mRepeatPasswordLineEdit, new QLineEdit);
+    SafeRenew(mRepeatPasswordLineEdit, new QLineEdit);
     mRepeatPasswordLineEdit->setEchoMode(QLineEdit::Password);
     ui->formLayout->insertRow(1, tr("Repeat password"), mRepeatPasswordLineEdit);
     setTabOrder(ui->passwordLineEdit, mRepeatPasswordLineEdit);
-    setWindowTitle(tr("New master password"));
+    ui->infoLabel->setText(tr("New master password"));
     QObject::connect(mRepeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   }
   else {
-    setWindowTitle(tr("Enter master password"));
+    ui->infoLabel->setText(tr("Enter master password"));
   }
 }
 
@@ -95,7 +98,7 @@ void CredentialsDialog::okClicked(void)
         QWidget *label = ui->formLayout->labelForField(mRepeatPasswordLineEdit);
         label->deleteLater();
         mRepeatPasswordLineEdit->deleteLater();
-        safeDelete(mRepeatPasswordLineEdit);
+        SafeDelete(mRepeatPasswordLineEdit);
         accept();
       }
     }

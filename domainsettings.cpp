@@ -26,7 +26,6 @@
 
 const int DomainSettings::DefaultIterations = 4096;
 const int DomainSettings::DefaultPasswordLength = 10;
-const QString DomainSettings::DefaultSalt = "pepper";
 const bool DomainSettings::DefaultUseLowerCase = true;
 const bool DomainSettings::DefaultUseUpperCase = true;
 const bool DomainSettings::DefaultUseDigits = true;
@@ -71,7 +70,6 @@ DomainSettings::DomainSettings(void)
   , avoidAmbiguous(DefaultAvoidAmbiguous)
   , iterations(DefaultIterations)
   , length(DefaultPasswordLength)
-  , salt(DefaultSalt)
   , forceLowerCase(false)
   , forceUpperCase(false)
   , forceDigits(false)
@@ -156,7 +154,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.avoidAmbiguous = map[AVOID_AMBIGUOUS].toBool();
   ds.customCharacterSet = map[CUSTOM_CHARACTER_SET].toString();
   ds.iterations = map[ITERATIONS].toInt();
-  ds.salt = map[SALT].toString();
+  ds.salt = map[SALT].toByteArray();
   ds.length = map[LENGTH].toInt();
   ds.validatorRegEx = QRegExp(map[VALIDATOR_REGEX].toString());
   ds.forceLowerCase = map[FORCE_LOWERCASE].toBool();

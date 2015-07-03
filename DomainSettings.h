@@ -44,7 +44,6 @@ public:
   static const bool DefaultUseExtra;
   static const bool DefaultUseCustom;
   static const bool DefaultAvoidAmbiguous;
-  static const QString DefaultSalt;
   static const bool DefaultForceValidation;
   static const QString DefaultValidatorPattern;
 
@@ -85,7 +84,7 @@ public:
   QString customCharacterSet;
   int iterations;
   int length;
-  QString salt;
+  QByteArray salt;
   bool forceLowerCase;
   bool forceUpperCase;
   bool forceDigits;

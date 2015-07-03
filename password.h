@@ -29,7 +29,6 @@
 
 class PasswordParamBase {
 public:
-  static const QByteArray DefaultSalt;
   static const QString LowerChars;
   static const QString UpperChars;
   static const QString UpperCharsNoAmbiguous;
@@ -37,8 +36,7 @@ public:
   static const QString ExtraChars;
 
   PasswordParamBase(void)
-    : salt(DefaultSalt)
-    , availableChars(Digits)
+    : availableChars(Digits)
     , passwordLength(10)
     , iterations(4096)
   { /* ... */ }
@@ -78,6 +76,21 @@ public:
     this->passwordLength = passwordLength;
     this->iterations = iterations;
   }
+  PasswordParam(
+      const QByteArray &domain,
+      const QByteArray &masterPwd,
+      const QByteArray &salt,
+      const QString &availableChars,
+      const int passwordLength,
+      const int iterations)
+  {
+    this->domain = domain;
+    this->masterPwd = masterPwd;
+    this->salt = salt;
+    this->availableChars = availableChars;
+    this->passwordLength = passwordLength;
+    this->iterations = iterations;
+  }
 };
 
 
@@ -92,6 +105,7 @@ class Password : public QObject
   Q_PROPERTY(bool isValid READ isValid)
   Q_PROPERTY(qreal elapsedSeconds READ elapsedSeconds)
   Q_PROPERTY(QByteArray derivedKey READ derivedKey)
+  Q_PROPERTY(QByteArray salt READ salt)
 
 public:
   explicit Password(QObject *parent = nullptr);
@@ -113,9 +127,11 @@ public:
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
 
+  const QByteArray &salt(void) const;
+
   void waitForFinished(void);
   QString errorString(void) const;
-  void extractAESKey(char *aesKey, int size);
+  void extractAESKey(__inout char *const aesKey, __in int size);
 
 signals:
   void generationStarted(void);
