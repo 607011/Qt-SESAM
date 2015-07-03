@@ -229,7 +229,6 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
 
-
   emit badMasterPassword();
 
 #ifndef QT_DEBUG
@@ -440,14 +439,27 @@ void MainWindow::updateUsedCharacters(void)
   if (!ui->useCustomCheckBox->isChecked()) {
     stopPasswordGeneration();
     QString passwordCharacters;
+
     if (ui->useLowerCaseCheckBox->isChecked())
       passwordCharacters += PasswordParam::LowerChars;
+    else
+      ui->forceLowerCaseCheckBox->setChecked(false);
+
     if (ui->useUpperCaseCheckBox->isChecked())
       passwordCharacters += ui->avoidAmbiguousCheckBox->isChecked() ? PasswordParam::UpperCharsNoAmbiguous : PasswordParam::UpperChars;
+    else
+      ui->forceUpperCaseCheckBox->setChecked(false);
+
     if (ui->useDigitsCheckBox->isChecked())
       passwordCharacters += PasswordParam::Digits;
+    else
+      ui->forceDigitsCheckBox->setChecked(false);
+
     if (ui->useExtrasCheckBox->isChecked())
       passwordCharacters += PasswordParam::ExtraChars;
+    else
+      ui->forceExtrasCheckBox->setChecked(false);
+
     ui->customCharactersPlainTextEdit->blockSignals(true);
     ui->customCharactersPlainTextEdit->setPlainText(passwordCharacters);
     ui->customCharactersPlainTextEdit->blockSignals(false);
@@ -546,6 +558,7 @@ void MainWindow::customCharacterSetCheckBoxToggled(bool checked)
     ui->useUpperCaseCheckBox->setEnabled(!checked);
     ui->useDigitsCheckBox->setEnabled(!checked);
     ui->useExtrasCheckBox->setEnabled(!checked);
+    ui->avoidAmbiguousCheckBox->setEnabled(!checked);
     updateUsedCharacters();
     if (!checked)
       d->customCharacterSetDirty = false;
@@ -564,7 +577,7 @@ void MainWindow::customCharacterSetChanged(void)
 void MainWindow::updateValidator(void)
 {
   Q_D(MainWindow);
-  bool ok = false;
+  bool ok = true;
   QStringList canContain;
   QStringList mustContain;
   ui->forceLowerCaseCheckBox->setEnabled(!ui->forceRegexCheckBox->isChecked());
@@ -575,28 +588,28 @@ void MainWindow::updateValidator(void)
     ok = d->password.setValidator(QRegExp(ui->forceRegexPlainTextEdit->toPlainText()));
   }
   else {
-    if (ui->useLowerCaseCheckBox->isChecked())
-      canContain << "a-z";
-    if (ui->useUpperCaseCheckBox->isChecked())
-      canContain << "A-Z";
-    if (ui->useDigitsCheckBox->isChecked())
-      canContain << "0-9";
-    if (ui->useExtrasCheckBox->isChecked())
-      canContain << PasswordParam::ExtraChars;
-    if (ui->forceLowerCaseCheckBox->isChecked())
-      mustContain << "[a-z]";
-    if (ui->forceUpperCaseCheckBox->isChecked())
-      mustContain << "[A-Z]";
-    if (ui->forceDigitsCheckBox->isChecked())
-      mustContain << "[0-9]";
-    if (ui->forceExtrasCheckBox->isChecked())
-      mustContain << "[" + PasswordParam::ExtraChars + "]";
-    ok = d->password.setValidCharacters(canContain, mustContain);
-    if (ok) {
-      ui->forceRegexPlainTextEdit->blockSignals(true);
-      ui->forceRegexPlainTextEdit->setPlainText(d->password.validator().pattern());
-      ui->forceRegexPlainTextEdit->blockSignals(false);
+    if (ui->useCustomCheckBox->isChecked()) {
+      canContain << ui->customCharactersPlainTextEdit->toPlainText();
     }
+    else {
+      if (ui->useLowerCaseCheckBox->isChecked())
+        canContain << PasswordParam::LowerChars;
+      if (ui->useUpperCaseCheckBox->isChecked())
+        canContain << PasswordParam::UpperChars;
+      if (ui->useDigitsCheckBox->isChecked())
+        canContain << PasswordParam::Digits;
+      if (ui->useExtrasCheckBox->isChecked())
+        canContain << PasswordParam::ExtraChars;
+    }
+    if (ui->forceLowerCaseCheckBox->isChecked())
+      mustContain << PasswordParam::LowerChars;
+    if (ui->forceUpperCaseCheckBox->isChecked())
+      mustContain << PasswordParam::UpperChars;
+    if (ui->forceDigitsCheckBox->isChecked())
+      mustContain << PasswordParam::Digits;
+    if (ui->forceExtrasCheckBox->isChecked())
+      mustContain << PasswordParam::ExtraChars;
+    ok = d->password.setValidCharacters(canContain, mustContain);
   }
   if (ok) {
     updatePassword();

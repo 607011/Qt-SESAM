@@ -190,7 +190,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="pwdgen.qrc">
+               <iconset resource="ctpwdgen.qrc">
                 <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
               </property>
              </widget>
@@ -443,7 +443,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="pwdgen.qrc">
+         <iconset resource="ctpwdgen.qrc">
           <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
         </property>
        </widget>
@@ -490,7 +490,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="pwdgen.qrc">
+            <iconset resource="ctpwdgen.qrc">
              <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
            </property>
           </widget>
@@ -675,7 +675,7 @@
   <tabstop>deleteCheckBox</tabstop>
  </tabstops>
  <resources>
-  <include location="pwdgen.qrc"/>
+  <include location="ctpwdgen.qrc"/>
  </resources>
  <connections/>
 </ui>

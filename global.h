@@ -23,8 +23,9 @@
 
 #include <QString>
 
-// #define EXEC_SPEED_TEST
-// #define NO_RANDOM_SALT
+#ifndef QT_DEBUG
+#define EXEC_SPEED_TEST
+#endif
 
 extern const QString APP_COMPANY_NAME;
 extern const QString APP_NAME;

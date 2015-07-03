@@ -104,7 +104,6 @@ class Password : public QObject
   Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
   Q_PROPERTY(bool isValid READ isValid)
   Q_PROPERTY(qreal elapsedSeconds READ elapsedSeconds)
-  Q_PROPERTY(QByteArray derivedKey READ derivedKey)
   Q_PROPERTY(QByteArray salt READ salt)
 
 public:
@@ -121,7 +120,6 @@ public:
   bool setValidCharacters(const QStringList &canContain, const QStringList &mustContain);
 
   bool isValid(void) const;
-  const QByteArray &derivedKey(void) const;
   const QString &key(void) const;
   const QString &hexKey(void) const;
   qreal elapsedSeconds(void) const;

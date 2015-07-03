@@ -190,18 +190,15 @@ bool Password::setValidCharacters(const QStringList &canContain, const QStringLi
 {
   Q_D(Password);
   QString reStr("^");
-  foreach(QString s, mustContain) {
-    reStr += "(?=.*" + QRegExp::escape(s) + ")";
+  if (!mustContain.isEmpty()) {
+    reStr += "(?=.*[" + QRegExp::escape(mustContain.join(QString())) + "])";
   }
   if (!canContain.isEmpty()) {
-    reStr += "[";
-    foreach(QString s, canContain) {
-      reStr += "(?=.*" + QRegExp::escape(s) + ")";
-    }
-    reStr += "]+";
+    reStr += "[" + QRegExp::escape(canContain.join(QString())) + "]+";
   }
   reStr += "$";
   QRegExp re(reStr, Qt::CaseSensitive, QRegExp::RegExp2);
+  qDebug() << re.pattern() << "isValid() =" << re.isValid();
   if (re.isValid()) {
     d->validator = re;
     return true;
@@ -213,12 +210,6 @@ bool Password::setValidCharacters(const QStringList &canContain, const QStringLi
 bool Password::isValid(void) const
 {
   return d_ptr->validator.exactMatch(d_ptr->key);
-}
-
-
-const QByteArray &Password::derivedKey(void) const
-{
-  return d_ptr->derivedKey;
 }
 
 
