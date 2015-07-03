@@ -26,10 +26,9 @@
 
 int main(int argc, char *argv[])
 {
-  Q_INIT_RESOURCE(pwdgen);
+  Q_INIT_RESOURCE(ctpwdgen);
 
   QApplication a(argc, argv);
-
   QTranslator translator;
   bool ok = translator.load(":/translations/i18n_" + QLocale::system().name());
 #ifndef QT_NO_DEBUG

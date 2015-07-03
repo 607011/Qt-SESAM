@@ -116,7 +116,7 @@ FORMS    += mainwindow.ui \
 INCLUDEPATH += $$PWD/3rdparty
 
 RESOURCES += \
-    pwdgen.qrc
+    ctpwdgen.qrc
 
 DISTFILES += \
     .gitignore \
