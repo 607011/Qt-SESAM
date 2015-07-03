@@ -20,9 +20,25 @@
 #include "mainwindow.h"
 #include <QApplication>
 
+#include <QLocale>
+#include <QTranslator>
+
+
 int main(int argc, char *argv[])
 {
+  Q_INIT_RESOURCE(pwdgen);
+
   QApplication a(argc, argv);
+
+  QTranslator translator;
+  bool ok = translator.load(":/translations/i18n_" + QLocale::system().name());
+#ifndef QT_NO_DEBUG
+  if (!ok)
+      qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
+#endif
+  if (ok)
+      a.installTranslator(&translator);
+
   MainWindow w;
   w.activateWindow();
 

@@ -10,4 +10,7 @@
     <qresource prefix="/ssl">
         <file alias="my.cer">resources/ssl/ersatzworld.net-DER-X509.cer</file>
     </qresource>
+    <qresource prefix="/translations">
+        <file alias="i18n_de.qm">translations/i18n_de.qm</file>
+    </qresource>
 </RCC>

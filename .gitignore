@@ -4,3 +4,4 @@ Makefile*
 release/*
 debug/*
 ui_mainwindow.h
+translations/*.qm

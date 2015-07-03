@@ -19,6 +19,8 @@ TEMPLATE = app qt
 
 QT += core gui widgets concurrent network
 
+TRANSLATIONS += translations/i18n_de.ts
+
 CONFIG += warn_off
 
 win32 {
