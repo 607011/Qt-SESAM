@@ -50,7 +50,7 @@
     <message>
         <location filename="../mainwindow.ui" line="31"/>
         <source>Ctrl+S</source>
-        <translation>Strg+S</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="56"/>
@@ -230,7 +230,7 @@
     <message>
         <location filename="../mainwindow.ui" line="606"/>
         <source>Ctrl+N</source>
-        <translation>Strg+N</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="611"/>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../mainwindow.ui" line="624"/>
         <source>Ctrl+Shift+S</source>
-        <translation>Strg+Umsch+S</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="629"/>
@@ -301,12 +301,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="241"/>
         <source>Alt+Shift+D</source>
-        <translation>Alt+Umsch+D</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="243"/>
         <source>Alt+Shift+I</source>
-        <translation>Alt+Umsch+I</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="301"/>
