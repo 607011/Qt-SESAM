@@ -20,7 +20,8 @@
 #ifndef __UTIL_H_
 #define __UTIL_H_
 
-#include "cryptopp562/misc.h"
+
+#include <cstring>
 
 template <class T>
 void SafeRenew(T& a, T obj)
@@ -38,19 +39,20 @@ void SafeDelete(T& a)
 }
 
 
-template <class T>
-void SecureErase(T &obj)
-{
-  CryptoPP::memset_z(obj.data(), 0, obj.size());
-  obj.clear();
-}
-
-
 template <typename T>
 void SecureErase(T *m, int size)
 {
-  CryptoPP::memset_z(m, 0, size);
+  memset(m, 0, size);
 }
+
+
+template <class T>
+void SecureErase(T &obj)
+{
+  SecureErase(obj.data(), obj.size());
+  obj.clear();
+}
+
 
 
 #endif // __UTIL_H_

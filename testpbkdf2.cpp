@@ -20,11 +20,20 @@
 #include "testpbkdf2.h"
 #include "password.h"
 #include "domainsettings.h"
+#include <QMessageAuthenticationCode>
+
 
 TestPBKDF2::TestPBKDF2(QObject *parent)
   : QObject(parent)
 {
   // ...
+}
+
+void TestPBKDF2::hmac1(void)
+{
+  QMessageAuthenticationCode hmac(QCryptographicHash::Sha512, "S3cr3t");
+  hmac.addData("foo");
+  QVERIFY(hmac.result() == QByteArray::fromHex("5576f3f707395cf33509379094424ff0743c990bf6da8b705baedb3aa25870a27069b177acbfe2bbd6780c6f7c8f735b0b4dcfcad3257a95b3f46c8b61435a3a"));
 }
 
 

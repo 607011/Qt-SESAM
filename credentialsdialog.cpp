@@ -17,7 +17,6 @@
 
 */
 
-#include "3rdparty/cryptopp562/misc.h"
 #include "credentialsdialog.h"
 #include "ui_credentialsdialog.h"
 #include "util.h"
@@ -46,7 +45,7 @@ CredentialsDialog::~CredentialsDialog()
 
 void CredentialsDialog::invalidatePassword(void)
 {
-  CryptoPP::memset_z(ui->passwordLineEdit->text().data(), 0, ui->passwordLineEdit->text().size());
+  SecureErase(ui->passwordLineEdit->text().data(), ui->passwordLineEdit->text().size());
   ui->passwordLineEdit->clear();
 }
 

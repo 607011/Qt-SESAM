@@ -29,6 +29,7 @@ win32 {
     RC_FILE = ctpwdgen.rc
     SOURCES += dump.cpp
     HEADERS += dump.h
+    LIBS += User32.lib
 }
 
 
@@ -44,7 +45,6 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/iterhash.cpp \
     3rdparty/cryptopp562/misc.cpp \
     3rdparty/cryptopp562/simple.cpp \
-    3rdparty/cryptopp562/hmac.cpp \
     3rdparty/cryptopp562/cryptlib.cpp \
     3rdparty/cryptopp562/cpu.cpp \
     3rdparty/cryptopp562/filters.cpp \
@@ -52,9 +52,6 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/algparam.cpp \
     3rdparty/cryptopp562/fips140.cpp \
     3rdparty/cryptopp562/mqueue.cpp \
-    domainsettings.cpp \
-    password.cpp \
-    credentialsdialog.cpp \
     3rdparty/cryptopp562/rijndael.cpp \
     3rdparty/cryptopp562/ccm.cpp \
     3rdparty/cryptopp562/authenc.cpp \
@@ -65,11 +62,13 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/dessp.cpp \
     3rdparty/cryptopp562/rng.cpp \
     3rdparty/cryptopp562/osrng.cpp \
+    domainsettings.cpp \
+    password.cpp \
+    credentialsdialog.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
     domainsettingslist.cpp \
-    global.cpp \
-    hmac.cpp
+    global.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -82,17 +81,12 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/simple.h \
     3rdparty/cryptopp562/smartptr.h \
     3rdparty/cryptopp562/stdcpp.h \
-    3rdparty/cryptopp562/hmac.h \
     3rdparty/cryptopp562/cpu.h \
     3rdparty/cryptopp562/filters.h \
     3rdparty/cryptopp562/queue.h \
     3rdparty/cryptopp562/algparam.h \
     3rdparty/cryptopp562/fips140.h \
     3rdparty/cryptopp562/mqueue.h \
-    util.h \
-    domainsettings.h \
-    password.h \
-    credentialsdialog.h \
     3rdparty/cryptopp562/aes.h \
     3rdparty/cryptopp562/ccm.h \
     3rdparty/cryptopp562/authenc.h \
@@ -102,11 +96,14 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/rijndael.h \
     3rdparty/cryptopp562/seckey.h \
     3rdparty/cryptopp562/rng.h \
+    util.h \
+    domainsettings.h \
+    password.h \
+    credentialsdialog.h \
     optionsdialog.h \
     progressdialog.h \
     domainsettingslist.h \
-    global.h \
-    hmac.h
+    global.h
 
 FORMS    += mainwindow.ui \
     credentialsdialog.ui \

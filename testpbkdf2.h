@@ -23,7 +23,6 @@
 #include <QObject>
 #include <QtTest/QTest>
 
-#include "DomainSettings.h"
 
 class TestPBKDF2 : public QObject
 {
@@ -34,6 +33,7 @@ public:
 signals:
 
 private slots:
+  void hmac1(void);
   void simple(void);
   void simple1a(void);
   void simple1b(void);

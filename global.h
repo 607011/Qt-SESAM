@@ -28,6 +28,7 @@
 #endif
 
 #define FIXED_SHA512 (1)
+#define SHA512_DIGEST_SIZE (512)
 
 extern const QString APP_COMPANY_NAME;
 extern const QString APP_NAME;

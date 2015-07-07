@@ -23,16 +23,11 @@
 #include "util.h"
 #include "global.h"
 
-#include "cryptopp562/misc.h"
-#include "cryptopp562/secblock.h"
-#include "cryptopp562/sha.h"
-#include "cryptopp562/cryptlib.h"
-#include "cryptopp562/hmac.h"
-#include "cryptopp562/integer.h"
-
 #include "bigint/bigInt.h"
 
 #include <QElapsedTimer>
+#include <QCryptographicHash>
+#include <QMessageAuthenticationCode>
 #include <QMutexLocker>
 #include <QtConcurrent>
 #include <QtDebug>
@@ -77,43 +72,41 @@ Password::~Password()
 { /* ... */ }
 
 
+auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
+  for (int i = 0; i < dst.size(); ++i)
+    dst[i] = dst.at(i) ^ src.at(i);
+};
+
+
 bool Password::generate(const PasswordParam &p)
 {
   Q_D(Password);
   d->abortMutex.lock();
   d->abort = false;
   d->abortMutex.unlock();
-  emit generationStarted();
-  const QByteArray &pwd = p.domain + p.masterPwd;
-  const int nChars = p.availableChars.count();
-
-
-  byte derivedBuf[CryptoPP::SHA512::DIGESTSIZE];
-  byte *derived = derivedBuf;
-  const byte *password = reinterpret_cast<const byte*>(pwd.data());
-  size_t passwordLen = pwd.count();
-  const byte *saltPtr = reinterpret_cast<const byte*>(p.salt.data());
-  size_t saltLen = p.salt.count();
-  d->salt = p.salt;
-  CryptoPP::HMAC<CryptoPP::SHA512> hmac;
-  hmac.SetKey(password, passwordLen);
-  CryptoPP::SecByteBlock buffer(CryptoPP::SHA512::DIGESTSIZE);
 
   QElapsedTimer elapsedTimer;
   elapsedTimer.start();
 
+  emit generationStarted();
+
+  const QByteArray &pwd = p.domain + p.masterPwd;
+  const int nChars = p.availableChars.count();
+
+  d->salt = p.salt;
+
   bool completed = true;
-#ifdef FIXED_SHA512
-  static const size_t N = CryptoPP::SHA512::DIGESTSIZE;
-  hmac.Update(saltPtr, saltLen);
-  static const byte itmp[4] = { 0, 0, 0, 1 }; // INT_32_BE(1)
-  hmac.Update(itmp, 4);
-  hmac.Final(buffer);
-#ifdef WIN32
-  memcpy_s(derived, N, buffer, N);
-#else
-  memcpy(derived, buffer, N);
-#endif
+
+  static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
+
+  QMessageAuthenticationCode hmac(QCryptographicHash::Sha512);
+  hmac.setKey(pwd);
+  hmac.addData(p.salt);
+  hmac.addData(INT_32_BE1, 4);
+
+  QByteArray buffer = hmac.result();
+  d->derivedKey = buffer;
+
   for (unsigned int j = 1; j < p.iterations; ++j) {
     QMutexLocker locker(&d->abortMutex);
     if (d->abort) {
@@ -121,45 +114,15 @@ bool Password::generate(const PasswordParam &p)
       emit generationAborted();
       break;
     }
-    hmac.CalculateDigest(buffer, buffer, N);
-    CryptoPP::xorbuf(derived, buffer, N);
+    hmac.reset();
+    hmac.addData(buffer);
+    buffer = hmac.result();
+    xorbuf(d->derivedKey, buffer);
   }
-#else
-  unsigned int i = 1;
-  size_t derivedLen = CryptoPP::SHA512::DIGESTSIZE;
-  while (derivedLen > 0) {
-    hmac.Update(saltPtr, saltLen);
-    for (unsigned int j = 0; j < 4; ++j) {
-      byte b = byte(i >> ((3 - j) * 8));
-      hmac.Update(&b, 1);
-    }
-    hmac.Final(buffer);
-    const size_t segmentLen = qMin(derivedLen, buffer.size());
-#ifdef WIN32
-    memcpy_s(derived, derivedLen, buffer, segmentLen);
-#else
-    memcpy(derived, buffer, segmentLen);
-#endif
-    for (unsigned int j = 1; j < p.iterations; ++j) {
-      QMutexLocker locker(&d->abortMutex);
-      if (d->abort) {
-        completed = false;
-        emit generationAborted();
-        break;
-      }
-      hmac.CalculateDigest(buffer, buffer, buffer.size());
-      CryptoPP::xorbuf(derived, buffer, segmentLen);
-    }
-    derived += segmentLen;
-    derivedLen -= segmentLen;
-    ++i;
-  }
-#endif
 
   bool success = false;
   if (completed) {
     d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
-    d->derivedKey = QByteArray(reinterpret_cast<char*>(derivedBuf), CryptoPP::SHA512::DIGESTSIZE);
     d->hexKey = d->derivedKey.toHex();
     const QString strModulus = QString("%1").arg(nChars);
     BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
@@ -258,7 +221,7 @@ void Password::extractAESKey(char *const aesKey, int size)
   Q_ASSERT(aesKey != nullptr);
   Q_ASSERT(size > 0);
   Q_ASSERT(size % 16 == 0);
-  Q_ASSERT(size <= CryptoPP::SHA512::DIGESTSIZE);
+  Q_ASSERT(size <= SHA512_DIGEST_SIZE);
 #ifdef WIN32
     memcpy_s(aesKey, size, d->derivedKey.data(), size);
 #else
