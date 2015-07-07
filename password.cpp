@@ -73,6 +73,7 @@ Password::~Password()
 
 
 auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
+  Q_ASSERT_X(dst.size() == src.size(), "xorbuf()", "size of source and destination buffers must be equal");
   for (int i = 0; i < dst.size(); ++i)
     dst[i] = dst.at(i) ^ src.at(i);
 };
@@ -95,8 +96,6 @@ bool Password::generate(const PasswordParam &p)
 
   d->salt = p.salt;
 
-  bool completed = true;
-
   static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
 
   QMessageAuthenticationCode hmac(QCryptographicHash::Sha512);
@@ -107,6 +106,7 @@ bool Password::generate(const PasswordParam &p)
   QByteArray buffer = hmac.result();
   d->derivedKey = buffer;
 
+  bool completed = true;
   for (unsigned int j = 1; j < p.iterations; ++j) {
     QMutexLocker locker(&d->abortMutex);
     if (d->abort) {
@@ -124,11 +124,11 @@ bool Password::generate(const PasswordParam &p)
   if (completed) {
     d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
     d->hexKey = d->derivedKey.toHex();
+    d->key.clear();
     const QString strModulus = QString("%1").arg(nChars);
     BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
     static const BigInt::Rossi Zero(0);
-    d->key = QString();
     int n = p.passwordLength;
     while (v > Zero && n-- > 0) {
       const BigInt::Rossi &mod = v % Modulus;
