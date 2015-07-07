@@ -24,6 +24,8 @@
 #include <QByteArray>
 #include <QJsonDocument>
 
+const QByteArray DomainSettings::DefaultSalt = QString("pepper").toUtf8();
+const QByteArray DomainSettings::DefaultSaltBase64 = DomainSettings::DefaultSalt.toBase64();
 const int DomainSettings::DefaultIterations = 4096;
 const int DomainSettings::DefaultPasswordLength = 10;
 const bool DomainSettings::DefaultUseLowerCase = true;
@@ -34,7 +36,6 @@ const bool DomainSettings::DefaultUseCustom = false;
 const bool DomainSettings::DefaultAvoidAmbiguous = false;
 const bool DomainSettings::DefaultForceValidation = false;
 const QString DomainSettings::DefaultValidatorPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$";
-
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
 const QString DomainSettings::USER_NAME = "username";
@@ -70,6 +71,7 @@ DomainSettings::DomainSettings(void)
   , avoidAmbiguous(DefaultAvoidAmbiguous)
   , iterations(DefaultIterations)
   , length(DefaultPasswordLength)
+  , salt(DefaultSalt)
   , forceLowerCase(false)
   , forceUpperCase(false)
   , forceDigits(false)

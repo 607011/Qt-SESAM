@@ -21,7 +21,10 @@
 
 #include "password.h"
 #include "util.h"
+#include "global.h"
 
+#include "cryptopp562/misc.h"
+#include "cryptopp562/secblock.h"
 #include "cryptopp562/sha.h"
 #include "cryptopp562/cryptlib.h"
 #include "cryptopp562/hmac.h"
@@ -84,9 +87,9 @@ bool Password::generate(const PasswordParam &p)
   const QByteArray &pwd = p.domain + p.masterPwd;
   const int nChars = p.availableChars.count();
 
+
   byte derivedBuf[CryptoPP::SHA512::DIGESTSIZE];
   byte *derived = derivedBuf;
-  size_t derivedLen = CryptoPP::SHA512::DIGESTSIZE;
   const byte *password = reinterpret_cast<const byte*>(pwd.data());
   size_t passwordLen = pwd.count();
   const byte *saltPtr = reinterpret_cast<const byte*>(p.salt.data());
@@ -94,13 +97,36 @@ bool Password::generate(const PasswordParam &p)
   d->salt = p.salt;
   CryptoPP::HMAC<CryptoPP::SHA512> hmac;
   hmac.SetKey(password, passwordLen);
-  CryptoPP::SecByteBlock buffer(hmac.DigestSize());
+  CryptoPP::SecByteBlock buffer(CryptoPP::SHA512::DIGESTSIZE);
 
   QElapsedTimer elapsedTimer;
   elapsedTimer.start();
 
-  unsigned int i = 1;
   bool completed = true;
+#ifdef FIXED_SHA512
+  static const size_t N = CryptoPP::SHA512::DIGESTSIZE;
+  hmac.Update(saltPtr, saltLen);
+  static const byte itmp[4] = { 0, 0, 0, 1 }; // INT_32_BE(1)
+  hmac.Update(itmp, 4);
+  hmac.Final(buffer);
+#ifdef WIN32
+  memcpy_s(derived, N, buffer, N);
+#else
+  memcpy(derived, buffer, N);
+#endif
+  for (unsigned int j = 1; j < p.iterations; ++j) {
+    QMutexLocker locker(&d->abortMutex);
+    if (d->abort) {
+      completed = false;
+      emit generationAborted();
+      break;
+    }
+    hmac.CalculateDigest(buffer, buffer, N);
+    CryptoPP::xorbuf(derived, buffer, N);
+  }
+#else
+  unsigned int i = 1;
+  size_t derivedLen = CryptoPP::SHA512::DIGESTSIZE;
   while (derivedLen > 0) {
     hmac.Update(saltPtr, saltLen);
     for (unsigned int j = 0; j < 4; ++j) {
@@ -122,12 +148,13 @@ bool Password::generate(const PasswordParam &p)
         break;
       }
       hmac.CalculateDigest(buffer, buffer, buffer.size());
-      xorbuf(derived, buffer, segmentLen);
+      CryptoPP::xorbuf(derived, buffer, segmentLen);
     }
     derived += segmentLen;
     derivedLen -= segmentLen;
     ++i;
   }
+#endif
 
   bool success = false;
   if (completed) {

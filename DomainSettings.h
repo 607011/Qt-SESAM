@@ -36,6 +36,8 @@ public:
 
   static DomainSettings fromVariantMap(const QVariantMap &);
 
+  static const QByteArray DefaultSalt;
+  static const QByteArray DefaultSaltBase64;
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
   static const bool DefaultUseLowerCase;

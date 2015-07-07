@@ -19,6 +19,7 @@
 
 #include "testpbkdf2.h"
 #include "password.h"
+#include "domainsettings.h"
 
 TestPBKDF2::TestPBKDF2(QObject *parent)
   : QObject(parent)
@@ -26,7 +27,22 @@ TestPBKDF2::TestPBKDF2(QObject *parent)
   // ...
 }
 
-void TestPBKDF2::simple1(void)
+
+void TestPBKDF2::simple(void)
+{
+  QVERIFY(QByteArray::fromBase64(DomainSettings::DefaultSaltBase64) == "pepper");
+  QVERIFY(DomainSettings::DefaultSaltBase64 == QString("pepper").toUtf8().toBase64());
+}
+
+void TestPBKDF2::simple1a(void)
+{
+  Password pwd;
+  pwd.generate(PasswordParam("ct.de", "test", QString("pepper").toUtf8(), "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ0123456789#!\"§$%&/()[]{}=-_+*<>;:.", 10, 4096));
+  QVERIFY(pwd.hexKey() == "f4d54b303b21ee3d8bff9c1eae6f66d90db58c0a5cc770eee322cc59d4dec65793bf8f5dec717fd1404bbfacf59befa68c4ad9168bfeaa6a9e28b326a76a82bb");
+  QVERIFY(pwd.key() == "YBVUH=sN/3");
+}
+
+void TestPBKDF2::simple1b(void)
 {
   Password pwd;
   pwd.generate(PasswordParam("ct.de", "test", "pepper", "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ0123456789#!\"§$%&/()[]{}=-_+*<>;:.", 10, 4096));

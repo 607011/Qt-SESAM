@@ -27,6 +27,8 @@
 #define EXEC_SPEED_TEST
 #endif
 
+#define FIXED_SHA512 (1)
+
 extern const QString APP_COMPANY_NAME;
 extern const QString APP_NAME;
 extern const QString APP_VERSION;

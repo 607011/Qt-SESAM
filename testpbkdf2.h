@@ -34,7 +34,9 @@ public:
 signals:
 
 private slots:
-  void simple1(void);
+  void simple(void);
+  void simple1a(void);
+  void simple1b(void);
   void simple2(void);
   void pin(void);
   void aesKey(void);

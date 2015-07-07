@@ -68,7 +68,8 @@ SOURCES += main.cpp mainwindow.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
     domainsettingslist.cpp \
-    global.cpp
+    global.cpp \
+    hmac.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -104,7 +105,8 @@ HEADERS  += mainwindow.h \
     optionsdialog.h \
     progressdialog.h \
     domainsettingslist.h \
-    global.h
+    global.h \
+    hmac.h
 
 FORMS    += mainwindow.ui \
     credentialsdialog.ui \
