@@ -555,7 +555,7 @@
         <location filename="../optionsdialog.ui" line="46"/>
         <location filename="../optionsdialog.ui" line="79"/>
         <source>Use</source>
-        <translation>Synchronisierungsdatei verwenden</translation>
+        <translation>Verwenden</translation>
     </message>
     <message>
         <location filename="../optionsdialog.ui" line="61"/>
