@@ -124,6 +124,7 @@ public:
   const QString &hexKey(void) const;
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
+  bool isAborted(void) const;
 
   const QByteArray &salt(void) const;
 

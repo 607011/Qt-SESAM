@@ -242,6 +242,12 @@ bool Password::isRunning(void) const
 }
 
 
+bool Password::isAborted(void) const
+{
+  return d_ptr->abort;
+}
+
+
 const QByteArray &Password::salt(void) const
 {
   return d_ptr->salt;

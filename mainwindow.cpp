@@ -507,7 +507,8 @@ void MainWindow::onPasswordGenerated(void)
   if (setKey) {
     ui->generatedPasswordLineEdit->setText(d->password.key());
     ui->hashPlainTextEdit->setPlainText(d->password.hexKey());
-    ui->statusBar->showMessage(tr("generation time: %1 ms").arg(d->password.elapsedSeconds(), 0, 'f', 4), 3000);
+    if (!d->password.isAborted())
+      ui->statusBar->showMessage(tr("generation time: %1 ms").arg(d->password.elapsedSeconds(), 0, 'f', 4), 3000);
   }
   else {
     ui->statusBar->showMessage(tr("Password does not match regular expression. %1").arg(d->autoIncreaseIterations ? tr("Increasing iteration count.") : QString()));
