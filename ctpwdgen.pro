@@ -122,6 +122,7 @@ DISTFILES += \
     LICENSE \
     README.md \
     ctpwdgen.rc \
-    deploy/ctpwdgen.nsi
+    deploy/ctpwdgen.nsi \
+    translations/i18n_de.ts
 
 OTHER_FILES +=
