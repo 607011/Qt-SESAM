@@ -22,7 +22,7 @@
 #include <QSysInfo>
 
 const QString APP_COMPANY_NAME = "c't";
-const QString APP_NAME = "ctpwdgen";
+const QString APP_NAME = "c't SESAM";
 const QString APP_VERSION = "1.0-BETA3";
 const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 const QString APP_AUTHOR = "Oliver Lau";
