@@ -98,13 +98,10 @@ bool Password::generate(const QString &masterPwd)
       masterPwd.toUtf8();
 
   QByteArray salt = QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8());
-
   static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
-
   QMessageAuthenticationCode hmac(QCryptographicHash::Sha512);
   hmac.setKey(pwd);
-  hmac.addData(salt);
-  hmac.addData(INT_32_BE1, 4);
+  hmac.addData(salt + QByteArray(INT_32_BE1, 4));
 
   QByteArray buffer = hmac.result();
   d->derivedKey = buffer;
