@@ -226,7 +226,7 @@ MainWindow::MainWindow(QWidget *parent)
   QTest::qExec(&tc, 0, 0);
 #endif
 
-  emit badMasterPassword();
+  enterMasterPassword();
 }
 
 
@@ -407,7 +407,6 @@ void MainWindow::updatePassword(void)
 DomainSettings MainWindow::collectedDomainSettings(void) const
 {
   DomainSettings ds;
-  qDebug() << "MainWindow::collectedDomainSettings()";
   ds.domainName = ui->domainLineEdit->text();
   ds.userName = ui->userLineEdit->text();
   ds.notes = ui->notesPlainTextEdit->toPlainText();

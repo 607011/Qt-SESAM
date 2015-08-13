@@ -180,7 +180,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="4" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <property name="topMargin">
          <number>0</number>
