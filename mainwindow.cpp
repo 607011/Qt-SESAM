@@ -327,6 +327,7 @@ void MainWindow::newDomain(void)
     setDirty(false);
     ui->domainLineEdit->setText(d->newDomainWizard->domain());
     ui->userLineEdit->setText(d->newDomainWizard->username());
+    ui->legacyPasswordLineEdit->setText(d->newDomainWizard->legacyPassword());
     ui->saltBase64LineEdit->setText(d->newDomainWizard->salt_base64());
     ui->iterationsSpinBox->setValue(d->newDomainWizard->iterations());
     ui->passwordLengthSpinBox->setValue(d->newDomainWizard->passwordLength());

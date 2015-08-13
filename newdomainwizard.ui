@@ -35,6 +35,9 @@
          <property name="readOnly">
           <bool>true</bool>
          </property>
+         <property name="placeholderText">
+          <string>Base64 encoded salt</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -59,6 +62,12 @@
          <width>16777215</width>
          <height>40</height>
         </size>
+       </property>
+       <property name="plainText">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>optional</string>
        </property>
       </widget>
      </item>
@@ -156,6 +165,23 @@
        </property>
        <property name="value">
         <number>12</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="legacyPasswordLineEdit">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>don't fill unless you really need to</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Legacy password</string>
        </property>
       </widget>
      </item>

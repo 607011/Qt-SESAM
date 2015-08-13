@@ -57,6 +57,12 @@ QString NewDomainWizard::username(void) const
 }
 
 
+QString NewDomainWizard::legacyPassword(void) const
+{
+  return ui->legacyPasswordLineEdit->text();
+}
+
+
 int NewDomainWizard::iterations(void) const
 {
   return ui->iterationsSpinBox->value();

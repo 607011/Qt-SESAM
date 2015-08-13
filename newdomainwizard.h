@@ -38,6 +38,7 @@ public:
 
   QString domain(void) const;
   QString username(void) const;
+  QString legacyPassword(void) const;
   int iterations(void) const;
   int passwordLength(void) const;
   QString salt_base64(void) const;
