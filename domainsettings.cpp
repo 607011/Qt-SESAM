@@ -39,10 +39,6 @@ const QString DomainSettings::LENGTH = "length";
 const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
 const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
-const QString DomainSettings::FORCE_LOWERCASE = "forceLowercase";
-const QString DomainSettings::FORCE_UPPERCASE = "forceUppercase";
-const QString DomainSettings::FORCE_DIGITS = "forceDigits";
-const QString DomainSettings::FORCE_EXTRA = "forceExtra";
 const QString DomainSettings::CAN_BE_DELETED_BY_REMOTE = "canBeDeletedByRemote";
 const QString DomainSettings::DELETED = "deleted";
 
@@ -91,10 +87,6 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[LENGTH] = length;
   map[SALT] = salt_base64;
   map[USED_CHARACTERS] = usedCharacters;
-  map[FORCE_LOWERCASE] = forceLowerCase;
-  map[FORCE_UPPERCASE] = forceUpperCase;
-  map[FORCE_DIGITS] = forceDigits;
-  map[FORCE_EXTRA] = forceExtra;
   map[CDATE] = createdDate;
   map[MDATE] = modifiedDate;
   map[CAN_BE_DELETED_BY_REMOTE] = canBeDeletedByRemote;
@@ -114,15 +106,9 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.length = map[LENGTH].toInt();
   ds.salt_base64 = map[SALT].toByteArray();
   ds.usedCharacters = map[USED_CHARACTERS].toString();
-  ds.forceLowerCase = map[FORCE_LOWERCASE].toBool();
-  ds.forceUpperCase = map[FORCE_UPPERCASE].toBool();
-  ds.forceDigits = map[FORCE_DIGITS].toBool();
-  ds.forceExtra = map[FORCE_EXTRA].toBool();
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
   if (map.contains(CAN_BE_DELETED_BY_REMOTE))
     ds.canBeDeletedByRemote = map[CAN_BE_DELETED_BY_REMOTE].toBool();
   return ds;
 }
-
-

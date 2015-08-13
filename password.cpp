@@ -171,31 +171,6 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
-bool Password::isValid(void)
-{
-  Q_D(Password);
-
-  auto keyContainsAnyOf = [this](const QString &forcedCharacters) {
-    foreach (QChar c, forcedCharacters) {
-      if (d_ptr->key.contains(c))
-        return true;
-    }
-    return false;
-  };
-
-  if (d->domainSettings.forceLowerCase && !keyContainsAnyOf(LowerChars))
-    return false;
-  if (d->domainSettings.forceUpperCase && !keyContainsAnyOf(UpperChars))
-    return false;
-  if (d->domainSettings.forceDigits && !keyContainsAnyOf(Digits))
-    return false;
-  if (d->domainSettings.forceExtra && !keyContainsAnyOf(ExtraChars))
-    return false;
-
-  return true;
-}
-
-
 const QString &Password::key(void) const
 {
   return d_ptr->key;

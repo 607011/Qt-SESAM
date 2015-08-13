@@ -40,8 +40,6 @@
 #include "global.h"
 #include "domainsettingslist.h"
 #include "password.h"
-#include "credentialsdialog.h"
-#include "optionsdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -70,7 +68,6 @@ private:
 
 private slots:
   void updatePassword(void);
-  void updateUsedCharacters(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
   void onPasswordGenerated(void);
@@ -104,10 +101,6 @@ private slots:
 #ifdef WIN32
   void createFullDump(void);
 #endif
-  void addLowercaseToUsedCharacters(void);
-  void addUppercaseToUsedCharacters(void);
-  void addDigitsToUsedCharacters(void);
-  void addExtraCharactersToUsedCharacters(void);
 
 signals:
   void passwordGenerated(void);
@@ -124,6 +117,9 @@ private: // methods
   void restartInvalidationTimer(void);
   void unblockUpdatePassword(void);
   void blockUpdatePassword(void);
+  bool keyContainsAnyOf(const QString &forcedCharacters);
+  bool generatedPasswordIsValid(void);
+  void analyzeGeneratedPassword(void);
   DomainSettings collectedDomainSettings(void) const;
   QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
   QByteArray decode(const QByteArray &, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);

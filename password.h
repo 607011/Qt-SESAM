@@ -42,7 +42,6 @@ public:
   bool generate(const QString &masterPwd);
   void generateAsync(const QString &masterPwd);
 
-  bool isValid(void);
   const QString &key(void) const;
   const QString &hexKey(void) const;
   qreal elapsedSeconds(void) const;

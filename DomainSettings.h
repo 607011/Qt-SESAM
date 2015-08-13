@@ -65,18 +65,6 @@ public:
   static const QString USED_CHARACTERS;
   QString usedCharacters;
 
-  static const QString FORCE_LOWERCASE;
-  bool forceLowerCase;
-
-  static const QString FORCE_UPPERCASE;
-  bool forceUpperCase;
-
-  static const QString FORCE_DIGITS;
-  bool forceDigits;
-
-  static const QString FORCE_EXTRA;
-  bool forceExtra;
-
   static const QString CDATE;
   QDateTime createdDate;
 
@@ -88,6 +76,11 @@ public:
 
   static const QString DELETED;
   bool deleted;
+
+  bool forceLowerCase;
+  bool forceUpperCase;
+  bool forceDigits;
+  bool forceExtra;
 };
 
 

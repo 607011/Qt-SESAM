@@ -68,7 +68,8 @@ SOURCES += main.cpp mainwindow.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
     domainsettingslist.cpp \
-    global.cpp
+    global.cpp \
+    newdomainwizard.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -103,13 +104,15 @@ HEADERS  += mainwindow.h \
     optionsdialog.h \
     progressdialog.h \
     domainsettingslist.h \
-    global.h
+    global.h \
+    newdomainwizard.h
 
 FORMS    += mainwindow.ui \
     credentialsdialog.ui \
     optionsdialog.ui \
     progressdialog.ui \
-    newcredentialsdialog.ui
+    newcredentialsdialog.ui \
+    newdomainwizard.ui
 
 
 INCLUDEPATH += $$PWD/3rdparty
