@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-TARGET = ctpwdgen
+TARGET = ctSESAM
 
 TEMPLATE = app qt
 
@@ -26,7 +26,7 @@ CONFIG += warn_off
 win32 {
     QMAKE_CXXFLAGS += /wd4100
     DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
-    RC_FILE = ctpwdgen.rc
+    RC_FILE = ctSESAM.rc
     SOURCES += dump.cpp
     HEADERS += dump.h
     LIBS += User32.lib
@@ -115,14 +115,14 @@ FORMS    += mainwindow.ui \
 INCLUDEPATH += $$PWD/3rdparty
 
 RESOURCES += \
-    ctpwdgen.qrc
+    ctSESAM.qrc
 
 DISTFILES += \
     .gitignore \
     LICENSE \
     README.md \
-    ctpwdgen.rc \
-    deploy/ctpwdgen.nsi \
-    translations/i18n_de.ts
+    translations/i18n_de.ts \
+    ctSESAM.rc \
+    deploy/ctSESAM.nsi
 
 OTHER_FILES +=

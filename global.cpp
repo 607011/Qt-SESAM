@@ -23,7 +23,7 @@
 
 const QString APP_COMPANY_NAME = "c't";
 const QString APP_NAME = "c't SESAM";
-const QString APP_VERSION = "1.0-BETA3";
+const QString APP_VERSION = "1.0-BETA4";
 const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
 const QString APP_AUTHOR = "Oliver Lau";
 const QString APP_AUTHOR_MAIL = "ola@ct.de";

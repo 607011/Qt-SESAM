@@ -1,5 +1,5 @@
 *.pro.user*
-deploy/ctpwdgen*.exe
+deploy/ctSESAM*.exe
 Makefile*
 release/*
 debug/*

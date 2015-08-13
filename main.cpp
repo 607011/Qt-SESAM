@@ -26,7 +26,7 @@
 
 int main(int argc, char *argv[])
 {
-  Q_INIT_RESOURCE(ctpwdgen);
+  Q_INIT_RESOURCE(ctSESAM);
 
   QApplication a(argc, argv);
   QTranslator translator;
