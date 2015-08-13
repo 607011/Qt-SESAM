@@ -28,18 +28,16 @@ class TestPBKDF2 : public QObject
 {
   Q_OBJECT
 public:
-  explicit TestPBKDF2(QObject *parent = 0);
+  explicit TestPBKDF2(QObject *parent = nullptr);
 
 signals:
 
 private slots:
   void hmac1(void);
-  void simple(void);
-  void simple1a(void);
-  void simple1b(void);
+  void simple0(void);
+  void simple1(void);
   void simple2(void);
   void pin(void);
-  void aesKey(void);
 
 };
 

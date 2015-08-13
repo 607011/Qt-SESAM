@@ -31,6 +31,7 @@
 #include <QMutexLocker>
 #include <QtConcurrent>
 #include <QtDebug>
+#include <QChar>
 
 class PasswordPrivate {
 public:
@@ -44,22 +45,22 @@ public:
     SecureErase(key);
     SecureErase(hexKey);
   }
-  QByteArray salt;
   QByteArray derivedKey;
   QString key;
   QString hexKey;
-  QRegExp validator;
   qreal elapsed;
   bool abort;
   QMutex abortMutex;
   QFuture<void> future;
+  DomainSettings domainSettings;
 };
 
-const QString PasswordParamBase::LowerChars = "abcdefghijklmnopqrstuvwxyz";
-const QString PasswordParamBase::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const QString PasswordParamBase::UpperCharsNoAmbiguous = "ABCDEFGHJKLMNPQRTUVWXYZ";
-const QString PasswordParamBase::Digits = "0123456789";
-const QString PasswordParamBase::ExtraChars = "#!\"§$%&/()[]{}=-_+*<>;:.";
+const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf8();
+const QString Password::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
+const QString Password::UpperCharsNoAmbiguous = QString("ABCDEFGHJKLMNPQRTUVWXYZ").toUtf8();
+const QString Password::Digits = QString("0123456789").toUtf8();
+const QString Password::ExtraChars = QString("#!\"§$%&/()[]{}=-_+*<>;:.").toUtf8();
+const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 
 
 Password::Password(QObject *parent)
@@ -79,7 +80,7 @@ auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
 };
 
 
-bool Password::generate(const PasswordParam &p)
+bool Password::generate(const QString &masterPwd)
 {
   Q_D(Password);
   d->abortMutex.lock();
@@ -91,23 +92,25 @@ bool Password::generate(const PasswordParam &p)
 
   emit generationStarted();
 
-  const QByteArray &pwd = p.domain + p.masterPwd;
-  const int nChars = p.availableChars.count();
+  const QByteArray &pwd =
+      d->domainSettings.domainName.toUtf8() +
+      d->domainSettings.userName.toUtf8() +
+      masterPwd.toUtf8();
 
-  d->salt = p.salt;
+  QByteArray salt = QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8());
 
   static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
 
   QMessageAuthenticationCode hmac(QCryptographicHash::Sha512);
   hmac.setKey(pwd);
-  hmac.addData(p.salt);
+  hmac.addData(salt);
   hmac.addData(INT_32_BE1, 4);
 
   QByteArray buffer = hmac.result();
   d->derivedKey = buffer;
 
   bool completed = true;
-  for (unsigned int j = 1; j < p.iterations; ++j) {
+  for (int j = 1; j < d->domainSettings.iterations; ++j) {
     QMutexLocker locker(&d->abortMutex);
     if (d->abort) {
       completed = false;
@@ -121,7 +124,8 @@ bool Password::generate(const PasswordParam &p)
   }
 
   bool success = false;
-  if (completed) {
+  const int nChars = d->domainSettings.usedCharacters.count();
+  if (completed && nChars > 0) {
     d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
     d->hexKey = d->derivedKey.toHex();
     d->key.clear();
@@ -129,10 +133,10 @@ bool Password::generate(const PasswordParam &p)
     BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
     static const BigInt::Rossi Zero(0);
-    int n = p.passwordLength;
+    int n = d->domainSettings.length;
     while (v > Zero && n-- > 0) {
       const BigInt::Rossi &mod = v % Modulus;
-      d->key += p.availableChars.at(mod.toUlong());
+      d->key += d->domainSettings.usedCharacters.at(mod.toUlong());
       v = v / Modulus;
     }
     success = true;
@@ -143,11 +147,11 @@ bool Password::generate(const PasswordParam &p)
 }
 
 
-void Password::generateAsync(const PasswordParam &p)
+void Password::generateAsync(const QString &masterPwd)
 {
   Q_D(Password);
   d->abort = false;
-  d->future = QtConcurrent::run(this, &Password::generate, p);
+  d->future = QtConcurrent::run(this, &Password::generate, masterPwd);
 }
 
 
@@ -160,46 +164,35 @@ void Password::abortGeneration(void)
 }
 
 
-bool Password::setValidator(const QRegExp &re)
+void Password::setDomainSettings(const DomainSettings &ds)
 {
   Q_D(Password);
-  bool valid = re.isValid();
-  if (valid)
-    d->validator = re;
-  return valid;
+  d->domainSettings = ds;
 }
 
 
-const QRegExp &Password::validator(void) const
-{
-  return d_ptr->validator;
-}
-
-
-bool Password::setValidCharacters(const QStringList &canContain, const QStringList &mustContain)
+bool Password::isValid(void)
 {
   Q_D(Password);
-  QString reStr("^");
-  if (!mustContain.isEmpty()) {
-    reStr += "(?=.*[" + QRegExp::escape(mustContain.join(QString())) + "])";
-  }
-  if (!canContain.isEmpty()) {
-    reStr += "[" + QRegExp::escape(canContain.join(QString())) + "]+";
-  }
-  reStr += "$";
-  QRegExp re(reStr, Qt::CaseSensitive, QRegExp::RegExp2);
-  qDebug() << re.pattern() << "isValid() =" << re.isValid();
-  if (re.isValid()) {
-    d->validator = re;
-    return true;
-  }
-  return false;
-}
 
+  auto keyContainsAnyOf = [this](const QString &forcedCharacters) {
+    foreach (QChar c, forcedCharacters) {
+      if (d_ptr->key.contains(c))
+        return true;
+    }
+    return false;
+  };
 
-bool Password::isValid(void) const
-{
-  return d_ptr->validator.exactMatch(d_ptr->key);
+  if (d->domainSettings.forceLowerCase && !keyContainsAnyOf(LowerChars))
+    return false;
+  if (d->domainSettings.forceUpperCase && !keyContainsAnyOf(UpperChars))
+    return false;
+  if (d->domainSettings.forceDigits && !keyContainsAnyOf(Digits))
+    return false;
+  if (d->domainSettings.forceExtra && !keyContainsAnyOf(ExtraChars))
+    return false;
+
+  return true;
 }
 
 
@@ -248,19 +241,7 @@ bool Password::isAborted(void) const
 }
 
 
-const QByteArray &Password::salt(void) const
-{
-  return d_ptr->salt;
-}
-
-
 void Password::waitForFinished(void)
 {
   d_ptr->future.waitForFinished();
-}
-
-
-QString Password::errorString(void) const
-{
-  return d_ptr->validator.errorString();
 }

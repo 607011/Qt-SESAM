@@ -22,14 +22,14 @@
 #define __DOMAINSETTINGS_H_
 
 #include <QString>
-#include <QRegExp>
+#include <QStringList>
 #include <QVariantMap>
 #include <QDateTime>
 
 class DomainSettings {
 public:
   DomainSettings(void);
-  DomainSettings(const DomainSettings &o);
+  DomainSettings(const DomainSettings &);
 
   QVariantMap toVariantMap(void) const;
   bool isEmpty(void) const;
@@ -37,66 +37,56 @@ public:
   static DomainSettings fromVariantMap(const QVariantMap &);
 
   static const QByteArray DefaultSalt;
-  static const QByteArray DefaultSaltBase64;
+  static const QByteArray DefaultSalt_base64;
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
-  static const bool DefaultUseLowerCase;
-  static const bool DefaultUseUpperCase;
-  static const bool DefaultUseDigits;
-  static const bool DefaultUseExtra;
-  static const bool DefaultUseCustom;
-  static const bool DefaultAvoidAmbiguous;
-  static const bool DefaultForceValidation;
-  static const QString DefaultValidatorPattern;
 
   static const QString DOMAIN_NAME;
-  static const QString USER_NAME;
-  static const QString NOTES;
-  static const QString LEGACY_PASSWORD;
-  static const QString USE_LOWERCASE;
-  static const QString USE_UPPERCASE;
-  static const QString USE_DIGITS;
-  static const QString USE_EXTRA;
-  static const QString USE_CUSTOM;
-  static const QString AVOID_AMBIGUOUS;
-  static const QString SALT;
-  static const QString CUSTOM_CHARACTER_SET;
-  static const QString ITERATIONS;
-  static const QString LENGTH;
-  static const QString FORCE_LOWERCASE;
-  static const QString FORCE_UPPERCASE;
-  static const QString FORCE_DIGITS;
-  static const QString FORCE_EXTRA;
-  static const QString FORCE_REGEX_VALIDATION;
-  static const QString VALIDATOR_REGEX;
-  static const QString CDATE;
-  static const QString MDATE;
-  static const QString CAN_BE_DELETED_BY_REMOTE;
-
   QString domainName;
+
+  static const QString USER_NAME;
   QString userName;
+
+  static const QString LEGACY_PASSWORD;
   QString legacyPassword;
+
+  static const QString NOTES;
   QString notes;
-  bool useLowerCase;
-  bool useUpperCase;
-  bool useDigits;
-  bool useExtra;
-  bool useCustom;
-  bool avoidAmbiguous;
-  QString customCharacterSet;
+
+  static const QString SALT;
+  QString salt_base64;
+
+  static const QString ITERATIONS;
   int iterations;
+
+  static const QString LENGTH;
   int length;
-  QByteArray salt;
+
+  static const QString USED_CHARACTERS;
+  QString usedCharacters;
+
+  static const QString FORCE_LOWERCASE;
   bool forceLowerCase;
+
+  static const QString FORCE_UPPERCASE;
   bool forceUpperCase;
+
+  static const QString FORCE_DIGITS;
   bool forceDigits;
+
+  static const QString FORCE_EXTRA;
   bool forceExtra;
-  bool forceRegexValidation;
-  QRegExp validatorRegEx;
+
+  static const QString CDATE;
   QDateTime createdDate;
+
+  static const QString MDATE;
   QDateTime modifiedDate;
 
+  static const QString CAN_BE_DELETED_BY_REMOTE;
   bool canBeDeletedByRemote;
+
+  static const QString DELETED;
   bool deleted;
 };
 

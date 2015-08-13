@@ -76,9 +76,6 @@ private slots:
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
-  void customCharacterSetCheckBoxToggled(bool);
-  void customCharacterSetChanged(void);
-  void updateValidator(void);
   void saveCurrentSettings(void);
   void domainSelected(const QString &);
   void newDomain(void);
@@ -107,6 +104,10 @@ private slots:
 #ifdef WIN32
   void createFullDump(void);
 #endif
+  void addLowercaseToUsedCharacters(void);
+  void addUppercaseToUsedCharacters(void);
+  void addDigitsToUsedCharacters(void);
+  void addExtraCharactersToUsedCharacters(void);
 
 signals:
   void passwordGenerated(void);
@@ -121,6 +122,9 @@ private: // methods
   void updateWindowTitle(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
+  void unblockUpdatePassword(void);
+  void blockUpdatePassword(void);
+  DomainSettings collectedDomainSettings(void) const;
   QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
   QByteArray decode(const QByteArray &, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);
 

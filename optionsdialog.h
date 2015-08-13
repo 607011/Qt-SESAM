@@ -30,23 +30,6 @@ class OptionsDialog;
 class OptionsDialog : public QDialog
 {
   Q_OBJECT
-
-  Q_PROPERTY(QByteArray serverCredentials READ serverCredentials)
-  Q_PROPERTY(QString validator READ syncFilename WRITE setSyncFilename)
-  Q_PROPERTY(bool useSyncServer READ useSyncServer WRITE setUseSyncServer)
-  Q_PROPERTY(bool useSyncFile READ useSyncFile WRITE setUseSyncFile)
-  Q_PROPERTY(QString serverCertificateFilename READ serverCertificateFilename WRITE setServerCertificateFilename)
-  Q_PROPERTY(QList<QSslCertificate> serverCertificates READ serverCertificates)
-  Q_PROPERTY(QString serverUsername READ serverUsername WRITE setServerUsername)
-  Q_PROPERTY(QString serverPassword READ serverPassword WRITE setServerPassword)
-  Q_PROPERTY(QString writeUrl READ writeUrl WRITE setWriteUrl)
-  Q_PROPERTY(QString readUrl READ readUrl WRITE setReadUrl)
-  Q_PROPERTY(int masterPasswordInvalidationTimeMins READ masterPasswordInvalidationTimeMins WRITE setMasterPasswordInvalidationTimeMins)
-  Q_PROPERTY(bool selfSignedCertificatesAccepted READ selfSignedCertificatesAccepted)
-  Q_PROPERTY(bool untrustedCertificatesAccepted READ untrustedCertificatesAccepted)
-  Q_PROPERTY(int saltLength READ saltLength WRITE setSaltLength)
-
-
 public:
   explicit OptionsDialog(QWidget *parent = nullptr);
   ~OptionsDialog();

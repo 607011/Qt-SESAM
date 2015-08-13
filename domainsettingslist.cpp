@@ -52,7 +52,6 @@ DomainSettings DomainSettingsList::at(int idx) const
 
 void DomainSettingsList::remove(const QString &domainName)
 {
-  qDebug() << "DomainSettingsList::remove(" << domainName << ")";
   int toDeleteIdx = -1;
   for (int i = 0; i < count(); ++i) {
     if (at(i).domainName == domainName) {
@@ -68,7 +67,6 @@ void DomainSettingsList::remove(const QString &domainName)
 
 void DomainSettingsList::updateWith(const DomainSettings &src)
 {
-  qDebug() << "DomainSettingsList::updateWith(" << src.domainName << ")";
   bool found = false;
   for (DomainSettingsList::iterator d = begin(); d != end() && !found; ++d) {
     if (d->domainName == src.domainName) {

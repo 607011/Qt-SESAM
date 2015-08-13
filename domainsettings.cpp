@@ -25,59 +25,36 @@
 #include <QJsonDocument>
 
 const QByteArray DomainSettings::DefaultSalt = QString("pepper").toUtf8();
-const QByteArray DomainSettings::DefaultSaltBase64 = DomainSettings::DefaultSalt.toBase64();
+const QByteArray DomainSettings::DefaultSalt_base64 = DomainSettings::DefaultSalt.toBase64();
 const int DomainSettings::DefaultIterations = 4096;
 const int DomainSettings::DefaultPasswordLength = 10;
-const bool DomainSettings::DefaultUseLowerCase = true;
-const bool DomainSettings::DefaultUseUpperCase = true;
-const bool DomainSettings::DefaultUseDigits = true;
-const bool DomainSettings::DefaultUseExtra = false;
-const bool DomainSettings::DefaultUseCustom = false;
-const bool DomainSettings::DefaultAvoidAmbiguous = false;
-const bool DomainSettings::DefaultForceValidation = false;
-const QString DomainSettings::DefaultValidatorPattern = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$";
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
 const QString DomainSettings::USER_NAME = "username";
 const QString DomainSettings::LEGACY_PASSWORD = "legacyPassword";
 const QString DomainSettings::NOTES = "notes";
-const QString DomainSettings::USE_LOWERCASE = "useLowerCase";
-const QString DomainSettings::USE_UPPERCASE = "useUpperCase";
-const QString DomainSettings::USE_DIGITS = "useDigits";
-const QString DomainSettings::USE_EXTRA = "useExtra";
-const QString DomainSettings::USE_CUSTOM = "useCustom";
-const QString DomainSettings::AVOID_AMBIGUOUS = "avoidAmbiguous";
-const QString DomainSettings::CUSTOM_CHARACTER_SET = "customCharacterSet";
 const QString DomainSettings::ITERATIONS = "iterations";
 const QString DomainSettings::SALT = "salt";
 const QString DomainSettings::LENGTH = "length";
-const QString DomainSettings::FORCE_LOWERCASE = "forceLowerCase";
-const QString DomainSettings::FORCE_UPPERCASE = "forceUpperCase";
-const QString DomainSettings::FORCE_DIGITS = "forceDigits";
-const QString DomainSettings::FORCE_EXTRA = "forceExtra";
-const QString DomainSettings::FORCE_REGEX_VALIDATION = "forceRegexValidation";
-const QString DomainSettings::VALIDATOR_REGEX = "validatorRegex";
 const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
+const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
+const QString DomainSettings::FORCE_LOWERCASE = "forceLowercase";
+const QString DomainSettings::FORCE_UPPERCASE = "forceUppercase";
+const QString DomainSettings::FORCE_DIGITS = "forceDigits";
+const QString DomainSettings::FORCE_EXTRA = "forceExtra";
 const QString DomainSettings::CAN_BE_DELETED_BY_REMOTE = "canBeDeletedByRemote";
+const QString DomainSettings::DELETED = "deleted";
 
 
 DomainSettings::DomainSettings(void)
-  : useLowerCase(DefaultUseLowerCase)
-  , useUpperCase(DefaultUseUpperCase)
-  , useDigits(DefaultUseDigits)
-  , useExtra(DefaultUseExtra)
-  , useCustom(DefaultUseCustom)
-  , avoidAmbiguous(DefaultAvoidAmbiguous)
-  , iterations(DefaultIterations)
+  : iterations(DefaultIterations)
   , length(DefaultPasswordLength)
-  , salt(DefaultSalt)
+  , salt_base64(DefaultSalt_base64)
   , forceLowerCase(false)
   , forceUpperCase(false)
   , forceDigits(false)
   , forceExtra(false)
-  , forceRegexValidation(DefaultForceValidation)
-  , validatorRegEx(DefaultValidatorPattern)
   , canBeDeletedByRemote(true)
   , deleted(false)
 { /* ... */ }
@@ -88,22 +65,14 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , userName(o.userName)
   , legacyPassword(o.legacyPassword)
   , notes(o.notes)
-  , useLowerCase(o.useLowerCase)
-  , useUpperCase(o.useUpperCase)
-  , useDigits(o.useDigits)
-  , useExtra(o.useExtra)
-  , useCustom(o.useCustom)
-  , avoidAmbiguous(o.avoidAmbiguous)
-  , customCharacterSet(o.customCharacterSet)
   , iterations(o.iterations)
   , length(o.length)
-  , salt(o.salt)
+  , salt_base64(o.salt_base64)
+  , usedCharacters(o.usedCharacters)
   , forceLowerCase(o.forceLowerCase)
   , forceUpperCase(o.forceUpperCase)
   , forceDigits(o.forceDigits)
   , forceExtra(o.forceExtra)
-  , forceRegexValidation(o.forceRegexValidation)
-  , validatorRegEx(o.validatorRegEx)
   , createdDate(o.createdDate)
   , modifiedDate(o.modifiedDate)
   , canBeDeletedByRemote(o.canBeDeletedByRemote)
@@ -118,25 +87,18 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[USER_NAME] = userName;
   map[LEGACY_PASSWORD] = legacyPassword;
   map[NOTES] = notes;
-  map[USE_LOWERCASE] = useLowerCase;
-  map[USE_UPPERCASE] = useUpperCase;
-  map[USE_DIGITS] = useDigits;
-  map[USE_EXTRA] = useExtra;
-  map[USE_CUSTOM] = useCustom;
-  map[AVOID_AMBIGUOUS] = avoidAmbiguous;
-  map[CUSTOM_CHARACTER_SET] = customCharacterSet;
   map[ITERATIONS] = iterations;
   map[LENGTH] = length;
-  map[SALT] = salt;
+  map[SALT] = salt_base64;
+  map[USED_CHARACTERS] = usedCharacters;
   map[FORCE_LOWERCASE] = forceLowerCase;
   map[FORCE_UPPERCASE] = forceUpperCase;
   map[FORCE_DIGITS] = forceDigits;
   map[FORCE_EXTRA] = forceExtra;
-  map[FORCE_REGEX_VALIDATION] = forceRegexValidation;
-  map[VALIDATOR_REGEX] = validatorRegEx.pattern();
   map[CDATE] = createdDate;
   map[MDATE] = modifiedDate;
   map[CAN_BE_DELETED_BY_REMOTE] = canBeDeletedByRemote;
+  map[DELETED] = deleted;
   return map;
 }
 
@@ -146,24 +108,16 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   DomainSettings ds;
   ds.domainName = map[DOMAIN_NAME].toString();
   ds.userName = map[USER_NAME].toString();
-  ds.notes = map[NOTES].toString();
   ds.legacyPassword = map[LEGACY_PASSWORD].toString();
-  ds.useLowerCase = map[USE_LOWERCASE].toBool();
-  ds.useUpperCase = map[USE_UPPERCASE].toBool();
-  ds.useDigits = map[USE_DIGITS].toBool();
-  ds.useExtra = map[USE_EXTRA].toBool();
-  ds.useCustom = map[USE_CUSTOM].toBool();
-  ds.avoidAmbiguous = map[AVOID_AMBIGUOUS].toBool();
-  ds.customCharacterSet = map[CUSTOM_CHARACTER_SET].toString();
+  ds.notes = map[NOTES].toString();
   ds.iterations = map[ITERATIONS].toInt();
-  ds.salt = map[SALT].toByteArray();
   ds.length = map[LENGTH].toInt();
-  ds.validatorRegEx = QRegExp(map[VALIDATOR_REGEX].toString());
+  ds.salt_base64 = map[SALT].toByteArray();
+  ds.usedCharacters = map[USED_CHARACTERS].toString();
   ds.forceLowerCase = map[FORCE_LOWERCASE].toBool();
   ds.forceUpperCase = map[FORCE_UPPERCASE].toBool();
   ds.forceDigits = map[FORCE_DIGITS].toBool();
   ds.forceExtra = map[FORCE_EXTRA].toBool();
-  ds.forceRegexValidation = map[FORCE_REGEX_VALIDATION].toBool();
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
   if (map.contains(CAN_BE_DELETED_BY_REMOTE))

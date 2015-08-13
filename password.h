@@ -20,78 +20,13 @@
 #ifndef __PASSWORD_H_
 #define __PASSWORD_H_
 
+#include "domainsettings.h"
+
 #include <QObject>
 #include <QByteArray>
 #include <QString>
-#include <QRegExp>
 #include <QStringList>
 #include <QScopedPointer>
-
-class PasswordParamBase {
-public:
-  static const QString LowerChars;
-  static const QString UpperChars;
-  static const QString UpperCharsNoAmbiguous;
-  static const QString Digits;
-  static const QString ExtraChars;
-
-  PasswordParamBase(void)
-    : availableChars(Digits)
-    , passwordLength(10)
-    , iterations(4096)
-  { /* ... */ }
-  explicit PasswordParamBase(const PasswordParamBase &o)
-    : domain(o.domain)
-    , salt(o.salt)
-    , masterPwd(o.masterPwd)
-    , availableChars(o.availableChars)
-    , passwordLength(o.passwordLength)
-    , iterations(o.iterations)
-  { /* ... */  }
-  QByteArray domain;
-  QByteArray salt;
-  QByteArray masterPwd;
-  QString availableChars;
-  int passwordLength;
-  int iterations;
-};
-
-
-class PasswordParam : public PasswordParamBase {
-public:
-  explicit PasswordParam(const QByteArray &masterPwd)
-  {
-    this->masterPwd = masterPwd;
-  }
-  PasswordParam(
-      const QByteArray &domain,
-      const QByteArray &masterPwd,
-      const QString &availableChars,
-      const int passwordLength,
-      const int iterations)
-  {
-    this->domain = domain;
-    this->masterPwd = masterPwd;
-    this->availableChars = availableChars;
-    this->passwordLength = passwordLength;
-    this->iterations = iterations;
-  }
-  PasswordParam(
-      const QByteArray &domain,
-      const QByteArray &masterPwd,
-      const QByteArray &salt,
-      const QString &availableChars,
-      const int passwordLength,
-      const int iterations)
-  {
-    this->domain = domain;
-    this->masterPwd = masterPwd;
-    this->salt = salt;
-    this->availableChars = availableChars;
-    this->passwordLength = passwordLength;
-    this->iterations = iterations;
-  }
-};
 
 
 class PasswordPrivate;
@@ -99,38 +34,32 @@ class PasswordPrivate;
 class Password : public QObject
 {
   Q_OBJECT
-  Q_PROPERTY(QString key READ key)
-  Q_PROPERTY(QString hexKey READ hexKey)
-  Q_PROPERTY(QRegExp validator READ validator WRITE setValidator)
-  Q_PROPERTY(bool isValid READ isValid)
-  Q_PROPERTY(qreal elapsedSeconds READ elapsedSeconds)
-  Q_PROPERTY(QByteArray salt READ salt)
-
 public:
   explicit Password(QObject *parent = nullptr);
   ~Password();
 
   void abortGeneration(void);
-  bool generate(const PasswordParam &p);
-  void generateAsync(const PasswordParam &p);
+  bool generate(const QString &masterPwd);
+  void generateAsync(const QString &masterPwd);
 
-  const QRegExp &validator(void) const;
-  bool setValidator(const QRegExp &);
-
-  bool setValidCharacters(const QStringList &canContain, const QStringList &mustContain);
-
-  bool isValid(void) const;
+  bool isValid(void);
   const QString &key(void) const;
   const QString &hexKey(void) const;
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
   bool isAborted(void) const;
 
-  const QByteArray &salt(void) const;
-
   void waitForFinished(void);
   QString errorString(void) const;
   void extractAESKey(__inout char *const aesKey, __in int size);
+  void setDomainSettings(const DomainSettings &ds);
+
+  static const QString LowerChars;
+  static const QString UpperChars;
+  static const QString UpperCharsNoAmbiguous;
+  static const QString Digits;
+  static const QString ExtraChars;
+  static const QString AllChars;
 
 signals:
   void generationStarted(void);
