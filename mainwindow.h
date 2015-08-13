@@ -56,6 +56,7 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
+  void setDomainComboBox(QStringList domainList);
 protected:
   void closeEvent(QCloseEvent *);
   void changeEvent(QEvent *);

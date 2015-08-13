@@ -549,6 +549,15 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 }
 
 
+void MainWindow::setDomainComboBox(QStringList domainList)
+{
+  domainList.sort();
+  ui->domainsComboBox->clear();
+  ui->domainsComboBox->addItem(tr("<Choose domain ...>"));
+  ui->domainsComboBox->addItems(domainList);
+}
+
+
 void MainWindow::saveCurrentSettings(void)
 {
   Q_D(MainWindow);
@@ -575,12 +584,7 @@ void MainWindow::saveCurrentSettings(void)
       domainList << ds.domainName;
   }
 
-  // TODO: duplicate code
-  domainList.sort();
-  ui->domainsComboBox->clear();
-  ui->domainsComboBox->addItem(tr("<Choose domain ...>"));
-  ui->domainsComboBox->addItems(domainList);
-  // /TODO
+  setDomainComboBox(domainList);
 
   d->domains.updateWith(ds);
   saveAllDomainDataToSettings();
@@ -616,7 +620,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   Q_D(MainWindow);
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::restoreDomainDataFromSettings()", "d->masterPassword must not be empty");
   QJsonDocument json;
-  QStringList domains;
+  QStringList domainList;
   const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
   if (!baDomains.isEmpty()) {
     qDebug() << "MainWindow::restoreDomainDataFromSettings() trying to decode ...";
@@ -630,9 +634,9 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     QJsonParseError parseError;
     json = QJsonDocument::fromJson(recovered, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
-      domains = json.object().keys();
-      qDebug() << "Password accepted. Restored" << domains.count() << "domains";
-      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(domains.count()), 5000);
+      domainList = json.object().keys();
+      qDebug() << "Password accepted. Restored" << domainList.count() << "domains";
+      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(domainList.count()), 5000);
     }
     else {
       QMessageBox::warning(this, tr("Bad data from sync server"),
@@ -641,10 +645,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     }
   }
   d->domains = DomainSettingsList::fromQJsonDocument(json);
-  ui->domainsComboBox->clear();
-  ui->domainsComboBox->addItem(tr("<Choose domain ...>"));
-  domains.sort();
-  ui->domainsComboBox->addItems(domains);
+  setDomainComboBox(domainList);
   return true;
 }
 
