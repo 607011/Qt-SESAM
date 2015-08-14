@@ -38,470 +38,488 @@
         <translation>ctpwdgen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="21"/>
+        <location filename="../mainwindow.ui" line="224"/>
         <source>Domain</source>
         <translation>Domain</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="28"/>
+        <location filename="../mainwindow.ui" line="179"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="31"/>
+        <location filename="../mainwindow.ui" line="182"/>
         <source>Ctrl+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="56"/>
         <source>Main parameters</source>
-        <translation>Hauptparameter</translation>
+        <translation type="vanished">Hauptparameter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="80"/>
+        <location filename="../mainwindow.ui" line="39"/>
         <source>Created</source>
         <translation>Erstellt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="103"/>
+        <location filename="../mainwindow.ui" line="165"/>
         <source>Min. iterations</source>
         <translation>Min. Iterationen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="120"/>
+        <location filename="../mainwindow.ui" line="72"/>
         <source>Password length</source>
         <translation>Passwortlänge</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="127"/>
+        <location filename="../mainwindow.ui" line="79"/>
         <source>Notes</source>
         <translation>Notizen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="147"/>
+        <location filename="../mainwindow.ui" line="86"/>
         <source>Modified</source>
         <translation>Geändert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="168"/>
+        <location filename="../mainwindow.ui" line="107"/>
         <source>Salt (Base64)</source>
         <translation>Salt (Base64)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="214"/>
         <source>Additional parameters</source>
-        <translation>Zusätzliche Parameter</translation>
+        <translation type="vanished">Zusätzliche Parameter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="220"/>
         <source>Use characters</source>
-        <translation>Verwende Zeichen</translation>
+        <translation type="vanished">Verwende Zeichen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="226"/>
         <source>custom</source>
-        <translation>Eigene</translation>
+        <translation type="vanished">Eigene</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="233"/>
-        <location filename="../mainwindow.ui" line="348"/>
         <source>extra</source>
-        <translation>Extra</translation>
+        <translation type="vanished">Extra</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="243"/>
-        <location filename="../mainwindow.ui" line="335"/>
         <source>digits</source>
-        <translation>Ziffern</translation>
+        <translation type="vanished">Ziffern</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="253"/>
-        <location filename="../mainwindow.ui" line="322"/>
         <source>lower case</source>
-        <translation>Kleinbuchstaben</translation>
+        <translation type="vanished">Kleinbuchstaben</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="263"/>
-        <location filename="../mainwindow.ui" line="309"/>
         <source>upper case</source>
-        <translation>Großbuchstaben</translation>
+        <translation type="vanished">Großbuchstaben</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="280"/>
         <source>your custom characters</source>
-        <translation>Eigener Zeichenvorrat</translation>
+        <translation type="vanished">Eigener Zeichenvorrat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="287"/>
         <source>avoid ambiguous characters</source>
-        <translation>Schwer unterscheidbare Zeichen vermeiden</translation>
+        <translation type="vanished">Schwer unterscheidbare Zeichen vermeiden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="300"/>
         <source>Force characters</source>
-        <translation>Zeichen erzwingen</translation>
+        <translation type="vanished">Zeichen erzwingen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="361"/>
         <source>by regular expression</source>
-        <translation>durch regulären Ausdruck</translation>
+        <translation type="vanished">durch regulären Ausdruck</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="377"/>
         <source>regular expression to validate generated password</source>
-        <translation>regulärer Ausdruck zur Passwort-Validierung</translation>
+        <translation type="vanished">regulärer Ausdruck zur Passwort-Validierung</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="398"/>
+        <location filename="../mainwindow.ui" line="151"/>
         <source>Legacy password</source>
         <translation>Klassisches Passwort</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="414"/>
+        <location filename="../mainwindow.ui" line="249"/>
         <source>mandatory</source>
         <translation>erforderlich</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="421"/>
+        <location filename="../mainwindow.ui" line="172"/>
         <source>may be empty</source>
         <translation>kann leer bleiben</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="433"/>
+        <location filename="../mainwindow.ui" line="194"/>
         <source>don&apos;t fill unless service requires fixed password</source>
         <translation>nicht ausfüllen, wenn der Dienst veränderbare Passwörter anbietet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="440"/>
-        <location filename="../mainwindow.ui" line="487"/>
+        <location filename="../mainwindow.ui" line="201"/>
+        <location filename="../mainwindow.ui" line="285"/>
         <source>Copy password to clipboard</source>
         <translation>Passwort in Zwischenablage kopieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="456"/>
+        <location filename="../mainwindow.ui" line="217"/>
         <source>User name</source>
         <translation>Benutzername</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="463"/>
+        <location filename="../mainwindow.ui" line="261"/>
         <source>Generated password</source>
         <translation>Generiertes Passwort</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="514"/>
+        <location filename="../mainwindow.ui" line="312"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="543"/>
+        <location filename="../mainwindow.ui" line="341"/>
         <source>SHA512 hash (hex)</source>
         <translation>SHA512-Hash (hex)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="553"/>
+        <location filename="../mainwindow.ui" line="158"/>
         <source>delete</source>
         <translation>löschen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="570"/>
+        <location filename="../mainwindow.ui" line="351"/>
+        <source>Used characters</source>
+        <translation>Verwendete Zeichen</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="402"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="578"/>
+        <location filename="../mainwindow.ui" line="410"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="585"/>
+        <location filename="../mainwindow.ui" line="417"/>
         <source>Extras</source>
         <translation>Extras</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="598"/>
+        <location filename="../mainwindow.ui" line="431"/>
         <source>Exit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="603"/>
+        <location filename="../mainwindow.ui" line="436"/>
         <source>New domain</source>
         <translation>Neue Domain</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="606"/>
+        <location filename="../mainwindow.ui" line="439"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="611"/>
+        <location filename="../mainwindow.ui" line="444"/>
         <source>About ...</source>
         <translation>Über ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="616"/>
+        <location filename="../mainwindow.ui" line="449"/>
         <source>About Qt ...</source>
         <translation>Über Qt ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="621"/>
+        <location filename="../mainwindow.ui" line="454"/>
         <source>Sync now</source>
         <translation>Jetzt synchronisieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="624"/>
+        <location filename="../mainwindow.ui" line="457"/>
         <source>Ctrl+Shift+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="629"/>
-        <location filename="../mainwindow.cpp" line="242"/>
+        <location filename="../mainwindow.ui" line="462"/>
+        <location filename="../mainwindow.cpp" line="231"/>
         <source>[DEBUG] Invalidate password</source>
         <translation>[DEBUG] Master-Passwort invalidieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="634"/>
+        <location filename="../mainwindow.ui" line="467"/>
         <source>Options ...</source>
         <translation>Optionen ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="642"/>
+        <location filename="../mainwindow.ui" line="475"/>
         <source>Change master password ...</source>
         <translation>Master-Passwort ändern ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="220"/>
+        <location filename="../mainwindow.ui" line="483"/>
+        <source>Hack legacy password ;-)</source>
+        <translation>Klassisches Passwort hacken</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="486"/>
+        <source>Ctrl+Shift+H</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="211"/>
         <source>Restore window</source>
         <translation>Fenster wiederherstellen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="222"/>
+        <location filename="../mainwindow.cpp" line="213"/>
         <source>Sync</source>
         <translation>Synchronisieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="224"/>
+        <location filename="../mainwindow.cpp" line="215"/>
         <source>Clear clipboard</source>
         <translation>Zwischenablage leeren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="226"/>
+        <location filename="../mainwindow.cpp" line="217"/>
         <source>About %1</source>
         <translation>Über %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="228"/>
+        <location filename="../mainwindow.cpp" line="219"/>
         <source>Quit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="240"/>
+        <location filename="../mainwindow.cpp" line="229"/>
         <source>[DEBUG] Create Mini Dump</source>
         <translation>[DEBUG] Mini Dump erzeugen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="240"/>
+        <location filename="../mainwindow.cpp" line="229"/>
         <source>Alt+Shift+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="242"/>
+        <location filename="../mainwindow.cpp" line="231"/>
         <source>Alt+Shift+I</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="300"/>
+        <location filename="../mainwindow.cpp" line="277"/>
         <source>Save before exit?</source>
         <translation>Speichern vor dem Beenden?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="301"/>
+        <location filename="../mainwindow.cpp" line="278"/>
         <source>Your domain parameters have changed. Do you want to save the changes before exiting?</source>
         <translation>Deine Domain-Parameters wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="382"/>
+        <location filename="../mainwindow.cpp" line="388"/>
         <source>Really renew salt?</source>
         <translation>Salt wirklich erneuern?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="389"/>
         <source>Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?</source>
         <translation>Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="510"/>
+        <location filename="../mainwindow.cpp" line="553"/>
+        <source>HACKED in %1! :-)</source>
+        <translation>Gehackt in %1! :-)</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="559"/>
+        <source>Hacking ... %1 (%2ms) total: %3</source>
+        <translation>Hacken ... %1 (%2ms) total: %3</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="573"/>
         <source>generation time: %1 ms</source>
         <translation>Verarbeitungsdauer: %1 ms</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="513"/>
         <source>Password does not match regular expression. %1</source>
-        <translation>Passwort stimmt nicht mit regulärem Ausdruck überein. %1</translation>
+        <translation type="vanished">Passwort stimmt nicht mit regulärem Ausdruck überein. %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="513"/>
         <source>Increasing iteration count.</source>
-        <translation>Erhöhen der Anzahl der Iterationen.</translation>
+        <translation type="vanished">Erhöhen der Anzahl der Iterationen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="529"/>
+        <location filename="../mainwindow.cpp" line="598"/>
         <source>Legacy password copied to clipboard.</source>
         <translation>Legacy-Passwort in Zwischenablage kopiert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="536"/>
+        <location filename="../mainwindow.cpp" line="605"/>
         <source>Generated password copied to clipboard.</source>
         <translation>Generiertes Passwort in Zwischenablage kopiert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="547"/>
         <source>Really uncheck this option?</source>
-        <translation>Diese Option wirklich abstellen?</translation>
+        <translation type="vanished">Diese Option wirklich abstellen?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="548"/>
         <source>Custom characters have changed. If you uncheck the checkbox you will lose your changes. Do you really want to continue?</source>
-        <translation>Der Zeichenvorrat wurde verändert. Wenn du diese Häkchen entfernst, gehen alle deine Änderungen am Zeichenvorrat verloren. Möchtest du wirklich fortfahren?</translation>
+        <translation type="vanished">Der Zeichenvorrat wurde verändert. Wenn du diese Häkchen entfernst, gehen alle deine Änderungen am Zeichenvorrat verloren. Möchtest du wirklich fortfahren?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="619"/>
         <source>Bad regex: </source>
-        <translation>Falscher Regex:</translation>
+        <translation type="vanished">Falscher Regex:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="714"/>
+        <location filename="../mainwindow.cpp" line="579"/>
+        <source>Password does not follow the required rules. Increasing iteration count.</source>
+        <translation>Passwort entspricht nicht den gewünschten Regeln. Erhöhen des Iterationszählers.</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="636"/>
+        <source>&lt;Choose domain ...&gt;</source>
+        <translation>&lt;Domain wählen ...&gt;</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Domain settings saved.</source>
         <translation>Domain-Einstellungen gespeichert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="757"/>
+        <location filename="../mainwindow.cpp" line="719"/>
         <source>Password accepted. Restored %1 domains.</source>
         <translation>Passwort akzeptiert. %1 Domains wiederhergestellt.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="760"/>
-        <location filename="../mainwindow.cpp" line="1047"/>
-        <location filename="../mainwindow.cpp" line="1289"/>
+        <location filename="../mainwindow.cpp" line="722"/>
+        <location filename="../mainwindow.cpp" line="1015"/>
+        <location filename="../mainwindow.cpp" line="1253"/>
         <source>Bad data from sync server</source>
         <translation>Fehlerhafte Daten vom Sync-Server</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="761"/>
-        <location filename="../mainwindow.cpp" line="1048"/>
-        <location filename="../mainwindow.cpp" line="1290"/>
+        <location filename="../mainwindow.cpp" line="723"/>
+        <location filename="../mainwindow.cpp" line="1016"/>
+        <location filename="../mainwindow.cpp" line="1254"/>
         <source>Decoding the data from the sync server failed: %1</source>
         <translation>Dekodieren der Daten vom Sync-Server fehlgeschlagen: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="950"/>
+        <location filename="../mainwindow.cpp" line="775"/>
+        <source>No legacy password given. Cannot hack!</source>
+        <translation>Kein klassisches Passwort eingetragen. So kann ich nicht hacken!</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="920"/>
         <source>Sync to server finished.</source>
         <translation>Synchronisieren mit Server beendet.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="954"/>
-        <location filename="../mainwindow.cpp" line="1283"/>
+        <location filename="../mainwindow.cpp" line="924"/>
+        <location filename="../mainwindow.cpp" line="1247"/>
         <source>Sync server error</source>
         <translation>Sync-Server-Fehler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="955"/>
+        <location filename="../mainwindow.cpp" line="925"/>
         <source>Writing to the server failed. Reason: %1</source>
         <translation>Übertragung an Server fehlgeschlagen. Grund: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="966"/>
+        <location filename="../mainwindow.cpp" line="936"/>
         <source>Server read operation aborted.</source>
         <translation>Lesen vom Server abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="970"/>
+        <location filename="../mainwindow.cpp" line="940"/>
         <source>Sync to server aborted.</source>
         <translation>Synchronisieren mit Server abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="981"/>
+        <location filename="../mainwindow.cpp" line="950"/>
         <source>Syncing with file ...</source>
         <translation>Synchronisieren mit Datei ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="988"/>
+        <location filename="../mainwindow.cpp" line="957"/>
         <source>Sync file creation error</source>
         <translation>Anlegen der Synchronisierungsdatei fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="989"/>
+        <location filename="../mainwindow.cpp" line="958"/>
         <source>The sync file %1 cannot be created. Reason: %2</source>
         <translation>Die Synchronisierungsdatei %1 kann nicht erzeugt werden. Grund: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1001"/>
-        <location filename="../mainwindow.cpp" line="1010"/>
+        <location filename="../mainwindow.cpp" line="970"/>
+        <location filename="../mainwindow.cpp" line="979"/>
         <source>Sync file read error</source>
         <translation>Fehler beim Lesen der Synchronisierungsdatei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1002"/>
+        <location filename="../mainwindow.cpp" line="971"/>
         <source>The sync file %1 cannot be opened for reading. Reason: %2</source>
         <translation>Die Synchronisierungsdatei %1 kann nicht zum Lesen geöffnet werden. Grund: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1011"/>
+        <location filename="../mainwindow.cpp" line="980"/>
         <source>The sync file %1 cannot be opened for reading.</source>
         <translation>Die Synchronisierungsdatei %1 kann nicht zum Lesen geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1018"/>
+        <location filename="../mainwindow.cpp" line="986"/>
         <source>Syncing with server ...</source>
         <translation>Synchronisieren mit Server ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="989"/>
         <source>Reading from server ...</source>
         <translation>Lesen vom Server ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1077"/>
         <source>Sync file write error</source>
         <translation>Fehler beim Schreiben in Synchronisierungsdatei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1109"/>
+        <location filename="../mainwindow.cpp" line="1077"/>
         <source>Writing to your sync file %1 failed: %2</source>
         <translation>Das Schreiben in die Synchronisierungsdatei %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1117"/>
-        <location filename="../mainwindow.cpp" line="1120"/>
+        <location filename="../mainwindow.cpp" line="1085"/>
+        <location filename="../mainwindow.cpp" line="1088"/>
         <source>Sending data to server ...</source>
         <translation>Senden der Daten an den Server ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1225"/>
+        <location filename="../mainwindow.cpp" line="1189"/>
         <source>Decryption error</source>
         <translation>Entschlüsselungsfehler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1226"/>
+        <location filename="../mainwindow.cpp" line="1190"/>
         <source>An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Please enter the correct password!</source>
         <translation>Beim Entschlüsseln der Daten ist ein Fehler aufgetreten (#%1, %2). Möglicherweise hast du ein falsches Passwort eingegeben. Versuch es bitte noch einmal!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1240"/>
+        <location filename="../mainwindow.cpp" line="1204"/>
         <source>Master password cleared for security</source>
         <translation>Master-Passwort aus Sicherheitsgründen invalidiert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1284"/>
+        <location filename="../mainwindow.cpp" line="1248"/>
         <source>Reading from the sync server failed. status: %1, error: %2</source>
         <translation>Lesen vom Sync-Server fehlgeschlagen. Status: %1, Fehler: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1276"/>
         <source>About %1 %2</source>
         <translation>Über %1 %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1313"/>
+        <location filename="../mainwindow.cpp" line="1277"/>
         <source>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; is a domain specific password generator. See &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; for more info.&lt;/p&gt;&lt;p&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;You should have received a copy of the GNU General Public License along with this program. If not, see &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;No animals were harmed during the development of &lt;i&gt;%1&lt;/i&gt;. The software was programmed with CO&lt;sub&gt;2&lt;/sub&gt; neutrality in mind and without the use of genetic engineering. It&apos;s vegan, free of antibiotics and hypoallergenic.&lt;/p&gt;&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
 &lt;p&gt;Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.&lt;/p&gt;
@@ -511,12 +529,12 @@
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1346"/>
+        <location filename="../mainwindow.cpp" line="1310"/>
         <source>Dump created.</source>
         <translation>Dump generiert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1349"/>
+        <location filename="../mainwindow.cpp" line="1313"/>
         <source>Dump not implemented.</source>
         <translation>Dump nicht implementiert.</translation>
     </message>
@@ -527,6 +545,154 @@
         <location filename="../newcredentialsdialog.ui" line="16"/>
         <source>Form</source>
         <translation>Form</translation>
+    </message>
+</context>
+<context>
+    <name>NewDomainWizard</name>
+    <message>
+        <location filename="../newdomainwizard.ui" line="17"/>
+        <source>Create new domain</source>
+        <translation>Neue Domain anlegen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="39"/>
+        <source>Base64 encoded salt</source>
+        <translation>Base64-kodiertes Salt</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="48"/>
+        <source>Password length</source>
+        <translation>Passwortlänge</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="70"/>
+        <source>optional</source>
+        <translation>optional</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="90"/>
+        <source>Domain</source>
+        <translation>Domain</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="106"/>
+        <source>mandatory</source>
+        <translation>erforderlich</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="113"/>
+        <source>Salt (Base64)</source>
+        <translation>Salt (Base64)</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="120"/>
+        <source>User name</source>
+        <translation>Benutzername</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="127"/>
+        <source>Notes</source>
+        <translation>Notizen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="134"/>
+        <source>may be empty</source>
+        <translation>kann leer bleiben</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="157"/>
+        <source>Min. iterations</source>
+        <translation>Min. Iterationen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="177"/>
+        <source>don&apos;t fill unless you really need to</source>
+        <translation>nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="184"/>
+        <source>Legacy password</source>
+        <translation>Klassisches Passwort</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="193"/>
+        <source>Used characters</source>
+        <translation>Verwendete Zeichen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="220"/>
+        <source>add lower case characters to character set</source>
+        <translation>Kleinbuchstaben hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="223"/>
+        <source>abc…</source>
+        <translation>abc...</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="233"/>
+        <source>add upper case characters to character set</source>
+        <translation>Großbuchstaben hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="236"/>
+        <source>ABC…</source>
+        <translation>ABC...</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="246"/>
+        <source>add digits to character set</source>
+        <translation>Ziffern hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="249"/>
+        <source>0123…</source>
+        <translation>0123...</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="259"/>
+        <source>add some special characters to character set</source>
+        <translation>Sonderzeichen hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="262"/>
+        <source>#!&quot;.…</source>
+        <translation>#!&quot;.…</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="277"/>
+        <source>Forced characters</source>
+        <translation>Erzwungene Zeichen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="286"/>
+        <source>upper case</source>
+        <translation>Großbuchstaben</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="299"/>
+        <source>lower case</source>
+        <translation>Kleinbuchstaben</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="312"/>
+        <source>digits</source>
+        <translation>Ziffern</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="325"/>
+        <source>extra</source>
+        <translation>Sonderzeichen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="353"/>
+        <source>Accept</source>
+        <translation>Übernehmen</translation>
+    </message>
+    <message>
+        <location filename="../newdomainwizard.ui" line="360"/>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 <context>
