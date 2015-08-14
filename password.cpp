@@ -123,7 +123,7 @@ bool Password::generate(const QString &masterPwd)
   bool success = false;
   const int nChars = d->domainSettings.usedCharacters.count();
   if (completed && nChars > 0) {
-    d->elapsed = 1e-6 * elapsedTimer.nsecsElapsed();
+    d->elapsed = 1e-9 * elapsedTimer.nsecsElapsed();
     d->hexKey = d->derivedKey.toHex();
     d->key.clear();
     const QString strModulus = QString("%1").arg(nChars);
