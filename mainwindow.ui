@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>296</width>
-    <height>604</height>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -114,6 +114,15 @@
          <widget class="QLineEdit" name="saltBase64LineEdit">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="font">
+           <font>
+            <family>Courier</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>ForbiddenCursor</cursorShape>
           </property>
           <property name="readOnly">
            <bool>true</bool>
@@ -223,6 +232,12 @@
           <width>128</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>ForbiddenCursor</cursorShape>
+        </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
         </property>
         <property name="text">
          <string/>
