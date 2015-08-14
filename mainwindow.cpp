@@ -115,6 +115,7 @@ public:
   bool parameterSetDirty;
   bool autoIncrementIterations;
   bool updatePasswordBlocked;
+  QElapsedTimer hackClock;
   quint32 hackSalt;
   bool hackingMode;
   Password password;
@@ -265,7 +266,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
-  stopPasswordGeneration();
+  cancelPasswordGeneration();
   int rc = (d->parameterSetDirty)
       ? QMessageBox::question(
           this,
@@ -324,11 +325,28 @@ void MainWindow::unblockUpdatePassword(void)
 }
 
 
+void MainWindow::resetAllFields(void)
+{
+  Q_D(MainWindow);
+  ui->domainLineEdit->setText(QString());
+  ui->userLineEdit->setText(QString());
+  ui->legacyPasswordLineEdit->setText(QString());
+  ui->saltBase64LineEdit->setText(DomainSettings::DefaultSalt_base64);
+  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
+  ui->notesPlainTextEdit->setPlainText(QString());
+  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
+  ui->createdLabel->setText(QString());
+  ui->modifiedLabel->setText(QString());
+  ui->deleteCheckBox->setChecked(false);
+  d->autoIncrementIterations = true;
+}
+
+
 void MainWindow::newDomain(void)
 {
   Q_D(MainWindow);
   int rc = d->newDomainWizard->exec();
-  ui->actionHackLegacyPassword->setEnabled(false);
   if (rc == QDialog::Accepted) {
     setDirty(false);
     ui->domainLineEdit->setText(d->newDomainWizard->domain());
@@ -341,6 +359,7 @@ void MainWindow::newDomain(void)
     ui->usedCharactersPlainTextEdit->setPlainText(d->newDomainWizard->usedCharacters());
     ui->createdLabel->setText(QDateTime::currentDateTime().toString(Qt::ISODate));
     ui->modifiedLabel->setText(QString());
+    ui->deleteCheckBox->setChecked(false);
     d->autoIncrementIterations = true;
     updatePassword();
   }
@@ -512,18 +531,31 @@ bool MainWindow::generatedPasswordIsValid(void)
 }
 
 
+auto makeHMS = [](qint64 ms) {
+  qint64 secs = ms / 1000;
+  qint64 hrs = secs / 60 / 60;
+  qint64 mins = (secs / 60 - hrs * 60);
+  secs -= 60 * (hrs * 60 + mins);
+  return QString("%1h %2'%3\"").arg(hrs).arg(mins, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0'));
+};
+
+
 void MainWindow::onPasswordGenerated(void)
 {
   Q_D(MainWindow);
   if (d->hackingMode) {
-    qDebug() << d->password.key() << d->password.elapsedSeconds() << d->hackSalt;
     ui->generatedPasswordLineEdit->setText(d->password.key());
     if (d->password.key() == ui->legacyPasswordLineEdit->text()) {
-      ui->statusBar->showMessage(tr("HACKED! :-)"));
+      ui->statusBar->showMessage(tr("HACKED in %1! :-)").arg(makeHMS(d->hackClock.elapsed())));
+      ui->legacyPasswordLineEdit->setText(QString());
       d->hackingMode = false;
       hideActivityIcons();
     }
     else {
+      ui->statusBar->showMessage(tr("Hacking ... %1 (%2ms) total: %3")
+                                 .arg(d->hackSalt)
+                                 .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 1)
+                                 .arg(makeHMS(d->hackClock.elapsed())));
       ++d->hackSalt;
       QByteArray salt(reinterpret_cast<const char*>(&d->hackSalt), sizeof(d->hackSalt));
       ui->saltBase64LineEdit->setText(salt.toBase64());
@@ -534,7 +566,8 @@ void MainWindow::onPasswordGenerated(void)
       ui->generatedPasswordLineEdit->setText(d->password.key());
       ui->hashPlainTextEdit->setPlainText(d->password.hexKey());
       if (!d->password.isAborted())
-        ui->statusBar->showMessage(tr("generation time: %1 ms").arg(d->password.elapsedSeconds(), 0, 'f', 4), 3000);
+        ui->statusBar->showMessage(tr("generation time: %1 ms")
+                                   .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 4), 3000);
       hideActivityIcons();
     }
     else if (d->autoIncrementIterations) {
@@ -635,7 +668,7 @@ void MainWindow::saveCurrentSettings(void)
   setDirty(false);
 
   if (ds.deleted)
-    newDomain();
+    resetAllFields();
 
   ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
 }
@@ -740,6 +773,7 @@ void MainWindow::hackLegacyPassword(void)
   else {
     d->hackSalt = 0;
     d->hackingMode = true;
+    d->hackClock.restart();
     updatePassword();
   }
 }

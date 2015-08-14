@@ -111,6 +111,7 @@ signals:
   void badMasterPassword(void);
 
 private: // methods
+  void resetAllFields(void);
   bool restoreSettings(void);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
