@@ -39,8 +39,8 @@ public:
   ~Password();
 
   void abortGeneration(void);
-  bool generate(const QString &masterPwd);
-  void generateAsync(const QString &masterPwd);
+  bool generate(const QByteArray &masterKey);
+  void generateAsync(const QByteArray &masterKey);
 
   const QString &key(void) const;
   const QString &hexKey(void) const;

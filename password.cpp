@@ -80,7 +80,7 @@ auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
 };
 
 
-bool Password::generate(const QString &masterPwd)
+bool Password::generate(const QByteArray &masterKey)
 {
   Q_D(Password);
   d->abortMutex.lock();
@@ -95,7 +95,7 @@ bool Password::generate(const QString &masterPwd)
   const QByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
       d->domainSettings.userName.toUtf8() +
-      masterPwd.toUtf8();
+      masterKey;
 
   QByteArray salt = QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8());
   static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
@@ -144,11 +144,11 @@ bool Password::generate(const QString &masterPwd)
 }
 
 
-void Password::generateAsync(const QString &masterPwd)
+void Password::generateAsync(const QByteArray &masterKey)
 {
   Q_D(Password);
   d->abort = false;
-  d->future = QtConcurrent::run(this, &Password::generate, masterPwd);
+  d->future = QtConcurrent::run(this, &Password::generate, masterKey);
 }
 
 

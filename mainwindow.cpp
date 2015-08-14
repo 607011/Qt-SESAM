@@ -467,7 +467,7 @@ void MainWindow::generatePassword(void)
   Q_D(MainWindow);
   const DomainSettings ds = collectedDomainSettings();
   d->password.setDomainSettings(ds);
-  d->password.generateAsync(d->masterPassword);
+  d->password.generateAsync(d->masterPassword.toUtf8());
 }
 
 
@@ -1152,8 +1152,8 @@ void MainWindow::masterPasswordEntered(void)
     setEnabled(true);
     d->masterPasswordDialog->hide();
     d->masterPassword = masterPwd;
-    d->cryptPassword.generate(d->masterPassword);
-    d->cryptPassword.extractAESKey((char*)d->AESKey, AES_KEY_SIZE);
+    d->cryptPassword.generate(d->masterPassword.toUtf8());
+    d->cryptPassword.extractAESKey(reinterpret_cast<char*>(d->AESKey), AES_KEY_SIZE);
     ok = restoreSettings();
     if (ok) {
       ok = restoreDomainDataFromSettings();
