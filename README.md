@@ -1,8 +1,14 @@
-# ctpwdgen
+# c't SESAM
 
 **Create domain specific passwords from a master passwort**
 
-See [Jürgen Schmidt, Eines für alle, Ein neues Konzept für den Umgang mit Passwörtern, c't 18/14, S. 82](http://www.heise.de/ct/ausgabe/2014-18-Ein-neues-Konzept-fuer-den-Umgang-mit-Passwoertern-2284364.html)
+SESAM stands for Super Easy Secure Authentication Management.
+
+References:
+
+ - [Oliver Lau, Aus kurz wird lang, Passwörter sicher speichern mit Hilfe von PBKDF2, c't 17/15, S. 180](http://heise.de/-2753149)
+ - [Jürgen Schmidt, Eines für alle, Ein neues Konzept für den Umgang mit Passwörtern, c't 18/14, S. 82](http://heise.de/-2284364)
+
 
 Copyright (c) 2015 Oliver Lau <<ola@ct.de>>, Heise Medien GmbH & Co. KG
 
