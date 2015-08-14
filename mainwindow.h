@@ -79,6 +79,7 @@ private slots:
   void newDomain(void);
   void renewSalt(void);
   void onRenewSalt(void);
+  void cancelPasswordGeneration(void);
   void stopPasswordGeneration(void);
   void setDirty(bool dirty = true);
   void sync(void);
@@ -99,6 +100,8 @@ private slots:
   void deleteFinished(QNetworkReply*);
   void cancelServerOperation(void);
   void loadCertificate(void);
+  void hackLegacyPassword(void);
+  void hideActivityIcons(void);
 #ifdef WIN32
   void createFullDump(void);
 #endif

@@ -86,6 +86,8 @@ public:
     , parameterSetDirty(false)
     , autoIncrementIterations(true)
     , updatePasswordBlocked(false)
+    , hackSalt(0)
+    , hackingMode(false)
     , newDomainWizard(new NewDomainWizard)
     , masterPasswordDialog(new CredentialsDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
@@ -113,6 +115,8 @@ public:
   bool parameterSetDirty;
   bool autoIncrementIterations;
   bool updatePasswordBlocked;
+  quint32 hackSalt;
+  bool hackingMode;
   Password password;
   Password cryptPassword;
   QDateTime createdDate;
@@ -156,13 +160,13 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
-  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
-  QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(stopPasswordGeneration()));
-  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
+  QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(cancelPasswordGeneration()));
+  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
@@ -176,6 +180,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(masterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
+  QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 
   d->progressDialog = new ProgressDialog(this);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
@@ -323,6 +328,7 @@ void MainWindow::newDomain(void)
 {
   Q_D(MainWindow);
   int rc = d->newDomainWizard->exec();
+  ui->actionHackLegacyPassword->setEnabled(false);
   if (rc == QDialog::Accepted) {
     setDirty(false);
     ui->domainLineEdit->setText(d->newDomainWizard->domain());
@@ -365,6 +371,17 @@ void MainWindow::onRenewSalt(void)
 }
 
 
+void MainWindow::cancelPasswordGeneration(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::cancelPasswordGeneration()";
+  if (d->hackingMode) {
+    d->hackingMode = false;
+  }
+  stopPasswordGeneration();
+}
+
+
 void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
@@ -395,9 +412,11 @@ void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
   if (!d->updatePasswordBlocked && !d->masterPassword.isEmpty() && !ui->domainLineEdit->text().isEmpty()) {
-    ui->generatedPasswordLineEdit->setText(QString());
-    ui->hashPlainTextEdit->setPlainText(QString());
-    ui->statusBar->showMessage(QString());
+    if (!d->hackingMode) {
+      ui->generatedPasswordLineEdit->setText(QString());
+      ui->hashPlainTextEdit->setPlainText(QString());
+      ui->statusBar->showMessage(QString());
+    }
     stopPasswordGeneration();
     generatePassword();
     restartInvalidationTimer();
@@ -430,6 +449,16 @@ void MainWindow::generatePassword(void)
   const DomainSettings ds = collectedDomainSettings();
   d->password.setDomainSettings(ds);
   d->password.generateAsync(d->masterPassword);
+}
+
+
+void MainWindow::hideActivityIcons(void)
+{
+  Q_D(MainWindow);
+  ui->processLabel->hide();
+  ui->cancelPushButton->hide();
+  d->loaderIcon.stop();
+  ui->copyGeneratedPasswordToClipboardPushButton->show();
 }
 
 
@@ -482,26 +511,40 @@ bool MainWindow::generatedPasswordIsValid(void)
   return true;
 }
 
+
 void MainWindow::onPasswordGenerated(void)
 {
   Q_D(MainWindow);
-  if (!d->autoIncrementIterations || generatedPasswordIsValid()) {
+  if (d->hackingMode) {
+    qDebug() << d->password.key() << d->password.elapsedSeconds() << d->hackSalt;
     ui->generatedPasswordLineEdit->setText(d->password.key());
-    ui->hashPlainTextEdit->setPlainText(d->password.hexKey());
-    if (!d->password.isAborted())
-      ui->statusBar->showMessage(tr("generation time: %1 ms").arg(d->password.elapsedSeconds(), 0, 'f', 4), 3000);
-    ui->processLabel->hide();
-    ui->cancelPushButton->hide();
-    d->loaderIcon.stop();
-    ui->copyGeneratedPasswordToClipboardPushButton->show();
+    if (d->password.key() == ui->legacyPasswordLineEdit->text()) {
+      ui->statusBar->showMessage(tr("HACKED! :-)"));
+      d->hackingMode = false;
+      hideActivityIcons();
+    }
+    else {
+      ++d->hackSalt;
+      QByteArray salt(reinterpret_cast<const char*>(&d->hackSalt), sizeof(d->hackSalt));
+      ui->saltBase64LineEdit->setText(salt.toBase64());
+    }
   }
-  else if (d->autoIncrementIterations) {
-    const int nIterations = ui->iterationsSpinBox->value() + 1;
-    ui->statusBar->showMessage(tr("Password does not follow the required rules. Increasing iteration count."));
-    ui->iterationsSpinBox->blockSignals(true);
-    ui->iterationsSpinBox->setValue(nIterations);
-    ui->iterationsSpinBox->blockSignals(false);
-    updatePassword();
+  else {
+    if (!d->autoIncrementIterations || generatedPasswordIsValid()) {
+      ui->generatedPasswordLineEdit->setText(d->password.key());
+      ui->hashPlainTextEdit->setPlainText(d->password.hexKey());
+      if (!d->password.isAborted())
+        ui->statusBar->showMessage(tr("generation time: %1 ms").arg(d->password.elapsedSeconds(), 0, 'f', 4), 3000);
+      hideActivityIcons();
+    }
+    else if (d->autoIncrementIterations) {
+      const int nIterations = ui->iterationsSpinBox->value() + 1;
+      ui->statusBar->showMessage(tr("Password does not follow the required rules. Increasing iteration count."));
+      ui->iterationsSpinBox->blockSignals(true);
+      ui->iterationsSpinBox->setValue(nIterations);
+      ui->iterationsSpinBox->blockSignals(false);
+      updatePassword();
+    }
   }
 }
 
@@ -685,6 +728,20 @@ void MainWindow::loadCertificate(void)
     d->expectedSslErrors.append(QSslError::SelfSignedCertificate);
   if (d->optionsDialog->untrustedCertificatesAccepted())
     d->expectedSslErrors.append(QSslError::CertificateUntrusted);
+}
+
+
+void MainWindow::hackLegacyPassword(void)
+{
+  Q_D(MainWindow);
+  if (ui->legacyPasswordLineEdit->text().isEmpty()) {
+    ui->statusBar->showMessage(tr("No legacy password given. Cannot hack!"), 5000);
+  }
+  else {
+    d->hackSalt = 0;
+    d->hackingMode = true;
+    updatePassword();
+  }
 }
 
 
