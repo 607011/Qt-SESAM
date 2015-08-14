@@ -75,6 +75,11 @@ static const QString DEFAULT_SERVER_ROOT = "https://localhost/ctpwdgen-server";
 static const QString DEFAULT_WRITE_URL = "/ajax/write.php";
 static const QString DEFAULT_READ_URL = "/ajax/read.php";
 
+enum FormatFlags {
+  FF_DEFAULT_ENCRYPTION = 0x00,
+  FF_AES256_ENCRYPTED_MASTERKEY = 0x01
+};
+
 
 class MainWindowPrivate {
 public:
@@ -126,6 +131,7 @@ public:
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
   unsigned char AESKey[AES_KEY_SIZE];
+  unsigned char masterKey[AES_KEY_SIZE];
   ProgressDialog *progressDialog;
   QList<QSslCertificate> cert;
   QList<QSslError> expectedSslErrors;
@@ -232,6 +238,7 @@ MainWindow::MainWindow(QWidget *parent)
   QTest::qExec(&tc, 0, 0);
 #endif
 
+  setDirty(false);
   enterMasterPassword();
 }
 
@@ -371,7 +378,7 @@ void MainWindow::renewSalt(void)
   Q_D(MainWindow);
   QByteArray salt(d->optionsDialog->saltLength(), '\0');
   for (int i = 0; i < salt.size(); ++i)
-    salt[i] = (char)d->randomDevice();
+    salt[i] = static_cast<char>(d->randomDevice());
   ui->saltBase64LineEdit->setText(salt.toBase64());
   updatePassword();
 }
@@ -862,15 +869,31 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
     if (e.GetErrorType() > NO_CRYPT_ERROR)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
-  return QByteArray::fromStdString(cipher);
+  QByteArray result;
+  result.append(char(FF_DEFAULT_ENCRYPTION));
+  result.append(QByteArray::fromStdString(cipher));
+  return result;
 }
 
 
-QByteArray MainWindow::decode(const QByteArray &baCipher, bool uncompress, int *errCode, QString *errMsg)
+QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode, QString *errMsg)
 {
   Q_D(MainWindow);
   if (errCode != nullptr)
     *errCode = NO_CRYPT_ERROR;
+  int formatFlag = baCipher.at(0);
+  baCipher.remove(0, 1);
+
+  switch (formatFlag) {
+  case FF_DEFAULT_ENCRYPTION:
+    break;
+  case FF_AES256_ENCRYPTED_MASTERKEY:
+    break;
+  default:
+    qWarning() << "unknow format flag:" << formatFlag;
+    break;
+  }
+
   std::string recovered;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
