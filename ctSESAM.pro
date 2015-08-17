@@ -64,12 +64,12 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/osrng.cpp \
     domainsettings.cpp \
     password.cpp \
-    credentialsdialog.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
     domainsettingslist.cpp \
     global.cpp \
-    newdomainwizard.cpp
+    newdomainwizard.cpp \
+    masterpassworddialog.cpp
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -100,19 +100,19 @@ HEADERS  += mainwindow.h \
     util.h \
     domainsettings.h \
     password.h \
-    credentialsdialog.h \
     optionsdialog.h \
     progressdialog.h \
     domainsettingslist.h \
     global.h \
-    newdomainwizard.h
+    newdomainwizard.h \
+    masterpassworddialog.h
 
 FORMS    += mainwindow.ui \
-    credentialsdialog.ui \
     optionsdialog.ui \
     progressdialog.ui \
     newcredentialsdialog.ui \
-    newdomainwizard.ui
+    newdomainwizard.ui \
+    masterpassworddialog.ui
 
 
 INCLUDEPATH += $$PWD/3rdparty

@@ -17,33 +17,35 @@
 
 */
 
-#ifndef __CREDENTIALSDIALOG_H_
-#define __CREDENTIALSDIALOG_H_
+#ifndef __MASTERPASSWORDDIALOG_H_
+#define __MASTERPASSWORDDIALOG_H_
 
 #include <QDialog>
 #include <QShowEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QScopedPointer>
+
+class MasterPasswordDialogPrivate;
 
 namespace Ui {
-class CredentialsDialog;
+class MasterPasswordDialog;
 }
 
-class CredentialsDialog : public QDialog
+class MasterPasswordDialog : public QDialog
 {
   Q_OBJECT
 
   Q_PROPERTY(QString masterPassword READ masterPassword)
 
 public:
-  explicit CredentialsDialog(QWidget *parent = nullptr);
-  ~CredentialsDialog();
+  explicit MasterPasswordDialog(QWidget *parent = nullptr);
+  ~MasterPasswordDialog();
 
   void invalidatePassword(void);
-
   void setRepeatPassword(bool);
-
   QString masterPassword(void) const;
+
 
 public slots:
   virtual void reject(void);
@@ -56,9 +58,12 @@ private slots:
   void comparePasswords(void);
 
 private:
-  Ui::CredentialsDialog *ui;
+  Ui::MasterPasswordDialog *ui;
 
-  QLineEdit *mRepeatPasswordLineEdit;
+  QScopedPointer<MasterPasswordDialogPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(MasterPasswordDialog)
+  Q_DISABLE_COPY(MasterPasswordDialog)
+
 };
 
-#endif // __CREDENTIALSDIALOG_H_
+#endif // __MASTERPASSWORDDIALOG_H_

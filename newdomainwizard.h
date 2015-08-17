@@ -59,6 +59,7 @@ private slots:
   void addDigitsToUsedCharacters(void);
   void addExtraCharactersToUsedCharacters(void);
   void onUsedCharactersChanged(void);
+  void renewSalt(void);
 
 private:
   Ui::NewDomainWizard *ui;

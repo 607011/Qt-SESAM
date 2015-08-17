@@ -21,6 +21,7 @@
 #ifndef __GLOBAL_H_
 #define __GLOBAL_H_
 
+#include <random>
 #include <QString>
 
 #ifndef QT_DEBUG
@@ -37,5 +38,8 @@ extern const QString APP_URL;
 extern const QString APP_AUTHOR;
 extern const QString APP_AUTHOR_MAIL;
 extern const QString APP_USER_AGENT;
+
+extern std::random_device gRandomDevice;
+
 
 #endif // __GLOBAL_H_

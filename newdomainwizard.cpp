@@ -17,9 +17,12 @@
 
 */
 
+#include <QByteArray>
+
 #include "newdomainwizard.h"
 #include "ui_newdomainwizard.h"
 #include "password.h"
+#include "global.h"
 
 NewDomainWizard::NewDomainWizard(QWidget *parent)
   : QDialog(parent, Qt::Dialog)
@@ -27,9 +30,11 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
 {
   ui->setupUi(this);
   ui->saltBase64LineEdit->setText(DomainSettings::DefaultSalt_base64);
+  ui->saltBase64LineEdit->setToolTip(DomainSettings::DefaultSalt);
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   QObject::connect(ui->addPushButton, SIGNAL(pressed()), SLOT(accept()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
+  QObject::connect(ui->renewSaltPushButton, SIGNAL(pressed()), SLOT(renewSalt()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
   QObject::connect(ui->uppercasePushButton, SIGNAL(pressed()), SLOT(addUppercaseToUsedCharacters()));
   QObject::connect(ui->digitsPushButton, SIGNAL(pressed()), SLOT(addDigitsToUsedCharacters()));
@@ -42,6 +47,15 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
 NewDomainWizard::~NewDomainWizard()
 {
   delete ui;
+}
+
+
+void NewDomainWizard::renewSalt(void)
+{
+  QByteArray salt(12, static_cast<char>(0));
+  for (int i = 0; i < salt.size(); ++i)
+    salt[i] = static_cast<char>(gRandomDevice());
+  ui->saltBase64LineEdit->setText(salt.toBase64());
 }
 
 

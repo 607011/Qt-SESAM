@@ -17,15 +17,25 @@
 
 */
 
-#include "credentialsdialog.h"
-#include "ui_credentialsdialog.h"
+#include "masterpassworddialog.h"
+#include "ui_masterpassworddialog.h"
 #include "util.h"
 #include "global.h"
 
-CredentialsDialog::CredentialsDialog(QWidget *parent)
+
+class MasterPasswordDialogPrivate {
+public:
+  MasterPasswordDialogPrivate(void)
+    : repeatPasswordLineEdit(nullptr)
+  { /* ... */ }
+  QLineEdit *repeatPasswordLineEdit;
+};
+
+
+MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   : QDialog(parent, Qt::WindowTitleHint)
-  , ui(new Ui::CredentialsDialog)
-  , mRepeatPasswordLineEdit(nullptr)
+  , ui(new Ui::MasterPasswordDialog)
+  , d_ptr(new MasterPasswordDialogPrivate)
 {
   ui->setupUi(this);
   ui->infoLabel->setStyleSheet("font-weight: bold");
@@ -36,30 +46,31 @@ CredentialsDialog::CredentialsDialog(QWidget *parent)
 }
 
 
-CredentialsDialog::~CredentialsDialog()
+MasterPasswordDialog::~MasterPasswordDialog()
 {
   invalidatePassword();
   delete ui;
 }
 
 
-void CredentialsDialog::invalidatePassword(void)
+void MasterPasswordDialog::invalidatePassword(void)
 {
   SecureErase(ui->passwordLineEdit->text().data(), ui->passwordLineEdit->text().size());
   ui->passwordLineEdit->clear();
 }
 
 
-void CredentialsDialog::setRepeatPassword(bool doRepeat)
+void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
 {
+  Q_D(MasterPasswordDialog);
   if (doRepeat) {
     invalidatePassword();
-    SafeRenew(mRepeatPasswordLineEdit, new QLineEdit);
-    mRepeatPasswordLineEdit->setEchoMode(QLineEdit::Password);
-    ui->formLayout->insertRow(1, tr("Repeat password"), mRepeatPasswordLineEdit);
-    setTabOrder(ui->passwordLineEdit, mRepeatPasswordLineEdit);
+    SafeRenew(d->repeatPasswordLineEdit, new QLineEdit);
+    d->repeatPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    ui->formLayout->insertRow(1, tr("Repeat password"), d->repeatPasswordLineEdit);
+    setTabOrder(ui->passwordLineEdit, d->repeatPasswordLineEdit);
     ui->infoLabel->setText(tr("New master password"));
-    QObject::connect(mRepeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+    QObject::connect(d->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   }
   else {
     ui->infoLabel->setText(tr("Enter master password"));
@@ -67,37 +78,38 @@ void CredentialsDialog::setRepeatPassword(bool doRepeat)
 }
 
 
-QString CredentialsDialog::masterPassword(void) const
+QString MasterPasswordDialog::masterPassword(void) const
 {
   return ui->passwordLineEdit->text();
 }
 
 
-void CredentialsDialog::reject(void)
+void MasterPasswordDialog::reject(void)
 {
   // do nothing
 }
 
 
-void CredentialsDialog::showEvent(QShowEvent *)
+void MasterPasswordDialog::showEvent(QShowEvent *)
 {
   ui->passwordLineEdit->selectAll();
   ui->passwordLineEdit->setFocus();
 }
 
 
-void CredentialsDialog::okClicked(void)
+void MasterPasswordDialog::okClicked(void)
 {
+  Q_D(MasterPasswordDialog);
   if (ui->passwordLineEdit->text().isEmpty()) {
     ui->passwordLineEdit->setFocus();
   }
   else {
-    if (mRepeatPasswordLineEdit != nullptr) {
-      if (mRepeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
-        QWidget *label = ui->formLayout->labelForField(mRepeatPasswordLineEdit);
+    if (d->repeatPasswordLineEdit != nullptr) {
+      if (d->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
+        QWidget *label = ui->formLayout->labelForField(d->repeatPasswordLineEdit);
         label->deleteLater();
-        mRepeatPasswordLineEdit->deleteLater();
-        SafeDelete(mRepeatPasswordLineEdit);
+        d->repeatPasswordLineEdit->deleteLater();
+        SafeDelete(d->repeatPasswordLineEdit);
         accept();
       }
     }
@@ -108,11 +120,12 @@ void CredentialsDialog::okClicked(void)
 }
 
 
-void CredentialsDialog::comparePasswords(void)
+void MasterPasswordDialog::comparePasswords(void)
 {
-  if (mRepeatPasswordLineEdit == nullptr)
+  Q_D(MasterPasswordDialog);
+  if (d->repeatPasswordLineEdit == nullptr)
     return;
-  if (mRepeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
+  if (d->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
     ui->okPushButton->setEnabled(true);
   }
   else {

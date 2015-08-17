@@ -39,13 +39,11 @@
 #include <QSysInfo>
 #include <QElapsedTimer>
 
-#include <random>
-
 #include "global.h"
 #include "util.h"
 #include "progressdialog.h"
 #include "newdomainwizard.h"
-#include "credentialsdialog.h"
+#include "masterpassworddialog.h"
 #include "optionsdialog.h"
 
 #include "cryptopp562/sha.h"
@@ -94,7 +92,7 @@ public:
     , hackSalt(0)
     , hackingMode(false)
     , newDomainWizard(new NewDomainWizard)
-    , masterPasswordDialog(new CredentialsDialog(parent))
+    , masterPasswordDialog(new MasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
@@ -111,7 +109,7 @@ public:
     SecureErase(AESKey, AES_KEY_SIZE);
   }
   NewDomainWizard *newDomainWizard;
-  CredentialsDialog *masterPasswordDialog;
+  MasterPasswordDialog *masterPasswordDialog;
   OptionsDialog *optionsDialog;
   QSettings settings;
   DomainSettingsList domains;
@@ -142,7 +140,6 @@ public:
   QNetworkReply *writeReq;
   int counter;
   int maxCounter;
-  std::random_device randomDevice;
 };
 
 
@@ -266,6 +263,8 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 MainWindow::~MainWindow()
 {
   d_ptr->trayIcon.hide();
+  d_ptr->optionsDialog->close();
+  d_ptr->newDomainWizard->close();
   delete ui;
 }
 
@@ -378,7 +377,7 @@ void MainWindow::renewSalt(void)
   Q_D(MainWindow);
   QByteArray salt(d->optionsDialog->saltLength(), '\0');
   for (int i = 0; i < salt.size(); ++i)
-    salt[i] = static_cast<char>(d->randomDevice());
+    salt[i] = static_cast<char>(gRandomDevice());
   ui->saltBase64LineEdit->setText(salt.toBase64());
   updatePassword();
 }
@@ -810,12 +809,12 @@ bool MainWindow::restoreSettings(void)
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
-    QByteArray serverUsernameDecoded;
-    serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
+    QByteArray serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
     if (errCode == NO_CRYPT_ERROR) {
       d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
     }
     else {
+      // TODO: signal user that master password is wrong
       qWarning() << "ERROR: decode() of server user name failed:" << errMsg;
     }
   }
@@ -826,12 +825,12 @@ bool MainWindow::restoreSettings(void)
   const QByteArray &serverPassword = d->settings.value("sync/serverPassword").toByteArray();
   if (!serverPassword.isEmpty()) {
     const QByteArray &serverPasswordBin = QByteArray::fromHex(serverPassword);
-    QByteArray password;
-      password = decode(serverPasswordBin, false, &errCode, &errMsg);
+    QByteArray password = decode(serverPasswordBin, false, &errCode, &errMsg);
     if (errCode == NO_CRYPT_ERROR) {
       d->optionsDialog->setServerPassword(QString::fromUtf8(password));
     }
     else {
+      // TODO: signal user that master password is wrong
       qWarning() << "ERROR: decode() of server password failed:" << errMsg;
     }
   }
@@ -1181,7 +1180,6 @@ void MainWindow::masterPasswordEntered(void)
     if (ok) {
       ok = restoreDomainDataFromSettings();
       if (ok) {
-        // updatePassword();
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();
         if (d->optionsDialog->syncOnStart())
@@ -1190,7 +1188,7 @@ void MainWindow::masterPasswordEntered(void)
     }
   }
   if (!ok ) {
-    d->settings.setValue("mainwindow/masterPasswordEntered", false);
+//    d->settings.setValue("mainwindow/masterPasswordEntered", false);
     emit badMasterPassword();
   }
 }

@@ -35,3 +35,6 @@ const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
     .arg(QSysInfo::prettyProductName())
     .arg(QSysInfo::currentCpuArchitecture())
     .arg(QSysInfo::buildCpuArchitecture());
+
+
+std::random_device gRandomDevice;
