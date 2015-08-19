@@ -35,9 +35,6 @@ class MasterPasswordDialog;
 class MasterPasswordDialog : public QDialog
 {
   Q_OBJECT
-
-  Q_PROPERTY(QString masterPassword READ masterPassword)
-
 public:
   explicit MasterPasswordDialog(QWidget *parent = nullptr);
   ~MasterPasswordDialog();
@@ -45,7 +42,6 @@ public:
   void invalidatePassword(void);
   void setRepeatPassword(bool);
   QString masterPassword(void) const;
-
 
 public slots:
   virtual void reject(void);
@@ -63,7 +59,6 @@ private:
   QScopedPointer<MasterPasswordDialogPrivate> d_ptr;
   Q_DECLARE_PRIVATE(MasterPasswordDialog)
   Q_DISABLE_COPY(MasterPasswordDialog)
-
 };
 
 #endif // __MASTERPASSWORDDIALOG_H_

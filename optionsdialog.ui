@@ -235,10 +235,10 @@
             <string> mins</string>
            </property>
            <property name="minimum">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="maximum">
-            <number>1440</number>
+            <number>5259600</number>
            </property>
            <property name="value">
             <number>5</number>

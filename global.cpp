@@ -22,9 +22,9 @@
 #include <QSysInfo>
 
 const QString APP_COMPANY_NAME = "c't";
-const QString APP_NAME = "c't SESAM";
-const QString APP_VERSION = "1.0-BETA5";
-const QString APP_URL = "https://github.com/ola-ct/ctpwdgen";
+const QString APP_NAME = "Qt SESAM";
+const QString APP_VERSION = "1.0";
+const QString APP_URL = "https://github.com/ola-ct/Qt-SESAM";
 const QString APP_AUTHOR = "Oliver Lau";
 const QString APP_AUTHOR_MAIL = "ola@ct.de";
 const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")

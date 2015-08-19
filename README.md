@@ -1,4 +1,4 @@
-# c't SESAM
+# Qt SESAM
 
 **Create domain specific passwords from a master passwort**
 
