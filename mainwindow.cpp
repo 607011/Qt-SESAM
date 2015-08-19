@@ -813,6 +813,7 @@ void MainWindow::hackLegacyPassword(void)
     ui->usedCharactersPlainTextEdit->setReadOnly(true);
     ui->renewSaltPushButton->setEnabled(false);
     ui->passwordLengthSpinBox->setValue(pwd.size());
+    ui->hashPlainTextEdit->setPlainText(QString());
     d->hackClock.restart();
     unblockUpdatePassword();
     updatePassword();
