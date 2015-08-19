@@ -76,7 +76,7 @@ private slots:
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
-  void saveCurrentSettings(void);
+  void saveCurrentDomainSettings(void);
   void domainSelected(const QString &);
   void newDomain(void);
   void renewSalt(void);

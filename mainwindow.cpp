@@ -169,7 +169,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
   QObject::connect(ui->copyUsernameToClipboardPushButton, SIGNAL(clicked()), SLOT(copyUsernameToClipboard()));
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
-  QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentSettings()));
+  QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(cancelPasswordGeneration()));
   QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()), Qt::ConnectionType::QueuedConnection);
@@ -278,7 +278,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
       : QMessageBox::NoButton;
   if (rc == QMessageBox::Yes) {
-    saveCurrentSettings();
+    saveCurrentDomainSettings();
   }
   else if (rc == QMessageBox::Cancel) {
     e->ignore();
@@ -661,7 +661,7 @@ void MainWindow::setDomainComboBox(QStringList domainList)
 }
 
 
-void MainWindow::saveCurrentSettings(void)
+void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
 
