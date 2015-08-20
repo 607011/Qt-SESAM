@@ -228,9 +228,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 #if defined(QT_DEBUG)
 #if defined(WIN32)
-  ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(tr("Alt+Shift+D")));
+  ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_D));
 #endif
-  ui->menuExtras->addAction(tr("[DEBUG] Invalidate password"), this, SLOT(invalidatePassword()), QKeySequence(tr("Alt+Shift+I")));
+  ui->menuExtras->addAction(tr("[DEBUG] Invalidate password"), this, SLOT(invalidatePassword()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_I));
 #endif
 
 #ifdef QT_DEBUG
@@ -283,19 +283,23 @@ void MainWindow::closeEvent(QCloseEvent *e)
           tr("Your domain parameters have changed. Do you want to save the changes before exiting?"),
           QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
       : QMessageBox::NoButton;
-  if (rc == QMessageBox::Yes) {
+  switch (rc) {
+  case QMessageBox::Yes:
     saveCurrentDomainSettings();
-  }
-  else if (rc == QMessageBox::Cancel) {
+    break;
+  case QMessageBox::Cancel:
     e->ignore();
-  }
-  else {
+    break;
+  case QMessageBox::NoButton:
+    // fall-through
+  default:
     d->masterPasswordDialog->close();
     d->optionsDialog->close();
     saveSettings();
     invalidatePassword(false);
     QMainWindow::closeEvent(e);
     e->accept();
+    break;
   }
 }
 
@@ -998,8 +1002,9 @@ void MainWindow::writeFinished(QNetworkReply *reply)
     d->progressDialog->setValue(d->counter);
     if (d->counter == d->maxCounter) {
       d->loaderIcon.stop();
-      updateSaveButtonIcon();
+      d->progressDialog->close();
       ui->statusBar->showMessage(tr("Sync to server finished."), 5000);
+      updateSaveButtonIcon();
     }
   }
   else {

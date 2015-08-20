@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>385</width>
+    <width>301</width>
     <height>469</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
           <string>Sync on start</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -79,7 +79,7 @@
              <string>Use</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -139,7 +139,7 @@
             <item row="6" column="1">
              <widget class="QLineEdit" name="readUrlLineEdit">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -153,7 +153,7 @@
             <item row="7" column="1">
              <widget class="QLineEdit" name="writeUrlLineEdit">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -321,17 +321,25 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>okPushButton</tabstop>
+  <tabstop>syncOnStartCheckBox</tabstop>
   <tabstop>useSyncFileCheckBox</tabstop>
-  <tabstop>syncFileLineEdit</tabstop>
   <tabstop>chooseSyncFilePushButton</tabstop>
   <tabstop>useSyncServerCheckBox</tabstop>
   <tabstop>serverRootURLLineEdit</tabstop>
   <tabstop>usernameLineEdit</tabstop>
   <tabstop>passwordLineEdit</tabstop>
+  <tabstop>certFileLineEdit</tabstop>
+  <tabstop>chooseCertFilePushButton</tabstop>
+  <tabstop>acceptSelfSignedCertificatesCheckBox</tabstop>
+  <tabstop>acceptUntrustedCertificatesCheckBox</tabstop>
   <tabstop>readUrlLineEdit</tabstop>
   <tabstop>writeUrlLineEdit</tabstop>
+  <tabstop>okPushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>syncFileLineEdit</tabstop>
   <tabstop>cancelPushButton</tabstop>
+  <tabstop>masterPasswordInvalidationTimeMinsSpinBox</tabstop>
+  <tabstop>saltLengthSpinBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>
