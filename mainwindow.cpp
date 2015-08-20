@@ -276,7 +276,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
   cancelPasswordGeneration();
-  int rc = (d->parameterSetDirty)
+  QMessageBox::StandardButton rc = (d->parameterSetDirty)
       ? QMessageBox::question(
           this,
           tr("Save before exit?"),
@@ -573,16 +573,19 @@ void MainWindow::onPasswordGenerated(void)
     if (d->hackPos == st) {
       const QString &newCharTable = d->hackPos.substitute(st, ui->usedCharactersPlainTextEdit->toPlainText());
       ui->usedCharactersPlainTextEdit->setPlainText(newCharTable);
-      ui->legacyPasswordLineEdit->setText(QString());
       d->hackingMode = false;
       ui->renewSaltPushButton->setEnabled(true);
       ui->usedCharactersPlainTextEdit->setReadOnly(false);
       ui->legacyPasswordLineEdit->setReadOnly(false);
       hideActivityIcons();
-      QMessageBox::information(
+      QMessageBox::StandardButton button = QMessageBox::question(
             this,
             tr("Finished hacking"),
-            tr("Calculated parameters in %1 :-) The legacy password has been cleared. Click \"Save\" if you'd like to store the new settings.").arg(makeHMS(d->hackClock.elapsed())));
+            tr("Calculated domain parameters to reconstruct legacy password in %1 :-) Do you want to clear the legacy passwor and save the new settings?").arg(makeHMS(d->hackClock.elapsed())));
+      if (button == QMessageBox::Yes) {
+        ui->legacyPasswordLineEdit->setText(QString());
+        saveCurrentDomainSettings();
+      }
     }
     else {
       const qint64 dt = d->hackIterationClock.restart();
@@ -1263,12 +1266,11 @@ void MainWindow::masterPasswordEntered(void)
 
 void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 {
-  int button = QMessageBox::critical(
+  QMessageBox::StandardButton button = QMessageBox::critical(
         this,
         tr("Decryption error"),
         tr("An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Please enter the correct password!").arg(errCode).arg(errMsg),
-        QMessageBox::Retry,
-        QMessageBox::NoButton);
+        QMessageBox::Retry);
   if (button == QMessageBox::Retry)
     enterMasterPassword();
 }
