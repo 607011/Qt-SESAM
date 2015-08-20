@@ -833,7 +833,6 @@ void MainWindow::hackLegacyPassword(void)
     d->hackPos = PositionTable(pwd);
     d->hackPermutations = d->hackPos.permutations();
     d->hackIterationDurationMs = 0;
-    qDebug() << d->hackPos << " -> " << d->hackPermutations << "permutations";
     ui->usedCharactersPlainTextEdit->setPlainText(
           pwd.split("", QString::SkipEmptyParts)
           .toSet().toList().join(""));
