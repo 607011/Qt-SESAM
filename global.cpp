@@ -42,7 +42,6 @@ const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4")
     .arg(APP_VERSION)
     .arg(APP_URL)
     .arg(qVersion());
-
 #endif
 
 
