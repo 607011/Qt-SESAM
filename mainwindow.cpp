@@ -90,7 +90,7 @@ public:
     , autoIncrementIterations(true)
     , updatePasswordBlocked(false)
     , hackIterationDurationMs(0)
-    , hackSalt(6, 0)
+    , hackSalt(4, 0)
     , hackPermutations(1)
     , hackingMode(false)
     , newDomainWizard(new NewDomainWizard)
