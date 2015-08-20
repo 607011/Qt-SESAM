@@ -45,6 +45,7 @@
 #include "newdomainwizard.h"
 #include "masterpassworddialog.h"
 #include "optionsdialog.h"
+#include "hackhelper.h"
 
 #include "cryptopp562/sha.h"
 #include "cryptopp562/aes.h"
@@ -59,8 +60,6 @@
 #endif
 
 #include "dump.h"
-
-
 
 static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS = 5;
 static const int DEFAULT_SALT_LENGTH = 12;
@@ -79,6 +78,7 @@ enum FormatFlags {
 };
 
 
+
 class MainWindowPrivate {
 public:
   MainWindowPrivate(QWidget *parent = nullptr)
@@ -89,7 +89,9 @@ public:
     , parameterSetDirty(false)
     , autoIncrementIterations(true)
     , updatePasswordBlocked(false)
+    , hackIterationDurationMs(0)
     , hackSalt(0)
+    , hackPermutations(1)
     , hackingMode(false)
     , newDomainWizard(new NewDomainWizard)
     , masterPasswordDialog(new MasterPasswordDialog(parent))
@@ -118,8 +120,12 @@ public:
   bool parameterSetDirty;
   bool autoIncrementIterations;
   bool updatePasswordBlocked;
+  qint64 hackIterationDurationMs;
   QElapsedTimer hackClock;
+  QElapsedTimer hackIterationClock;
   quint32 hackSalt;
+  PositionTable hackPos;
+  qint64 hackPermutations;
   bool hackingMode;
   Password password;
   Password cryptPassword;
@@ -542,11 +548,19 @@ bool MainWindow::generatedPasswordIsValid(void)
 
 
 auto makeHMS = [](qint64 ms) {
+  QString sign;
+  if (ms < 0) {
+    sign = "-";
+    ms = -ms;
+  }
+  else {
+    sign = "";
+  }
   qint64 secs = ms / 1000;
   qint64 hrs = secs / 60 / 60;
   qint64 mins = (secs / 60 - hrs * 60);
   secs -= 60 * (hrs * 60 + mins);
-  return QString("%1h %2'%3\"").arg(hrs).arg(mins, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0'));
+  return QString("%1%2h%3'%4\"").arg(sign).arg(hrs).arg(mins, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0'));
 };
 
 
@@ -555,7 +569,10 @@ void MainWindow::onPasswordGenerated(void)
   Q_D(MainWindow);
   if (d->hackingMode) {
     ui->generatedPasswordLineEdit->setText(d->password.key());
-    if (d->password.key() == ui->legacyPasswordLineEdit->text()) {
+    PositionTable st(d->password.key());
+    if (d->hackPos == st) {
+      const QString &newCharTable = d->hackPos.substitute(st, ui->usedCharactersPlainTextEdit->toPlainText());
+      ui->usedCharactersPlainTextEdit->setPlainText(newCharTable);
       ui->statusBar->showMessage(tr("HACKED in %1! :-)").arg(makeHMS(d->hackClock.elapsed())));
       ui->legacyPasswordLineEdit->setText(QString());
       d->hackingMode = false;
@@ -565,13 +582,20 @@ void MainWindow::onPasswordGenerated(void)
       hideActivityIcons();
     }
     else {
-      ui->statusBar->showMessage(tr("Hacking ... %1 (%2ms) total: %3")
-                                 .arg(d->hackSalt)
-                                 .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 1)
-                                 .arg(makeHMS(d->hackClock.elapsed())));
-      ++d->hackSalt;
+      const qint64 dt = d->hackIterationClock.restart();
+      d->hackIterationDurationMs = (d->hackIterationDurationMs > 0)
+          ? (d->hackIterationDurationMs + dt) / 2
+          : dt;
+      ui->statusBar->showMessage(
+            tr("Hacking ... t%1, %2 (%3ms) t: %4")
+            .arg(makeHMS(d->hackClock.elapsed() - 3 * d->hackPermutations * d->hackIterationDurationMs / 2))
+            .arg(d->hackSalt)
+            .arg(dt)
+            .arg(makeHMS(d->hackClock.elapsed()))
+            );
       QByteArray salt(reinterpret_cast<const char*>(&d->hackSalt), sizeof(d->hackSalt));
       ui->saltBase64LineEdit->setText(salt.toBase64());
+      ++d->hackSalt;
     }
   }
   else {
@@ -806,6 +830,10 @@ void MainWindow::hackLegacyPassword(void)
     blockUpdatePassword();
     d->hackingMode = true;
     d->hackSalt = 0;
+    d->hackPos = PositionTable(pwd);
+    d->hackPermutations = d->hackPos.permutations();
+    d->hackIterationDurationMs = 0;
+    qDebug() << d->hackPos << " -> " << d->hackPermutations << "permutations";
     ui->usedCharactersPlainTextEdit->setPlainText(
           pwd.split("", QString::SkipEmptyParts)
           .toSet().toList().join(""));
@@ -815,6 +843,7 @@ void MainWindow::hackLegacyPassword(void)
     ui->passwordLengthSpinBox->setValue(pwd.size());
     ui->hashPlainTextEdit->setPlainText(QString());
     d->hackClock.restart();
+    d->hackIterationClock.restart();
     unblockUpdatePassword();
     updatePassword();
   }

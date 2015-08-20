@@ -105,7 +105,8 @@ HEADERS  += mainwindow.h \
     domainsettingslist.h \
     global.h \
     newdomainwizard.h \
-    masterpassworddialog.h
+    masterpassworddialog.h \
+    hackhelper.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \
