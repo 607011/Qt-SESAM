@@ -388,7 +388,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="584"/>
         <source>Calculated domain parameters to reconstruct legacy password in %1 :-) Do you want to clear the legacy passwor and save the new settings?</source>
-        <translation>Domain-Einstellungen zum Rekonstruieren des klassischen Passworts in %1 berechnet :-) Willst du das Feld für das klassische Passwort löschen und die neuen Einstellungen speichern?</translation>
+        <translation>Das Berechnen der Domain-Einstellungen zum Rekonstruieren des klassischen Passworts hat %1 gedauert :-) Willst du das Feld für das klassische Passwort löschen und die neuen Einstellungen speichern?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="596"/>
