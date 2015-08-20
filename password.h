@@ -50,7 +50,7 @@ public:
 
   void waitForFinished(void);
   QString errorString(void) const;
-  void extractAESKey(__inout char *const aesKey, __in int size);
+  void extractAESKey(char *const aesKey, int size);
   void setDomainSettings(const DomainSettings &ds);
 
   static const QString LowerChars;
