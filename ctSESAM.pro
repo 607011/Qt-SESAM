@@ -32,6 +32,9 @@ win32 {
     LIBS += User32.lib
 }
 
+unix {
+    QMAKE_CXXFLAGS += -std=c++11
+}
 
 CONFIG(debug) {
     QT += testlib
