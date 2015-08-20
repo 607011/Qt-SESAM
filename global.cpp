@@ -27,6 +27,7 @@ const QString APP_VERSION = "1.0";
 const QString APP_URL = "https://github.com/ola-ct/Qt-SESAM";
 const QString APP_AUTHOR = "Oliver Lau";
 const QString APP_AUTHOR_MAIL = "ola@ct.de";
+#if QT_VERSION >= 0x050400
 const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
     .arg(APP_NAME)
     .arg(APP_VERSION)
@@ -35,6 +36,14 @@ const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
     .arg(QSysInfo::prettyProductName())
     .arg(QSysInfo::currentCpuArchitecture())
     .arg(QSysInfo::buildCpuArchitecture());
+#else
+const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4")
+    .arg(APP_NAME)
+    .arg(APP_VERSION)
+    .arg(APP_URL)
+    .arg(qVersion());
+
+#endif
 
 
 std::random_device gRandomDevice;

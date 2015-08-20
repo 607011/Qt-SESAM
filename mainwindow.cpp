@@ -910,7 +910,8 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
   Q_D(MainWindow);
   if (errCode != nullptr)
     *errCode = NO_CRYPT_ERROR;
-  std::string plain = (compress) ? qCompress(baPlain, 9).toStdString() : baPlain.toStdString();
+  QByteArray _baPlain = (compress) ? qCompress(baPlain, 9) : baPlain;
+  std::string plain(_baPlain.constData(), _baPlain.length());
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
@@ -937,7 +938,7 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
   }
   QByteArray result;
   result.append(char(FF_DEFAULT_ENCRYPTION));
-  result.append(QByteArray::fromStdString(cipher));
+  result.append(QByteArray(cipher.c_str(), cipher.length()));
   return result;
 }
 
@@ -964,8 +965,9 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
     dec.SetKeyWithIV(d->AESKey, AES_KEY_SIZE, IV);
+    std::string cipher(baCipher.constData(), baCipher.length());
     CryptoPP::StringSource s(
-          baCipher.toStdString(),
+          cipher,
           true,
           new CryptoPP::StreamTransformationFilter(
             dec,
@@ -983,7 +985,7 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
     if (e.GetErrorType() > NO_CRYPT_ERROR)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
-  const QByteArray &plain = QByteArray::fromStdString(recovered);
+  QByteArray plain(recovered.c_str(), recovered.length());
   return (uncompress) ? qUncompress(plain) : plain;
 }
 
@@ -1087,10 +1089,12 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    std::string sDomains = decode(remoteDomainsEncoded, COMPRESSION_ENABLED, &errCode, &errMsg);
+    QByteArray _baTmp = decode(remoteDomainsEncoded, COMPRESSION_ENABLED, &errCode, &errMsg);
+    std::string sDomains(_baTmp.constData(), _baTmp.length());
     QJsonParseError parseError;
     if (errCode == NO_CRYPT_ERROR && !sDomains.empty()) {
-      remoteJSON = QJsonDocument::fromJson(QByteArray::fromStdString(sDomains), &parseError);
+      QByteArray baDomains(sDomains.c_str(), sDomains.length());
+      remoteJSON = QJsonDocument::fromJson(baDomains, &parseError);
       if (parseError.error != QJsonParseError::NoError) {
         QMessageBox::warning(this, tr("Bad data from sync server"),
                              tr("Decoding the data from the sync server failed: %1")

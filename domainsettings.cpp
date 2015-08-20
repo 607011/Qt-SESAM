@@ -17,7 +17,7 @@
 
 */
 
-#include "DomainSettings.h"
+#include "domainsettings.h"
 
 #include <QtDebug>
 

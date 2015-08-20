@@ -34,6 +34,7 @@ win32 {
 
 unix {
     QMAKE_CXXFLAGS += -std=c++11
+    LIBS += -lcryptopp
 }
 
 CONFIG(debug) {
@@ -44,7 +45,16 @@ CONFIG(debug) {
 
 SOURCES += main.cpp mainwindow.cpp \
     3rdparty/bigint/bigInt.cpp \
-    3rdparty/cryptopp562/sha.cpp \
+    domainsettings.cpp \
+    password.cpp \
+    optionsdialog.cpp \
+    progressdialog.cpp \
+    domainsettingslist.cpp \
+    global.cpp \
+    newdomainwizard.cpp \
+    masterpassworddialog.cpp
+
+win32:SOURCES += 3rdparty/cryptopp562/sha.cpp \
     3rdparty/cryptopp562/iterhash.cpp \
     3rdparty/cryptopp562/misc.cpp \
     3rdparty/cryptopp562/simple.cpp \
@@ -64,19 +74,23 @@ SOURCES += main.cpp mainwindow.cpp \
     3rdparty/cryptopp562/rdtables.cpp \
     3rdparty/cryptopp562/dessp.cpp \
     3rdparty/cryptopp562/rng.cpp \
-    3rdparty/cryptopp562/osrng.cpp \
-    domainsettings.cpp \
-    password.cpp \
-    optionsdialog.cpp \
-    progressdialog.cpp \
-    domainsettingslist.cpp \
-    global.cpp \
-    newdomainwizard.cpp \
-    masterpassworddialog.cpp
+    3rdparty/cryptopp562/osrng.cpp
+
 
 HEADERS  += mainwindow.h \
     3rdparty/bigint/bigInt.h \
-    3rdparty/cryptopp562/sha.h \
+    util.h \
+    domainsettings.h \
+    password.h \
+    optionsdialog.h \
+    progressdialog.h \
+    domainsettingslist.h \
+    global.h \
+    newdomainwizard.h \
+    masterpassworddialog.h \
+    hackhelper.h
+
+win32:HEADERS += 3rdparty/cryptopp562/sha.h \
     3rdparty/cryptopp562/config.h \
     3rdparty/cryptopp562/cryptlib.h \
     3rdparty/cryptopp562/iterhash.h \
@@ -99,19 +113,10 @@ HEADERS  += mainwindow.h \
     3rdparty/cryptopp562/des.h \
     3rdparty/cryptopp562/rijndael.h \
     3rdparty/cryptopp562/seckey.h \
-    3rdparty/cryptopp562/rng.h \
-    util.h \
-    domainsettings.h \
-    password.h \
-    optionsdialog.h \
-    progressdialog.h \
-    domainsettingslist.h \
-    global.h \
-    newdomainwizard.h \
-    masterpassworddialog.h \
-    hackhelper.h
+    3rdparty/cryptopp562/rng.h
 
-FORMS    += mainwindow.ui \
+
+FORMS += mainwindow.ui \
     optionsdialog.ui \
     progressdialog.ui \
     newcredentialsdialog.ui \

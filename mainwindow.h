@@ -104,9 +104,7 @@ private slots:
   void loadCertificate(void);
   void hackLegacyPassword(void);
   void hideActivityIcons(void);
-#ifdef WIN32
   void createFullDump(void);
-#endif
 
 signals:
   void passwordGenerated(void);
