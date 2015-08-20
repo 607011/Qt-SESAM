@@ -90,7 +90,7 @@ public:
     , autoIncrementIterations(true)
     , updatePasswordBlocked(false)
     , hackIterationDurationMs(0)
-    , hackSalt(0)
+    , hackSalt(6, 0)
     , hackPermutations(1)
     , hackingMode(false)
     , newDomainWizard(new NewDomainWizard)
@@ -123,7 +123,7 @@ public:
   qint64 hackIterationDurationMs;
   QElapsedTimer hackClock;
   QElapsedTimer hackIterationClock;
-  quint32 hackSalt;
+  QByteArray hackSalt;
   PositionTable hackPos;
   qint64 hackPermutations;
   bool hackingMode;
@@ -573,13 +573,16 @@ void MainWindow::onPasswordGenerated(void)
     if (d->hackPos == st) {
       const QString &newCharTable = d->hackPos.substitute(st, ui->usedCharactersPlainTextEdit->toPlainText());
       ui->usedCharactersPlainTextEdit->setPlainText(newCharTable);
-      ui->statusBar->showMessage(tr("HACKED in %1! :-)").arg(makeHMS(d->hackClock.elapsed())));
       ui->legacyPasswordLineEdit->setText(QString());
       d->hackingMode = false;
       ui->renewSaltPushButton->setEnabled(true);
       ui->usedCharactersPlainTextEdit->setReadOnly(false);
       ui->legacyPasswordLineEdit->setReadOnly(false);
       hideActivityIcons();
+      QMessageBox::information(
+            this,
+            tr("Finished hacking"),
+            tr("Calculated parameters in %1 :-) The legacy password has been cleared. Click \"Save\" if you'd like to store the new settings.").arg(makeHMS(d->hackClock.elapsed())));
     }
     else {
       const qint64 dt = d->hackIterationClock.restart();
@@ -587,15 +590,13 @@ void MainWindow::onPasswordGenerated(void)
           ? (d->hackIterationDurationMs + dt) / 2
           : dt;
       ui->statusBar->showMessage(
-            tr("Hacking ... t%1, %2 (%3ms) t: %4")
+            tr("Hacking ... t%1 (%2ms) t: %3")
             .arg(makeHMS(d->hackClock.elapsed() - 3 * d->hackPermutations * d->hackIterationDurationMs / 2))
-            .arg(d->hackSalt)
             .arg(dt)
             .arg(makeHMS(d->hackClock.elapsed()))
             );
-      QByteArray salt(reinterpret_cast<const char*>(&d->hackSalt), sizeof(d->hackSalt));
-      ui->saltBase64LineEdit->setText(salt.toBase64());
-      ++d->hackSalt;
+      incrementEndianless(d->hackSalt);
+      ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
     }
   }
   else {
@@ -829,7 +830,7 @@ void MainWindow::hackLegacyPassword(void)
   else {
     blockUpdatePassword();
     d->hackingMode = true;
-    d->hackSalt = 0;
+    d->hackSalt.fill(0);
     d->hackPos = PositionTable(pwd);
     d->hackPermutations = d->hackPos.permutations();
     d->hackIterationDurationMs = 0;
@@ -844,7 +845,7 @@ void MainWindow::hackLegacyPassword(void)
     d->hackClock.restart();
     d->hackIterationClock.restart();
     unblockUpdatePassword();
-    updatePassword();
+    ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
   }
 }
 

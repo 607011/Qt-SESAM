@@ -136,6 +136,19 @@ private: // methods
 };
 
 
+void incrementEndianless(QByteArray &b)
+{
+  int i = b.size();
+  while (--i) {
+    quint8 byte = static_cast<quint8>(b.at(i));
+    ++byte;
+    b[i] = static_cast<char>(byte);
+    if (byte != 0)
+      break;
+  }
+}
+
+
 QDebug operator<<(QDebug debug, const PositionTable &sub)
 {
     QDebugStateSaver saver(debug);
