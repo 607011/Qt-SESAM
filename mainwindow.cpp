@@ -837,9 +837,8 @@ void MainWindow::hackLegacyPassword(void)
     d->hackPos = PositionTable(pwd);
     d->hackPermutations = d->hackPos.permutations();
     d->hackIterationDurationMs = 0;
-    ui->usedCharactersPlainTextEdit->setPlainText(
-          pwd.split("", QString::SkipEmptyParts)
-          .toSet().toList().join(""));
+    QStringList charSet = pwd.split("", QString::SkipEmptyParts).toSet().toList();
+    ui->usedCharactersPlainTextEdit->setPlainText(charSet.join(""));
     ui->legacyPasswordLineEdit->setReadOnly(true);
     ui->usedCharactersPlainTextEdit->setReadOnly(true);
     ui->renewSaltPushButton->setEnabled(false);
