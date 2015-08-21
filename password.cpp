@@ -180,6 +180,15 @@ const QString &Password::hexKey(void) const
 }
 
 
+QByteArray Password::derivedKey(int size) const
+{
+  Q_ASSERT_X(size <= d_ptr->derivedKey.size(), "Password::derivedKey()", "size must be <= key size");
+  return size < 0
+      ? d_ptr->derivedKey
+      : QByteArray(d_ptr->derivedKey.constData(), size);
+}
+
+
 void Password::extractAESKey(char *const aesKey, int size)
 {
   Q_D(Password);

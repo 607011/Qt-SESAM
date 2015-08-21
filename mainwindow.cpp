@@ -64,6 +64,7 @@
 static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS = 5;
 static const int AES_KEY_SIZE = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
+static const int CRYPT_SALT_LENGTH = 32;
 static const int NO_CRYPT_ERROR = -1;
 static const bool COMPRESSION_ENABLED = true;
 
@@ -115,6 +116,7 @@ public:
   QSettings settings;
   DomainSettingsList domains;
   QMovie loaderIcon;
+  QByteArray cryptSalt;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
   bool autoIncrementIterations;
@@ -802,6 +804,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
+  d->settings.setValue("misc/cryptSalt", d->cryptSalt.toBase64());
   d->settings.setValue("sync/onStart", d->optionsDialog->syncOnStart());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
@@ -872,6 +875,7 @@ bool MainWindow::restoreSettings(void)
         d->settings.value("misc/masterPasswordInvalidationTimeMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
   d->optionsDialog->setSaltLength(
         d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
+  d->cryptSalt = QByteArray::fromBase64(d->settings.value("misc/cryptSalt").toByteArray());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());
@@ -960,6 +964,9 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
     *errCode = NO_CRYPT_ERROR;
   int formatFlag = baCipher.at(0);
   baCipher.remove(0, 1);
+
+  d->cryptSalt = QByteArray(baCipher.constData(), CRYPT_SALT_LENGTH);
+  baCipher.remove(0, CRYPT_SALT_LENGTH);
 
   switch (formatFlag) {
   case FF_DEFAULT_ENCRYPTION:
@@ -1336,8 +1343,8 @@ void MainWindow::readFinished(QNetworkReply *reply)
     if (parseError.error == QJsonParseError::NoError) {
       QVariantMap map = json.toVariant().toMap();
       if (map["status"].toString() == "ok") {
-        const QByteArray &domainData = map["result"].toByteArray();
-        sync(ServerSource, QByteArray::fromBase64(domainData));
+        const QByteArray &domainData = QByteArray::fromBase64(map["result"].toByteArray());
+        sync(ServerSource, domainData);
       }
       else {
         QMessageBox::warning(this, tr("Sync server error"),

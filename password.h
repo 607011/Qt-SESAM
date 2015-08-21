@@ -44,6 +44,7 @@ public:
 
   const QString &key(void) const;
   const QString &hexKey(void) const;
+  QByteArray derivedKey(int size = -1) const;
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
   bool isAborted(void) const;

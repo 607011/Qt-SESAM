@@ -29,6 +29,7 @@ public:
     : repeatPasswordLineEdit(nullptr)
   { /* ... */ }
   QLineEdit *repeatPasswordLineEdit;
+  QByteArray cryptSalt;
 };
 
 
