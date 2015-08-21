@@ -159,6 +159,7 @@ MainWindow::MainWindow(QWidget *parent)
   setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+  ui->domainLineEdit->installEventFilter(this);
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
@@ -928,7 +929,7 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
             CryptoPP::StreamTransformationFilter::PKCS_PADDING
             )
           );
-    Q_UNUSED(s);
+    Q_UNUSED(s); // just to please the compiler
   }
   catch(const CryptoPP::Exception &e)
   {
@@ -977,7 +978,7 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
             new CryptoPP::StringSink(recovered)
             )
           );
-    Q_UNUSED(s);
+    Q_UNUSED(s); // just to please the compiler
   }
   catch(const CryptoPP::Exception &e)
   {
@@ -1300,7 +1301,7 @@ void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
 {
   Q_UNUSED(reply);
   Q_UNUSED(errors);
-  // ...
+  // TODO: ...
 }
 
 
@@ -1403,4 +1404,18 @@ void MainWindow::createFullDump(void)
    qDebug() << "Dump not implemented.";
 #endif
 #endif
+}
+
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+  if (event->type() == QEvent::FocusIn) {
+    if (obj->objectName() == "domainLineEdit" && ui->domainLineEdit->text().isEmpty()) {
+      ui->domainLineEdit->clearFocus();
+      newDomain();
+      return true;
+    }
+    return false;
+  }
+  return QObject::eventFilter(obj, event);
 }

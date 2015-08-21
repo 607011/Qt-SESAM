@@ -513,19 +513,24 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>domainLineEdit</tabstop>
+  <tabstop>domainsComboBox</tabstop>
+  <tabstop>userLineEdit</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>saltBase64LineEdit</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>usedCharactersPlainTextEdit</tabstop>
+  <tabstop>savePushButton</tabstop>
   <tabstop>cancelPushButton</tabstop>
   <tabstop>hashPlainTextEdit</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>renewSaltPushButton</tabstop>
   <tabstop>deleteCheckBox</tabstop>
+  <tabstop>domainLineEdit</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>saltBase64LineEdit</tabstop>
+  <tabstop>copyUsernameToClipboardPushButton</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
  </tabstops>
  <resources>
   <include location="ctSESAM.qrc"/>

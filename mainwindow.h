@@ -36,6 +36,7 @@
 #include <QNetworkReply>
 #include <QList>
 #include <QSslError>
+#include <QEvent>
 
 #include "global.h"
 #include "domainsettingslist.h"
@@ -110,6 +111,9 @@ signals:
   void passwordGenerated(void);
   void badMasterPassword(void);
 
+protected:
+  bool eventFilter(QObject *obj, QEvent *event);
+
 private: // methods
   void resetAllFields(void);
   bool restoreSettings(void);
@@ -125,6 +129,7 @@ private: // methods
   bool keyContainsAnyOf(const QString &forcedCharacters);
   bool generatedPasswordIsValid(void);
   void analyzeGeneratedPassword(void);
+
   DomainSettings collectedDomainSettings(void) const;
   QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
   QByteArray decode(QByteArray, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);
