@@ -40,20 +40,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="renewSaltPushButton">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="ctSESAM.qrc">
-           <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item row="4" column="0">
@@ -385,7 +371,6 @@
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>renewSaltPushButton</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
   <tabstop>forceLowerCaseCheckBox</tabstop>
@@ -400,8 +385,6 @@
   <tabstop>lowercasePushButton</tabstop>
   <tabstop>uppercasePushButton</tabstop>
  </tabstops>
- <resources>
-  <include location="ctSESAM.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

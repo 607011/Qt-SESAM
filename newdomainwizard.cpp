@@ -29,17 +29,15 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   , ui(new Ui::NewDomainWizard)
 {
   ui->setupUi(this);
-  ui->saltBase64LineEdit->setText(DomainSettings::DefaultSalt_base64);
-  ui->saltBase64LineEdit->setToolTip(DomainSettings::DefaultSalt);
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   QObject::connect(ui->addPushButton, SIGNAL(pressed()), SLOT(accept()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
-  QObject::connect(ui->renewSaltPushButton, SIGNAL(pressed()), SLOT(renewSalt()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
   QObject::connect(ui->uppercasePushButton, SIGNAL(pressed()), SLOT(addUppercaseToUsedCharacters()));
   QObject::connect(ui->digitsPushButton, SIGNAL(pressed()), SLOT(addDigitsToUsedCharacters()));
   QObject::connect(ui->extraPushButton, SIGNAL(pressed()), SLOT(addExtraCharactersToUsedCharacters()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
+  renewSalt();
   ui->domainLineEdit->setFocus();
 }
 
