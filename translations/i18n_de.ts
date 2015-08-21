@@ -272,7 +272,7 @@
     <message>
         <location filename="../mainwindow.ui" line="519"/>
         <source>Expert mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Experten-Modus</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="218"/>
@@ -333,7 +333,7 @@
         <translation type="vanished">Hacken ... %1 (%2ms) total: %3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="616"/>
+        <location filename="../mainwindow.cpp" line="618"/>
         <source>generation time: %1 ms</source>
         <translation>Verarbeitungsdauer: %1 ms</translation>
     </message>
@@ -346,12 +346,12 @@
         <translation type="vanished">Erhöhen der Anzahl der Iterationen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="641"/>
+        <location filename="../mainwindow.cpp" line="643"/>
         <source>Legacy password copied to clipboard.</source>
         <translation>Legacy-Passwort in Zwischenablage kopiert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="662"/>
+        <location filename="../mainwindow.cpp" line="664"/>
         <source>Generated password copied to clipboard.</source>
         <translation>Generiertes Passwort in Zwischenablage kopiert.</translation>
     </message>
@@ -368,9 +368,8 @@
         <translation type="vanished">Falscher Regex:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="589"/>
         <source>Finished hacking</source>
-        <translation>Hacking beendet</translation>
+        <translation type="vanished">Hacking beendet</translation>
     </message>
     <message>
         <source>Calculated parameters in %1 :-) The legacy password has been cleared. Click &quot;Save&quot; if you&apos;d like to store the new settings.</source>
@@ -381,179 +380,188 @@
         <translation type="vanished">Hacken ... t%1, %2 (%3ms) t: %4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="590"/>
         <source>Calculated domain parameters to reconstruct legacy password in %1 :-) Do you want to clear the legacy passwor and save the new settings?</source>
-        <translation>Das Berechnen der Domain-Einstellungen zum Rekonstruieren des klassischen Passworts hat %1 gedauert :-) Willst du das Feld für das klassische Passwort löschen und die neuen Einstellungen speichern?</translation>
+        <translation type="vanished">Das Berechnen der Domain-Einstellungen zum Rekonstruieren des klassischen Passworts hat %1 gedauert :-) Willst du das Feld für das klassische Passwort löschen und die neuen Einstellungen speichern?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="602"/>
+        <location filename="../mainwindow.cpp" line="589"/>
+        <source>Finished &quot;hacking&quot;</source>
+        <translation>&quot;Hacken&quot; beendet</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="590"/>
+        <source>Found a salt in %1 that allows to calculate the legacy password from the domain settings :-) The legacy password is no longer needed. Do you want to clear the legacy password and save the new domain settings?</source>
+        <translation>Salt in %1 gefunden, aus dem sich zusammen mit den anderen Domain-Einstellungen das klassische Passwort berechnen lässt :-) Das klassische Passwort wird nun nicht mehr benötigt. Möchtest du das klassische Passwort löschen und die neuen Domain-Einstellungen speichern?</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="604"/>
         <source>Hacking ... t%1 (%2ms) t: %3</source>
         <translation>Hacken … t%1 (%2ms) t: %3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="622"/>
+        <location filename="../mainwindow.cpp" line="624"/>
         <source>Password does not follow the required rules. Increasing iteration count.</source>
         <translation>Passwort entspricht nicht den gewünschten Regeln. Erhöhen des Iterationszählers.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="648"/>
+        <location filename="../mainwindow.cpp" line="650"/>
         <source>Username copied to clipboard.</source>
         <translation>Benutzername in Zwischenablage kopiert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="693"/>
+        <location filename="../mainwindow.cpp" line="695"/>
         <source>&lt;Choose domain ...&gt;</source>
         <translation>&lt;Domain wählen ...&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="705"/>
+        <location filename="../mainwindow.cpp" line="707"/>
         <source>Empty character table</source>
         <translation>Leere Zeichentabelle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="705"/>
+        <location filename="../mainwindow.cpp" line="707"/>
         <source>You forgot to fill in some characters into the field &quot;used characters&quot;</source>
         <translation>Sie haben vergessen, etwas in Feld &quot;Verwendete Zeichen&quot; einzutragen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="738"/>
+        <location filename="../mainwindow.cpp" line="740"/>
         <source>Domain settings saved.</source>
         <translation>Domain-Einstellungen gespeichert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="780"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>Password accepted. Restored %1 domains.</source>
         <translation>Passwort akzeptiert. %1 Domains wiederhergestellt.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="783"/>
-        <location filename="../mainwindow.cpp" line="1106"/>
-        <location filename="../mainwindow.cpp" line="1345"/>
+        <location filename="../mainwindow.cpp" line="785"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>Bad data from sync server</source>
         <translation>Fehlerhafte Daten vom Sync-Server</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="784"/>
-        <location filename="../mainwindow.cpp" line="1107"/>
-        <location filename="../mainwindow.cpp" line="1346"/>
+        <location filename="../mainwindow.cpp" line="786"/>
+        <location filename="../mainwindow.cpp" line="1111"/>
+        <location filename="../mainwindow.cpp" line="1350"/>
         <source>Decoding the data from the sync server failed: %1</source>
         <translation>Dekodieren der Daten vom Sync-Server fehlgeschlagen: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="837"/>
+        <location filename="../mainwindow.cpp" line="840"/>
         <source>No legacy password given. Cannot hack!</source>
         <translation>Kein klassisches Passwort eingetragen. So kann ich nicht hacken!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1008"/>
+        <location filename="../mainwindow.cpp" line="1012"/>
         <source>Sync to server finished.</source>
         <translation>Synchronisieren mit Server beendet.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1013"/>
-        <location filename="../mainwindow.cpp" line="1339"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
+        <location filename="../mainwindow.cpp" line="1343"/>
         <source>Sync server error</source>
         <translation>Sync-Server-Fehler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1014"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Writing to the server failed. Reason: %1</source>
         <translation>Übertragung an Server fehlgeschlagen. Grund: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Server read operation aborted.</source>
         <translation>Lesen vom Server abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1033"/>
         <source>Sync to server aborted.</source>
         <translation>Synchronisieren mit Server abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1039"/>
+        <location filename="../mainwindow.cpp" line="1043"/>
         <source>Syncing with file ...</source>
         <translation>Synchronisieren mit Datei ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1046"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Sync file creation error</source>
         <translation>Anlegen der Synchronisierungsdatei fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1047"/>
+        <location filename="../mainwindow.cpp" line="1051"/>
         <source>The sync file %1 cannot be created. Reason: %2</source>
         <translation>Die Synchronisierungsdatei %1 kann nicht erzeugt werden. Grund: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1059"/>
-        <location filename="../mainwindow.cpp" line="1068"/>
+        <location filename="../mainwindow.cpp" line="1063"/>
+        <location filename="../mainwindow.cpp" line="1072"/>
         <source>Sync file read error</source>
         <translation>Fehler beim Lesen der Synchronisierungsdatei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1060"/>
+        <location filename="../mainwindow.cpp" line="1064"/>
         <source>The sync file %1 cannot be opened for reading. Reason: %2</source>
         <translation>Die Synchronisierungsdatei %1 kann nicht zum Lesen geöffnet werden. Grund: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1069"/>
+        <location filename="../mainwindow.cpp" line="1073"/>
         <source>The sync file %1 cannot be opened for reading.</source>
         <translation>Die Synchronisierungsdatei %1 kann nicht zum Lesen geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1075"/>
+        <location filename="../mainwindow.cpp" line="1079"/>
         <source>Syncing with server ...</source>
         <translation>Synchronisieren mit Server ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1078"/>
+        <location filename="../mainwindow.cpp" line="1082"/>
         <source>Reading from server ...</source>
         <translation>Lesen vom Server ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1168"/>
+        <location filename="../mainwindow.cpp" line="1172"/>
         <source>Sync file write error</source>
         <translation>Fehler beim Schreiben in Synchronisierungsdatei</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1168"/>
+        <location filename="../mainwindow.cpp" line="1172"/>
         <source>Writing to your sync file %1 failed: %2</source>
         <translation>Das Schreiben in die Synchronisierungsdatei %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1176"/>
-        <location filename="../mainwindow.cpp" line="1179"/>
+        <location filename="../mainwindow.cpp" line="1180"/>
+        <location filename="../mainwindow.cpp" line="1183"/>
         <source>Sending data to server ...</source>
         <translation>Senden der Daten an den Server ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1281"/>
+        <location filename="../mainwindow.cpp" line="1285"/>
         <source>Decryption error</source>
         <translation>Entschlüsselungsfehler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1282"/>
+        <location filename="../mainwindow.cpp" line="1286"/>
         <source>An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Please enter the correct password!</source>
         <translation>Beim Entschlüsseln der Daten ist ein Fehler aufgetreten (#%1, %2). Möglicherweise hast du ein falsches Passwort eingegeben. Versuch es bitte noch einmal!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1296"/>
+        <location filename="../mainwindow.cpp" line="1300"/>
         <source>Master password cleared for security</source>
         <translation>Master-Passwort aus Sicherheitsgründen invalidiert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1340"/>
+        <location filename="../mainwindow.cpp" line="1344"/>
         <source>Reading from the sync server failed. status: %1, error: %2</source>
         <translation>Lesen vom Sync-Server fehlgeschlagen. Status: %1, Fehler: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1368"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>About %1 %2</source>
         <translation>Über %1 %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1369"/>
+        <location filename="../mainwindow.cpp" line="1373"/>
         <source>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; is a domain specific password generator. See &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; for more info.&lt;/p&gt;&lt;p&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;You should have received a copy of the GNU General Public License along with this program. If not, see &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;No animals were harmed during the development of &lt;i&gt;%1&lt;/i&gt;. The software was programmed with CO&lt;sub&gt;2&lt;/sub&gt; neutrality in mind and without the use of genetic engineering. It&apos;s vegan, free of antibiotics and hypoallergenic.&lt;/p&gt;&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
 &lt;p&gt;Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.&lt;/p&gt;
@@ -563,12 +571,12 @@
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1402"/>
+        <location filename="../mainwindow.cpp" line="1406"/>
         <source>Dump created.</source>
         <translation>Dump generiert.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1405"/>
+        <location filename="../mainwindow.cpp" line="1409"/>
         <source>Dump not implemented.</source>
         <translation>Dump nicht implementiert.</translation>
     </message>

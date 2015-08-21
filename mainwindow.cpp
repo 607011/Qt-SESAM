@@ -586,8 +586,10 @@ void MainWindow::onPasswordGenerated(void)
       hideActivityIcons();
       QMessageBox::StandardButton button = QMessageBox::question(
             this,
-            tr("Finished hacking"),
-            tr("Calculated domain parameters to reconstruct legacy password in %1 :-) Do you want to clear the legacy passwor and save the new settings?").arg(makeHMS(d->hackClock.elapsed())));
+            tr("Finished \"hacking\""),
+            tr("Found a salt in %1 that allows to calculate the legacy password from the domain settings :-) "
+               "The legacy password is no longer needed. "
+               "Do you want to clear the legacy password and save the new domain settings?").arg(makeHMS(d->hackClock.elapsed())));
       if (button == QMessageBox::Yes) {
         ui->legacyPasswordLineEdit->setText(QString());
         saveCurrentDomainSettings();
