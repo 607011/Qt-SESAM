@@ -40,6 +40,7 @@ public:
   static const QByteArray DefaultSalt_base64;
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
+  static const int DefaultSaltLength;
 
   static const QString DOMAIN_NAME;
   QString domainName;

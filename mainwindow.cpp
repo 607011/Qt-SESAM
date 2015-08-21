@@ -62,7 +62,6 @@
 #include "dump.h"
 
 static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS = 5;
-static const int DEFAULT_SALT_LENGTH = 12;
 static const int AES_KEY_SIZE = 256 / 8;
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
 static const int NO_CRYPT_ERROR = -1;
@@ -865,7 +864,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(
         d->settings.value("misc/masterPasswordInvalidationTimeMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
   d->optionsDialog->setSaltLength(
-        d->settings.value("misc/saltLength", DEFAULT_SALT_LENGTH).toInt());
+        d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());
