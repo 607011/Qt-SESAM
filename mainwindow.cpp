@@ -192,6 +192,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
+  QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
 
   d->progressDialog = new ProgressDialog(this);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
@@ -238,6 +239,7 @@ MainWindow::MainWindow(QWidget *parent)
   QTest::qExec(&tc, 0, 0);
 #endif
 
+  onExpertModeChanged(false);
   setDirty(false);
   enterMasterPassword();
 }
@@ -795,6 +797,7 @@ void MainWindow::saveSettings(void)
   int errCode;
   QString errMsg;
   d->settings.setValue("mainwindow/geometry", geometry());
+  d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
   d->settings.setValue("sync/onStart", d->optionsDialog->syncOnStart());
@@ -862,6 +865,7 @@ bool MainWindow::restoreSettings(void)
   int errCode = NO_CRYPT_ERROR;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
+  ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(
         d->settings.value("misc/masterPasswordInvalidationTimeMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
   d->optionsDialog->setSaltLength(
@@ -1404,6 +1408,13 @@ void MainWindow::createFullDump(void)
    qDebug() << "Dump not implemented.";
 #endif
 #endif
+}
+
+
+void MainWindow::onExpertModeChanged(bool enabled)
+{
+  ui->hashPlainTextEdit->setVisible(enabled);
+  ui->actionHackLegacyPassword->setVisible(enabled);
 }
 
 

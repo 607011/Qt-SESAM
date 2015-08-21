@@ -106,6 +106,7 @@ private slots:
   void hackLegacyPassword(void);
   void hideActivityIcons(void);
   void createFullDump(void);
+  void onExpertModeChanged(bool);
 
 signals:
   void passwordGenerated(void);
