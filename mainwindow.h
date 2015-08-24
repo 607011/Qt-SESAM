@@ -132,8 +132,6 @@ private: // methods
   void analyzeGeneratedPassword(void);
 
   DomainSettings collectedDomainSettings(void) const;
-  QByteArray encode(const QByteArray &, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
-  QByteArray decode(QByteArray, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);
 
 private:
   Ui::MainWindow *ui;

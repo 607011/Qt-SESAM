@@ -52,7 +52,9 @@ SOURCES += main.cpp mainwindow.cpp \
     domainsettingslist.cpp \
     global.cpp \
     newdomainwizard.cpp \
-    masterpassworddialog.cpp
+    masterpassworddialog.cpp \
+    crypter.cpp \
+    securebytearray.cpp
 
 win32:SOURCES += 3rdparty/cryptopp562/sha.cpp \
     3rdparty/cryptopp562/iterhash.cpp \
@@ -88,7 +90,9 @@ HEADERS  += mainwindow.h \
     global.h \
     newdomainwizard.h \
     masterpassworddialog.h \
-    hackhelper.h
+    hackhelper.h \
+    crypter.h \
+    securebytearray.h
 
 win32:HEADERS += 3rdparty/cryptopp562/sha.h \
     3rdparty/cryptopp562/config.h \

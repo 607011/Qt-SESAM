@@ -46,12 +46,7 @@
 #include "masterpassworddialog.h"
 #include "optionsdialog.h"
 #include "hackhelper.h"
-
-#include "cryptopp562/sha.h"
-#include "cryptopp562/aes.h"
-#include "cryptopp562/ccm.h"
-#include "cryptopp562/filters.h"
-#include "cryptopp562/misc.h"
+#include "crypter.h"
 
 #include <QtDebug>
 
@@ -62,21 +57,11 @@
 #include "dump.h"
 
 static const int DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS = 5;
-static const int AES_KEY_SIZE = 256 / 8;
-static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
-static const int CRYPT_SALT_LENGTH = 32;
-static const int NO_CRYPT_ERROR = -1;
 static const bool COMPRESSION_ENABLED = true;
 
 static const QString DEFAULT_SERVER_ROOT = "https://localhost/ctpwdgen-server";
 static const QString DEFAULT_WRITE_URL = "/ajax/write.php";
 static const QString DEFAULT_READ_URL = "/ajax/read.php";
-
-enum FormatFlags {
-  FF_DEFAULT_ENCRYPTION = 0x00,
-  FF_AES256_ENCRYPTED_MASTERKEY = 0x01
-};
-
 
 
 class MainWindowPrivate {
@@ -741,8 +726,8 @@ void MainWindow::saveAllDomainDataToSettings(void)
   Q_D(MainWindow);
   int errCode;
   QString errMsg;
-  const QByteArray &cipher = encode(d->domains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
-  if (errCode == NO_CRYPT_ERROR) {
+  const QByteArray &cipher = Crypter::encode(d->masterPassword, d->domains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
+  if (errCode == Crypter::NoCryptError) {
     d->settings.setValue("data/domains", QString(cipher.toHex()));
     d->settings.sync();
   }
@@ -764,8 +749,8 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     qDebug() << "MainWindow::restoreDomainDataFromSettings() trying to decode ...";
     int errCode;
     QString errMsg;
-    const QByteArray &recovered = decode(baDomains, COMPRESSION_ENABLED, &errCode, &errMsg);
-    if (errCode != NO_CRYPT_ERROR) {
+    const QByteArray &recovered = Crypter::decode(d->masterPassword, baDomains, COMPRESSION_ENABLED, &errCode, &errMsg);
+    if (errCode != Crypter::NoCryptError) {
       wrongPasswordWarning(errCode, errMsg);
       return false;
     }
@@ -805,8 +790,8 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/serverCertificateFilename", d->optionsDialog->serverCertificateFilename());
   d->settings.setValue("sync/acceptSelfSignedCertificates", d->optionsDialog->selfSignedCertificatesAccepted());
   d->settings.setValue("sync/acceptUntrustedCertificates", d->optionsDialog->untrustedCertificatesAccepted());
-  d->settings.setValue("sync/serverUsername", QString(encode(d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
-  d->settings.setValue("sync/serverPassword", QString(encode(d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
+  d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
+  d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
   saveAllDomainDataToSettings();
@@ -859,7 +844,7 @@ void MainWindow::hackLegacyPassword(void)
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
-  int errCode = NO_CRYPT_ERROR;
+  int errCode = Crypter::NoCryptError;
   QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
@@ -881,8 +866,8 @@ bool MainWindow::restoreSettings(void)
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
-    QByteArray serverUsernameDecoded = decode(serverUsernameBin, false, &errCode, &errMsg);
-    if (errCode == NO_CRYPT_ERROR) {
+    QByteArray serverUsernameDecoded = Crypter::decode(d->masterPassword, serverUsernameBin, false, &errCode, &errMsg);
+    if (errCode == Crypter::NoCryptError) {
       d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
     }
     else {
@@ -891,14 +876,14 @@ bool MainWindow::restoreSettings(void)
     }
   }
 
-  if (errCode != NO_CRYPT_ERROR)
+  if (errCode != Crypter::NoCryptError)
     return false;
 
   const QByteArray &serverPassword = d->settings.value("sync/serverPassword").toByteArray();
   if (!serverPassword.isEmpty()) {
     const QByteArray &serverPasswordBin = QByteArray::fromHex(serverPassword);
-    QByteArray password = decode(serverPasswordBin, false, &errCode, &errMsg);
-    if (errCode == NO_CRYPT_ERROR) {
+    QByteArray password = Crypter::decode(d->masterPassword, serverPasswordBin, false, &errCode, &errMsg);
+    if (errCode == Crypter::NoCryptError) {
       d->optionsDialog->setServerPassword(QString::fromUtf8(password));
     }
     else {
@@ -906,111 +891,7 @@ bool MainWindow::restoreSettings(void)
       qWarning() << "ERROR: decode() of server password failed:" << errMsg;
     }
   }
-  return errCode == NO_CRYPT_ERROR;
-}
-
-
-QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *errCode, QString *errMsg)
-{
-  Q_D(MainWindow);
-  if (errCode != nullptr)
-    *errCode = NO_CRYPT_ERROR;
-  QByteArray _baPlain = (compress) ? qCompress(baPlain, 9) : baPlain;
-
-  Password cryptPassword;
-  QByteArray salt = Password::randomSalt(CRYPT_SALT_LENGTH);
-  cryptPassword.setSalt(salt);
-  cryptPassword.generate(d->masterPassword.toUtf8());
-  QByteArray key = cryptPassword.derivedKey(AES_KEY_SIZE);
-
-  std::string plain(_baPlain.constData(), _baPlain.length());
-  std::string cipher;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), IV);
-    CryptoPP::StringSource s(
-          plain,
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            enc,
-            new CryptoPP::StringSink(cipher),
-            CryptoPP::StreamTransformationFilter::PKCS_PADDING
-            )
-          );
-    Q_UNUSED(s); // just to please the compiler
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    if (errCode != nullptr)
-      *errCode = (int)e.GetErrorType();
-    if (errMsg != nullptr)
-      *errMsg = e.what();
-    if (e.GetErrorType() > NO_CRYPT_ERROR)
-      qErrnoWarning(e.GetErrorType(), e.what());
-  }
-
-  SecureErase(key);
-
-  QByteArray result;
-  result.append(char(FF_DEFAULT_ENCRYPTION));
-  result.append(salt);
-  result.append(QByteArray(cipher.c_str(), cipher.length()));
-  return result;
-}
-
-
-QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode, QString *errMsg)
-{
-  Q_D(MainWindow);
-  if (errCode != nullptr)
-    *errCode = NO_CRYPT_ERROR;
-  int formatFlag = baCipher.at(0);
-  baCipher.remove(0, 1);
-
-  QByteArray salt = QByteArray(baCipher.constData(), CRYPT_SALT_LENGTH);
-  baCipher.remove(0, CRYPT_SALT_LENGTH);
-  Password cryptPassword;
-  cryptPassword.setSalt(salt);
-  cryptPassword.generate(d->masterPassword.toUtf8());
-  QByteArray key = cryptPassword.derivedKey(AES_KEY_SIZE);
-
-  switch (formatFlag) {
-  case FF_DEFAULT_ENCRYPTION:
-    break;
-  case FF_AES256_ENCRYPTED_MASTERKEY:
-    break;
-  default:
-    qWarning() << "unknow format flag:" << formatFlag;
-    break;
-  }
-
-  std::string recovered;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), IV);
-    std::string cipher(baCipher.constData(), baCipher.length());
-    CryptoPP::StringSource s(
-          cipher,
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            dec,
-            new CryptoPP::StringSink(recovered)
-            )
-          );
-    Q_UNUSED(s); // just to please the compiler
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    if (errCode != nullptr)
-      *errCode = (int)e.GetErrorType();
-    if (errMsg != nullptr)
-      *errMsg = e.what();
-    if (e.GetErrorType() > NO_CRYPT_ERROR)
-      qErrnoWarning(e.GetErrorType(), e.what());
-  }
-  SecureErase(key);
-  QByteArray plain(recovered.c_str(), recovered.length());
-  return (uncompress) ? qUncompress(plain) : plain;
+  return errCode == Crypter::NoCryptError;
 }
 
 
@@ -1066,7 +947,7 @@ void MainWindow::sync(void)
                              .arg(d->optionsDialog->syncFilename())
                              .arg(syncFile.errorString()), QMessageBox::Ok);
       }
-      const QByteArray &baDomains = encode(QByteArray("{}"), COMPRESSION_ENABLED);
+      const QByteArray &baDomains = Crypter::encode(d->masterPassword, QByteArray("{}"), COMPRESSION_ENABLED);
       syncFile.write(baDomains);
       syncFile.close();
     }
@@ -1114,10 +995,10 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    QByteArray _baTmp = decode(remoteDomainsEncoded, COMPRESSION_ENABLED, &errCode, &errMsg);
+    QByteArray _baTmp = Crypter::decode(d->masterPassword, remoteDomainsEncoded, COMPRESSION_ENABLED, &errCode, &errMsg);
     std::string sDomains(_baTmp.constData(), _baTmp.length());
     QJsonParseError parseError;
-    if (errCode == NO_CRYPT_ERROR && !sDomains.empty()) {
+    if (errCode == Crypter::NoCryptError && !sDomains.empty()) {
       QByteArray baDomains(sDomains.c_str(), sDomains.length());
       remoteJSON = QJsonDocument::fromJson(baDomains, &parseError);
       if (parseError.error != QJsonParseError::NoError) {
@@ -1176,8 +1057,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   if (remoteDomains.isDirty()) {
     int errCode;
     QString errMsg;
-    const QByteArray &baCipher = encode(remoteDomains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
-    if (errCode == NO_CRYPT_ERROR) {
+    const QByteArray &baCipher = Crypter::encode(d->masterPassword, remoteDomains.toJson(), COMPRESSION_ENABLED, &errCode, &errMsg);
+    if (errCode == Crypter::NoCryptError) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         QFile syncFile(d->optionsDialog->syncFilename());
         syncFile.open(QIODevice::WriteOnly);
