@@ -17,27 +17,19 @@
 
 */
 
-
 #ifndef __GLOBAL_H_
 #define __GLOBAL_H_
 
 #include <random>
 #include <QString>
 
-#ifndef QT_DEBUG
-#define EXEC_SPEED_TEST
-#endif
-
-#define FIXED_SHA512 (1)
-#define SHA512_DIGEST_SIZE (512)
-
-extern const QString APP_COMPANY_NAME;
-extern const QString APP_NAME;
-extern const QString APP_VERSION;
-extern const QString APP_URL;
-extern const QString APP_AUTHOR;
-extern const QString APP_AUTHOR_MAIL;
-extern const QString APP_USER_AGENT;
+extern const QString AppCompanyName;
+extern const QString AppName;
+extern const QString AppVersion;
+extern const QString AppURL;
+extern const QString AppAuthor;
+extern const QString AppAuthorMail;
+extern const QString AppUserAgent;
 
 extern std::random_device gRandomDevice;
 

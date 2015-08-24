@@ -67,7 +67,7 @@ static const QString DefaultReadUrl = "/ajax/read.php";
 class MainWindowPrivate {
 public:
   MainWindowPrivate(QWidget *parent = nullptr)
-    : settings(QSettings::IniFormat, QSettings::UserScope, APP_COMPANY_NAME, APP_NAME)
+    : settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
     , trayIcon(QIcon(":/images/ctpwdgen.ico"), parent)
     , customCharacterSetDirty(false)
@@ -196,14 +196,14 @@ MainWindow::MainWindow(QWidget *parent)
 
   d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
-  QMenu *trayMenu = new QMenu(APP_NAME);
+  QMenu *trayMenu = new QMenu(AppName);
   QAction *actionShow = trayMenu->addAction(tr("Restore window"));
   QObject::connect(actionShow, SIGNAL(triggered(bool)), SLOT(showHide()));
   QAction *actionSync = trayMenu->addAction(tr("Sync"));
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
   QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
   QObject::connect(actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
-  QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(APP_NAME));
+  QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(AppName));
   QObject::connect(actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
@@ -852,7 +852,7 @@ bool MainWindow::restoreSettings(void)
         d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setSaltLength(
         d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
-  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
+  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());
   d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
@@ -979,7 +979,7 @@ void MainWindow::sync(void)
     d->progressDialog->setValue(d->counter);
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    req.setHeader(QNetworkRequest::UserAgentHeader, APP_USER_AGENT);
+    req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
     QNetworkReply *reply = d->readNAM->post(req, QByteArray());
@@ -1085,7 +1085,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->writeUrl()));
         req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-        req.setHeader(QNetworkRequest::UserAgentHeader, APP_USER_AGENT);
+        req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
         QNetworkReply *reply = d->writeNAM->post(req, data);
@@ -1119,8 +1119,8 @@ void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
   setWindowTitle(QString("%1 %2%3")
-                 .arg(APP_NAME)
-                 .arg(APP_VERSION)
+                 .arg(AppName)
+                 .arg(AppVersion)
                  .arg(d->parameterSetDirty ? "*" : ""));
 }
 
@@ -1262,7 +1262,7 @@ void MainWindow::deleteFinished(QNetworkReply *reply)
 void MainWindow::about(void)
 {
   QMessageBox::about(
-        this, tr("About %1 %2").arg(APP_NAME).arg(APP_VERSION),
+        this, tr("About %1 %2").arg(AppName).arg(AppVersion),
         tr("<p><b>%1</b> is a domain specific password generator. "
            "See <a href=\"%2\" title=\"%1 project homepage\">%2</a> for more info.</p>"
            "<p>This program is free software: you can redistribute it and/or modify "
@@ -1281,7 +1281,7 @@ void MainWindow::about(void)
            "It's vegan, free of antibiotics and hypoallergenic.</p>"
            "<p>Copyright &copy; 2015 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
            )
-        .arg(APP_NAME).arg(APP_URL).arg(APP_AUTHOR).arg(APP_AUTHOR_MAIL));
+        .arg(AppName).arg(AppURL).arg(AppAuthor).arg(AppAuthorMail));
 }
 
 

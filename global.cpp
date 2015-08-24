@@ -21,17 +21,17 @@
 #include "global.h"
 #include <QSysInfo>
 
-const QString APP_COMPANY_NAME = "c't";
-const QString APP_NAME = "Qt SESAM";
-const QString APP_VERSION = "1.0";
-const QString APP_URL = "https://github.com/ola-ct/Qt-SESAM";
-const QString APP_AUTHOR = "Oliver Lau";
-const QString APP_AUTHOR_MAIL = "ola@ct.de";
+const QString AppCompanyName = "c't";
+const QString AppName = "Qt SESAM";
+const QString AppVersion = "1.0";
+const QString AppURL = "https://github.com/ola-ct/Qt-SESAM";
+const QString AppAuthor = "Oliver Lau";
+const QString AppAuthorMail = "ola@ct.de";
 #if QT_VERSION >= 0x050400
-const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
-    .arg(APP_NAME)
-    .arg(APP_VERSION)
-    .arg(APP_URL)
+const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
+    .arg(AppName)
+    .arg(AppVersion)
+    .arg(AppURL)
     .arg(qVersion())
     .arg(QSysInfo::prettyProductName())
     .arg(QSysInfo::currentCpuArchitecture())

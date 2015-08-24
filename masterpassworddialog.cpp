@@ -40,7 +40,7 @@ MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
 {
   ui->setupUi(this);
   ui->infoLabel->setStyleSheet("font-weight: bold");
-  setWindowTitle(QString("%1 %2").arg(APP_NAME).arg(APP_VERSION));
+  setWindowTitle(QString("%1 %2").arg(AppName).arg(AppVersion));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   setRepeatPassword(false);
