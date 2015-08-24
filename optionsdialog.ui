@@ -129,6 +129,40 @@
               </property>
              </widget>
             </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="toolTip">
+               <string>Choose server's certificate chain in X.509 DER format</string>
+              </property>
+              <property name="text">
+               <string>Certificate</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLineEdit" name="certFileLineEdit"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="chooseCertFilePushButton">
+                <property name="text">
+                 <string>Select ...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="1">
+             <widget class="QCheckBox" name="acceptUntrustedCertificatesCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Accept untrusted certificates</string>
+              </property>
+             </widget>
+            </item>
             <item row="6" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
@@ -157,41 +191,13 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="toolTip">
-               <string>Choose server's certificate chain in X.509 DER format</string>
-              </property>
-              <property name="text">
-               <string>Certificate</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QLineEdit" name="certFileLineEdit"/>
-              </item>
-              <item>
-               <widget class="QPushButton" name="chooseCertFilePushButton">
-                <property name="text">
-                 <string>Select ...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
             <item row="4" column="1">
              <widget class="QCheckBox" name="acceptSelfSignedCertificatesCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Accept self-signed certificates</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QCheckBox" name="acceptUntrustedCertificatesCheckBox">
-              <property name="text">
-               <string>Accept untrusted certificates</string>
               </property>
              </widget>
             </item>

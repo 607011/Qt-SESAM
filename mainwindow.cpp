@@ -119,7 +119,7 @@ public:
   QTimer masterPasswordInvalidationTimer;
   ProgressDialog *progressDialog;
   QList<QSslCertificate> cert;
-  QList<QSslError> expectedSslErrors;
+  // QList<QSslError> expectedSslErrors;
   QSslConfiguration sslConf;
   QNetworkAccessManager *readNAM;
   QNetworkReply *readReq;
@@ -804,11 +804,11 @@ void MainWindow::loadCertificate(void)
   Q_D(MainWindow);
   d->sslConf.setCiphers(QSslSocket::supportedCiphers());
   d->sslConf.setCaCertificates(d->optionsDialog->serverCertificates());
-  d->expectedSslErrors.clear();
-  if (d->optionsDialog->selfSignedCertificatesAccepted())
-    d->expectedSslErrors.append(QSslError::SelfSignedCertificate);
-  if (d->optionsDialog->untrustedCertificatesAccepted())
-    d->expectedSslErrors.append(QSslError::CertificateUntrusted);
+//  d->expectedSslErrors.clear();
+//  if (d->optionsDialog->selfSignedCertificatesAccepted())
+//    d->expectedSslErrors.append(QSslError::SelfSignedCertificate);
+//  if (d->optionsDialog->untrustedCertificatesAccepted())
+//    d->expectedSslErrors.append(QSslError::CertificateUntrusted);
 }
 
 
@@ -983,7 +983,7 @@ void MainWindow::sync(void)
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
     QNetworkReply *reply = d->readNAM->post(req, QByteArray());
-    reply->ignoreSslErrors(d->expectedSslErrors);
+    // reply->ignoreSslErrors(d->expectedSslErrors);
   }
 }
 
@@ -1089,7 +1089,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
         QNetworkReply *reply = d->writeNAM->post(req, data);
-        reply->ignoreSslErrors(d->expectedSslErrors);
+        // reply->ignoreSslErrors(d->expectedSslErrors);
         d->loaderIcon.start();
         updateSaveButtonIcon();
       }
