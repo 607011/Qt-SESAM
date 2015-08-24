@@ -347,7 +347,8 @@ void MainWindow::newDomain(void)
   int rc = d->newDomainWizard->exec();
   if (rc == QDialog::Accepted) {
     setDirty(false);
-    ui->domainLineEdit->setText(d->newDomainWizard->domain());
+    const QString &domain = d->newDomainWizard->domain();
+    ui->domainLineEdit->setText(domain);
     ui->userLineEdit->setText(d->newDomainWizard->username());
     ui->legacyPasswordLineEdit->setText(d->newDomainWizard->legacyPassword());
     ui->saltBase64LineEdit->setText(d->newDomainWizard->salt_base64());
@@ -360,6 +361,8 @@ void MainWindow::newDomain(void)
     ui->deleteCheckBox->setChecked(false);
     d->autoIncrementIterations = true;
     updatePassword();
+    saveCurrentDomainSettings();
+    ui->domainsComboBox->setCurrentText(domain);
   }
 }
 
