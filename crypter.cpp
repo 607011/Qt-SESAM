@@ -18,6 +18,7 @@
 */
 
 #include <QDebug>
+#include "securebytearray.h"
 #include "crypter.h"
 #include "password.h"
 #include "util.h"
@@ -32,13 +33,13 @@ QByteArray Crypter::encode(const QString &masterPassword, const QByteArray &baPl
 {
   if (errCode != nullptr)
     *errCode = NoCryptError;
-  QByteArray _baPlain = (compress) ? qCompress(baPlain, 9) : baPlain;
+  QByteArray _baPlain = compress ? qCompress(baPlain, 9) : baPlain;
 
   const QByteArray &salt = Password::randomSalt(CryptSaltLength);
   Password cryptPassword;
   cryptPassword.setSalt(salt);
   cryptPassword.generate(masterPassword.toUtf8());
-  QByteArray key = cryptPassword.derivedKey(AESKeySize);
+  SecureByteArray key = cryptPassword.derivedKey(AESKeySize);
 
   std::string plain(_baPlain.constData(), _baPlain.length());
   std::string cipher;
@@ -66,8 +67,6 @@ QByteArray Crypter::encode(const QString &masterPassword, const QByteArray &baPl
       qErrnoWarning(e.GetErrorType(), e.what());
   }
 
-  SecureErase(key);
-
   QByteArray result;
   result.append(static_cast<char>(DefaultEncryptionFormat));
   result.append(salt);
@@ -88,7 +87,7 @@ QByteArray Crypter::decode(const QString &masterPassword, QByteArray baCipher, b
   Password cryptPassword;
   cryptPassword.setSalt(salt);
   cryptPassword.generate(masterPassword.toUtf8());
-  QByteArray key = cryptPassword.derivedKey(AESKeySize);
+  SecureByteArray key = cryptPassword.derivedKey(AESKeySize);
 
   switch (formatFlag) {
   case DefaultEncryptionFormat:
@@ -124,7 +123,6 @@ QByteArray Crypter::decode(const QString &masterPassword, QByteArray baCipher, b
     if (e.GetErrorType() > NoCryptError)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
-  SecureErase(key);
   QByteArray plain(recovered.c_str(), recovered.length());
   return uncompress ? qUncompress(plain) : plain;
 }
