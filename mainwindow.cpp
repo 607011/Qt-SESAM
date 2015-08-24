@@ -657,16 +657,24 @@ void MainWindow::onEncrypted(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::onEncrypted()";
+  const QSslCipher &cipher = d->sslSocket.sessionCipher();
+  qDebug() << "Authentication:\t\t" << cipher.authenticationMethod();
+  qDebug() << "Encryption:\t\t" << cipher.encryptionMethod();
+  qDebug() << "Key Exchange:\t\t" << cipher.keyExchangeMethod();
+  qDebug() << "Cipher Name:\t\t" << cipher.name();
+  qDebug() << "Protocol:\t\t" <<  cipher.protocolString();
+  qDebug() << "Supported Bits:\t\t" << cipher.supportedBits();
+  qDebug() << "Used Bits:\t\t" << cipher.usedBits();
   foreach (QSslCertificate cert, d->sslSocket.peerCertificateChain()) {
-    qDebug() << "publicKey:" << cert.publicKey();
-    qDebug() << "expiryDate:" << cert.expiryDate();
-    qDebug() << "serialNumber" << cert.serialNumber();
-    qDebug() << "version" << cert.version();
+    qDebug() << "publicKey:\t\t" << cert.publicKey();
+    qDebug() << "expiryDate:\t\t" << cert.expiryDate();
+    qDebug() << "serialNumber\t\t" << cert.serialNumber();
+    qDebug() << "version:\t\t" << cert.version();
     foreach (QByteArray attr, cert.issuerInfoAttributes()) {
-      qDebug() << "issuer info attribute" << attr << ":" << cert.issuerInfo(attr);
+      qDebug() << "issuer info attribute" << attr << ":\t\t" << cert.issuerInfo(attr);
     }
     foreach (QByteArray attr, cert.subjectInfoAttributes()) {
-      qDebug() << "subject info attribute" << attr << ":" << cert.subjectInfo(attr);
+      qDebug() << "subject info attribute" << attr << ":\t\t" << cert.subjectInfo(attr);
     }
     foreach (QSslCertificateExtension ext, cert.extensions()) {
       qDebug() << ext.name() << ext.oid() << ext.value();
