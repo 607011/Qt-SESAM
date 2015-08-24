@@ -32,9 +32,11 @@
 #include <QNetworkSession>
 #include <QSslCipher>
 #include <QSslCertificate>
+#include <QSslCertificateExtension>
 #include <QSslConfiguration>
 #include <QSslSocket>
 #include <QSslError>
+#include <QSslKey>
 #include <QUrlQuery>
 #include <QProgressDialog>
 #include <QSysInfo>
@@ -82,6 +84,7 @@ public:
     , masterPasswordDialog(new MasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(nullptr)
+    , sslSocket(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readNAM(new QNetworkAccessManager(parent))
     , readReq(nullptr)
@@ -118,6 +121,7 @@ public:
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
   ProgressDialog *progressDialog;
+  QSslSocket sslSocket;
   QList<QSslCertificate> cert;
   // QList<QSslError> expectedSslErrors;
   QSslConfiguration sslConf;
@@ -186,6 +190,10 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
   QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
+
+  QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
+  QObject::connect(&d->sslSocket, SIGNAL(modeChanged(QSslSocket::SslMode)), SLOT(onSslModeChanged(QSslSocket::SslMode)));
+  QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
 
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
@@ -636,8 +644,49 @@ void MainWindow::copyUsernameToClipboard(void)
 
 void MainWindow::onOptionsAccepted(void)
 {
+  Q_D(MainWindow);
+  const QUrl &serverUrl = QUrl(d->optionsDialog->serverRootUrl());
+  qDebug() << "Trying to connect to" << serverUrl.host() << "...";
+  d->sslSocket.connectToHostEncrypted(serverUrl.host(), 443);
   restartInvalidationTimer();
   saveSettings();
+}
+
+
+void MainWindow::onEncrypted(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::onEncrypted()";
+  foreach (QSslCertificate cert, d->sslSocket.peerCertificateChain()) {
+    qDebug() << "publicKey:" << cert.publicKey();
+    qDebug() << "expiryDate:" << cert.expiryDate();
+    qDebug() << "serialNumber" << cert.serialNumber();
+    qDebug() << "version" << cert.version();
+    foreach (QByteArray attr, cert.issuerInfoAttributes()) {
+      qDebug() << "issuer info attribute" << attr << ":" << cert.issuerInfo(attr);
+    }
+    foreach (QByteArray attr, cert.subjectInfoAttributes()) {
+      qDebug() << "subject info attribute" << attr << ":" << cert.subjectInfo(attr);
+    }
+    foreach (QSslCertificateExtension ext, cert.extensions()) {
+      qDebug() << ext.name() << ext.oid() << ext.value();
+    }
+  }
+}
+
+
+void MainWindow::onSslModeChanged(QSslSocket::SslMode mode)
+{
+  Q_D(MainWindow);
+  QSslCertificate cert = d->sslSocket.peerCertificate();
+  qDebug() << "MainWindow::onSslModeChanged()" << mode
+           << cert
+           << d->sslSocket.peerName()
+           << d->sslSocket.peerPort()
+           << d->sslSocket.peerAddress()
+           << d->sslSocket.peerCertificateChain()
+           << d->sslSocket.isEncrypted()
+              ;
 }
 
 
@@ -1204,6 +1253,15 @@ void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
   Q_UNUSED(reply);
   Q_UNUSED(errors);
   // TODO: ...
+  qWarning() << errors;
+}
+
+
+void MainWindow::sslErrorsOccured(QList<QSslError> errors)
+{
+  Q_D(MainWindow);
+  qWarning() << errors;
+  d->sslSocket.ignoreSslErrors();
 }
 
 
