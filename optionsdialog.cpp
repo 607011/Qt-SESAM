@@ -245,13 +245,15 @@ void OptionsDialog::chooseCertFile(void)
 
 void OptionsDialog::okClicked(void)
 {
-  QFileInfo fi(ui->syncFileLineEdit->text());
-  if (fi.isFile()) {
+  bool ok = true;
+  if (!ui->syncFileLineEdit->text().isEmpty()) {
+    QFileInfo fi(ui->syncFileLineEdit->text());
+    ok = fi.exists();
+  }
+  if (ok)
     accept();
-  }
-  else {
+  else
     reject();
-  }
 }
 
 
