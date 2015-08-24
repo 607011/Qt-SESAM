@@ -108,7 +108,6 @@ public:
   ~MainWindowPrivate()
   {
     SecureErase(masterPassword);
-    SecureErase(AESKey, AES_KEY_SIZE);
   }
   NewDomainWizard *newDomainWizard;
   MasterPasswordDialog *masterPasswordDialog;
@@ -116,7 +115,6 @@ public:
   QSettings settings;
   DomainSettingsList domains;
   QMovie loaderIcon;
-  QByteArray cryptSalt;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
   bool autoIncrementIterations;
@@ -129,14 +127,11 @@ public:
   qint64 hackPermutations;
   bool hackingMode;
   Password password;
-  Password cryptPassword;
   QDateTime createdDate;
   QDateTime modifiedDate;
   QSystemTrayIcon trayIcon;
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
-  unsigned char AESKey[AES_KEY_SIZE];
-  unsigned char masterKey[AES_KEY_SIZE];
   ProgressDialog *progressDialog;
   QList<QSslCertificate> cert;
   QList<QSslError> expectedSslErrors;
@@ -387,9 +382,7 @@ void MainWindow::newDomain(void)
 void MainWindow::renewSalt(void)
 {
   Q_D(MainWindow);
-  QByteArray salt(d->optionsDialog->saltLength(), '\0');
-  for (int i = 0; i < salt.size(); ++i)
-    salt[i] = static_cast<char>(gRandomDevice());
+  const QByteArray &salt = Password::randomSalt(d->optionsDialog->saltLength());
   ui->saltBase64LineEdit->setText(salt.toBase64());
   updatePassword();
 }
@@ -804,7 +797,6 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
-  d->settings.setValue("misc/cryptSalt", d->cryptSalt.toBase64());
   d->settings.setValue("sync/onStart", d->optionsDialog->syncOnStart());
   d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
@@ -875,7 +867,6 @@ bool MainWindow::restoreSettings(void)
         d->settings.value("misc/masterPasswordInvalidationTimeMins", DEFAULT_MASTER_PASSWORD_INVALIDATION_TIME_MINS).toInt());
   d->optionsDialog->setSaltLength(
         d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
-  d->cryptSalt = QByteArray::fromBase64(d->settings.value("misc/cryptSalt").toByteArray());
   QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + APP_NAME + ".bin";
   d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
   d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());
@@ -925,11 +916,18 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
   if (errCode != nullptr)
     *errCode = NO_CRYPT_ERROR;
   QByteArray _baPlain = (compress) ? qCompress(baPlain, 9) : baPlain;
+
+  Password cryptPassword;
+  QByteArray salt = Password::randomSalt(CRYPT_SALT_LENGTH);
+  cryptPassword.setSalt(salt);
+  cryptPassword.generate(d->masterPassword.toUtf8());
+  QByteArray key = cryptPassword.derivedKey(AES_KEY_SIZE);
+
   std::string plain(_baPlain.constData(), _baPlain.length());
   std::string cipher;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(d->AESKey, AES_KEY_SIZE, IV);
+    enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), IV);
     CryptoPP::StringSource s(
           plain,
           true,
@@ -950,8 +948,12 @@ QByteArray MainWindow::encode(const QByteArray &baPlain, bool compress, int *err
     if (e.GetErrorType() > NO_CRYPT_ERROR)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
+
+  SecureErase(key);
+
   QByteArray result;
   result.append(char(FF_DEFAULT_ENCRYPTION));
+  result.append(salt);
   result.append(QByteArray(cipher.c_str(), cipher.length()));
   return result;
 }
@@ -965,8 +967,12 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
   int formatFlag = baCipher.at(0);
   baCipher.remove(0, 1);
 
-  d->cryptSalt = QByteArray(baCipher.constData(), CRYPT_SALT_LENGTH);
+  QByteArray salt = QByteArray(baCipher.constData(), CRYPT_SALT_LENGTH);
   baCipher.remove(0, CRYPT_SALT_LENGTH);
+  Password cryptPassword;
+  cryptPassword.setSalt(salt);
+  cryptPassword.generate(d->masterPassword.toUtf8());
+  QByteArray key = cryptPassword.derivedKey(AES_KEY_SIZE);
 
   switch (formatFlag) {
   case FF_DEFAULT_ENCRYPTION:
@@ -981,7 +987,7 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
   std::string recovered;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(d->AESKey, AES_KEY_SIZE, IV);
+    dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), IV);
     std::string cipher(baCipher.constData(), baCipher.length());
     CryptoPP::StringSource s(
           cipher,
@@ -1002,6 +1008,7 @@ QByteArray MainWindow::decode(QByteArray baCipher, bool uncompress, int *errCode
     if (e.GetErrorType() > NO_CRYPT_ERROR)
       qErrnoWarning(e.GetErrorType(), e.what());
   }
+  SecureErase(key);
   QByteArray plain(recovered.c_str(), recovered.length());
   return (uncompress) ? qUncompress(plain) : plain;
 }
@@ -1265,8 +1272,6 @@ void MainWindow::masterPasswordEntered(void)
     setEnabled(true);
     d->masterPasswordDialog->hide();
     d->masterPassword = masterPwd;
-    d->cryptPassword.generate(d->masterPassword.toUtf8());
-    d->cryptPassword.extractAESKey(reinterpret_cast<char*>(d->AESKey), AES_KEY_SIZE);
     ok = restoreSettings();
     if (ok) {
       ok = restoreDomainDataFromSettings();

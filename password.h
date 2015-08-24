@@ -39,7 +39,7 @@ public:
   ~Password();
 
   void abortGeneration(void);
-  bool generate(const QByteArray &masterKey);
+  void generate(const QByteArray &masterKey);
   void generateAsync(const QByteArray &masterKey);
 
   const QString &key(void) const;
@@ -51,8 +51,12 @@ public:
 
   void waitForFinished(void);
   QString errorString(void) const;
-  void extractAESKey(char *const aesKey, int size);
-  void setDomainSettings(const DomainSettings &ds);
+  void setDomainSettings(const DomainSettings &);
+  void setSalt_base64(const QByteArray &);
+  void setSalt(const QByteArray &);
+  QByteArray salt(void) const;
+
+  static QByteArray randomSalt(int size = 32);
 
   static const QString LowerChars;
   static const QString UpperChars;

@@ -80,7 +80,7 @@ auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
 };
 
 
-bool Password::generate(const QByteArray &masterKey)
+void Password::generate(const QByteArray &masterKey)
 {
   Q_D(Password);
   d->abortMutex.lock();
@@ -139,8 +139,7 @@ bool Password::generate(const QByteArray &masterKey)
     success = true;
   }
   if (success)
-    emit generated();
-  return success;
+    emit generated();;
 }
 
 
@@ -168,6 +167,35 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
+void Password::setSalt_base64(const QByteArray &salt_base64)
+{
+  Q_D(Password);
+  d->domainSettings.salt_base64 = salt_base64;
+}
+
+
+void Password::setSalt(const QByteArray &salt)
+{
+  Q_D(Password);
+  d->domainSettings.salt_base64 = salt.toBase64();
+}
+
+
+QByteArray Password::salt(void) const
+{
+  return QByteArray::fromBase64(d_ptr->domainSettings.salt_base64.toUtf8());
+}
+
+
+QByteArray Password::randomSalt(int size)
+{
+  QByteArray salt(size, static_cast<char>(0));
+  for (int i = 0; i < salt.size(); ++i)
+    salt[i] = static_cast<char>(gRandomDevice());
+  return salt;
+}
+
+
 const QString &Password::key(void) const
 {
   return d_ptr->key;
@@ -186,21 +214,6 @@ QByteArray Password::derivedKey(int size) const
   return size < 0
       ? d_ptr->derivedKey
       : QByteArray(d_ptr->derivedKey.constData(), size);
-}
-
-
-void Password::extractAESKey(char *const aesKey, int size)
-{
-  Q_D(Password);
-  Q_ASSERT(aesKey != nullptr);
-  Q_ASSERT(size > 0);
-  Q_ASSERT(size % 16 == 0);
-  Q_ASSERT(size <= SHA512_DIGEST_SIZE);
-#ifdef WIN32
-    memcpy_s(aesKey, size, d->derivedKey.data(), size);
-#else
-    memcpy(aesKey, d->derivedKey.data(), size);
-#endif
 }
 
 

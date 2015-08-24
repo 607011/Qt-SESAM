@@ -50,10 +50,7 @@ NewDomainWizard::~NewDomainWizard()
 
 void NewDomainWizard::renewSalt(void)
 {
-  QByteArray salt(12, static_cast<char>(0));
-  for (int i = 0; i < salt.size(); ++i)
-    salt[i] = static_cast<char>(gRandomDevice());
-  ui->saltBase64LineEdit->setText(salt.toBase64());
+  ui->saltBase64LineEdit->setText(Password::randomSalt().toBase64());
 }
 
 
