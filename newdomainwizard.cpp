@@ -22,6 +22,7 @@
 #include "newdomainwizard.h"
 #include "ui_newdomainwizard.h"
 #include "password.h"
+#include "domainsettings.h"
 #include "global.h"
 
 NewDomainWizard::NewDomainWizard(QWidget *parent)
@@ -29,7 +30,6 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   , ui(new Ui::NewDomainWizard)
 {
   ui->setupUi(this);
-  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   QObject::connect(ui->addPushButton, SIGNAL(pressed()), SLOT(accept()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
@@ -37,14 +37,35 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   QObject::connect(ui->digitsPushButton, SIGNAL(pressed()), SLOT(addDigitsToUsedCharacters()));
   QObject::connect(ui->extraPushButton, SIGNAL(pressed()), SLOT(addExtraCharactersToUsedCharacters()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
-  renewSalt();
-  ui->domainLineEdit->setFocus();
+  clear();
 }
 
 
 NewDomainWizard::~NewDomainWizard()
 {
   delete ui;
+}
+
+
+void NewDomainWizard::clear(void)
+{
+  ui->domainLineEdit->clear();
+  ui->userLineEdit->clear();
+  ui->legacyPasswordLineEdit->clear();
+  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
+  ui->notesPlainTextEdit->clear();
+  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
+  ui->forceLowerCaseCheckBox->setChecked(false);
+  ui->forceUpperCaseCheckBox->setChecked(false);
+  ui->forceDigitsCheckBox->setChecked(false);
+  ui->forceExtraCheckBox->setChecked(false);
+  renewSalt();
+  ui->lowercasePushButton->setEnabled(false);
+  ui->uppercasePushButton->setEnabled(false);
+  ui->digitsPushButton->setEnabled(false);
+  ui->extraPushButton->setEnabled(false);
+  ui->domainLineEdit->setFocus();
 }
 
 

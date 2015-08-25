@@ -345,6 +345,7 @@ void MainWindow::resetAllFields(void)
 void MainWindow::newDomain(void)
 {
   Q_D(MainWindow);
+  d->newDomainWizard->clear();
   int rc = d->newDomainWizard->exec();
   if (rc == QDialog::Accepted) {
     setDirty(false);

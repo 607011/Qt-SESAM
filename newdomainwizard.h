@@ -36,6 +36,7 @@ public:
   explicit NewDomainWizard(QWidget *parent = nullptr);
   ~NewDomainWizard();
 
+  void clear(void);
   QString domain(void) const;
   QString username(void) const;
   QString legacyPassword(void) const;
