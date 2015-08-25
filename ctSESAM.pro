@@ -30,6 +30,7 @@ win32 {
     SOURCES += dump.cpp
     HEADERS += dump.h
     LIBS += User32.lib
+    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
 }
 
 unix {
