@@ -85,10 +85,10 @@ void OptionsDialog::onEncrypted(void)
   d->infoTable->setItem(5, 1, new QTableWidgetItem(cipher.supportedBits()));
   d->infoTable->setItem(6, 1, new QTableWidgetItem(cipher.usedBits()));
 
-#if 0
   foreach (QSslCertificate cert, d->sslSocket.peerCertificateChain()) {
-    int rows = d->infoTable->rowCount() - 1;
-    d->infoTable->insertRow(13);
+    qDebug() << cert;
+    int rows = d->infoTable->rowCount();
+    d->infoTable->setRowCount(rows + 16);
     d->infoTable->setItem(rows +  0, 0, new QTableWidgetItem(tr("Serial number")));
     d->infoTable->setItem(rows +  1, 0, new QTableWidgetItem(tr("Effective Date")));
     d->infoTable->setItem(rows +  2, 0, new QTableWidgetItem(tr("Expiry Date")));
@@ -102,6 +102,8 @@ void OptionsDialog::onEncrypted(void)
     d->infoTable->setItem(rows + 10, 0, new QTableWidgetItem(tr("LocalityName")));
     d->infoTable->setItem(rows + 11, 0, new QTableWidgetItem(tr("OrganizationalUnitName")));
     d->infoTable->setItem(rows + 12, 0, new QTableWidgetItem(tr("StateOrProvinceName")));
+    d->infoTable->setItem(rows + 13, 0, new QTableWidgetItem(tr("E-Mail Address")));
+    d->infoTable->setItem(rows + 14, 0, new QTableWidgetItem(tr("Version")));
     d->infoTable->setItem(rows +  0, 1, new QTableWidgetItem(QString(cert.serialNumber())));
     d->infoTable->setItem(rows +  1, 1, new QTableWidgetItem(cert.effectiveDate().toString()));
     d->infoTable->setItem(rows +  2, 1, new QTableWidgetItem(cert.expiryDate().toString()));
@@ -115,8 +117,9 @@ void OptionsDialog::onEncrypted(void)
     d->infoTable->setItem(rows + 10, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::LocalityName).join(", ")));
     d->infoTable->setItem(rows + 11, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::OrganizationalUnitName).join(", ")));
     d->infoTable->setItem(rows + 12, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", ")));
+    d->infoTable->setItem(rows + 13, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::EmailAddress).join(", ")));
+    d->infoTable->setItem(rows + 14, 1, new QTableWidgetItem(QString(cert.version())));
   }
-#endif
 
   d->infoTable->show();
 }
@@ -126,12 +129,15 @@ void OptionsDialog::verifySecureConnection(void)
 {
   Q_D(OptionsDialog);
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
-  qDebug() << "Trying to connect to" << serverUrl.scheme() << serverUrl.host() << serverUrl.port() << "...";
-  d->sslSocket.connectToHostEncrypted(serverUrl.host(), 443);
+  if (serverUrl.scheme() == "https") {
+    static const int HttpsPort = 443;
+    qDebug() << "Trying to connect to" << serverUrl.host() << ":" << HttpsPort << "...";
+    d->sslSocket.connectToHostEncrypted(serverUrl.host(), HttpsPort);
+  }
 }
 
 
-void OptionsDialog::sslErrorsOccured(QList<QSslError> errors)
+void OptionsDialog::sslErrorsOccured(const QList<QSslError> &errors)
 {
   Q_D(OptionsDialog);
   qDebug() << "OptionsDialog::sslErrorsOccured()" << errors;

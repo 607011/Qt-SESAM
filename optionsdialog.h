@@ -82,7 +82,7 @@ private slots:
   void okClicked(void);
   void onEncrypted(void);
   void verifySecureConnection(void);
-  void sslErrorsOccured(QList<QSslError>);
+  void sslErrorsOccured(const QList<QSslError> &);
 
 signals:
   void certificatesUpdated(void);
