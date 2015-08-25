@@ -181,6 +181,13 @@ void Password::setSalt(const QByteArray &salt)
 }
 
 
+void Password::setIterations(int iterations)
+{
+  Q_D(Password);
+  d->domainSettings.iterations = iterations;
+}
+
+
 QByteArray Password::salt(void) const
 {
   return QByteArray::fromBase64(d_ptr->domainSettings.salt_base64.toUtf8());

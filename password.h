@@ -52,6 +52,7 @@ public:
   void waitForFinished(void);
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
+  void setIterations(int iterations);
   void setSalt_base64(const QByteArray &);
   void setSalt(const QByteArray &);
   QByteArray salt(void) const;
