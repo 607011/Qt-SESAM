@@ -91,7 +91,9 @@ public:
     , writeReq(nullptr)
     , counter(0)
     , maxCounter(0)
-  { /* ... */ }
+  {
+    sslConf.setCiphers(QSslSocket::supportedCiphers());
+  }
   ~MainWindowPrivate()
   {
     SecureErase(masterPassword);
@@ -126,6 +128,7 @@ public:
   QNetworkReply *readReq;
   QNetworkAccessManager *writeNAM;
   QNetworkReply *writeReq;
+  QList<QSslError> ignoredSslErrors;
   int counter;
   int maxCounter;
 };
@@ -172,7 +175,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
   QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(onOptionsAccepted()));
-  QObject::connect(d->optionsDialog, SIGNAL(certificatesUpdated()), SLOT(loadCertificate()));
+  QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(masterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
@@ -641,8 +644,23 @@ void MainWindow::copyUsernameToClipboard(void)
 void MainWindow::onOptionsAccepted(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::onOptionsAccepted()";
   restartInvalidationTimer();
   saveSettings();
+}
+
+
+void MainWindow::onServerCertificatesUpdated(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::onServerCertificatesUpdated()" << d->optionsDialog->serverCertificates();
+  d->sslConf.setCaCertificates(d->optionsDialog->serverCertificates());
+  d->ignoredSslErrors.clear();
+  if (d->optionsDialog->acceptSelfSignedRootCertificate()) {
+    const QSslCertificate &sCrt = d->optionsDialog->serverCertificate();
+    d->ignoredSslErrors.append(QSslError(QSslError::SelfSignedCertificateInChain, sCrt));
+    qDebug() << "d->ignoredSslErrors = " << d->ignoredSslErrors;
+  }
 }
 
 
@@ -795,25 +813,14 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
+  d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverCertificate().toPem()));
+  d->settings.setValue("sync/acceptSelfSignedServerCertificate", d->optionsDialog->acceptSelfSignedRootCertificate());
   d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
   saveAllDomainDataToSettings();
   d->settings.sync();
-}
-
-
-void MainWindow::loadCertificate(void)
-{
-  Q_D(MainWindow);
-  d->sslConf.setCiphers(QSslSocket::supportedCiphers());
-  d->sslConf.setCaCertificates(d->optionsDialog->serverCertificates());
-//  d->expectedSslErrors.clear();
-//  if (d->optionsDialog->selfSignedCertificatesAccepted())
-//    d->expectedSslErrors.append(QSslError::SelfSignedCertificate);
-//  if (d->optionsDialog->untrustedCertificatesAccepted())
-//    d->expectedSslErrors.append(QSslError::CertificateUntrusted);
 }
 
 
@@ -831,8 +838,7 @@ void MainWindow::hackLegacyPassword(void)
     d->hackPos = PositionTable(pwd);
     d->hackPermutations = d->hackPos.permutations();
     d->hackIterationDurationMs = 0;
-    QStringList charSet = pwd.split("", QString::SkipEmptyParts).toSet().toList();
-    ui->usedCharactersPlainTextEdit->setPlainText(charSet.join(""));
+    ui->usedCharactersPlainTextEdit->setPlainText(pwd.split("", QString::SkipEmptyParts).toSet().toList().join(""));
     ui->legacyPasswordLineEdit->setReadOnly(true);
     ui->usedCharactersPlainTextEdit->setReadOnly(true);
     ui->renewSaltPushButton->setEnabled(false);
@@ -865,6 +871,9 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DefaultServerRoot).toString());
   d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DefaultWriteUrl).toString());
   d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DefaultReadUrl).toString());
+  d->optionsDialog->setAcceptSelfSignedRootCertificate(d->settings.value("sync/acceptSelfSignedServerCertificate", false).toBool());
+  const QList<QSslCertificate> &crt = QSslCertificate::fromData(d->settings.value("sync/serverRootCertificates").toByteArray(), QSsl::Pem);
+  d->optionsDialog->setServerCertificates(crt);
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
@@ -985,7 +994,9 @@ void MainWindow::sync(void)
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
     QNetworkReply *reply = d->readNAM->post(req, QByteArray());
-    // reply->ignoreSslErrors(d->expectedSslErrors);
+    if (!d->ignoredSslErrors.isEmpty())
+      reply->ignoreSslErrors(d->ignoredSslErrors);
+    qDebug() << "d->ignoredSslErrors() =" << d->ignoredSslErrors;
   }
 }
 
@@ -1091,7 +1102,9 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
         QNetworkReply *reply = d->writeNAM->post(req, data);
-        // reply->ignoreSslErrors(d->expectedSslErrors);
+        if (!d->ignoredSslErrors.isEmpty())
+          reply->ignoreSslErrors(d->ignoredSslErrors);
+        qDebug() << "d->ignoredSslErrors() =" << d->ignoredSslErrors;
         d->loaderIcon.start();
         updateSaveButtonIcon();
       }
@@ -1199,12 +1212,13 @@ void MainWindow::invalidatePassword(bool reenter)
 }
 
 
-void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
+void MainWindow::sslErrorsOccured(QNetworkReply *reply, const QList<QSslError> &errors)
 {
   Q_UNUSED(reply);
   Q_UNUSED(errors);
   // TODO: ...
-  qWarning() << errors;
+  foreach (QSslError error, errors)
+    qWarning() << int(error.error()) << error.errorString();
 }
 
 

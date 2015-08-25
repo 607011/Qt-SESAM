@@ -74,6 +74,7 @@ private slots:
   void copyLegacyPasswordToClipboard(void);
   void copyUsernameToClipboard(void);
   void onOptionsAccepted(void);
+  void onServerCertificatesUpdated(void);
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
@@ -96,13 +97,12 @@ private slots:
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
-  void sslErrorsOccured(QNetworkReply*, QList<QSslError>);
+  void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
   void updateSaveButtonIcon(int frame = 0);
   void readFinished(QNetworkReply*);
   void writeFinished(QNetworkReply*);
   void deleteFinished(QNetworkReply*);
   void cancelServerOperation(void);
-  void loadCertificate(void);
   void hackLegacyPassword(void);
   void hideActivityIcons(void);
   void createFullDump(void);

@@ -23,22 +23,23 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QSslCipher>
 #include <QSslCertificate>
 #include <QSslSocket>
 #include <QSslError>
-#include <QSslKey>
-#include <QTableWidget>
+#include "servercertificatewidget.h"
 
 class OptionsDialogPrivate
 {
 public:
   OptionsDialogPrivate(void)
-    : infoTable(new QTableWidget)
+    : serverCertificateWidget(new ServerCertificateWidget)
   { /* ... */ }
   QSslSocket sslSocket;
+  QList<QSslError> sslErrors;
+  QList<QSslError> ignoredSslErrors;
   QList<QSslCertificate> serverCertificates;
-  QTableWidget *infoTable;
+  ServerCertificateWidget *serverCertificateWidget;
+  QSslCertificate selfSignedCertificate;
 };
 
 
@@ -54,7 +55,8 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));
   QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
-  QObject::connect(ui->verifySecureConnectionPushButton, SIGNAL(pressed()), SLOT(verifySecureConnection()));
+  QObject::connect(ui->importServerCertificatePushButton, SIGNAL(pressed()), SLOT(verifySecureConnection()));
+  QObject::connect(ui->acceptSelfSignedCertificatesCheckBox, SIGNAL(toggled(bool)), SIGNAL(updatedServerCertificates()));
 }
 
 
@@ -67,67 +69,23 @@ OptionsDialog::~OptionsDialog()
 void OptionsDialog::onEncrypted(void)
 {
   Q_D(OptionsDialog);
-  const QSslCipher &cipher = d->sslSocket.sessionCipher();
-  d->infoTable->setColumnCount(2);
-  d->infoTable->setRowCount(7);
-  d->infoTable->setItem(0, 0, new QTableWidgetItem(tr("Authentication")));
-  d->infoTable->setItem(1, 0, new QTableWidgetItem(tr("Encryption")));
-  d->infoTable->setItem(2, 0, new QTableWidgetItem(tr("Key Exchange Method")));
-  d->infoTable->setItem(3, 0, new QTableWidgetItem(tr("Cipher Name")));
-  d->infoTable->setItem(4, 0, new QTableWidgetItem(tr("Protocol")));
-  d->infoTable->setItem(5, 0, new QTableWidgetItem(tr("Supported Bits")));
-  d->infoTable->setItem(6, 0, new QTableWidgetItem(tr("Used Bits")));
-  d->infoTable->setItem(0, 1, new QTableWidgetItem(cipher.authenticationMethod()));
-  d->infoTable->setItem(1, 1, new QTableWidgetItem(cipher.encryptionMethod()));
-  d->infoTable->setItem(2, 1, new QTableWidgetItem(cipher.keyExchangeMethod()));
-  d->infoTable->setItem(3, 1, new QTableWidgetItem(cipher.name()));
-  d->infoTable->setItem(4, 1, new QTableWidgetItem(cipher.protocolString()));
-  d->infoTable->setItem(5, 1, new QTableWidgetItem(cipher.supportedBits()));
-  d->infoTable->setItem(6, 1, new QTableWidgetItem(cipher.usedBits()));
-
-  foreach (QSslCertificate cert, d->sslSocket.peerCertificateChain()) {
-    qDebug() << cert;
-    int rows = d->infoTable->rowCount();
-    d->infoTable->setRowCount(rows + 16);
-    d->infoTable->setItem(rows +  0, 0, new QTableWidgetItem(tr("Serial number")));
-    d->infoTable->setItem(rows +  1, 0, new QTableWidgetItem(tr("Effective Date")));
-    d->infoTable->setItem(rows +  2, 0, new QTableWidgetItem(tr("Expiry Date")));
-    d->infoTable->setItem(rows +  3, 0, new QTableWidgetItem(tr("CommonName")));
-    d->infoTable->setItem(rows +  4, 0, new QTableWidgetItem(tr("Organization")));
-    d->infoTable->setItem(rows +  5, 0, new QTableWidgetItem(tr("LocalityName")));
-    d->infoTable->setItem(rows +  6, 0, new QTableWidgetItem(tr("OrganizationalUnitName")));
-    d->infoTable->setItem(rows +  7, 0, new QTableWidgetItem(tr("StateOrProvinceName")));
-    d->infoTable->setItem(rows +  8, 0, new QTableWidgetItem(tr("CommonName")));
-    d->infoTable->setItem(rows +  9, 0, new QTableWidgetItem(tr("Organization")));
-    d->infoTable->setItem(rows + 10, 0, new QTableWidgetItem(tr("LocalityName")));
-    d->infoTable->setItem(rows + 11, 0, new QTableWidgetItem(tr("OrganizationalUnitName")));
-    d->infoTable->setItem(rows + 12, 0, new QTableWidgetItem(tr("StateOrProvinceName")));
-    d->infoTable->setItem(rows + 13, 0, new QTableWidgetItem(tr("E-Mail Address")));
-    d->infoTable->setItem(rows + 14, 0, new QTableWidgetItem(tr("Version")));
-    d->infoTable->setItem(rows +  0, 1, new QTableWidgetItem(QString(cert.serialNumber())));
-    d->infoTable->setItem(rows +  1, 1, new QTableWidgetItem(cert.effectiveDate().toString()));
-    d->infoTable->setItem(rows +  2, 1, new QTableWidgetItem(cert.expiryDate().toString()));
-    d->infoTable->setItem(rows +  3, 1, new QTableWidgetItem(cert.subjectInfo(QSslCertificate::CommonName).join(", ")));
-    d->infoTable->setItem(rows +  4, 1, new QTableWidgetItem(cert.subjectInfo(QSslCertificate::Organization).join(", ")));
-    d->infoTable->setItem(rows +  5, 1, new QTableWidgetItem(cert.subjectInfo(QSslCertificate::LocalityName).join(", ")));
-    d->infoTable->setItem(rows +  6, 1, new QTableWidgetItem(cert.subjectInfo(QSslCertificate::OrganizationalUnitName).join(", ")));
-    d->infoTable->setItem(rows +  7, 1, new QTableWidgetItem(cert.subjectInfo(QSslCertificate::StateOrProvinceName).join(", ")));
-    d->infoTable->setItem(rows +  8, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::CommonName).join(", ")));
-    d->infoTable->setItem(rows +  9, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::Organization).join(", ")));
-    d->infoTable->setItem(rows + 10, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::LocalityName).join(", ")));
-    d->infoTable->setItem(rows + 11, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::OrganizationalUnitName).join(", ")));
-    d->infoTable->setItem(rows + 12, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", ")));
-    d->infoTable->setItem(rows + 13, 1, new QTableWidgetItem(cert.issuerInfo(QSslCertificate::EmailAddress).join(", ")));
-    d->infoTable->setItem(rows + 14, 1, new QTableWidgetItem(QString(cert.version())));
+  qDebug() << "OptionsDialog::onEncrypted()";
+  d->serverCertificateWidget->setServerSocket(d->sslSocket);
+  int button = d->serverCertificateWidget->exec();
+  if (button == QDialog::Accepted) {
+    d->ignoredSslErrors = d->sslErrors;
+    setServerCertificates(d->sslSocket.peerCertificateChain());
+    d->sslSocket.close();
   }
-
-  d->infoTable->show();
 }
 
 
 void OptionsDialog::verifySecureConnection(void)
 {
   Q_D(OptionsDialog);
+  d->sslErrors.clear();
+  d->ignoredSslErrors.clear();
+  d->serverCertificates.clear();
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
   if (serverUrl.scheme() == "https") {
     static const int HttpsPort = 443;
@@ -140,7 +98,11 @@ void OptionsDialog::verifySecureConnection(void)
 void OptionsDialog::sslErrorsOccured(const QList<QSslError> &errors)
 {
   Q_D(OptionsDialog);
-  qDebug() << "OptionsDialog::sslErrorsOccured()" << errors;
+  d->sslErrors = errors;
+  qDebug() << "OptionsDialog::sslErrorsOccured()";
+  foreach (QSslError err, d->sslErrors) {
+    qDebug() << err.certificate() << err.errorString();
+  }
   d->sslSocket.ignoreSslErrors();
 }
 
@@ -262,9 +224,53 @@ void OptionsDialog::setServerPassword(QString password)
 }
 
 
+void OptionsDialog::setAcceptSelfSignedRootCertificate(bool accept)
+{
+  ui->acceptSelfSignedCertificatesCheckBox->setChecked(accept);
+}
+
+
+bool OptionsDialog::acceptSelfSignedRootCertificate(void) const
+{
+  return ui->acceptSelfSignedCertificatesCheckBox->isChecked();
+}
+
+
 const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
 {
   return d_ptr->serverCertificates;
+}
+
+
+void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChain)
+{
+  qDebug() << "OptionsDialog::setServerCertificates(" << certChain << ")";
+  d_ptr->serverCertificates = certChain;
+  emit updatedServerCertificates();
+}
+
+
+const QSslCertificate &OptionsDialog::selfSignedCertificate(void) const
+{
+  return d_ptr->selfSignedCertificate;
+}
+
+
+const QSslCertificate &OptionsDialog::serverCertificate(void) const
+{
+  return d_ptr->serverCertificates.last(); // XXX
+}
+
+
+const QList<QSslError> &OptionsDialog::sslErrors(void) const
+{
+  return d_ptr->sslErrors;
+}
+
+
+const QList<QSslError> &OptionsDialog::ignoredSslErrors(void) const
+{
+  return d_ptr->ignoredSslErrors;
 }
 
 

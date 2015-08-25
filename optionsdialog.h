@@ -61,7 +61,15 @@ public:
   QString serverPassword(void) const;
   void setServerPassword(QString);
 
+  void setAcceptSelfSignedRootCertificate(bool);
+  bool acceptSelfSignedRootCertificate(void) const;
+
   const QList<QSslCertificate> &serverCertificates(void) const;
+  void setServerCertificates(const QList<QSslCertificate> &);
+  const QSslCertificate &selfSignedCertificate(void) const;
+  const QSslCertificate &serverCertificate(void) const;
+  const QList<QSslError> &sslErrors(void) const;
+  const QList<QSslError> &ignoredSslErrors(void) const;
 
   QString writeUrl(void) const;
   void setWriteUrl(QString);
@@ -77,15 +85,15 @@ public:
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
 
+signals:
+  void updatedServerCertificates(void);
+
 private slots:
   void chooseSyncFile(void);
   void okClicked(void);
   void onEncrypted(void);
   void verifySecureConnection(void);
-  void sslErrorsOccured(const QList<QSslError> &);
-
-signals:
-  void certificatesUpdated(void);
+  void sslErrorsOccured(const QList<QSslError> &errors);
 
 private:
   Ui::OptionsDialog *ui;

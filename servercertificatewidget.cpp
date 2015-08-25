@@ -46,8 +46,6 @@ ServerCertificateWidget::~ServerCertificateWidget()
 
 void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
 {
-  // clearLayout(ui->formLayout);
-  qDebug() << "ServerCertificateWidget::setServerSocket()";
   const QSslCipher &cipher = sslSocket.sessionCipher();
   ui->formLayout->addRow(tr("<B>Authentication</B>"), new QLabel(cipher.authenticationMethod()));
   ui->formLayout->addRow(tr("<B>Encryption</B>"), new QLabel(cipher.encryptionMethod()));
@@ -61,11 +59,12 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   treeWidget->setColumnCount(2);
   treeWidget->setHeaderLabels(QStringList({tr("Serial Number"), QString()}));
   foreach (QSslCertificate cert, sslSocket.peerCertificateChain()) {
-    qDebug() << cert;
+    // qDebug() << cert.toText();
+    // const QSslKey &publicKey = cert.publicKey();
     QTreeWidgetItem *rootItem = new QTreeWidgetItem;
     treeWidget->addTopLevelItem(rootItem);
-    rootItem->setText(0, tr("Serial number"));
-    rootItem->setText(1, QString(cert.serialNumber()));
+    rootItem->setText(0, QString(cert.serialNumber()));
+    rootItem->setText(1, QString());
     QList<QTreeWidgetItem*> items;
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
@@ -78,22 +77,16 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                    QStringList({tr("Expiry date"), cert.expiryDate().toString()})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
-                   QStringList({tr("Common name"), cert.issuerInfo(QSslCertificate::CommonName).join(", ")})));
-    items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
-                   QStringList({tr("Organization"), cert.issuerInfo(QSslCertificate::Organization).join(", ")})));
-    items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
-                   QStringList({tr("Locality"), cert.issuerInfo(QSslCertificate::LocalityName).join(", ")})));
-    items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
-                   QStringList({tr("Organizational unit"), cert.issuerInfo(QSslCertificate::OrganizationalUnitName).join(", ")})));
-    items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
-                   QStringList({tr("State or province"), cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", ")})));
-    items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
-                   QStringList({tr("E-mail address"),cert.issuerInfo(QSslCertificate::EmailAddress).join(", ")})));
+                   QStringList({
+                                 tr("DN"),
+                                 QString("CN=%1,OU=%2,O=%3,L=%4,ST=%5")
+                                 .arg(cert.issuerInfo(QSslCertificate::CommonName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::OrganizationalUnitName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::Organization).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::LocalityName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", "))
+                               }
+                               )));
     // ui->formLayout->addRow(tr("Common Name"), new QLabel(cert.subjectInfo(QSslCertificate::CommonName).join(", ")));
     // ui->formLayout->addRow(tr("Organization"), new QLabel(cert.subjectInfo(QSslCertificate::Organization).join(", ")));
     // ui->formLayout->addRow(tr("Locality Name"), new QLabel(cert.subjectInfo(QSslCertificate::LocalityName).join(", ")));
