@@ -22,10 +22,16 @@
 
 #include <QDialog>
 #include <QSslCertificate>
+#include <QSslSocket>
+#include <QSslError>
+#include <QList>
 
 namespace Ui {
 class OptionsDialog;
 }
+
+class OptionsDialogPrivate;
+
 
 class OptionsDialog : public QDialog
 {
@@ -55,9 +61,6 @@ public:
   QString serverPassword(void) const;
   void setServerPassword(QString);
 
-  QString serverCertificateFilename(void) const;
-  void setServerCertificateFilename(QString);
-
   const QList<QSslCertificate> &serverCertificates(void) const;
 
   QString writeUrl(void) const;
@@ -74,17 +77,12 @@ public:
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
 
-  bool selfSignedCertificatesAccepted(void) const;
-  void setSelfSignedCertificatesAccepted(bool);
-
-  bool untrustedCertificatesAccepted(void) const;
-  void setUntrustedCertificatesAccepted(bool);
-
 private slots:
   void chooseSyncFile(void);
-  void chooseCertFile(void);
   void okClicked(void);
-  void loadCertificatesFromFile(const QString &filename);
+  void onEncrypted(void);
+  void verifySecureConnection(void);
+  void sslErrorsOccured(QList<QSslError>);
 
 signals:
   void certificatesUpdated(void);
@@ -92,7 +90,9 @@ signals:
 private:
   Ui::OptionsDialog *ui;
 
-  QList<QSslCertificate> mServerCertificates;
+  QScopedPointer<OptionsDialogPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(OptionsDialog)
+  Q_DISABLE_COPY(OptionsDialog)
 };
 
 #endif // __OPTIONSDIALOG_H_

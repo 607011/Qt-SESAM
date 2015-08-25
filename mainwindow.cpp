@@ -84,7 +84,6 @@ public:
     , masterPasswordDialog(new MasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(nullptr)
-    , sslSocket(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readNAM(new QNetworkAccessManager(parent))
     , readReq(nullptr)
@@ -121,9 +120,7 @@ public:
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
   ProgressDialog *progressDialog;
-  QSslSocket sslSocket;
   QList<QSslCertificate> cert;
-  // QList<QSslError> expectedSslErrors;
   QSslConfiguration sslConf;
   QNetworkAccessManager *readNAM;
   QNetworkReply *readReq;
@@ -190,10 +187,6 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
   QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
-
-  QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
-  QObject::connect(&d->sslSocket, SIGNAL(modeChanged(QSslSocket::SslMode)), SLOT(onSslModeChanged(QSslSocket::SslMode)));
-  QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
 
   ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
@@ -645,56 +638,8 @@ void MainWindow::copyUsernameToClipboard(void)
 void MainWindow::onOptionsAccepted(void)
 {
   Q_D(MainWindow);
-  const QUrl &serverUrl = QUrl(d->optionsDialog->serverRootUrl());
-  qDebug() << "Trying to connect to" << serverUrl.host() << "...";
-  d->sslSocket.connectToHostEncrypted(serverUrl.host(), 443);
   restartInvalidationTimer();
   saveSettings();
-}
-
-
-void MainWindow::onEncrypted(void)
-{
-  Q_D(MainWindow);
-  qDebug() << "MainWindow::onEncrypted()";
-  const QSslCipher &cipher = d->sslSocket.sessionCipher();
-  qDebug() << "Authentication:\t\t" << cipher.authenticationMethod();
-  qDebug() << "Encryption:\t\t" << cipher.encryptionMethod();
-  qDebug() << "Key Exchange:\t\t" << cipher.keyExchangeMethod();
-  qDebug() << "Cipher Name:\t\t" << cipher.name();
-  qDebug() << "Protocol:\t\t" <<  cipher.protocolString();
-  qDebug() << "Supported Bits:\t\t" << cipher.supportedBits();
-  qDebug() << "Used Bits:\t\t" << cipher.usedBits();
-  foreach (QSslCertificate cert, d->sslSocket.peerCertificateChain()) {
-    qDebug() << "publicKey:\t\t" << cert.publicKey();
-    qDebug() << "expiryDate:\t\t" << cert.expiryDate();
-    qDebug() << "serialNumber\t\t" << cert.serialNumber();
-    qDebug() << "version:\t\t" << cert.version();
-    foreach (QByteArray attr, cert.issuerInfoAttributes()) {
-      qDebug() << "issuer info attribute" << attr << ":\t\t" << cert.issuerInfo(attr);
-    }
-    foreach (QByteArray attr, cert.subjectInfoAttributes()) {
-      qDebug() << "subject info attribute" << attr << ":\t\t" << cert.subjectInfo(attr);
-    }
-    foreach (QSslCertificateExtension ext, cert.extensions()) {
-      qDebug() << ext.name() << ext.oid() << ext.value();
-    }
-  }
-}
-
-
-void MainWindow::onSslModeChanged(QSslSocket::SslMode mode)
-{
-  Q_D(MainWindow);
-  QSslCertificate cert = d->sslSocket.peerCertificate();
-  qDebug() << "MainWindow::onSslModeChanged()" << mode
-           << cert
-           << d->sslSocket.peerName()
-           << d->sslSocket.peerPort()
-           << d->sslSocket.peerAddress()
-           << d->sslSocket.peerCertificateChain()
-           << d->sslSocket.isEncrypted()
-              ;
 }
 
 
@@ -847,9 +792,6 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  d->settings.setValue("sync/serverCertificateFilename", d->optionsDialog->serverCertificateFilename());
-//  d->settings.setValue("sync/acceptSelfSignedCertificates", d->optionsDialog->selfSignedCertificatesAccepted());
-//  d->settings.setValue("sync/acceptUntrustedCertificates", d->optionsDialog->untrustedCertificatesAccepted());
   d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
@@ -918,11 +860,8 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
   d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
   d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DefaultServerRoot).toString());
-//  d->optionsDialog->setSelfSignedCertificatesAccepted(d->settings.value("sync/acceptSelfSignedCertificates", false).toBool());
-//  d->optionsDialog->setUntrustedCertificatesAccepted(d->settings.value("sync/acceptUntrustedCertificates", false).toBool());
   d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DefaultWriteUrl).toString());
   d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DefaultReadUrl).toString());
-  d->optionsDialog->setServerCertificateFilename(d->settings.value("sync/serverCertificateFilename").toString());
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
@@ -1262,14 +1201,6 @@ void MainWindow::sslErrorsOccured(QNetworkReply *reply, QList<QSslError> errors)
   Q_UNUSED(errors);
   // TODO: ...
   qWarning() << errors;
-}
-
-
-void MainWindow::sslErrorsOccured(QList<QSslError> errors)
-{
-  Q_D(MainWindow);
-  qWarning() << errors;
-  d->sslSocket.ignoreSslErrors();
 }
 
 
