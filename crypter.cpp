@@ -27,7 +27,7 @@
 static const unsigned char IV[16] = {0xb5, 0x4f, 0xcf, 0xb0, 0x88, 0x09, 0x55, 0xe5, 0xbf, 0x79, 0xaf, 0x37, 0x71, 0x1c, 0x28, 0xb6};
 static const int CryptSaltLength = 32;
 static const int AESKeySize = 256 / 8;
-
+static const int DefaultIterations = 32768;
 
 QByteArray Crypter::encode(const QString &masterPassword, const QByteArray &baPlain, bool compress, int *errCode, QString *errMsg)
 {
@@ -37,6 +37,7 @@ QByteArray Crypter::encode(const QString &masterPassword, const QByteArray &baPl
 
   const QByteArray &salt = Password::randomSalt(CryptSaltLength);
   Password cryptPassword;
+  cryptPassword.setIterations(DefaultIterations);
   cryptPassword.setSalt(salt);
   cryptPassword.generate(masterPassword.toUtf8());
   SecureByteArray key = cryptPassword.derivedKey(AESKeySize);
@@ -86,6 +87,7 @@ QByteArray Crypter::decode(const QString &masterPassword, QByteArray baCipher, b
   const QByteArray &salt = QByteArray(baCipher.constData(), CryptSaltLength);
   baCipher.remove(0, CryptSaltLength);
   Password cryptPassword;
+  cryptPassword.setIterations(DefaultIterations);
   cryptPassword.setSalt(salt);
   cryptPassword.generate(masterPassword.toUtf8());
   SecureByteArray key = cryptPassword.derivedKey(AESKeySize);
