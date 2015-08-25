@@ -151,9 +151,11 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
+  QObject::connect(ui->deleteCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()), Qt::ConnectionType::QueuedConnection);
+  ui->saltBase64LineEdit->installEventFilter(this);
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
   QObject::connect(ui->copyUsernameToClipboardPushButton, SIGNAL(clicked()), SLOT(copyUsernameToClipboard()));
@@ -1122,6 +1124,7 @@ void MainWindow::updateWindowTitle(void)
                  .arg(AppName)
                  .arg(AppVersion)
                  .arg(d->parameterSetDirty ? "*" : ""));
+  ui->savePushButton->setEnabled(d->parameterSetDirty);
 }
 
 
@@ -1316,13 +1319,22 @@ void MainWindow::onExpertModeChanged(bool enabled)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-  if (event->type() == QEvent::FocusIn) {
+  switch (event->type()) {
+  case QEvent::FocusIn:
+  {
     if (obj->objectName() == "domainLineEdit" && ui->domainLineEdit->text().isEmpty()) {
       ui->domainLineEdit->clearFocus();
       newDomain();
       return true;
     }
     return false;
+  }
+  case QEvent::MouseButtonDblClick:
+  {
+    if (obj->objectName() == "saltBase64LineEdit") {
+      QApplication::clipboard()->setText(QString(QByteArray::fromBase64(ui->saltBase64LineEdit->text().toLatin1()).toHex()));
+    }
+  }
   }
   return QObject::eventFilter(obj, event);
 }
