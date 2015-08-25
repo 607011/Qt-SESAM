@@ -55,7 +55,8 @@ SOURCES += main.cpp mainwindow.cpp \
     newdomainwizard.cpp \
     masterpassworddialog.cpp \
     crypter.cpp \
-    securebytearray.cpp
+    securebytearray.cpp \
+    servercertificatewidget.cpp
 
 win32:SOURCES += 3rdparty/cryptopp562/sha.cpp \
     3rdparty/cryptopp562/iterhash.cpp \
@@ -93,7 +94,8 @@ HEADERS  += mainwindow.h \
     masterpassworddialog.h \
     hackhelper.h \
     crypter.h \
-    securebytearray.h
+    securebytearray.h \
+    servercertificatewidget.h
 
 win32:HEADERS += 3rdparty/cryptopp562/sha.h \
     3rdparty/cryptopp562/config.h \
@@ -126,7 +128,8 @@ FORMS += mainwindow.ui \
     progressdialog.ui \
     newcredentialsdialog.ui \
     newdomainwizard.ui \
-    masterpassworddialog.ui
+    masterpassworddialog.ui \
+    servercertificatewidget.ui
 
 
 INCLUDEPATH += $$PWD/3rdparty

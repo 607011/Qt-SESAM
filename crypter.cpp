@@ -67,10 +67,11 @@ QByteArray Crypter::encode(const QString &masterPassword, const QByteArray &baPl
       qErrnoWarning(e.GetErrorType(), e.what());
   }
 
+  QByteArray baCipher(cipher.c_str(), cipher.length());
   QByteArray result;
   result.append(static_cast<char>(DefaultEncryptionFormat));
   result.append(salt);
-  result.append(cipher.c_str(), cipher.length());
+  result.append(baCipher);
   return result;
 }
 
