@@ -100,20 +100,29 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
                    QStringList({
-                                 tr("DN"),
-                                 QString("CN=%1,OU=%2,O=%3,L=%4,ST=%5")
-                                 .arg(cert.subjectInfo(QSslCertificate::CommonName).join(", "))
-                                 .arg(cert.subjectInfo(QSslCertificate::OrganizationalUnitName).join(", "))
-                                 .arg(cert.subjectInfo(QSslCertificate::Organization).join(", "))
-                                 .arg(cert.subjectInfo(QSslCertificate::LocalityName).join(", "))
-                                 .arg(cert.subjectInfo(QSslCertificate::StateOrProvinceName).join(", "))
+                                 tr("Issuer"),
+                                 QString("/C=%1/ST=%2/L=%3/O=%4/OU=%5/CN=%6/emailAddress=%7")
+                                 .arg(cert.issuerInfo(QSslCertificate::CountryName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::LocalityName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::Organization).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::OrganizationalUnitName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::CommonName).join(", "))
+                                 .arg(cert.issuerInfo(QSslCertificate::EmailAddress).join(", "))
                                }
                                )));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
                    QStringList({
-                                 tr("E-Mail"),
-                                 cert.subjectInfo(QSslCertificate::EmailAddress).join(", ")
+                                 tr("Subject"),
+                                 QString("/C=%1/ST=%2/L=%3/O=%4/OU=%5/CN=%6/emailAddress=%7")
+                                 .arg(cert.subjectInfo(QSslCertificate::CountryName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::StateOrProvinceName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::LocalityName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::Organization).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::OrganizationalUnitName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::CommonName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::EmailAddress).join(", "))
                                }
                                )));
     items.append(new QTreeWidgetItem(
