@@ -56,7 +56,6 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
   QObject::connect(ui->importServerCertificatePushButton, SIGNAL(pressed()), SLOT(verifySecureConnection()));
-  QObject::connect(ui->acceptSelfSignedCertificatesCheckBox, SIGNAL(toggled(bool)), SIGNAL(updatedServerCertificates()));
 }
 
 
@@ -75,8 +74,8 @@ void OptionsDialog::onEncrypted(void)
   if (button == QDialog::Accepted) {
     d->ignoredSslErrors = d->sslErrors;
     setServerCertificates(d->sslSocket.peerCertificateChain());
-    d->sslSocket.close();
   }
+  d->sslSocket.close();
 }
 
 
@@ -224,18 +223,6 @@ void OptionsDialog::setServerPassword(QString password)
 }
 
 
-void OptionsDialog::setAcceptSelfSignedRootCertificate(bool accept)
-{
-  ui->acceptSelfSignedCertificatesCheckBox->setChecked(accept);
-}
-
-
-bool OptionsDialog::acceptSelfSignedRootCertificate(void) const
-{
-  return ui->acceptSelfSignedCertificatesCheckBox->isChecked();
-}
-
-
 const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
 {
   return d_ptr->serverCertificates;
@@ -244,7 +231,6 @@ const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
 
 void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChain)
 {
-  qDebug() << "OptionsDialog::setServerCertificates(" << certChain << ")";
   d_ptr->serverCertificates = certChain;
   emit updatedServerCertificates();
 }
@@ -256,9 +242,11 @@ const QSslCertificate &OptionsDialog::selfSignedCertificate(void) const
 }
 
 
-const QSslCertificate &OptionsDialog::serverCertificate(void) const
+QSslCertificate OptionsDialog::serverCertificate(void) const
 {
-  return d_ptr->serverCertificates.last(); // XXX
+  return d_ptr->serverCertificates.isEmpty()
+      ? QSslCertificate()
+      : d_ptr->serverCertificates.last(); // XXX
 }
 
 

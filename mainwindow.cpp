@@ -86,9 +86,9 @@ public:
     , progressDialog(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readNAM(new QNetworkAccessManager(parent))
-    , readReq(nullptr)
+    , readReply(nullptr)
     , writeNAM(new QNetworkAccessManager(parent))
-    , writeReq(nullptr)
+    , writeReply(nullptr)
     , counter(0)
     , maxCounter(0)
   {
@@ -125,9 +125,9 @@ public:
   QList<QSslCertificate> cert;
   QSslConfiguration sslConf;
   QNetworkAccessManager *readNAM;
-  QNetworkReply *readReq;
+  QNetworkReply *readReply;
   QNetworkAccessManager *writeNAM;
-  QNetworkReply *writeReq;
+  QNetworkReply *writeReply;
   QList<QSslError> ignoredSslErrors;
   int counter;
   int maxCounter;
@@ -177,7 +177,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
   QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(onOptionsAccepted()));
   QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
-  QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(masterPasswordEntered()));
+  QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
@@ -187,9 +187,9 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
-  QObject::connect(d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(readFinished(QNetworkReply*)));
+  QObject::connect(d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-  QObject::connect(d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(writeFinished(QNetworkReply*)));
+  QObject::connect(d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
   QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
@@ -655,12 +655,14 @@ void MainWindow::onServerCertificatesUpdated(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::onServerCertificatesUpdated()" << d->optionsDialog->serverCertificates();
-  d->sslConf.setCaCertificates(d->optionsDialog->serverCertificates());
   d->ignoredSslErrors.clear();
-  if (d->optionsDialog->acceptSelfSignedRootCertificate()) {
-    const QSslCertificate &sCrt = d->optionsDialog->serverCertificate();
-    d->ignoredSslErrors.append(QSslError(QSslError::SelfSignedCertificateInChain, sCrt));
-    qDebug() << "d->ignoredSslErrors = " << d->ignoredSslErrors;
+  d->readNAM->clearAccessCache();
+  d->writeNAM->clearAccessCache();
+  const QSslCertificate &caCert = d->optionsDialog->serverCertificate();
+  if (!caCert.isNull()) {
+    QList<QSslCertificate> caCerts({caCert});
+    qDebug() << "Setting CA cert to" << caCerts;
+    d->sslConf.setCaCertificates(caCerts);
   }
 }
 
@@ -814,12 +816,11 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverCertificate().toPem()));
-  d->settings.setValue("sync/acceptSelfSignedServerCertificate", d->optionsDialog->acceptSelfSignedRootCertificate());
   d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
+  d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverCertificate().toPem()));
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
@@ -872,9 +873,8 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DefaultServerRoot).toString());
   d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DefaultWriteUrl).toString());
   d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DefaultReadUrl).toString());
-  d->optionsDialog->setAcceptSelfSignedRootCertificate(d->settings.value("sync/acceptSelfSignedServerCertificate", false).toBool());
-  const QList<QSslCertificate> &crt = QSslCertificate::fromData(d->settings.value("sync/serverRootCertificates").toByteArray(), QSsl::Pem);
-  d->optionsDialog->setServerCertificates(crt);
+  d->optionsDialog->setServerCertificates(QSslCertificate::fromData(d->settings.value("sync/serverRootCertificates").toByteArray(), QSsl::Pem));
+
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
@@ -907,7 +907,7 @@ bool MainWindow::restoreSettings(void)
 }
 
 
-void MainWindow::writeFinished(QNetworkReply *reply)
+void MainWindow::onWriteFinished(QNetworkReply *reply)
 {
   Q_D(MainWindow);
   if (reply->error() == QNetworkReply::NoError) {
@@ -925,18 +925,20 @@ void MainWindow::writeFinished(QNetworkReply *reply)
                          tr("Writing to the server failed. Reason: %1")
                          .arg(reply->errorString()), QMessageBox::Ok);
   }
+  reply->close();
+  reply->deleteLater();
 }
 
 
 void MainWindow::cancelServerOperation(void)
 {
   Q_D(MainWindow);
-  if (d->readReq != nullptr && d->readReq->isRunning()) {
-    d->readReq->abort();
+  if (d->readReply != nullptr && d->readReply->isRunning()) {
+    d->readReply->abort();
     ui->statusBar->showMessage(tr("Server read operation aborted."), 3000);
   }
-  if (d->writeReq != nullptr && d->writeReq->isRunning()) {
-    d->writeReq->abort();
+  if (d->writeReply != nullptr && d->writeReply->isRunning()) {
+    d->writeReply->abort();
     ui->statusBar->showMessage(tr("Sync to server aborted."), 3000);
   }
 }
@@ -994,10 +996,14 @@ void MainWindow::sync(void)
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
-    QNetworkReply *reply = d->readNAM->post(req, QByteArray());
-    if (!d->ignoredSslErrors.isEmpty())
-      reply->ignoreSslErrors(d->ignoredSslErrors);
-    qDebug() << "d->ignoredSslErrors() =" << d->ignoredSslErrors;
+    d->readReply = d->readNAM->post(req, QByteArray());
+    if (!d->ignoredSslErrors.isEmpty()) {
+      d->readReply->ignoreSslErrors(d->ignoredSslErrors);
+      qDebug() << "IGNORING THE FOLLOWING SSL ERRORS:" << d->ignoredSslErrors;
+    }
+    else {
+      qDebug() << "WON'T IGNORE ANY SSL ERROR!";
+    }
   }
 }
 
@@ -1102,10 +1108,14 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
-        QNetworkReply *reply = d->writeNAM->post(req, data);
-        if (!d->ignoredSslErrors.isEmpty())
-          reply->ignoreSslErrors(d->ignoredSslErrors);
-        qDebug() << "d->ignoredSslErrors() =" << d->ignoredSslErrors;
+        d->writeReply = d->writeNAM->post(req, data);
+        if (!d->ignoredSslErrors.isEmpty()) {
+          d->writeReply->ignoreSslErrors(d->ignoredSslErrors);
+          qDebug() << "IGNORING THE FOLLOWING SSL ERRORS:" << d->ignoredSslErrors;
+        }
+        else {
+          qDebug() << "WON'T IGNORE ANY SSL ERROR!";
+        }
         d->loaderIcon.start();
         updateSaveButtonIcon();
       }
@@ -1160,7 +1170,7 @@ void MainWindow::enterMasterPassword(void)
 }
 
 
-void MainWindow::masterPasswordEntered(void)
+void MainWindow::onMasterPasswordEntered(void)
 {
   Q_D(MainWindow);
   bool ok = true;
@@ -1215,18 +1225,15 @@ void MainWindow::invalidatePassword(bool reenter)
 
 void MainWindow::sslErrorsOccured(QNetworkReply *reply, const QList<QSslError> &errors)
 {
-  Q_UNUSED(reply);
-  Q_UNUSED(errors);
-  // TODO: ...
   foreach (QSslError error, errors)
-    qWarning() << int(error.error()) << error.errorString();
+    qWarning() << "SSL error occured: " << int(error.error()) << error.errorString();
 }
 
 
 void MainWindow::updateSaveButtonIcon(int)
 {
   Q_D(MainWindow);
-  if (d->readReq != nullptr && d->readReq->isRunning()) {
+  if (d->readReply != nullptr && d->readReply->isRunning()) {
     ui->savePushButton->setIcon(QIcon(d->loaderIcon.currentPixmap()));
   }
   else {
@@ -1235,7 +1242,7 @@ void MainWindow::updateSaveButtonIcon(int)
 }
 
 
-void MainWindow::readFinished(QNetworkReply *reply)
+void MainWindow::onReadFinished(QNetworkReply *reply)
 {
   Q_D(MainWindow);
   d->loaderIcon.stop();
@@ -1264,17 +1271,10 @@ void MainWindow::readFinished(QNetworkReply *reply)
     }
   }
   else {
-    QMessageBox::critical(this, "Critical Network Error", reply->errorString(), QMessageBox::Ok);
+    QMessageBox::critical(this, tr("Critical Network Error"), reply->errorString(), QMessageBox::Ok);
   }
-}
-
-
-void MainWindow::deleteFinished(QNetworkReply *reply)
-{
-  Q_D(MainWindow);
-  d->loaderIcon.stop();
-  updateSaveButtonIcon();
-  // TODO
+  reply->close();
+  reply->deleteLater();
 }
 
 
@@ -1344,12 +1344,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     return false;
   }
+#ifdef QT_DEBUG
   case QEvent::MouseButtonDblClick:
   {
     if (obj->objectName() == "saltBase64LineEdit") {
       QApplication::clipboard()->setText(QString(QByteArray::fromBase64(ui->saltBase64LineEdit->text().toLatin1()).toHex()));
     }
+    break;
   }
+#endif
   }
   return QObject::eventFilter(obj, event);
 }

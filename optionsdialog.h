@@ -61,13 +61,10 @@ public:
   QString serverPassword(void) const;
   void setServerPassword(QString);
 
-  void setAcceptSelfSignedRootCertificate(bool);
-  bool acceptSelfSignedRootCertificate(void) const;
-
   const QList<QSslCertificate> &serverCertificates(void) const;
   void setServerCertificates(const QList<QSslCertificate> &);
   const QSslCertificate &selfSignedCertificate(void) const;
-  const QSslCertificate &serverCertificate(void) const;
+  QSslCertificate serverCertificate(void) const;
   const QList<QSslError> &sslErrors(void) const;
   const QList<QSslError> &ignoredSslErrors(void) const;
 

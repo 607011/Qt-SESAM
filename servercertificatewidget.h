@@ -20,9 +20,7 @@
 #ifndef __SERVERCERTIFICATEWIDGET_H_
 #define __SERVERCERTIFICATEWIDGET_H_
 
-#include <QLayout>
 #include <QDialog>
-#include <QList>
 #include <QSslSocket>
 
 
@@ -39,8 +37,6 @@ public:
   ~ServerCertificateWidget();
 
   void setServerSocket(const QSslSocket &);
-
-  static void clearLayout(QLayout *);
 
 private:
   Ui::ServerCertificateWidget *ui;

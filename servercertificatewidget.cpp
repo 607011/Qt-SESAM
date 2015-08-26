@@ -21,6 +21,9 @@
 #include <QList>
 #include <QSslCipher>
 #include <QSslKey>
+#include <QFormLayout>
+#include <QBoxLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -47,13 +50,14 @@ ServerCertificateWidget::~ServerCertificateWidget()
 void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
 {
   const QSslCipher &cipher = sslSocket.sessionCipher();
-  ui->formLayout->addRow(tr("<B>Authentication</B>"), new QLabel(cipher.authenticationMethod()));
-  ui->formLayout->addRow(tr("<B>Encryption</B>"), new QLabel(cipher.encryptionMethod()));
-  ui->formLayout->addRow(tr("<B>Key Exchange Method</B>"), new QLabel(cipher.keyExchangeMethod()));
-  ui->formLayout->addRow(tr("<B>Cipher Name</B>"), new QLabel(cipher.name()));
-  ui->formLayout->addRow(tr("<B>Protocol</B>"), new QLabel(cipher.protocolString()));
-  ui->formLayout->addRow(tr("<B>Supported Bits</B>"), new QLabel(QString("%1").arg(cipher.supportedBits())));
-  ui->formLayout->addRow(tr("<B>Used Bits</B>"), new QLabel(QString("%1").arg(cipher.usedBits())));
+
+  QFormLayout *formLayout = new QFormLayout;
+  formLayout->addRow(tr("Encryption"), new QLabel(cipher.name()));
+  formLayout->addRow(tr("Supported bits"), new QLabel(QString("%1").arg(cipher.supportedBits())));
+  formLayout->addRow(tr("Used bits"), new QLabel(QString("%1").arg(cipher.usedBits())));
+
+  QGroupBox *groupBox = new QGroupBox(tr("SSL parameters"));
+  groupBox->setLayout(formLayout);
 
   QTreeWidget *treeWidget = new QTreeWidget;
   treeWidget->setColumnCount(2);
@@ -87,35 +91,14 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                                  .arg(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", "))
                                }
                                )));
-    // ui->formLayout->addRow(tr("Common Name"), new QLabel(cert.subjectInfo(QSslCertificate::CommonName).join(", ")));
-    // ui->formLayout->addRow(tr("Organization"), new QLabel(cert.subjectInfo(QSslCertificate::Organization).join(", ")));
-    // ui->formLayout->addRow(tr("Locality Name"), new QLabel(cert.subjectInfo(QSslCertificate::LocalityName).join(", ")));
-    // ui->formLayout->addRow(tr("Organizational Unit Name"), new QLabel(cert.subjectInfo(QSslCertificate::OrganizationalUnitName).join(", ")));
-    // ui->formLayout->addRow(tr("State Or Province Name"), new QLabel(cert.subjectInfo(QSslCertificate::StateOrProvinceName).join(", ")));
     rootItem->addChildren(items);
   }
-  ui->verticalLayout->addWidget(treeWidget);
-}
 
+  QBoxLayout *vLayout = new QBoxLayout(QBoxLayout::TopToBottom);
+  vLayout->addWidget(groupBox);
+  vLayout->addWidget(treeWidget);
 
-void ServerCertificateWidget::clearLayout(QLayout *layout)
-{
-  Q_ASSERT(layout != nullptr);
-  QLayoutItem *item;
-  while ((item = layout->takeAt(0)) != nullptr) {
-    QLayout *subLayout = item->layout();
-    QWidget *widget = item->widget();
-    if (subLayout != nullptr) {
-      subLayout->removeItem(item);
-      clearLayout(subLayout);
-    }
-    else if (widget != nullptr) {
-      widget->hide();
-      delete widget;
-    }
-    else {
-      delete item;
-    }
-  }
-  delete layout;
+  if (ui->scrollArea->layout() != nullptr)
+    delete ui->scrollArea->layout();
+  ui->scrollArea->setLayout(vLayout);
 }
