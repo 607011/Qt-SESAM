@@ -83,11 +83,11 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
     QList<QTreeWidgetItem*> items;
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
-                   QStringList({tr("Digest (SHA1)"),
+                   QStringList({tr("Fingerprint (SHA1)"),
                                 fingerprintify(cert.digest(QCryptographicHash::Sha1))})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
-                   QStringList({tr("Digest (MD5)"),
+                   QStringList({tr("Fingerprint (MD5)"),
                                 fingerprintify(cert.digest(QCryptographicHash::Md5))})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
@@ -102,11 +102,18 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                    QStringList({
                                  tr("DN"),
                                  QString("CN=%1,OU=%2,O=%3,L=%4,ST=%5")
-                                 .arg(cert.issuerInfo(QSslCertificate::CommonName).join(", "))
-                                 .arg(cert.issuerInfo(QSslCertificate::OrganizationalUnitName).join(", "))
-                                 .arg(cert.issuerInfo(QSslCertificate::Organization).join(", "))
-                                 .arg(cert.issuerInfo(QSslCertificate::LocalityName).join(", "))
-                                 .arg(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::CommonName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::OrganizationalUnitName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::Organization).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::LocalityName).join(", "))
+                                 .arg(cert.subjectInfo(QSslCertificate::StateOrProvinceName).join(", "))
+                               }
+                               )));
+    items.append(new QTreeWidgetItem(
+                   (QTreeWidget*)nullptr,
+                   QStringList({
+                                 tr("E-Mail"),
+                                 cert.subjectInfo(QSslCertificate::EmailAddress).join(", ")
                                }
                                )));
     items.append(new QTreeWidgetItem(
