@@ -89,9 +89,7 @@ public:
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
-    , readNAM(new QNetworkAccessManager(parent))
     , readReply(nullptr)
-    , writeNAM(new QNetworkAccessManager(parent))
     , writeReply(nullptr)
     , counter(0)
     , maxCounter(0)
@@ -128,9 +126,9 @@ public:
   ProgressDialog *progressDialog;
   QList<QSslCertificate> cert;
   QSslConfiguration sslConf;
-  QNetworkAccessManager *readNAM;
+  QNetworkAccessManager readNAM;
+  QNetworkAccessManager writeNAM;
   QNetworkReply *readReply;
-  QNetworkAccessManager *writeNAM;
   QNetworkReply *writeReply;
   QList<QSslError> ignoredSslErrors;
   int counter;
@@ -191,10 +189,10 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
-  QObject::connect(d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
-  QObject::connect(d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-  QObject::connect(d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
-  QObject::connect(d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  QObject::connect(&d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
+  QObject::connect(&d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
+  QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
   QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
 
@@ -658,8 +656,8 @@ void MainWindow::onServerCertificatesUpdated(void)
 {
   Q_D(MainWindow);
   d->ignoredSslErrors.clear();
-  d->readNAM->clearAccessCache();
-  d->writeNAM->clearAccessCache();
+  d->readNAM.clearAccessCache();
+  d->writeNAM.clearAccessCache();
   const QSslCertificate &caCert = d->optionsDialog->serverCertificate();
   if (!caCert.isNull()) {
     QList<QSslCertificate> caCerts({caCert});
@@ -996,7 +994,7 @@ void MainWindow::sync(void)
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
-    d->readReply = d->readNAM->post(req, QByteArray());
+    d->readReply = d->readNAM.post(req, QByteArray());
     if (!d->ignoredSslErrors.isEmpty())
       d->readReply->ignoreSslErrors(d->ignoredSslErrors);
   }
@@ -1103,7 +1101,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
-        d->writeReply = d->writeNAM->post(req, data);
+        d->writeReply = d->writeNAM.post(req, data);
         if (!d->ignoredSslErrors.isEmpty())
           d->writeReply->ignoreSslErrors(d->ignoredSslErrors);
         d->loaderIcon.start();
