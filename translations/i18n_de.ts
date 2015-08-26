@@ -815,29 +815,43 @@
         <translation>Root-URL</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="141"/>
+        <location filename="../optionsdialog.ui" line="112"/>
+        <source>Check connectivity</source>
+        <translation>Verbindung prüfen</translation>
+    </message>
+    <message>
+        <location filename="../optionsdialog.ui" line="139"/>
+        <source>CA certificate fingerprint (SHA1):</source>
+        <translation>Fingerabdruck des Wurzelzertifikats (SHA1):</translation>
+    </message>
+    <message>
+        <location filename="../optionsdialog.ui" line="158"/>
+        <source>&lt;none imported yet&gt;</source>
+        <translation>&lt;noch keines imporiert&gt;</translation>
+    </message>
+    <message>
+        <location filename="../optionsdialog.ui" line="173"/>
         <source>User name</source>
         <translation>Benutzername</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="148"/>
+        <location filename="../optionsdialog.ui" line="187"/>
         <source>Password</source>
         <translation>Passwort</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="179"/>
+        <location filename="../optionsdialog.ui" line="204"/>
         <source>Read URL</source>
         <translation>Lese-URL</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="186"/>
+        <location filename="../optionsdialog.ui" line="218"/>
         <source>Write URL</source>
         <translation>Schreib-URL</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="112"/>
         <source>Import server certificate</source>
-        <translation>Serverzertifikat importieren</translation>
+        <translation type="vanished">Serverzertifikat importieren</translation>
     </message>
     <message>
         <source>Verify secure connection</source>
@@ -860,37 +874,37 @@
         <translation type="vanished">Nicht vertrauenswürdige Zertifikate akzeptieren</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="212"/>
+        <location filename="../optionsdialog.ui" line="251"/>
         <source>Misc</source>
         <translation>Diverse</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="220"/>
+        <location filename="../optionsdialog.ui" line="259"/>
         <source>Invalidate master password after</source>
         <translation>Master-Passwort invalidieren nach</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="227"/>
+        <location filename="../optionsdialog.ui" line="266"/>
         <source> mins</source>
         <translation> Minuten</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="259"/>
+        <location filename="../optionsdialog.ui" line="298"/>
         <source>Salt length (bytes)</source>
         <translation>Salt-Länge (Bytes)</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="300"/>
+        <location filename="../optionsdialog.ui" line="339"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.ui" line="307"/>
+        <location filename="../optionsdialog.ui" line="346"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../optionsdialog.cpp" line="292"/>
+        <location filename="../optionsdialog.cpp" line="298"/>
         <source>Choose sync file</source>
         <translation>Synchronisierungsdatei wählen</translation>
     </message>
@@ -929,19 +943,23 @@
         <translation type="vanished">SSL-Verschlüsselung</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.ui" line="59"/>
+        <location filename="../servercertificatewidget.ui" line="100"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Only accept the root certificate (last in list) if you&apos;re 100% sure that the fingerprint matches the original one. Same is true for the server&apos;s certificate (first in list).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Akzeptieren Sie das Wurzelzertifikat (s. Listenende) nur dann, wenn Sie 100%ig sicher sind, dass der Fingerabdruck mit dem Original übereinstimmt. Das Gleiche gilt für das Server-Zertifikat (s. Listenanfang).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../servercertificatewidget.ui" line="35"/>
         <source>Accept</source>
         <translation>Akzeptieren</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.ui" line="66"/>
+        <location filename="../servercertificatewidget.ui" line="42"/>
         <source>Reject</source>
         <translation>Ablehnen</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.ui" line="87"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The root certificate usually comes last in the list, the server&apos;s certificate first. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Only accept the root certificate if you&apos;re 100% sure that the fingerprints of both certificates match the original ones.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Das Root-Zertifikat steht normalerweise am Ende der Liste, das Server-Zertifikat am Anfang. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Akzeptieren Sie das Root-Zertifikat nur, wenn Sie 100-prozentig sicher sind, dass die Fingerabdrücke der Zertifikate mit den originalen übereinstimmen.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Das Root-Zertifikat steht normalerweise am Ende der Liste, das Server-Zertifikat am Anfang. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Akzeptieren Sie das Root-Zertifikat nur, wenn Sie 100-prozentig sicher sind, dass die Fingerabdrücke der Zertifikate mit den originalen übereinstimmen.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;B&gt;Authentication&lt;/B&gt;</source>
@@ -972,57 +990,62 @@
         <translation type="vanished">&lt;B&gt;Verwendete Bits&lt;/B&gt;</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="63"/>
+        <location filename="../servercertificatewidget.cpp" line="66"/>
         <source>Encryption</source>
         <translation>Verschlüsselung</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="64"/>
+        <location filename="../servercertificatewidget.cpp" line="67"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="65"/>
+        <location filename="../servercertificatewidget.cpp" line="68"/>
         <source>Supported bits</source>
         <translation>Unterstützte Bits</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="66"/>
+        <location filename="../servercertificatewidget.cpp" line="69"/>
         <source>Used bits</source>
         <translation>Benutzte Bits</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="68"/>
+        <location filename="../servercertificatewidget.cpp" line="72"/>
+        <source>The certificate chain of host &quot;%1&quot; contains an officially untrusted certificate with the SHA1 fingerprint %2. Do you trust it? If yes, click &quot;Accept&quot; to import it.</source>
+        <translation>Die Zertifikatskette des Hosts &quot;%1&quot; enthält ein offiziell nicht vertrauenswürdiges Zertifikat mit dem SHA1-Fingerabdruck %2. Vertrauen Sie dem Zertifikat? Wenn ja, können Sie es mit &quot;Akzeptieren&quot; importieren.</translation>
+    </message>
+    <message>
+        <location filename="../servercertificatewidget.cpp" line="77"/>
         <source>SSL parameters</source>
         <translation>SSL-Parameter</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="73"/>
+        <location filename="../servercertificatewidget.cpp" line="82"/>
         <source>Serial Number</source>
         <translation>Seriennummer</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="86"/>
+        <location filename="../servercertificatewidget.cpp" line="96"/>
         <source>Fingerprint (SHA1)</source>
         <translation>Fingerabdruck (SHA1)</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="90"/>
+        <location filename="../servercertificatewidget.cpp" line="100"/>
         <source>Fingerprint (MD5)</source>
         <translation>Fingerabdruck (MD5)</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="94"/>
+        <location filename="../servercertificatewidget.cpp" line="104"/>
         <source>Fingerprint (SHA256)</source>
         <translation>Fingerabdruck (SHA256)</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="107"/>
+        <location filename="../servercertificatewidget.cpp" line="117"/>
         <source>Issuer</source>
         <translation>Herausgeber</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="121"/>
+        <location filename="../servercertificatewidget.cpp" line="131"/>
         <source>Subject</source>
         <translation>ausgestellt für</translation>
     </message>
@@ -1031,17 +1054,17 @@
         <translation type="vanished">E-Mail</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="134"/>
+        <location filename="../servercertificatewidget.cpp" line="144"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="98"/>
+        <location filename="../servercertificatewidget.cpp" line="108"/>
         <source>Effective date</source>
         <translation>nicht gültig vor</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="102"/>
+        <location filename="../servercertificatewidget.cpp" line="112"/>
         <source>Expiry date</source>
         <translation>gültig bis</translation>
     </message>
