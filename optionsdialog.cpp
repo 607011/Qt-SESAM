@@ -18,6 +18,7 @@
 */
 
 #include "util.h"
+#include "servercertificatewidget.h"
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
 
@@ -27,19 +28,18 @@
 #include <QSslCertificate>
 #include <QSslSocket>
 #include <QSslError>
-#include "servercertificatewidget.h"
+#include <QMessageBox>
+
 
 class OptionsDialogPrivate
 {
 public:
   OptionsDialogPrivate(void)
-    : serverCertificateWidget(new ServerCertificateWidget)
   { /* ... */ }
   QSslSocket sslSocket;
   QList<QSslError> sslErrors;
-  QList<QSslError> ignoredSslErrors;
   QList<QSslCertificate> serverCertificates;
-  ServerCertificateWidget *serverCertificateWidget;
+  ServerCertificateWidget serverCertificateWidget;
 };
 
 
@@ -53,9 +53,11 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));
+  QObject::connect(ui->serverRootURLLineEdit, SIGNAL(returnPressed()), SLOT(checkConnectivity()));
+  QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(checkConnectivity()));
   QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
-  QObject::connect(ui->importServerCertificatePushButton, SIGNAL(pressed()), SLOT(verifySecureConnection()));
+  QObject::connect(ui->checkConnectivityPushButton, SIGNAL(pressed()), SLOT(checkConnectivity()));
 }
 
 
@@ -65,30 +67,14 @@ OptionsDialog::~OptionsDialog()
 }
 
 
-void OptionsDialog::onEncrypted(void)
-{
-  Q_D(OptionsDialog);
-  qDebug() << "OptionsDialog::onEncrypted()";
-  d->serverCertificateWidget->setServerSocket(d->sslSocket);
-  int button = d->serverCertificateWidget->exec();
-  if (button == QDialog::Accepted) {
-    d->ignoredSslErrors = d->sslErrors;
-    setServerCertificates(d->sslSocket.peerCertificateChain());
-  }
-  d->sslSocket.close();
-}
-
-
-void OptionsDialog::verifySecureConnection(void)
+void OptionsDialog::checkConnectivity(void)
 {
   Q_D(OptionsDialog);
   d->sslErrors.clear();
-  d->ignoredSslErrors.clear();
   d->serverCertificates.clear();
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
   if (serverUrl.scheme() == "https") {
     static const int HttpsPort = 443;
-    qDebug() << "Trying to connect to" << serverUrl.host() << ":" << HttpsPort << "...";
     d->sslSocket.connectToHostEncrypted(serverUrl.host(), HttpsPort);
   }
 }
@@ -98,11 +84,56 @@ void OptionsDialog::sslErrorsOccured(const QList<QSslError> &errors)
 {
   Q_D(OptionsDialog);
   d->sslErrors = errors;
-  qDebug() << "OptionsDialog::sslErrorsOccured()";
-  foreach (QSslError err, d->sslErrors) {
-    qDebug() << err.certificate() << err.errorString();
-  }
   d->sslSocket.ignoreSslErrors();
+}
+
+
+void OptionsDialog::validateHostCertificateChain(void)
+{
+  Q_D(OptionsDialog);
+  QUrl serverUrl(ui->serverRootURLLineEdit->text());
+  if (serverUrl.scheme() == "https") {
+    QSslError sslError;
+    int errorIndex = -1;
+    foreach (QSslError err, d->sslErrors) {
+      qDebug() << "Verification result:"
+               << int(err.error())
+               << err.errorString()
+               << fingerprintify(err.certificate().digest(QCryptographicHash::Sha1));
+      ++errorIndex;
+      if (int(err.error()) == QSslError::SelfSignedCertificateInChain) {
+        sslError = err;
+        break;
+      }
+    }
+    if (errorIndex >= 0) {
+      int response = QMessageBox::question(
+            this,
+            tr("Untrusted certificate in chain"),
+            tr("The certificate chain of host \"%1\" contains an untrusted certificate with the SHA1 fingerprint %2. "
+               "Do you want to import it?")
+            .arg(serverUrl.host())
+            .arg(fingerprintify(d->sslSocket.peerCertificateChain().last().digest(QCryptographicHash::Sha1)))
+            );
+      if (response == QMessageBox::Yes) {
+        setServerCertificates(d->sslSocket.peerCertificateChain());
+      }
+    }
+  }
+}
+
+
+void OptionsDialog::onEncrypted(void)
+{
+  Q_D(OptionsDialog);
+
+  d->serverCertificateWidget.setServerSocket(d->sslSocket);
+//  int button = d->serverCertificateWidget.exec();
+//  if (button == QDialog::Accepted) {
+//    setServerCertificates(d->sslSocket.peerCertificateChain());
+//  }
+  validateHostCertificateChain();
+  d->sslSocket.close();
 }
 
 
@@ -160,7 +191,7 @@ QString OptionsDialog::readUrl(void) const
 }
 
 
-QByteArray OptionsDialog::serverCredentials(void) const
+QByteArray OptionsDialog::httpBasicAuthenticationString(void) const
 {
   return QString("Basic %1")
       .arg(QString((ui->usernameLineEdit->text() + ":" + ui->passwordLineEdit->text())
@@ -207,7 +238,9 @@ QString OptionsDialog::serverPassword(void) const
 
 void OptionsDialog::setServerRootUrl(QString url)
 {
+  ui->serverRootURLLineEdit->blockSignals(true);
   ui->serverRootURLLineEdit->setText(url);
+  ui->serverRootURLLineEdit->blockSignals(false);
 }
 
 
@@ -244,18 +277,6 @@ QSslCertificate OptionsDialog::serverRootCertificate(void) const
   return d_ptr->serverCertificates.isEmpty()
       ? QSslCertificate()
       : d_ptr->serverCertificates.last(); // XXX
-}
-
-
-const QList<QSslError> &OptionsDialog::sslErrors(void) const
-{
-  return d_ptr->sslErrors;
-}
-
-
-const QList<QSslError> &OptionsDialog::ignoredSslErrors(void) const
-{
-  return d_ptr->ignoredSslErrors;
 }
 
 

@@ -84,7 +84,7 @@ public:
     , hackSalt(4, 0)
     , hackPermutations(1)
     , hackingMode(false)
-    , newDomainWizard(new NewDomainWizard)
+    , newDomainWizard(new NewDomainWizard(parent))
     , masterPasswordDialog(new MasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(nullptr)
@@ -992,7 +992,7 @@ void MainWindow::sync(void)
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
-    req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
+    req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
     req.setSslConfiguration(d->sslConf);
     d->readReply = d->readNAM.post(req, QByteArray());
     if (!d->ignoredSslErrors.isEmpty())
@@ -1099,7 +1099,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
         req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
-        req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
+        req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
         req.setSslConfiguration(d->sslConf);
         d->writeReply = d->writeNAM.post(req, data);
         if (!d->ignoredSslErrors.isEmpty())

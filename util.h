@@ -22,8 +22,8 @@
 
 
 #include <cstring>
+#include <QString>
 #include <QByteArray>
-
 
 template <class T>
 void SafeRenew(T& a, T obj)
@@ -56,7 +56,7 @@ void SecureErase(T &obj)
 }
 
 
-extern QByteArray fingerprintify(const QByteArray &ba);
+extern QString fingerprintify(const QByteArray &ba);
 
 
 

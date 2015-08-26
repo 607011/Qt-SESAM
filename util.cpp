@@ -21,7 +21,7 @@
 #include "util.h"
 
 
-QByteArray fingerprintify(const QByteArray &ba) {
+QString fingerprintify(const QByteArray &ba) {
   const QByteArray &baHex = ba.toHex();
   QByteArray result = baHex;
   for (int i = baHex.size() - 2; i > 0; i -= 2)

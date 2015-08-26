@@ -64,8 +64,6 @@ public:
   const QList<QSslCertificate> &serverCertificates(void) const;
   void setServerCertificates(const QList<QSslCertificate> &);
   QSslCertificate serverRootCertificate(void) const;
-  const QList<QSslError> &sslErrors(void) const;
-  const QList<QSslError> &ignoredSslErrors(void) const;
 
   QString writeUrl(void) const;
   void setWriteUrl(QString);
@@ -76,10 +74,12 @@ public:
   int saltLength(void) const;
   void setSaltLength(int);
 
-  QByteArray serverCredentials(void) const;
+  QByteArray httpBasicAuthenticationString(void) const;
 
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
+
+
 
 signals:
   void updatedServerCertificates(void);
@@ -88,7 +88,8 @@ private slots:
   void chooseSyncFile(void);
   void okClicked(void);
   void onEncrypted(void);
-  void verifySecureConnection(void);
+  void checkConnectivity(void);
+  void validateHostCertificateChain(void);
   void sslErrorsOccured(const QList<QSslError> &errors);
 
 private:
