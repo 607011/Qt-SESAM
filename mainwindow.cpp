@@ -63,6 +63,7 @@ static const bool CompressionEnabled = true;
 static const int CryptDomainIterations = 32768;
 static const int CryptServerUsernameIterations = 1024;
 static const int CryptServerPasswordIterations = 1024;
+static const int CryptCertificateIterations = 4096;
 
 static const QString DefaultServerRoot = "https://localhost/ctpwdgen-server";
 static const QString DefaultWriteUrl = "/ajax/write.php";
