@@ -60,6 +60,9 @@
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
+static const int CryptDomainIterations = 32768;
+static const int CryptServerUsernameIterations = 1024;
+static const int CryptServerPasswordIterations = 1024;
 
 static const QString DefaultServerRoot = "https://localhost/ctpwdgen-server";
 static const QString DefaultWriteUrl = "/ajax/write.php";
@@ -645,7 +648,6 @@ void MainWindow::copyUsernameToClipboard(void)
 void MainWindow::onOptionsAccepted(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onOptionsAccepted()";
   restartInvalidationTimer();
   saveSettings();
 }
@@ -654,14 +656,12 @@ void MainWindow::onOptionsAccepted(void)
 void MainWindow::onServerCertificatesUpdated(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onServerCertificatesUpdated()" << d->optionsDialog->serverCertificates();
   d->ignoredSslErrors.clear();
   d->readNAM->clearAccessCache();
   d->writeNAM->clearAccessCache();
   const QSslCertificate &caCert = d->optionsDialog->serverCertificate();
   if (!caCert.isNull()) {
     QList<QSslCertificate> caCerts({caCert});
-    qDebug() << "Setting CA cert to" << caCerts;
     d->sslConf.setCaCertificates(caCerts);
   }
 }
@@ -755,7 +755,7 @@ void MainWindow::saveAllDomainDataToSettings(void)
   Q_D(MainWindow);
   int errCode;
   QString errMsg;
-  const QByteArray &cipher = Crypter::encode(d->masterPassword, d->domains.toJson(), CompressionEnabled, &errCode, &errMsg);
+  const QByteArray &cipher = Crypter::encode(d->masterPassword, d->domains.toJson(), CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
   if (errCode == Crypter::NoCryptError) {
     d->settings.setValue("data/domains", QString(cipher.toHex()));
     d->settings.sync();
@@ -778,7 +778,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     qDebug() << "MainWindow::restoreDomainDataFromSettings() trying to decode ...";
     int errCode;
     QString errMsg;
-    const QByteArray &recovered = Crypter::decode(d->masterPassword, baDomains, CompressionEnabled, &errCode, &errMsg);
+    const QByteArray &recovered = Crypter::decode(d->masterPassword, baDomains, CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
     if (errCode != Crypter::NoCryptError) {
       wrongPasswordWarning(errCode, errMsg);
       return false;
@@ -816,8 +816,8 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
   d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
   d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, &errCode, &errMsg).toHex()));
-  d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, &errCode, &errMsg).toHex()));
+  d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, CryptServerUsernameIterations, &errCode, &errMsg).toHex()));
+  d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, CryptServerPasswordIterations, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
   d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverCertificate().toPem()));
@@ -878,7 +878,7 @@ bool MainWindow::restoreSettings(void)
   const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
   if (!serverUsername.isEmpty()) {
     const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
-    QByteArray serverUsernameDecoded = Crypter::decode(d->masterPassword, serverUsernameBin, false, &errCode, &errMsg);
+    QByteArray serverUsernameDecoded = Crypter::decode(d->masterPassword, serverUsernameBin, false, CryptServerUsernameIterations, &errCode, &errMsg);
     if (errCode == Crypter::NoCryptError) {
       d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
     }
@@ -894,7 +894,7 @@ bool MainWindow::restoreSettings(void)
   const QByteArray &serverPassword = d->settings.value("sync/serverPassword").toByteArray();
   if (!serverPassword.isEmpty()) {
     const QByteArray &serverPasswordBin = QByteArray::fromHex(serverPassword);
-    QByteArray password = Crypter::decode(d->masterPassword, serverPasswordBin, false, &errCode, &errMsg);
+    QByteArray password = Crypter::decode(d->masterPassword, serverPasswordBin, false, CryptServerPasswordIterations, &errCode, &errMsg);
     if (errCode == Crypter::NoCryptError) {
       d->optionsDialog->setServerPassword(QString::fromUtf8(password));
     }
@@ -926,7 +926,6 @@ void MainWindow::onWriteFinished(QNetworkReply *reply)
                          .arg(reply->errorString()), QMessageBox::Ok);
   }
   reply->close();
-  reply->deleteLater();
 }
 
 
@@ -961,7 +960,7 @@ void MainWindow::sync(void)
                              .arg(d->optionsDialog->syncFilename())
                              .arg(syncFile.errorString()), QMessageBox::Ok);
       }
-      const QByteArray &baDomains = Crypter::encode(d->masterPassword, QByteArray("{}"), CompressionEnabled);
+      const QByteArray &baDomains = Crypter::encode(d->masterPassword, QByteArray("{}"), CompressionEnabled, CryptDomainIterations);
       syncFile.write(baDomains);
       syncFile.close();
     }
@@ -997,13 +996,8 @@ void MainWindow::sync(void)
     req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
     req.setSslConfiguration(d->sslConf);
     d->readReply = d->readNAM->post(req, QByteArray());
-    if (!d->ignoredSslErrors.isEmpty()) {
+    if (!d->ignoredSslErrors.isEmpty())
       d->readReply->ignoreSslErrors(d->ignoredSslErrors);
-      qDebug() << "IGNORING THE FOLLOWING SSL ERRORS:" << d->ignoredSslErrors;
-    }
-    else {
-      qDebug() << "WON'T IGNORE ANY SSL ERROR!";
-    }
   }
 }
 
@@ -1015,7 +1009,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    QByteArray _baTmp = Crypter::decode(d->masterPassword, remoteDomainsEncoded, CompressionEnabled, &errCode, &errMsg);
+    QByteArray _baTmp = Crypter::decode(d->masterPassword, remoteDomainsEncoded, CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
     std::string sDomains(_baTmp.constData(), _baTmp.length());
     QJsonParseError parseError;
     if (errCode == Crypter::NoCryptError && !sDomains.empty()) {
@@ -1077,7 +1071,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   if (remoteDomains.isDirty()) {
     int errCode;
     QString errMsg;
-    const QByteArray &baCipher = Crypter::encode(d->masterPassword, remoteDomains.toJson(), CompressionEnabled, &errCode, &errMsg);
+    const QByteArray &baCipher = Crypter::encode(d->masterPassword, remoteDomains.toJson(), CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
     if (errCode == Crypter::NoCryptError) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         QFile syncFile(d->optionsDialog->syncFilename());
@@ -1109,13 +1103,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         req.setRawHeader("Authorization", d->optionsDialog->serverCredentials());
         req.setSslConfiguration(d->sslConf);
         d->writeReply = d->writeNAM->post(req, data);
-        if (!d->ignoredSslErrors.isEmpty()) {
+        if (!d->ignoredSslErrors.isEmpty())
           d->writeReply->ignoreSslErrors(d->ignoredSslErrors);
-          qDebug() << "IGNORING THE FOLLOWING SSL ERRORS:" << d->ignoredSslErrors;
-        }
-        else {
-          qDebug() << "WON'T IGNORE ANY SSL ERROR!";
-        }
         d->loaderIcon.start();
         updateSaveButtonIcon();
       }
@@ -1274,7 +1263,6 @@ void MainWindow::onReadFinished(QNetworkReply *reply)
     QMessageBox::critical(this, tr("Critical Network Error"), reply->errorString(), QMessageBox::Ok);
   }
   reply->close();
-  reply->deleteLater();
 }
 
 

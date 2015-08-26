@@ -39,8 +39,8 @@ public:
     DefaultEncryptionFormat = 0x00,
     AES256EncryptedMasterkeyFormat = 0x01
   };
-  static QByteArray encode(const QString &masterPassword, const QByteArray &data, bool compress, int *errCode = nullptr, QString *errMsg = nullptr);
-  static QByteArray decode(const QString &masterPassword, QByteArray data, bool uncompress, int *errCode = nullptr, QString *errMsg = nullptr);
+  static QByteArray encode(const QString &masterPassword, const QByteArray &data, bool compress, int iterations, int *errCode = nullptr, QString *errMsg = nullptr);
+  static QByteArray decode(const QString &masterPassword, QByteArray data, bool uncompress, int iterations, int *errCode = nullptr, QString *errMsg = nullptr);
 };
 
 #endif // __CRYPTER_H_
