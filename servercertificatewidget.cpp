@@ -53,6 +53,7 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow(tr("Encryption"), new QLabel(cipher.name()));
+  formLayout->addRow(tr("Protocol"), new QLabel(cipher.protocolString()));
   formLayout->addRow(tr("Supported bits"), new QLabel(QString("%1").arg(cipher.supportedBits())));
   formLayout->addRow(tr("Used bits"), new QLabel(QString("%1").arg(cipher.usedBits())));
 
