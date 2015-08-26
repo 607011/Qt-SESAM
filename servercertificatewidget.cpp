@@ -28,6 +28,7 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
+#include "util.h"
 #include "servercertificatewidget.h"
 #include "ui_servercertificatewidget.h"
 
@@ -49,14 +50,6 @@ ServerCertificateWidget::~ServerCertificateWidget()
 
 void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
 {
-  auto fingerprintify = [](const QByteArray &ba) {
-    const QByteArray &baHex = ba.toHex();
-    QByteArray result = baHex;
-    for (int i = baHex.size() - 2; i > 0; i -= 2)
-      result.insert(i, QChar(':'));
-    return result;
-  };
-
   const QSslCipher &cipher = sslSocket.sessionCipher();
 
   QFormLayout *formLayout = new QFormLayout;

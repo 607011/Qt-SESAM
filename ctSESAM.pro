@@ -56,7 +56,8 @@ SOURCES += main.cpp mainwindow.cpp \
     masterpassworddialog.cpp \
     crypter.cpp \
     securebytearray.cpp \
-    servercertificatewidget.cpp
+    servercertificatewidget.cpp \
+    util.cpp
 
 win32:SOURCES += 3rdparty/cryptopp562/sha.cpp \
     3rdparty/cryptopp562/iterhash.cpp \
