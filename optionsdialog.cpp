@@ -96,10 +96,6 @@ void OptionsDialog::validateHostCertificateChain(void)
     QSslError sslError;
     int errorIndex = -1;
     foreach (QSslError err, d->sslErrors) {
-      qDebug() << "Verification result:"
-               << int(err.error())
-               << err.errorString()
-               << fingerprintify(err.certificate().digest(QCryptographicHash::Sha1));
       ++errorIndex;
       if (int(err.error()) == QSslError::SelfSignedCertificateInChain) {
         sslError = err;
@@ -107,33 +103,20 @@ void OptionsDialog::validateHostCertificateChain(void)
       }
     }
     if (errorIndex >= 0) {
-      int response = QMessageBox::question(
-            this,
-            tr("Untrusted certificate in chain"),
-            tr("The certificate chain of host \"%1\" contains an untrusted certificate with the SHA1 fingerprint %2. "
-               "Do you want to import it?")
-            .arg(serverUrl.host())
-            .arg(fingerprintify(d->sslSocket.peerCertificateChain().last().digest(QCryptographicHash::Sha1)))
-            );
-      if (response == QMessageBox::Yes) {
+      d->serverCertificateWidget.setServerSocket(d->sslSocket);
+      int button = d->serverCertificateWidget.exec();
+      if (button == QDialog::Accepted) {
         setServerCertificates(d->sslSocket.peerCertificateChain());
       }
     }
   }
+  d->sslSocket.close();
 }
 
 
 void OptionsDialog::onEncrypted(void)
 {
-  Q_D(OptionsDialog);
-
-  d->serverCertificateWidget.setServerSocket(d->sslSocket);
-//  int button = d->serverCertificateWidget.exec();
-//  if (button == QDialog::Accepted) {
-//    setServerCertificates(d->sslSocket.peerCertificateChain());
-//  }
   validateHostCertificateChain();
-  d->sslSocket.close();
 }
 
 

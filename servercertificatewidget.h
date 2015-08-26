@@ -22,11 +22,13 @@
 
 #include <QDialog>
 #include <QSslSocket>
+#include <QScopedPointer>
 
 
 namespace Ui {
 class ServerCertificateWidget;
 }
+
 
 class ServerCertificateWidget : public QDialog
 {
