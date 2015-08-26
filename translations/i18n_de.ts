@@ -929,14 +929,19 @@
         <translation type="vanished">SSL-Verschlüsselung</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.ui" line="53"/>
+        <location filename="../servercertificatewidget.ui" line="59"/>
         <source>Accept</source>
         <translation>Akzeptieren</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.ui" line="60"/>
+        <location filename="../servercertificatewidget.ui" line="66"/>
         <source>Reject</source>
         <translation>Ablehnen</translation>
+    </message>
+    <message>
+        <location filename="../servercertificatewidget.ui" line="87"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The root certificate usually comes last in the list, the server&apos;s certificate first. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Only accept the root certificate if you&apos;re 100% sure that the fingerprints of both certificates match the original ones.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Das Root-Zertifikat steht normalerweise am Ende der Liste, das Server-Zertifikat am Anfang. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Akzeptieren Sie das Root-Zertifikat nur, wenn Sie 100-prozentig sicher sind, dass die Fingerabdrücke der Zertifikate mit den originalen übereinstimmen.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;B&gt;Authentication&lt;/B&gt;</source>
@@ -967,52 +972,67 @@
         <translation type="vanished">&lt;B&gt;Verwendete Bits&lt;/B&gt;</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="55"/>
+        <location filename="../servercertificatewidget.cpp" line="63"/>
         <source>Encryption</source>
         <translation>Verschlüsselung</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="56"/>
+        <location filename="../servercertificatewidget.cpp" line="64"/>
         <source>Protocol</source>
         <translation>Protokoll</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="57"/>
+        <location filename="../servercertificatewidget.cpp" line="65"/>
         <source>Supported bits</source>
         <translation>Unterstützte Bits</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="58"/>
+        <location filename="../servercertificatewidget.cpp" line="66"/>
         <source>Used bits</source>
         <translation>Benutzte Bits</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="60"/>
+        <location filename="../servercertificatewidget.cpp" line="68"/>
         <source>SSL parameters</source>
         <translation>SSL-Parameter</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="65"/>
+        <location filename="../servercertificatewidget.cpp" line="73"/>
         <source>Serial Number</source>
         <translation>Seriennummer</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="76"/>
+        <location filename="../servercertificatewidget.cpp" line="86"/>
+        <source>Fingerprint (SHA1)</source>
+        <translation>Fingerabdruck (SHA1)</translation>
+    </message>
+    <message>
+        <location filename="../servercertificatewidget.cpp" line="90"/>
+        <source>Fingerprint (MD5)</source>
+        <translation>Fingerabdruck (MD5)</translation>
+    </message>
+    <message>
+        <location filename="../servercertificatewidget.cpp" line="115"/>
+        <source>E-Mail</source>
+        <translation>E-Mail</translation>
+    </message>
+    <message>
+        <location filename="../servercertificatewidget.cpp" line="121"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="79"/>
+        <location filename="../servercertificatewidget.cpp" line="94"/>
         <source>Effective date</source>
         <translation>nicht gültig vor</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="82"/>
+        <location filename="../servercertificatewidget.cpp" line="98"/>
         <source>Expiry date</source>
         <translation>gültig bis</translation>
     </message>
     <message>
-        <location filename="../servercertificatewidget.cpp" line="86"/>
+        <location filename="../servercertificatewidget.cpp" line="103"/>
         <source>DN</source>
         <translation>DN</translation>
     </message>
