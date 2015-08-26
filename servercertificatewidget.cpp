@@ -49,6 +49,14 @@ ServerCertificateWidget::~ServerCertificateWidget()
 
 void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
 {
+  auto fingerprintify = [](const QByteArray &ba) {
+    const QByteArray &baHex = ba.toHex();
+    QByteArray result = baHex;
+    for (int i = baHex.size() - 2; i > 0; i -= 2)
+      result.insert(i, QChar(':'));
+    return result;
+  };
+
   const QSslCipher &cipher = sslSocket.sessionCipher();
 
   QFormLayout *formLayout = new QFormLayout;
@@ -63,23 +71,32 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   QTreeWidget *treeWidget = new QTreeWidget;
   treeWidget->setColumnCount(2);
   treeWidget->setHeaderLabels(QStringList({tr("Serial Number"), QString()}));
+  QTreeWidgetItem *firstItem = nullptr;
+  QTreeWidgetItem *lastItem = nullptr;
   foreach (QSslCertificate cert, sslSocket.peerCertificateChain()) {
-    // qDebug() << cert.toText();
-    // const QSslKey &publicKey = cert.publicKey();
     QTreeWidgetItem *rootItem = new QTreeWidgetItem;
+    if (firstItem == nullptr)
+      firstItem = rootItem;
     treeWidget->addTopLevelItem(rootItem);
     rootItem->setText(0, QString(cert.serialNumber()));
     rootItem->setText(1, QString());
     QList<QTreeWidgetItem*> items;
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
-                   QStringList({tr("Version"), QString(cert.version())})));
+                   QStringList({tr("Digest (SHA1)"),
+                                fingerprintify(cert.digest(QCryptographicHash::Sha1))})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
-                   QStringList({tr("Effective date"), cert.effectiveDate().toString()})));
+                   QStringList({tr("Digest (MD5)"),
+                                fingerprintify(cert.digest(QCryptographicHash::Md5))})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
-                   QStringList({tr("Expiry date"), cert.expiryDate().toString()})));
+                   QStringList({tr("Effective date"),
+                                cert.effectiveDate().toString()})));
+    items.append(new QTreeWidgetItem(
+                   (QTreeWidget*)nullptr,
+                   QStringList({tr("Expiry date"),
+                                cert.expiryDate().toString()})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
                    QStringList({
@@ -92,8 +109,21 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                                  .arg(cert.issuerInfo(QSslCertificate::StateOrProvinceName).join(", "))
                                }
                                )));
+    items.append(new QTreeWidgetItem(
+                   (QTreeWidget*)nullptr,
+                   QStringList({tr("Version"), QString(cert.version())})));
     rootItem->addChildren(items);
+    lastItem = rootItem;
   }
+  if (firstItem != nullptr) {
+    treeWidget->expandItem(firstItem);
+  }
+  if (lastItem != nullptr) {
+    treeWidget->expandItem(lastItem);
+    lastItem->setSelected(true);
+  }
+  treeWidget->resizeColumnToContents(0);
+  treeWidget->resizeColumnToContents(1);
 
   QBoxLayout *vLayout = new QBoxLayout(QBoxLayout::TopToBottom);
   vLayout->addWidget(groupBox);
