@@ -25,7 +25,6 @@
 #include <QObject>
 #include <QByteArray>
 #include <QString>
-#include <QStringList>
 #include <QScopedPointer>
 
 
