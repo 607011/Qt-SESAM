@@ -17,6 +17,7 @@
 
 */
 
+#include "util.h"
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
 
@@ -39,7 +40,6 @@ public:
   QList<QSslError> ignoredSslErrors;
   QList<QSslCertificate> serverCertificates;
   ServerCertificateWidget *serverCertificateWidget;
-  QSslCertificate selfSignedCertificate;
 };
 
 
@@ -232,17 +232,14 @@ const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
 void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChain)
 {
   d_ptr->serverCertificates = certChain;
+  if (!serverRootCertificate().isNull()) {
+    ui->fingerprintLabel->setText(fingerprintify(serverRootCertificate().digest(QCryptographicHash::Sha1)));
+  }
   emit updatedServerCertificates();
 }
 
 
-const QSslCertificate &OptionsDialog::selfSignedCertificate(void) const
-{
-  return d_ptr->selfSignedCertificate;
-}
-
-
-QSslCertificate OptionsDialog::serverCertificate(void) const
+QSslCertificate OptionsDialog::serverRootCertificate(void) const
 {
   return d_ptr->serverCertificates.isEmpty()
       ? QSslCertificate()

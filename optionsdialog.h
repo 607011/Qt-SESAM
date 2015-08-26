@@ -63,8 +63,7 @@ public:
 
   const QList<QSslCertificate> &serverCertificates(void) const;
   void setServerCertificates(const QList<QSslCertificate> &);
-  const QSslCertificate &selfSignedCertificate(void) const;
-  QSslCertificate serverCertificate(void) const;
+  QSslCertificate serverRootCertificate(void) const;
   const QList<QSslError> &sslErrors(void) const;
   const QList<QSslError> &ignoredSslErrors(void) const;
 

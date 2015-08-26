@@ -658,7 +658,7 @@ void MainWindow::onServerCertificatesUpdated(void)
   d->ignoredSslErrors.clear();
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
-  const QSslCertificate &caCert = d->optionsDialog->serverCertificate();
+  const QSslCertificate &caCert = d->optionsDialog->serverRootCertificate();
   if (!caCert.isNull()) {
     QList<QSslCertificate> caCerts({caCert});
     d->sslConf.setCaCertificates(caCerts);
@@ -819,7 +819,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, CryptServerPasswordIterations, &errCode, &errMsg).toHex()));
   d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
   d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
-  d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverCertificate().toPem()));
+  d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverRootCertificate().toPem()));
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
