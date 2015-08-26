@@ -91,6 +91,10 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                                 fingerprintify(cert.digest(QCryptographicHash::Md5))})));
     items.append(new QTreeWidgetItem(
                    (QTreeWidget*)nullptr,
+                   QStringList({tr("Fingerprint (SHA256)"),
+                                fingerprintify(cert.digest(QCryptographicHash::Sha256))})));
+    items.append(new QTreeWidgetItem(
+                   (QTreeWidget*)nullptr,
                    QStringList({tr("Effective date"),
                                 cert.effectiveDate().toString()})));
     items.append(new QTreeWidgetItem(
