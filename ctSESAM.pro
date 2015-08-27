@@ -144,6 +144,7 @@ DISTFILES += \
     README.md \
     translations/i18n_de.ts \
     ctSESAM.rc \
-    deploy/ctSESAM.nsi
+    deploy/ctSESAM.nsi \
+    .travis.yml
 
 OTHER_FILES +=
