@@ -40,11 +40,12 @@ unix {
 
 CONFIG(debug) {
     QT += testlib
-    SOURCES += testpbkdf2.cpp
-    HEADERS += testpbkdf2.h
+    SOURCES +=
+    HEADERS +=
 }
 
-SOURCES += main.cpp mainwindow.cpp \
+SOURCES += main.cpp \
+    mainwindow.cpp \
     3rdparty/bigint/bigInt.cpp \
     domainsettings.cpp \
     password.cpp \
@@ -59,7 +60,8 @@ SOURCES += main.cpp mainwindow.cpp \
     servercertificatewidget.cpp \
     util.cpp
 
-win32:SOURCES += 3rdparty/cryptopp562/sha.cpp \
+win32:SOURCES += \
+    3rdparty/cryptopp562/sha.cpp \
     3rdparty/cryptopp562/iterhash.cpp \
     3rdparty/cryptopp562/misc.cpp \
     3rdparty/cryptopp562/simple.cpp \
@@ -81,8 +83,8 @@ win32:SOURCES += 3rdparty/cryptopp562/sha.cpp \
     3rdparty/cryptopp562/rng.cpp \
     3rdparty/cryptopp562/osrng.cpp
 
-
-HEADERS  += mainwindow.h \
+HEADERS  += \
+    mainwindow.h \
     3rdparty/bigint/bigInt.h \
     util.h \
     domainsettings.h \
@@ -98,7 +100,8 @@ HEADERS  += mainwindow.h \
     securebytearray.h \
     servercertificatewidget.h
 
-win32:HEADERS += 3rdparty/cryptopp562/sha.h \
+win32:HEADERS += \
+    3rdparty/cryptopp562/sha.h \
     3rdparty/cryptopp562/config.h \
     3rdparty/cryptopp562/cryptlib.h \
     3rdparty/cryptopp562/iterhash.h \
@@ -132,9 +135,6 @@ FORMS += mainwindow.ui \
     masterpassworddialog.ui \
     servercertificatewidget.ui
 
-
-INCLUDEPATH += $$PWD/3rdparty
-
 RESOURCES += \
     ctSESAM.qrc
 
@@ -144,7 +144,6 @@ DISTFILES += \
     README.md \
     translations/i18n_de.ts \
     ctSESAM.rc \
-    deploy/ctSESAM.nsi \
-    .travis.yml
+    ../deploy/ctSESAM.nsi
 
 OTHER_FILES +=

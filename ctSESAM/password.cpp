@@ -23,7 +23,7 @@
 #include "util.h"
 #include "global.h"
 
-#include "bigint/bigInt.h"
+#include "3rdparty/bigint/bigInt.h"
 
 #include <QElapsedTimer>
 #include <QCryptographicHash>

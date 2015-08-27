@@ -52,9 +52,7 @@
 #include "crypter.h"
 #include "securebytearray.h"
 
-#ifdef QT_DEBUG
-#include "testpbkdf2.h"
-#endif
+#include "3rdparty/cryptopp562/misc.h"
 
 #include "dump.h"
 
@@ -223,11 +221,6 @@ MainWindow::MainWindow(QWidget *parent)
   ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_D));
 #endif
   ui->menuExtras->addAction(tr("[DEBUG] Invalidate password"), this, SLOT(invalidatePassword()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_I));
-#endif
-
-#ifdef QT_DEBUG
-  TestPBKDF2 tc;
-  QTest::qExec(&tc, 0, 0);
 #endif
 
   onExpertModeChanged(false);
@@ -876,7 +869,6 @@ bool MainWindow::restoreSettings(void)
   if (!baCryptedData.isEmpty()) {
     QByteArray baSyncData = Crypter::decode(d->masterPassword, baCryptedData, CompressionEnabled, CryptSyncDataIterations, &errCode, &errMsg);
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
-    qDebug() << jsonSyncData;
     QVariantMap syncData = jsonSyncData.toVariant().toMap();
 
     QString syncFilename = syncData["sync/filename"].toString();
@@ -898,7 +890,6 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setWriteUrl(writeUrl);
 
     QString readUrl = syncData["sync/serverReadUrl"].toString();
-    qDebug() << "readUrl.isEmpty() ->" << readUrl.isEmpty();
     if (readUrl.isEmpty())
       readUrl = DefaultReadUrl;
     d->optionsDialog->setReadUrl(readUrl);

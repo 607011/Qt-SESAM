@@ -75,6 +75,14 @@ void OptionsDialog::checkConnectivity(void)
   if (serverUrl.scheme() == "https") {
     static const int HttpsPort = 443;
     d->sslSocket.connectToHostEncrypted(serverUrl.host(), HttpsPort);
+    bool connected = d->sslSocket.waitForConnected(10*1000);
+    if (!connected) {
+      QMessageBox::information(this, tr("Network timeout"), tr("Cannot connect to %1. Please check the URL above.").arg(serverUrl.host()));
+      d->sslSocket.close();
+    }
+  }
+  else {
+    QMessageBox::information(this, tr("Wrong protocol"), tr("The given protocol \"%1\" is not valid. Please enter a URL beginning with \"https://\".").arg(serverUrl.scheme()));
   }
 }
 

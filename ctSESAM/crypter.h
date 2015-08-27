@@ -25,12 +25,6 @@
 #include <QString>
 #include <string>
 
-#include "cryptopp562/sha.h"
-#include "cryptopp562/aes.h"
-#include "cryptopp562/ccm.h"
-#include "cryptopp562/filters.h"
-#include "cryptopp562/misc.h"
-
 class Crypter
 {
 public:

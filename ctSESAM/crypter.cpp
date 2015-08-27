@@ -18,6 +18,11 @@
 */
 
 #include <QDebug>
+#include "3rdparty/cryptopp562/sha.h"
+#include "3rdparty/cryptopp562/aes.h"
+#include "3rdparty/cryptopp562/ccm.h"
+#include "3rdparty/cryptopp562/filters.h"
+#include "3rdparty/cryptopp562/misc.h"
 #include "securebytearray.h"
 #include "crypter.h"
 #include "password.h"
