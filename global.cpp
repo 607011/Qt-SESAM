@@ -37,10 +37,10 @@ const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4 (%5; %6, %7)")
     .arg(QSysInfo::currentCpuArchitecture())
     .arg(QSysInfo::buildCpuArchitecture());
 #else
-const QString APP_USER_AGENT = QString("%1/%2 (+%3) Qt/%4")
-    .arg(APP_NAME)
-    .arg(APP_VERSION)
-    .arg(APP_URL)
+const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4")
+    .arg(AppName)
+    .arg(AppVersion)
+    .arg(AppURL)
     .arg(qVersion());
 #endif
 

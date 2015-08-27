@@ -53,8 +53,6 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));
-  QObject::connect(ui->serverRootURLLineEdit, SIGNAL(returnPressed()), SLOT(checkConnectivity()));
-  QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(checkConnectivity()));
   QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
   QObject::connect(ui->checkConnectivityPushButton, SIGNAL(pressed()), SLOT(checkConnectivity()));
@@ -70,6 +68,7 @@ OptionsDialog::~OptionsDialog()
 void OptionsDialog::checkConnectivity(void)
 {
   Q_D(OptionsDialog);
+  d->sslSocket.close();
   d->sslErrors.clear();
   d->serverCertificates.clear();
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
