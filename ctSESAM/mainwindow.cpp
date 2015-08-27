@@ -59,8 +59,6 @@
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
 static const int CryptDomainIterations = 32768;
-static const int CryptServerUsernameIterations = 1024;
-static const int CryptServerPasswordIterations = 1024;
 static const int CryptSyncDataIterations = 8192;
 
 static const QString DefaultServerRoot = "https://localhost/ctSESAM";
@@ -122,7 +120,6 @@ public:
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
   ProgressDialog *progressDialog;
-  QList<QSslCertificate> cert;
   QSslConfiguration sslConf;
   QNetworkAccessManager readNAM;
   QNetworkAccessManager writeNAM;
