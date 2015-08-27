@@ -95,8 +95,5 @@ void TestSESAM::pin(void)
 }
 
 
-
 QTEST_MAIN(TestSESAM)
 #include "test-main.moc"
-
-
