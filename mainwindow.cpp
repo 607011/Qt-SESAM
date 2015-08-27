@@ -63,7 +63,7 @@ static const bool CompressionEnabled = true;
 static const int CryptDomainIterations = 32768;
 static const int CryptServerUsernameIterations = 1024;
 static const int CryptServerPasswordIterations = 1024;
-static const int CryptCertificateIterations = 4096;
+static const int CryptSyncDataIterations = 8192;
 
 static const QString DefaultServerRoot = "https://localhost/ctSESAM";
 static const QString DefaultWriteUrl = "/ajax/write.php";
@@ -756,7 +756,7 @@ void MainWindow::saveAllDomainDataToSettings(void)
   QString errMsg;
   const QByteArray &cipher = Crypter::encode(d->masterPassword, d->domains.toJson(), CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
   if (errCode == Crypter::NoCryptError) {
-    d->settings.setValue("data/domains", QString(cipher.toHex()));
+    d->settings.setValue("sync/domains", QString(cipher.toBase64()));
     d->settings.sync();
   }
   else {
@@ -772,7 +772,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::restoreDomainDataFromSettings()", "d->masterPassword must not be empty");
   QJsonDocument json;
   QStringList domainList;
-  const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("data/domains").toByteArray());
+  const QByteArray &baDomains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
   if (!baDomains.isEmpty()) {
     qDebug() << "MainWindow::restoreDomainDataFromSettings() trying to decode ...";
     int errCode;
@@ -805,20 +805,27 @@ void MainWindow::saveSettings(void)
   Q_D(MainWindow);
   int errCode;
   QString errMsg;
+
+  QVariantMap syncData;
+  syncData["sync/serverUsername"] = d->optionsDialog->serverUsername();
+  syncData["sync/serverPassword"] = d->optionsDialog->serverPassword();
+  syncData["sync/serverRootCertificates"] = QString(d->optionsDialog->serverRootCertificate().toPem());
+  syncData["sync/serverWriteUrl"] = d->optionsDialog->writeUrl();
+  syncData["sync/serverReadUrl"] = d->optionsDialog->readUrl();
+  syncData["sync/onStart"] = d->optionsDialog->syncOnStart();
+  syncData["sync/filename"] = d->optionsDialog->syncFilename();
+  syncData["sync/useFile"] = d->optionsDialog->useSyncFile();
+  syncData["sync/useServer"] = d->optionsDialog->useSyncServer();
+  syncData["sync/serverRoot"] = d->optionsDialog->serverRootUrl();
+
+  const QByteArray &baCryptedData = Crypter::encode(d->masterPassword, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled, CryptSyncDataIterations, &errCode, &errMsg);
+
+  d->settings.setValue("sync/param", QString(baCryptedData.toBase64()));
+
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
-  d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
-  d->settings.setValue("sync/onStart", d->optionsDialog->syncOnStart());
-  d->settings.setValue("sync/filename", d->optionsDialog->syncFilename());
-  d->settings.setValue("sync/useFile", d->optionsDialog->useSyncFile());
-  d->settings.setValue("sync/useServer", d->optionsDialog->useSyncServer());
-  d->settings.setValue("sync/serverRoot", d->optionsDialog->serverRootUrl());
-  d->settings.setValue("sync/serverUsername", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverUsername().toUtf8(), false, CryptServerUsernameIterations, &errCode, &errMsg).toHex()));
-  d->settings.setValue("sync/serverPassword", QString(Crypter::encode(d->masterPassword, d->optionsDialog->serverPassword().toUtf8(), false, CryptServerPasswordIterations, &errCode, &errMsg).toHex()));
-  d->settings.setValue("sync/serverWriteUrl", d->optionsDialog->writeUrl());
-  d->settings.setValue("sync/serverReadUrl", d->optionsDialog->readUrl());
-  d->settings.setValue("sync/serverRootCertificates", QString(d->optionsDialog->serverRootCertificate().toPem()));
+
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
@@ -864,44 +871,43 @@ bool MainWindow::restoreSettings(void)
         d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setSaltLength(
         d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
-  QString defaultSyncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
-  d->optionsDialog->setSyncFilename(d->settings.value("sync/filename", defaultSyncFilename).toString());
-  d->optionsDialog->setSyncOnStart(d->settings.value("sync/onStart", true).toBool());
-  d->optionsDialog->setUseSyncFile(d->settings.value("sync/useFile", false).toBool());
-  d->optionsDialog->setUseSyncServer(d->settings.value("sync/useServer", false).toBool());
-  d->optionsDialog->setServerRootUrl(d->settings.value("sync/serverRoot", DefaultServerRoot).toString());
-  d->optionsDialog->setWriteUrl(d->settings.value("sync/serverWriteUrl", DefaultWriteUrl).toString());
-  d->optionsDialog->setReadUrl(d->settings.value("sync/serverReadUrl", DefaultReadUrl).toString());
-  d->optionsDialog->setServerCertificates(QSslCertificate::fromData(d->settings.value("sync/serverRootCertificates").toByteArray(), QSsl::Pem));
 
-  const QByteArray &serverUsername = d->settings.value("sync/serverUsername").toByteArray();
-  if (!serverUsername.isEmpty()) {
-    const QByteArray &serverUsernameBin = QByteArray::fromHex(serverUsername);
-    QByteArray serverUsernameDecoded = Crypter::decode(d->masterPassword, serverUsernameBin, false, CryptServerUsernameIterations, &errCode, &errMsg);
-    if (errCode == Crypter::NoCryptError) {
-      d->optionsDialog->setServerUsername(QString::fromUtf8(serverUsernameDecoded));
-    }
-    else {
-      // TODO: signal user that master password is wrong
-      qWarning() << "ERROR: decode() of server user name failed:" << errMsg;
-    }
+  QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
+  if (!baCryptedData.isEmpty()) {
+    QByteArray baSyncData = Crypter::decode(d->masterPassword, baCryptedData, CompressionEnabled, CryptSyncDataIterations, &errCode, &errMsg);
+    const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
+    qDebug() << jsonSyncData;
+    QVariantMap syncData = jsonSyncData.toVariant().toMap();
+
+    QString syncFilename = syncData["sync/filename"].toString();
+    if (syncFilename.isEmpty())
+      syncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
+    d->optionsDialog->setSyncFilename(syncFilename);
+    d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
+    d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
+    d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
+
+    QString serverRoot = syncData["sync/serverRoot"].toString();
+    if (serverRoot.isEmpty())
+      serverRoot = DefaultServerRoot;
+    d->optionsDialog->setServerRootUrl(serverRoot);
+
+    QString writeUrl = syncData["sync/serverWriteUrl"].toString();
+    if (writeUrl.isEmpty())
+      writeUrl = DefaultWriteUrl;
+    d->optionsDialog->setWriteUrl(writeUrl);
+
+    QString readUrl = syncData["sync/serverReadUrl"].toString();
+    qDebug() << "readUrl.isEmpty() ->" << readUrl.isEmpty();
+    if (readUrl.isEmpty())
+      readUrl = DefaultReadUrl;
+    d->optionsDialog->setReadUrl(readUrl);
+
+    d->optionsDialog->setServerCertificates(QSslCertificate::fromData(syncData["sync/serverRootCertificates"].toByteArray(), QSsl::Pem));
+    d->optionsDialog->setServerUsername(syncData["sync/serverUsername"].toString());
+    d->optionsDialog->setServerPassword(syncData["sync/serverPassword"].toString());
   }
 
-  if (errCode != Crypter::NoCryptError)
-    return false;
-
-  const QByteArray &serverPassword = d->settings.value("sync/serverPassword").toByteArray();
-  if (!serverPassword.isEmpty()) {
-    const QByteArray &serverPasswordBin = QByteArray::fromHex(serverPassword);
-    QByteArray password = Crypter::decode(d->masterPassword, serverPasswordBin, false, CryptServerPasswordIterations, &errCode, &errMsg);
-    if (errCode == Crypter::NoCryptError) {
-      d->optionsDialog->setServerPassword(QString::fromUtf8(password));
-    }
-    else {
-      // TODO: signal user that master password is wrong
-      qWarning() << "ERROR: decode() of server password failed:" << errMsg;
-    }
-  }
   return errCode == Crypter::NoCryptError;
 }
 
