@@ -141,7 +141,7 @@ RESOURCES += \
 DISTFILES += \
     .gitignore \
     LICENSE \
-    README.md \
+    ../README.md \
     translations/i18n_de.ts \
     ctSESAM.rc \
     ../deploy/ctSESAM.nsi
