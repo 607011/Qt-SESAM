@@ -53,20 +53,21 @@ void ProgressDialog::setText(QString text)
 void ProgressDialog::setRange(int lo, int hi)
 {
   ui->progressBar->setRange(lo, hi);
-
+  ui->progressBar->show();
 }
 
 
 void ProgressDialog::setMinimum(int value)
 {
   ui->progressBar->setMinimum(value);
-
+  ui->progressBar->show();
 }
 
 
 void ProgressDialog::setMaximum(int value)
 {
   ui->progressBar->setMaximum(value);
+  ui->progressBar->show();
 }
 
 
@@ -76,5 +77,6 @@ void ProgressDialog::setValue(int value)
   if (value >= ui->progressBar->maximum()) {
     ui->cancelPushButton->hide();
     ui->closePushButton->show();
+    ui->progressBar->hide();
   }
 }
