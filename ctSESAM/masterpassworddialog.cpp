@@ -56,7 +56,7 @@ MasterPasswordDialog::~MasterPasswordDialog()
 
 void MasterPasswordDialog::invalidatePassword(void)
 {
-  SecureErase(ui->passwordLineEdit->text().data(), ui->passwordLineEdit->text().size());
+  SecureErase(ui->passwordLineEdit->text());
   ui->passwordLineEdit->clear();
 }
 
