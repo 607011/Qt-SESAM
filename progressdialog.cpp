@@ -73,7 +73,7 @@ void ProgressDialog::setMaximum(int value)
 void ProgressDialog::setValue(int value)
 {
   ui->progressBar->setValue(value);
-  if (value == ui->progressBar->maximum()) {
+  if (value >= ui->progressBar->maximum()) {
     ui->cancelPushButton->hide();
     ui->closePushButton->show();
   }

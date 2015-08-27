@@ -786,7 +786,6 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     json = QJsonDocument::fromJson(recovered, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
       domainList = json.object().keys();
-      qDebug() << "Password accepted. Restored" << domainList.count() << "domains";
       ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(domainList.count()), 5000);
     }
     else {
@@ -839,7 +838,7 @@ void MainWindow::hackLegacyPassword(void)
     d->hackPos = PositionTable(pwd);
     d->hackPermutations = d->hackPos.permutations();
     d->hackIterationDurationMs = 0;
-    const QStringList &chrs = pwd.split("", QString::SkipEmptyParts).toSet().toList();
+    const QStringList &chrs = pwd.split("", QString::SkipEmptyParts).toSet().toList(); // keep this for backwards compatibility (Qt < 5.5)
     ui->usedCharactersPlainTextEdit->setPlainText(chrs.join(""));
     ui->legacyPasswordLineEdit->setReadOnly(true);
     ui->usedCharactersPlainTextEdit->setReadOnly(true);
@@ -910,20 +909,17 @@ bool MainWindow::restoreSettings(void)
 void MainWindow::onWriteFinished(QNetworkReply *reply)
 {
   Q_D(MainWindow);
+  ++d->counter;
+  d->progressDialog->setValue(d->counter);
   if (reply->error() == QNetworkReply::NoError) {
-    ++d->counter;
-    d->progressDialog->setValue(d->counter);
     if (d->counter == d->maxCounter) {
       d->loaderIcon.stop();
-      d->progressDialog->close();
-      ui->statusBar->showMessage(tr("Sync to server finished."), 5000);
+      d->progressDialog->setText(tr("Sync to server finished."));
       updateSaveButtonIcon();
     }
   }
   else {
-    QMessageBox::warning(this, tr("Sync server error"),
-                         tr("Writing to the server failed. Reason: %1")
-                         .arg(reply->errorString()), QMessageBox::Ok);
+    d->progressDialog->setText(tr("Writing to the server failed. Reason: %1").arg(reply->errorString()));
   }
   reply->close();
 }
@@ -984,12 +980,13 @@ void MainWindow::sync(void)
   }
 
   if (d->optionsDialog->useSyncServer()) {
-    ui->statusBar->showMessage(tr("Syncing with server ..."));
     d->progressDialog->show();
     d->progressDialog->raise();
     d->progressDialog->setText(tr("Reading from server ..."));
     d->counter = 0;
+    d->maxCounter = 1;
     d->progressDialog->setValue(d->counter);
+    d->progressDialog->setRange(0, d->maxCounter);
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
@@ -1236,9 +1233,12 @@ void MainWindow::onReadFinished(QNetworkReply *reply)
   Q_D(MainWindow);
   d->loaderIcon.stop();
   updateSaveButtonIcon();
-  d->progressDialog->hide();
+  ++d->counter;
+  d->progressDialog->setValue(d->counter);
+
   if (reply->error() == QNetworkReply::NoError) {
     const QByteArray &res = reply->readAll();
+    d->progressDialog->setText(tr("Reading from server finished."));
     QJsonParseError parseError;
     const QJsonDocument &json = QJsonDocument::fromJson(res, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
@@ -1248,19 +1248,15 @@ void MainWindow::onReadFinished(QNetworkReply *reply)
         sync(ServerSource, domainData);
       }
       else {
-        QMessageBox::warning(this, tr("Sync server error"),
-                             tr("Reading from the sync server failed. status: %1, error: %2")
-                             .arg(map["status"].toString()).arg(map["error"].toString()), QMessageBox::Ok);
+        d->progressDialog->setText(tr("Reading from the sync server failed. Status: %1 - Error: %2").arg(map["status"].toString()).arg(map["error"].toString()));
       }
     }
     else {
-      QMessageBox::warning(this, tr("Bad data from sync server"),
-                           tr("Decoding the data from the sync server failed: %1")
-                           .arg(parseError.errorString()), QMessageBox::Ok);
+      d->progressDialog->setText(tr("Decoding the data from the sync server failed: %1").arg(parseError.errorString()));
     }
   }
   else {
-    QMessageBox::critical(this, tr("Critical Network Error"), reply->errorString(), QMessageBox::Ok);
+    d->progressDialog->setText(tr("Critical Network Error: %1").arg(reply->errorString()));
   }
   reply->close();
 }
