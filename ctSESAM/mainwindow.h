@@ -40,7 +40,7 @@
 
 #include "global.h"
 #include "domainsettingslist.h"
-#include "password.h"
+#include "pbkdf2.h"
 
 namespace Ui {
 class MainWindow;
@@ -129,6 +129,8 @@ private: // methods
   bool keyContainsAnyOf(const QString &forcedCharacters);
   bool generatedPasswordIsValid(void);
   void analyzeGeneratedPassword(void);
+  void generateSaltKeyIV(void);
+  void generateSaltKeyIVThread(void);
 
   DomainSettings collectedDomainSettings(void) const;
 

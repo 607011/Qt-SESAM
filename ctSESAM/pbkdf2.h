@@ -17,29 +17,32 @@
 
 */
 
-#ifndef __PASSWORD_H_
-#define __PASSWORD_H_
+#ifndef __PBKDF2_H_
+#define __PBKDF2_H_
 
 #include "domainsettings.h"
+#include "crypter.h"
 
 #include <QObject>
 #include <QByteArray>
 #include <QString>
 #include <QScopedPointer>
+#include <QCryptographicHash>
 
 
-class PasswordPrivate;
+class PBKDF2Private;
 
-class Password : public QObject
+
+class PBKDF2 : public QObject
 {
   Q_OBJECT
 public:
-  explicit Password(QObject *parent = nullptr);
-  ~Password();
+  explicit PBKDF2(QObject *parent = nullptr);
+  ~PBKDF2();
 
   void abortGeneration(void);
-  void generate(const QByteArray &masterKey);
-  void generateAsync(const QByteArray &masterKey);
+  void generate(const SecureByteArray &masterPassword, QCryptographicHash::Algorithm algorithm);
+  void generateAsync(const SecureByteArray &masterPassword, QCryptographicHash::Algorithm algorithm);
 
   const QString &key(void) const;
   const QString &hexKey(void) const;
@@ -56,8 +59,6 @@ public:
   void setSalt(const QByteArray &);
   QByteArray salt(void) const;
 
-  static QByteArray randomSalt(int size = 32);
-
   static const QString LowerChars;
   static const QString UpperChars;
   static const QString UpperCharsNoAmbiguous;
@@ -71,10 +72,10 @@ signals:
   void generationAborted(void);
 
 private:
-  QScopedPointer<PasswordPrivate> d_ptr;
-  Q_DECLARE_PRIVATE(Password)
-  Q_DISABLE_COPY(Password)
+  QScopedPointer<PBKDF2Private> d_ptr;
+  Q_DECLARE_PRIVATE(PBKDF2)
+  Q_DISABLE_COPY(PBKDF2)
 };
 
 
-#endif // __PASSWORD_H_
+#endif // __PBKDF2_H_

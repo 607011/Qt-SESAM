@@ -36,7 +36,7 @@ unix {
 SOURCES += test-main.cpp \
     ../ctSESAM/3rdparty/bigint/bigInt.cpp \
     ../ctSESAM/domainsettings.cpp \
-    ../ctSESAM/password.cpp \
+    ../ctSESAM/pbkdf2.cpp \
     ../ctSESAM/domainsettingslist.cpp \
     ../ctSESAM/global.cpp \
     ../ctSESAM/crypter.cpp \
@@ -70,7 +70,7 @@ HEADERS  += \
     ../ctSESAM/3rdparty/bigint/bigInt.h \
     ../ctSESAM/util.h \
     ../ctSESAM/domainsettings.h \
-    ../ctSESAM/password.h \
+    ../ctSESAM/pbkdf2.h \
     ../ctSESAM/domainsettingslist.h \
     ../ctSESAM/global.h \
     ../ctSESAM/hackhelper.h \

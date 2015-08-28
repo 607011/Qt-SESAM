@@ -23,18 +23,47 @@
 
 #include <QByteArray>
 #include <QString>
-#include <string>
+#include "securebytearray.h"
+#include "util.h"
 
 class Crypter
 {
 public:
   static const int NoCryptError = -1;
+  static const int SaltSize;
+  static const int AESKeySize;
+  static const int AESBlockSize;
+  static const int KGKSize;
+  static const int KGKIterations;
+  static const int EEKSize;
   enum FormatFlags {
-    DefaultEncryptionFormat = 0x00,
+    ObsoleteDefaultEncryptionFormat = 0x00,
     AES256EncryptedMasterkeyFormat = 0x01
   };
-  static QByteArray encode(const QString &masterPassword, const QByteArray &data, bool compress, int iterations, int *errCode = nullptr, QString *errMsg = nullptr);
-  static QByteArray decode(const QString &masterPassword, QByteArray data, bool uncompress, int iterations, int *errCode = nullptr, QString *errMsg = nullptr);
+  static SecureByteArray makeKeyFromPassword(
+      __in const SecureByteArray &masterPassword,
+      __in const QByteArray &salt,
+      __in int iterations);
+  static void makeKeyAndIVFromPassword(
+      __in const SecureByteArray &masterPassword,
+      __in const QByteArray &salt,
+      __in int iterations,
+      __out SecureByteArray &key,
+      __out SecureByteArray &IV);
+  static QByteArray encode(__in const SecureByteArray &key,
+                           __in const SecureByteArray &IV,
+                           __in const QByteArray &salt,
+                           __in const SecureByteArray &KGK,
+                           __in const QByteArray &data,
+                           __in bool compress,
+                           __out int *errCode = nullptr,
+                           QString *errMsg = nullptr);
+  static QByteArray decode(const SecureByteArray &masterPassword,
+                           QByteArray baCipher,
+                           bool uncompress,
+                           int *errCode = nullptr,
+                           QString *errMsg = nullptr);
+  static QByteArray randomBytes(int size = SaltSize);
 };
 
 #endif // __CRYPTER_H_

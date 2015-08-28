@@ -50,5 +50,11 @@ SecureByteArray::SecureByteArray(const QByteArray &other)
 
 SecureByteArray::~SecureByteArray()
 {
+  invalidate();
+}
+
+
+void SecureByteArray::invalidate(void)
+{
   SecureErase(*this);
 }

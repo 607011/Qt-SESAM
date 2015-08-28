@@ -1,7 +1,10 @@
 *.pro.user*
-deploy/ctSESAM*.exe
 Makefile*
-release/*
-debug/*
-ui_mainwindow.h
-translations/*.qm
+ctSESAM/deploy/QtSESAM*.exe
+ctSESAM/Makefile*
+ctSESAM/release/*
+ctSESAM/debug/*
+ctSESAM/ui_mainwindow.h
+ctSESAM/translations/*.qm
+ctSESAM/doc/html/*
+ctSESAM/doc/latex/*

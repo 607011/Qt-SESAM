@@ -21,7 +21,8 @@
 
 #include "newdomainwizard.h"
 #include "ui_newdomainwizard.h"
-#include "password.h"
+#include "pbkdf2.h"
+#include "crypter.h"
 #include "domainsettings.h"
 #include "global.h"
 
@@ -55,7 +56,7 @@ void NewDomainWizard::clear(void)
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->clear();
-  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(PBKDF2::AllChars);
   ui->forceLowerCaseCheckBox->setChecked(false);
   ui->forceUpperCaseCheckBox->setChecked(false);
   ui->forceDigitsCheckBox->setChecked(false);
@@ -71,7 +72,7 @@ void NewDomainWizard::clear(void)
 
 void NewDomainWizard::renewSalt(void)
 {
-  ui->saltBase64LineEdit->setText(Password::randomSalt().toBase64());
+  ui->saltBase64LineEdit->setText(Crypter::randomBytes().toBase64());
 }
 
 
@@ -173,25 +174,25 @@ void NewDomainWizard::setForceExtra(bool doForce)
 
 void NewDomainWizard::addLowercaseToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::LowerChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::LowerChars);
 }
 
 
 void NewDomainWizard::addUppercaseToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::UpperChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::UpperChars);
 }
 
 
 void NewDomainWizard::addDigitsToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::Digits);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::Digits);
 }
 
 
 void NewDomainWizard::addExtraCharactersToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::ExtraChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::ExtraChars);
 }
 
 

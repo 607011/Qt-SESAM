@@ -55,6 +55,18 @@ void SecureErase(T &obj)
   obj.clear();
 }
 
+#ifndef __in
+#define __in
+#endif
+
+#ifndef __out
+#define __out
+#endif
+
+#ifndef __inout
+#define __inout
+#endif
+
 
 extern QString fingerprintify(const QByteArray &ba);
 
