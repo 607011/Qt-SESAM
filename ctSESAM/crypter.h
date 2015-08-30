@@ -25,6 +25,8 @@
 #include <QString>
 #include "securebytearray.h"
 #include "util.h"
+#include "3rdparty/cryptopp562/filters.h"
+#include "3rdparty/cryptopp562/aes.h"
 
 class Crypter
 {
@@ -35,6 +37,7 @@ public:
   static const int AESBlockSize;
   static const int KGKSize;
   static const int KGKIterations;
+  static const int DomainIterations;
   static const int EEKSize;
   enum FormatFlags {
     ObsoleteDefaultEncryptionFormat = 0x00,
@@ -63,6 +66,8 @@ public:
                            __out int *errCode = nullptr,
                            __out QString *errMsg = nullptr);
   static QByteArray randomBytes(int size = SaltSize);
+  static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
+  static QByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 };
 
 #endif // __CRYPTER_H_

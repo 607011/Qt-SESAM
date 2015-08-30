@@ -20,9 +20,7 @@
 #include <QDebug>
 #include <string>
 #include "3rdparty/cryptopp562/sha.h"
-#include "3rdparty/cryptopp562/aes.h"
 #include "3rdparty/cryptopp562/ccm.h"
-#include "3rdparty/cryptopp562/filters.h"
 #include "3rdparty/cryptopp562/misc.h"
 #include "securebytearray.h"
 #include "pbkdf2.h"
@@ -33,6 +31,7 @@
 
 const int Crypter::SaltSize = 32;
 const int Crypter::AESKeySize = 256 / 8;
+const int Crypter::DomainIterations = 32768;
 const int Crypter::KGKIterations = 1024;
 const int Crypter::KGKSize = 64;
 const int Crypter::AESBlockSize = CryptoPP::AES::BLOCKSIZE;
@@ -84,67 +83,14 @@ QByteArray Crypter::encode(const SecureByteArray &key,
   KGK2.append(KGK);
   Q_ASSERT_X(KGK2.size() == EEKSize, "Crypter::encode()", "KGK2.size()  must equal EEKSize");
 
-  // encrypt key
-  std::string sKGK(KGK2.constData(), KGK2.size());
-  std::string sEEK;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
-    CryptoPP::ArraySource s(
-          sKGK,
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            enc,
-            new CryptoPP::StringSink(sEEK),
-            CryptoPP::StreamTransformationFilter::NO_PADDING
-            )
-          );
-    Q_UNUSED(s); // just to please the compiler
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    if (errCode != nullptr)
-      *errCode = (int)e.GetErrorType();
-    if (errMsg != nullptr)
-      *errMsg = e.what();
-    if (e.GetErrorType() > NoCryptError)
-      qErrnoWarning(e.GetErrorType(), e.what());
-  }
-  QByteArray EEK(sEEK.c_str(), sEEK.length());
+  QByteArray EEK = encrypt(key, IV, KGK2, CryptoPP::StreamTransformationFilter::NO_PADDING);
   Q_ASSERT_X(EEK.size() == EEKSize, "Crypter::encode()", "EEK.size() must equal EEKSize");
 
-  // encrypt data
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
   Q_ASSERT_X(blobKey.size() == AESKeySize, "Crypter::encode()", "blobKey.size() must equal AESKeySize");
-
   QByteArray _baPlain = compress ? qCompress(data, 9) : data;
-  std::string plain(_baPlain.constData(), _baPlain.length());
-  std::string cipher;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
-    enc.SetKeyWithIV(reinterpret_cast<const byte*>(blobKey.constData()), blobKey.size(), reinterpret_cast<const byte*>(IV2.constData()));
-    CryptoPP::StringSource s(
-          plain,
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            enc,
-            new CryptoPP::StringSink(cipher),
-            CryptoPP::StreamTransformationFilter::PKCS_PADDING
-            )
-          );
-    Q_UNUSED(s); // just to please the compiler
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    if (errCode != nullptr)
-      *errCode = (int)e.GetErrorType();
-    if (errMsg != nullptr)
-      *errMsg = e.what();
-    if (e.GetErrorType() > NoCryptError)
-      qErrnoWarning(e.GetErrorType(), e.what());
-  }
+  QByteArray baCipher = encrypt(blobKey, IV2, _baPlain, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
 
-  QByteArray baCipher(cipher.c_str(), cipher.length());
   QByteArray result;
   result.append(AES256EncryptedMasterkeyFormat);
   result.append(salt);
@@ -190,33 +136,7 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
   SecureByteArray IV;
   Crypter::makeKeyAndIVFromPassword(masterPassword, salt, key, IV);
 
-  // decrypt key
-  std::string sRecoveredKGK;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
-    std::string cipher(EEK.constData(), EEK.size());
-    CryptoPP::ArraySource s(
-          cipher,
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            dec,
-            new CryptoPP::StringSink(sRecoveredKGK),
-            CryptoPP::StreamTransformationFilter::NO_PADDING
-            )
-          );
-    Q_UNUSED(s); // just to please the compiler
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    if (errCode != nullptr)
-      *errCode = (int)e.GetErrorType();
-    if (errMsg != nullptr)
-      *errMsg = e.what();
-    if (e.GetErrorType() > NoCryptError)
-      qErrnoWarning(e.GetErrorType(), e.what());
-  }
-  QByteArray baKGK(sRecoveredKGK.c_str(), sRecoveredKGK.length());
+  QByteArray baKGK = decrypt(key, IV, EEK, CryptoPP::StreamTransformationFilter::NO_PADDING);
   Q_ASSERT_X(baKGK.size() == EEKSize, "Crypter::decode()", "baKGK.size() must equal EEKSize");
 
   QByteArray salt2(baKGK.constData(), SaltSize);
@@ -226,33 +146,49 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
   KGK = SecureByteArray(baKGK.constData(), KGKSize);
 
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
-  std::string sRecovered;
-  try {
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-    dec.SetKeyWithIV(reinterpret_cast<const byte*>(blobKey.constData()), blobKey.size(), reinterpret_cast<const byte*>(IV2.constData()));
-    std::string cipher(baCipher.constData(), baCipher.size());
-    CryptoPP::ArraySource s(
-          cipher,
-          true,
-          new CryptoPP::StreamTransformationFilter(
-            dec,
-            new CryptoPP::StringSink(sRecovered),
-            CryptoPP::StreamTransformationFilter::PKCS_PADDING
-            )
-          );
-    Q_UNUSED(s); // just to please the compiler
-  }
-  catch(const CryptoPP::Exception &e)
-  {
-    if (errCode != nullptr)
-      *errCode = (int)e.GetErrorType();
-    if (errMsg != nullptr)
-      *errMsg = e.what();
-    if (e.GetErrorType() > NoCryptError)
-      qErrnoWarning(e.GetErrorType(), e.what());
-  }
-  QByteArray plain(sRecovered.c_str(), sRecovered.length());
+  QByteArray plain = decrypt(blobKey, IV2, baCipher, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
+
   return uncompress ? qUncompress(plain) : plain;
+}
+
+
+QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
+{
+  std::string sPlain(baPlain.constData(), baPlain.size());
+  std::string sCipher;
+  CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
+  enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
+  CryptoPP::ArraySource s(
+        sPlain,
+        true,
+        new CryptoPP::StreamTransformationFilter(
+          enc,
+          new CryptoPP::StringSink(sCipher),
+          padding
+          )
+        );
+  Q_UNUSED(s); // just to please the compiler
+  return QByteArray(sCipher.c_str(), sCipher.length());
+}
+
+
+QByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
+{
+  std::string sCipher(baCipher.constData(), baCipher.size());
+  std::string sPlain;
+  CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+  dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
+  CryptoPP::ArraySource s(
+        sCipher,
+        true,
+        new CryptoPP::StreamTransformationFilter(
+          dec,
+          new CryptoPP::StringSink(sPlain),
+          padding
+          )
+        );
+  Q_UNUSED(s); // just to please the compiler
+  return QByteArray(sPlain.c_str(), sPlain.length());
 }
 
 
@@ -278,7 +214,7 @@ SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterPasswo
 void Crypter::makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, SecureByteArray &key, SecureByteArray &IV)
 {
   PBKDF2 cryptPassword;
-  cryptPassword.setIterations(KGKIterations);
+  cryptPassword.setIterations(DomainIterations);
   cryptPassword.setSalt(salt);
   cryptPassword.generate(masterPassword, QCryptographicHash::Sha384);
   const SecureByteArray &hash = cryptPassword.derivedKey();
