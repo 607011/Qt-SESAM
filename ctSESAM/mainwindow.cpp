@@ -61,9 +61,6 @@
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
-static const int CryptDomainIterations = 32768;
-static const int CryptSyncDataIterations = 8192;
-static const int CryptMasterKeyIterations = 8192;
 
 static const QString DefaultServerRoot = "https://localhost/ctSESAM";
 static const QString DefaultWriteUrl = "/ajax/write.php";
@@ -192,6 +189,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
   QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
+  QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
 
   d->progressDialog = new ProgressDialog(this);
@@ -683,7 +681,6 @@ void MainWindow::onServerCertificatesUpdated(void)
 void MainWindow::generateSaltKeyIV(void)
 {
   Q_D(MainWindow);
-  ui->statusBar->showMessage(tr("Auto-generating new salt and key ..."));
   d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
 }
 
@@ -701,7 +698,7 @@ void MainWindow::generateSaltKeyIVThread(void)
 void MainWindow::onGenerateSaltKeyIV(void)
 {
   Q_D(MainWindow);
-  ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 6).toHex())), 2000);
+  ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 4).toHex())), 2000);
 }
 
 
@@ -1362,6 +1359,7 @@ void MainWindow::onExpertModeChanged(bool enabled)
 {
   ui->hashPlainTextEdit->setVisible(enabled);
   ui->actionHackLegacyPassword->setVisible(enabled);
+  ui->actionRegenerateSaltKeyIV->setVisible(enabled);
 }
 
 

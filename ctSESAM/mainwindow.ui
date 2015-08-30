@@ -445,6 +445,7 @@
     <addaction name="separator"/>
     <addaction name="actionExpertMode"/>
     <addaction name="actionHackLegacyPassword"/>
+    <addaction name="actionRegenerateSaltKeyIV"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>
@@ -517,6 +518,14 @@
    </property>
    <property name="text">
     <string>Expert mode</string>
+   </property>
+  </action>
+  <action name="actionRegenerateSaltKeyIV">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Regenerate salt, key &amp; IV</string>
    </property>
   </action>
  </widget>

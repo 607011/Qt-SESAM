@@ -106,6 +106,7 @@ private slots:
   void hideActivityIcons(void);
   void createFullDump(void);
   void onExpertModeChanged(bool);
+  void generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
 
 signals:
@@ -131,7 +132,6 @@ private: // methods
   bool keyContainsAnyOf(const QString &forcedCharacters);
   bool generatedPasswordIsValid(void);
   void analyzeGeneratedPassword(void);
-  void generateSaltKeyIV(void);
   void generateSaltKeyIVThread(void);
 
   DomainSettings collectedDomainSettings(void) const;
