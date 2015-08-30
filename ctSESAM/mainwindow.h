@@ -106,10 +106,12 @@ private slots:
   void hideActivityIcons(void);
   void createFullDump(void);
   void onExpertModeChanged(bool);
+  void onGenerateSaltKeyIV(void);
 
 signals:
   void passwordGenerated(void);
   void badMasterPassword(void);
+  void saltKeyIVGenerated(void);
 
 protected:
   bool eventFilter(QObject *obj, QEvent *event);

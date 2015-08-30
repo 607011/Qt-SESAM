@@ -27,9 +27,11 @@ class MasterPasswordDialogPrivate {
 public:
   MasterPasswordDialogPrivate(void)
     : repeatPasswordLineEdit(nullptr)
+    , doRepeatPassword(false)
   { /* ... */ }
   QLineEdit *repeatPasswordLineEdit;
   QByteArray cryptSalt;
+  bool doRepeatPassword;
 };
 
 
@@ -64,6 +66,7 @@ void MasterPasswordDialog::invalidatePassword(void)
 void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
 {
   Q_D(MasterPasswordDialog);
+  d->doRepeatPassword = doRepeat;
   if (doRepeat) {
     invalidatePassword();
     SafeRenew(d->repeatPasswordLineEdit, new QLineEdit);
@@ -76,6 +79,12 @@ void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
   else {
     ui->infoLabel->setText(tr("Enter master password"));
   }
+}
+
+
+bool MasterPasswordDialog::repeatPassword(void) const
+{
+  return d_ptr->doRepeatPassword;
 }
 
 

@@ -5,6 +5,6 @@ ctSESAM/Makefile*
 ctSESAM/release/*
 ctSESAM/debug/*
 ctSESAM/ui_mainwindow.h
-ctSESAM/translations/*.qm
+*translations/*.qm
 ctSESAM/doc/html/*
 ctSESAM/doc/latex/*

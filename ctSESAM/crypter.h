@@ -42,12 +42,10 @@ public:
   };
   static SecureByteArray makeKeyFromPassword(
       __in const SecureByteArray &masterPassword,
-      __in const QByteArray &salt,
-      __in int iterations);
+      __in const QByteArray &salt);
   static void makeKeyAndIVFromPassword(
       __in const SecureByteArray &masterPassword,
       __in const QByteArray &salt,
-      __in int iterations,
       __out SecureByteArray &key,
       __out SecureByteArray &IV);
   static QByteArray encode(__in const SecureByteArray &key,
@@ -57,12 +55,13 @@ public:
                            __in const QByteArray &data,
                            __in bool compress,
                            __out int *errCode = nullptr,
-                           QString *errMsg = nullptr);
-  static QByteArray decode(const SecureByteArray &masterPassword,
-                           QByteArray baCipher,
-                           bool uncompress,
-                           int *errCode = nullptr,
-                           QString *errMsg = nullptr);
+                           __out QString *errMsg = nullptr);
+  static QByteArray decode(__in const SecureByteArray &masterPassword,
+                           __in QByteArray baCipher,
+                           __in bool uncompress,
+                           __out SecureByteArray &KGK,
+                           __out int *errCode = nullptr,
+                           __out QString *errMsg = nullptr);
   static QByteArray randomBytes(int size = SaltSize);
 };
 

@@ -138,7 +138,7 @@ void PBKDF2::generate(const SecureByteArray &masterPassword, QCryptographicHash:
     success = true;
   }
   if (success)
-    emit generated();;
+    emit generated();
 }
 
 

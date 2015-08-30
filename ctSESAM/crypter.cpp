@@ -59,7 +59,7 @@ const int Crypter::EEKSize = Crypter::SaltSize + Crypter::AESBlockSize + Crypter
  * ------- | ---------------------------------------------------------------------------
  *       1 | Format flag (must be 0x01)
  *      32 | Salt (randomly generated)
- *      80 | Encrypted data: 32 bytes randomly generated salt, 16 bytes bytes randomly IV, 64 bytes key generation key.
+ *     112 | Encrypted data: 32 bytes randomly generated salt, 16 bytes bytes randomly IV, 64 bytes key generation key.
  *       n | Encrypted data
  *
  */
@@ -79,12 +79,10 @@ QByteArray Crypter::encode(const SecureByteArray &key,
   SecureByteArray KGK2;
   const QByteArray salt2(randomBytes(SaltSize));
   KGK2.append(salt2);
-  const QByteArray IV2(randomBytes(CryptoPP::AES::BLOCKSIZE));
+  const QByteArray IV2(randomBytes(AESBlockSize));
   KGK2.append(IV2);
   KGK2.append(KGK);
-  qDebug() << "KGK2.size()=" << KGK2.size();
-  Q_ASSERT_X(KGK2.size() % AESBlockSize == 0, "Crypter::encode()", "KGK2.size() must be a multiple of AESBlockSize");
-  Q_ASSERT_X(KGK2.size() == EEKSize, "Crypter::encode()", "bad KGK2.size()");
+  Q_ASSERT_X(KGK2.size() == EEKSize, "Crypter::encode()", "KGK2.size()  must equal EEKSize");
 
   // encrypt key
   std::string sKGK(KGK2.constData(), KGK2.size());
@@ -113,12 +111,11 @@ QByteArray Crypter::encode(const SecureByteArray &key,
       qErrnoWarning(e.GetErrorType(), e.what());
   }
   QByteArray EEK(sEEK.c_str(), sEEK.length());
-  qDebug() << "EEK.size()=" << EEK.size();
-  Q_ASSERT_X(EEK.size() == EEKSize, "Crypter::encode()", "bad EEK.size()");
+  Q_ASSERT_X(EEK.size() == EEKSize, "Crypter::encode()", "EEK.size() must equal EEKSize");
 
   // encrypt data
-  const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2, KGKIterations);
-  Q_ASSERT_X(blobKey.size() == AESKeySize, "Crypter::encode()", "blobKey.size() must equal AES key size");
+  const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
+  Q_ASSERT_X(blobKey.size() == AESKeySize, "Crypter::encode()", "blobKey.size() must equal AESKeySize");
 
   QByteArray _baPlain = compress ? qCompress(data, 9) : data;
   std::string plain(_baPlain.constData(), _baPlain.length());
@@ -171,8 +168,9 @@ QByteArray Crypter::encode(const SecureByteArray &key,
 QByteArray Crypter::decode(const SecureByteArray &masterPassword,
                            QByteArray baCipher,
                            bool uncompress,
-                           int *errCode,
-                           QString *errMsg)
+                           __out SecureByteArray &KGK,
+                           __out int *errCode,
+                           __out QString *errMsg)
 {
   if (errCode != nullptr)
     *errCode = NoCryptError;
@@ -185,11 +183,12 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
 
   SecureByteArray EEK;
   EEK = QByteArray(baCipher.constData(), EEKSize);
+  Q_ASSERT_X(EEK.size() == EEKSize, "Crypter::decode()", "EEK.size() must equal EEKSize");
   baCipher.remove(0, EEKSize);
 
   SecureByteArray key;
   SecureByteArray IV;
-  Crypter::makeKeyAndIVFromPassword(masterPassword, salt, KGKIterations, key, IV);
+  Crypter::makeKeyAndIVFromPassword(masterPassword, salt, key, IV);
 
   // decrypt key
   std::string sRecoveredKGK;
@@ -202,7 +201,8 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
           true,
           new CryptoPP::StreamTransformationFilter(
             dec,
-            new CryptoPP::StringSink(sRecoveredKGK)
+            new CryptoPP::StringSink(sRecoveredKGK),
+            CryptoPP::StreamTransformationFilter::NO_PADDING
             )
           );
     Q_UNUSED(s); // just to please the compiler
@@ -217,26 +217,27 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
       qErrnoWarning(e.GetErrorType(), e.what());
   }
   QByteArray baKGK(sRecoveredKGK.c_str(), sRecoveredKGK.length());
-  Q_ASSERT_X(baKGK.size() == AESKeySize + SaltSize + KGKSize, "Crypter::encode()", "bad baKGK.size()");
+  Q_ASSERT_X(baKGK.size() == EEKSize, "Crypter::decode()", "baKGK.size() must equal EEKSize");
 
   QByteArray salt2(baKGK.constData(), SaltSize);
   baKGK.remove(0, SaltSize);
   QByteArray IV2(baKGK.constData(), AESBlockSize);
   baKGK.remove(0, AESBlockSize);
-  QByteArray KGK(baKGK.constData(), KGKSize);
+  KGK = SecureByteArray(baKGK.constData(), KGKSize);
 
-  const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2, KGKIterations);
+  const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
   std::string sRecovered;
   try {
     CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
     dec.SetKeyWithIV(reinterpret_cast<const byte*>(blobKey.constData()), blobKey.size(), reinterpret_cast<const byte*>(IV2.constData()));
-    std::string cipher(EEK.constData(), EEK.size());
+    std::string cipher(baCipher.constData(), baCipher.size());
     CryptoPP::ArraySource s(
           cipher,
           true,
           new CryptoPP::StreamTransformationFilter(
             dec,
-            new CryptoPP::StringSink(sRecovered)
+            new CryptoPP::StringSink(sRecovered),
+            CryptoPP::StreamTransformationFilter::PKCS_PADDING
             )
           );
     Q_UNUSED(s); // just to please the compiler
@@ -257,33 +258,30 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
 
 QByteArray Crypter::randomBytes(int size)
 {
-  QByteArray salt(size, static_cast<char>(0));
-  for (int i = 0; i < salt.size(); ++i)
-    salt[i] = static_cast<char>(gRandomDevice());
-  return salt;
+  QByteArray buf(size, static_cast<char>(0));
+  for (int i = 0; i < buf.size(); ++i)
+    buf[i] = static_cast<char>(gRandomDevice());
+  return buf;
 }
 
 
-SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, int iterations)
+SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt)
 {
   PBKDF2 cryptPassword;
-  cryptPassword.setIterations(iterations);
   cryptPassword.setSalt(salt);
+  cryptPassword.setIterations(KGKIterations);
   cryptPassword.generate(masterPassword, QCryptographicHash::Sha256);
   return cryptPassword.derivedKey(Crypter::AESKeySize);
 }
 
 
-void Crypter::makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, int iterations, SecureByteArray &key, SecureByteArray &IV)
+void Crypter::makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, SecureByteArray &key, SecureByteArray &IV)
 {
-  Q_ASSERT(key.size() == AESKeySize);
-  Q_ASSERT(IV.size() == AESBlockSize);
   PBKDF2 cryptPassword;
-  cryptPassword.setIterations(iterations);
+  cryptPassword.setIterations(KGKIterations);
   cryptPassword.setSalt(salt);
   cryptPassword.generate(masterPassword, QCryptographicHash::Sha384);
   const SecureByteArray &hash = cryptPassword.derivedKey();
-  qDebug() << "HASH:" << hash.toHex();
   key = hash.mid(0, AESKeySize);
   IV = hash.mid(AESKeySize, AESBlockSize);
 }

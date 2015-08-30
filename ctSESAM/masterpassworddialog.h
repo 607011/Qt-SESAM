@@ -42,6 +42,7 @@ public:
 
   void invalidatePassword(void);
   void setRepeatPassword(bool);
+  bool repeatPassword(void) const;
   QString masterPassword(void) const;
 
 public slots:
