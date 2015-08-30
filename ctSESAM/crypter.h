@@ -56,15 +56,11 @@ public:
                            __in const QByteArray &salt,
                            __in const SecureByteArray &KGK,
                            __in const QByteArray &data,
-                           __in bool compress,
-                           __out int *errCode = nullptr,
-                           __out QString *errMsg = nullptr);
+                           __in bool compress);
   static QByteArray decode(__in const SecureByteArray &masterPassword,
                            __in QByteArray baCipher,
                            __in bool uncompress,
-                           __out SecureByteArray &KGK,
-                           __out int *errCode = nullptr,
-                           __out QString *errMsg = nullptr);
+                           __out SecureByteArray &KGK);
   static QByteArray randomBytes(int size = SaltSize);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
   static QByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);

@@ -788,18 +788,17 @@ void MainWindow::saveCurrentDomainSettings(void)
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
-  int errCode;
-  QString errMsg;
-  const QByteArray &cipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled, &errCode, &errMsg);
-  if (errCode == Crypter::NoCryptError) {
-    d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toBase64()));
-    d->settings.sync();
-    generateSaltKeyIV();
+  QByteArray cipher;
+  try {
+    cipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled);
   }
-  else {
-    // TODO
-    qWarning() << errMsg;
+  catch (CryptoPP::Exception &e) {
+    qErrnoWarning((int)e.GetErrorType(), e.what());
   }
+
+  d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toBase64()));
+  d->settings.sync();
+  generateSaltKeyIV();
 }
 
 
@@ -811,13 +810,15 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   QStringList domainList;
   const QByteArray &baDomains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
   if (!baDomains.isEmpty()) {
-    int errCode;
-    QString errMsg;
-    const QByteArray &recovered = Crypter::decode(d->masterPassword.toUtf8(), baDomains, CompressionEnabled, d->KGK, &errCode, &errMsg);
-    if (errCode != Crypter::NoCryptError) {
-      wrongPasswordWarning(errCode, errMsg);
+    QByteArray recovered;
+    try {
+      recovered = Crypter::decode(d->masterPassword.toUtf8(), baDomains, CompressionEnabled, d->KGK);
+    }
+    catch (CryptoPP::Exception &e) {
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
       return false;
     }
+
     QJsonParseError parseError;
     json = QJsonDocument::fromJson(recovered, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
@@ -855,7 +856,15 @@ void MainWindow::saveSettings(void)
   syncData["sync/serverRoot"] = d->optionsDialog->serverRootUrl();
 
   d->keyGenerationMutex.lock();
-  const QByteArray &baCryptedData = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled, &errCode, &errMsg);
+  QByteArray baCryptedData;
+  try {
+    baCryptedData = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
+  }
+  catch (CryptoPP::Exception &e) {
+    wrongPasswordWarning((int)e.GetErrorType(), e.what());
+    return;
+  }
+
   d->keyGenerationMutex.unlock();
   d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
 
@@ -911,7 +920,15 @@ bool MainWindow::restoreSettings(void)
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
-    QByteArray baSyncData = Crypter::decode(d->masterPassword.toUtf8(), baCryptedData, CompressionEnabled, d->KGK, &errCode, &errMsg);
+    QByteArray baSyncData;
+    try {
+      baSyncData = Crypter::decode(d->masterPassword.toUtf8(), baCryptedData, CompressionEnabled, d->KGK);
+    }
+    catch (CryptoPP::Exception &e) {
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return false;
+    }
+
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
     QVariantMap syncData = jsonSyncData.toVariant().toMap();
 
@@ -1050,7 +1067,14 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
     SecureByteArray remoteKGK;
-    const QByteArray &_baTmp = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, remoteKGK, &errCode, &errMsg);
+    QByteArray _baTmp;
+    try {
+      _baTmp = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, remoteKGK);
+    }
+    catch (CryptoPP::Exception &e) {
+      // TODO ...
+      qErrnoWarning((int)e.GetErrorType(), e.what());
+    }
     std::string sDomains(_baTmp.constData(), _baTmp.length());
     QJsonParseError parseError;
     if (errCode == Crypter::NoCryptError && !sDomains.empty()) {
@@ -1110,10 +1134,16 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   }
 
   if (remoteDomains.isDirty()) {
-    int errCode;
-    QString errMsg;
+    QByteArray baCipher;
     d->keyGenerationMutex.lock();
-    const QByteArray &baCipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, remoteDomains.toJson(), CompressionEnabled, &errCode, &errMsg);
+    try {
+      baCipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, remoteDomains.toJson(), CompressionEnabled);
+    }
+    catch (CryptoPP::Exception &e) {
+      // TODO ...
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return;
+    }
     d->keyGenerationMutex.unlock();
     if (errCode == Crypter::NoCryptError) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {

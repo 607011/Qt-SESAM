@@ -67,13 +67,9 @@ QByteArray Crypter::encode(const SecureByteArray &key,
                            const QByteArray &salt,
                            const SecureByteArray &KGK,
                            const QByteArray &data,
-                           bool compress,
-                           int *errCode, QString *errMsg)
+                           bool compress)
 {
   Q_ASSERT_X(KGK.size() == KGKSize, "Crypter::encode()", "KGK.size() must be KGKSize");
-
-  if (errCode != nullptr)
-    *errCode = NoCryptError;
 
   SecureByteArray KGK2;
   const QByteArray salt2(randomBytes(SaltSize));
@@ -114,12 +110,8 @@ QByteArray Crypter::encode(const SecureByteArray &key,
 QByteArray Crypter::decode(const SecureByteArray &masterPassword,
                            QByteArray baCipher,
                            bool uncompress,
-                           __out SecureByteArray &KGK,
-                           __out int *errCode,
-                           __out QString *errMsg)
+                           __out SecureByteArray &KGK)
 {
-  if (errCode != nullptr)
-    *errCode = NoCryptError;
   FormatFlags formatFlag = static_cast<FormatFlags>(baCipher.at(0));
   Q_ASSERT_X(formatFlag == AES256EncryptedMasterkeyFormat, "Crypter::decode()", "formatFlag must equal AES256EncryptedMasterkeyFormat");
   baCipher.remove(0, 1);
