@@ -272,7 +272,17 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
+
+  auto prepareExit = [this]() {
+    d_ptr->masterPasswordDialog->close();
+    d_ptr->optionsDialog->close();
+    saveSettings();
+    invalidatePassword(false);
+    d_ptr->keyGenerationFuture.waitForFinished();
+  };
+
   cancelPasswordGeneration();
+
   QMessageBox::StandardButton rc = (d->parameterSetDirty)
       ? QMessageBox::question(
           this,
@@ -283,6 +293,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
   switch (rc) {
   case QMessageBox::Yes:
     saveCurrentDomainSettings();
+    prepareExit();
+    QMainWindow::closeEvent(e);
+    e->accept();
     break;
   case QMessageBox::Cancel:
     e->ignore();
@@ -290,10 +303,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
   case QMessageBox::NoButton:
     // fall-through
   default:
-    d->masterPasswordDialog->close();
-    d->optionsDialog->close();
-    saveSettings();
-    invalidatePassword(false);
+    prepareExit();
     QMainWindow::closeEvent(e);
     e->accept();
     break;
@@ -785,8 +795,9 @@ void MainWindow::saveAllDomainDataToSettings(void)
   QString errMsg;
   const QByteArray &cipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled, &errCode, &errMsg);
   if (errCode == Crypter::NoCryptError) {
-    d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toHex()));
+    d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toBase64()));
     d->settings.sync();
+    generateSaltKeyIV();
   }
   else {
     // TODO
@@ -801,7 +812,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::restoreDomainDataFromSettings()", "d->masterPassword must not be empty");
   QJsonDocument json;
   QStringList domainList;
-  const QByteArray &baDomains = QByteArray::fromHex(d->settings.value("sync/domains").toByteArray());
+  const QByteArray &baDomains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
   if (!baDomains.isEmpty()) {
     int errCode;
     QString errMsg;
@@ -849,7 +860,7 @@ void MainWindow::saveSettings(void)
   d->keyGenerationMutex.lock();
   const QByteArray &baCryptedData = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled, &errCode, &errMsg);
   d->keyGenerationMutex.unlock();
-  d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toHex()));
+  d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
 
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
@@ -901,7 +912,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setSaltLength(
         d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
 
-  QByteArray baCryptedData = QByteArray::fromHex(d->settings.value("sync/param").toByteArray());
+  QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
     QByteArray baSyncData = Crypter::decode(d->masterPassword.toUtf8(), baCryptedData, CompressionEnabled, d->KGK, &errCode, &errMsg);
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
