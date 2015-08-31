@@ -43,6 +43,3 @@ const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4")
     .arg(AppURL)
     .arg(qVersion());
 #endif
-
-
-std::random_device gRandomDevice;

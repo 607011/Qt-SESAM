@@ -527,7 +527,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Regenerate salt, key &amp; IV ...</string>
+    <string>Regenerate salt, key and IV ...</string>
    </property>
   </action>
   <action name="actionChangeMasterPassword_2">

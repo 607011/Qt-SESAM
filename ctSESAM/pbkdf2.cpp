@@ -21,9 +21,7 @@
 
 #include "pbkdf2.h"
 #include "util.h"
-#include "global.h"
 
-#include "3rdparty/bigint/bigInt.h"
 
 #include <QElapsedTimer>
 #include <QMessageAuthenticationCode>
@@ -31,6 +29,7 @@
 #include <QtConcurrent>
 #include <QtDebug>
 #include <QChar>
+
 
 class PBKDF2Private {
 public:
@@ -41,25 +40,17 @@ public:
   ~PBKDF2Private()
   {
     SecureErase(derivedKey);
-    SecureErase(key);
     SecureErase(hexKey);
   }
+  QByteArray salt;
   QByteArray derivedKey;
-  QString key;
   QString hexKey;
   qreal elapsed;
   bool abort;
   QMutex abortMutex;
   QFuture<void> future;
-  DomainSettings domainSettings;
 };
 
-const QString PBKDF2::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf8();
-const QString PBKDF2::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
-const QString PBKDF2::UpperCharsNoAmbiguous = QString("ABCDEFGHJKLMNPQRTUVWXYZ").toUtf8();
-const QString PBKDF2::Digits = QString("0123456789").toUtf8();
-const QString PBKDF2::ExtraChars = QString("#!\"§$%&/()[]{}=-_+*<>;:.").toUtf8();
-const QString PBKDF2::AllChars = PBKDF2::LowerChars + PBKDF2::UpperChars + PBKDF2::Digits + PBKDF2::ExtraChars;
 
 
 PBKDF2::PBKDF2(QObject *parent)
@@ -79,7 +70,7 @@ auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
 };
 
 
-void PBKDF2::generate(const SecureByteArray &masterPassword, QCryptographicHash::Algorithm algorithm)
+void PBKDF2::generate(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm)
 {
   Q_D(PBKDF2);
   d->abortMutex.lock();
@@ -91,12 +82,6 @@ void PBKDF2::generate(const SecureByteArray &masterPassword, QCryptographicHash:
 
   emit generationStarted();
 
-  const QByteArray &pwd =
-      d->domainSettings.domainName.toUtf8() +
-      d->domainSettings.userName.toUtf8() +
-      masterPassword;
-
-  QByteArray salt = QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8());
   static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
   QMessageAuthenticationCode hmac(algorithm);
   hmac.setKey(pwd);
@@ -106,7 +91,7 @@ void PBKDF2::generate(const SecureByteArray &masterPassword, QCryptographicHash:
   d->derivedKey = buffer;
 
   bool completed = true;
-  for (int j = 1; j < d->domainSettings.iterations; ++j) {
+  for (int j = 1; j < iterations; ++j) {
     QMutexLocker locker(&d->abortMutex);
     if (d->abort) {
       completed = false;
@@ -119,34 +104,15 @@ void PBKDF2::generate(const SecureByteArray &masterPassword, QCryptographicHash:
     xorbuf(d->derivedKey, buffer);
   }
 
-  bool success = false;
-  const int nChars = d->domainSettings.usedCharacters.count();
-  if (completed && nChars > 0) {
-    d->elapsed = 1e-9 * elapsedTimer.nsecsElapsed();
-    d->hexKey = d->derivedKey.toHex();
-    d->key.clear();
-    const QString strModulus = QString("%1").arg(nChars);
-    BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
-    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-    static const BigInt::Rossi Zero(0);
-    int n = d->domainSettings.length;
-    while (v > Zero && n-- > 0) {
-      const BigInt::Rossi &mod = v % Modulus;
-      d->key += d->domainSettings.usedCharacters.at(mod.toUlong());
-      v = v / Modulus;
-    }
-    success = true;
-  }
-  if (success)
-    emit generated();
+  d->hexKey = QString::fromLatin1(d->derivedKey.toHex());
 }
 
 
-void PBKDF2::generateAsync(const SecureByteArray &masterPassword, QCryptographicHash::Algorithm algorithm)
+void PBKDF2::generateAsync(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm)
 {
   Q_D(PBKDF2);
   d->abort = false;
-  d->future = QtConcurrent::run(this, &PBKDF2::generate, masterPassword, algorithm);
+  d->future = QtConcurrent::run(this, &PBKDF2::generate, pwd, salt, iterations, algorithm);
 }
 
 
@@ -159,46 +125,6 @@ void PBKDF2::abortGeneration(void)
 }
 
 
-void PBKDF2::setDomainSettings(const DomainSettings &ds)
-{
-  Q_D(PBKDF2);
-  d->domainSettings = ds;
-}
-
-
-void PBKDF2::setSalt_base64(const QByteArray &salt_base64)
-{
-  Q_D(PBKDF2);
-  d->domainSettings.salt_base64 = salt_base64;
-}
-
-
-void PBKDF2::setSalt(const QByteArray &salt)
-{
-  Q_D(PBKDF2);
-  d->domainSettings.salt_base64 = salt.toBase64();
-}
-
-
-void PBKDF2::setIterations(int iterations)
-{
-  Q_D(PBKDF2);
-  d->domainSettings.iterations = iterations;
-}
-
-
-QByteArray PBKDF2::salt(void) const
-{
-  return QByteArray::fromBase64(d_ptr->domainSettings.salt_base64.toUtf8());
-}
-
-
-const QString &PBKDF2::key(void) const
-{
-  return d_ptr->key;
-}
-
-
 const QString &PBKDF2::hexKey(void) const
 {
   return d_ptr->hexKey;
@@ -208,9 +134,10 @@ const QString &PBKDF2::hexKey(void) const
 QByteArray PBKDF2::derivedKey(int size) const
 {
   Q_ASSERT_X(size <= d_ptr->derivedKey.size(), "Password::derivedKey()", "size must be <= key size");
-  return size < 0
-      ? d_ptr->derivedKey
-      : QByteArray(d_ptr->derivedKey.constData(), size);
+  if (size < 0)
+    return d_ptr->derivedKey;
+  else
+    return QByteArray(d_ptr->derivedKey.constData(), size);
 }
 
 
@@ -234,5 +161,6 @@ bool PBKDF2::isAborted(void) const
 
 void PBKDF2::waitForFinished(void)
 {
-  d_ptr->future.waitForFinished();
+  Q_D(PBKDF2);
+  d->future.waitForFinished();
 }

@@ -17,35 +17,46 @@
 
 */
 
-#ifndef __PBKDF2_H_
-#define __PBKDF2_H_
+#ifndef __PASSWORD_H_
+#define __PASSWORD_H_
 
 #include <QObject>
 #include <QString>
 #include <QScopedPointer>
-#include <QCryptographicHash>
 
 #include "securebytearray.h"
+#include "domainsettings.h"
 
-class PBKDF2Private;
+class PasswordPrivate;
 
-class PBKDF2 : public QObject
+
+class Password : public QObject
 {
   Q_OBJECT
 public:
-  explicit PBKDF2(QObject *parent = nullptr);
-  ~PBKDF2();
+  Password(const DomainSettings &ds = DomainSettings(), const QObject *parent = nullptr);
+  ~Password();
 
-  void abortGeneration(void);
-  void generate(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm);
-  void generateAsync(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm);
+  static const QString LowerChars;
+  static const QString UpperChars;
+  static const QString UpperCharsNoAmbiguous;
+  static const QString Digits;
+  static const QString ExtraChars;
+  static const QString AllChars;
 
+  const QString &key(void) const;
   const QString &hexKey(void) const;
-  QByteArray derivedKey(int size = -1) const;
-  qreal elapsedSeconds(void) const;
+  void waitForFinished(void);
+  QString errorString(void) const;
+  void setDomainSettings(const DomainSettings &);
+
+  void generate(const SecureByteArray &masterPassword);
+  void generateAsync(const SecureByteArray &masterPassword);
+
   bool isRunning(void) const;
   bool isAborted(void) const;
-  void waitForFinished(void);
+  qreal elapsedSeconds(void) const;
+  void abortGeneration(void);
 
 signals:
   void generated(void);
@@ -53,10 +64,9 @@ signals:
   void generationAborted(void);
 
 private:
-  QScopedPointer<PBKDF2Private> d_ptr;
-  Q_DECLARE_PRIVATE(PBKDF2)
-  Q_DISABLE_COPY(PBKDF2)
+  QScopedPointer<PasswordPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Password)
+  Q_DISABLE_COPY(Password)
 };
 
-
-#endif // __PBKDF2_H_
+#endif // __PASSWORD_H_

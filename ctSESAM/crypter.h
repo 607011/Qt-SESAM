@@ -31,7 +31,6 @@
 class Crypter
 {
 public:
-  static const int NoCryptError = -1;
   static const int SaltSize;
   static const int AESKeySize;
   static const int AESBlockSize;

@@ -52,6 +52,8 @@
 #include "masterpassworddialog.h"
 #include "optionsdialog.h"
 #include "hackhelper.h"
+#include "pbkdf2.h"
+#include "password.h"
 #include "crypter.h"
 #include "securebytearray.h"
 
@@ -117,7 +119,7 @@ public:
   PositionTable hackPos;
   qint64 hackPermutations;
   bool hackingMode;
-  PBKDF2 password;
+  Password password;
   QDateTime createdDate;
   QDateTime modifiedDate;
   QSystemTrayIcon trayIcon;
@@ -354,7 +356,7 @@ void MainWindow::resetAllFields(void)
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->setPlainText(QString());
-  ui->usedCharactersPlainTextEdit->setPlainText(PBKDF2::AllChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->createdLabel->setText(QString());
   ui->modifiedLabel->setText(QString());
   ui->deleteCheckBox->setChecked(false);
@@ -494,7 +496,7 @@ void MainWindow::generatePassword(void)
   Q_D(MainWindow);
   const DomainSettings &ds = collectedDomainSettings();
   d->password.setDomainSettings(ds);
-  d->password.generateAsync(d->masterPassword.toUtf8(), QCryptographicHash::Sha512);
+  d->password.generateAsync(d->masterPassword.toUtf8());
 }
 
 
@@ -532,13 +534,13 @@ bool MainWindow::keyContainsAnyOf(const QString &forcedCharacters)
 void MainWindow::analyzeGeneratedPassword(void)
 {
   Q_D(MainWindow);
-  if (keyContainsAnyOf(PBKDF2::LowerChars))
+  if (keyContainsAnyOf(Password::LowerChars))
     d->newDomainWizard->setForceLowercase(true);
-  if (keyContainsAnyOf(PBKDF2::UpperChars))
+  if (keyContainsAnyOf(Password::UpperChars))
     d->newDomainWizard->setForceUppercase(true);
-  if (keyContainsAnyOf(PBKDF2::Digits))
+  if (keyContainsAnyOf(Password::Digits))
     d->newDomainWizard->setForceDigits(true);
-  if (keyContainsAnyOf(PBKDF2::ExtraChars))
+  if (keyContainsAnyOf(Password::ExtraChars))
     d->newDomainWizard->setForceExtra(true);
 }
 
@@ -546,13 +548,13 @@ void MainWindow::analyzeGeneratedPassword(void)
 bool MainWindow::generatedPasswordIsValid(void)
 {
   Q_D(MainWindow);
-  if (d_ptr->newDomainWizard->forceLowercase() && !keyContainsAnyOf(PBKDF2::LowerChars))
+  if (d_ptr->newDomainWizard->forceLowercase() && !keyContainsAnyOf(Password::LowerChars))
     return false;
-  if (d_ptr->newDomainWizard->forceUppercase() && !keyContainsAnyOf(PBKDF2::UpperChars))
+  if (d_ptr->newDomainWizard->forceUppercase() && !keyContainsAnyOf(Password::UpperChars))
     return false;
-  if (d_ptr->newDomainWizard->forceDigits() && !keyContainsAnyOf(PBKDF2::Digits))
+  if (d_ptr->newDomainWizard->forceDigits() && !keyContainsAnyOf(Password::Digits))
     return false;
-  if (d_ptr->newDomainWizard->forceExtra() && !keyContainsAnyOf(PBKDF2::ExtraChars))
+  if (d_ptr->newDomainWizard->forceExtra() && !keyContainsAnyOf(Password::ExtraChars))
     return false;
   return true;
 }
@@ -840,8 +842,6 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
-  int errCode;
-  QString errMsg;
 
   QVariantMap syncData;
   syncData["sync/serverUsername"] = d->optionsDialog->serverUsername();
@@ -909,8 +909,6 @@ void MainWindow::hackLegacyPassword(void)
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
-  int errCode = Crypter::NoCryptError;
-  QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(
@@ -960,7 +958,7 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setServerPassword(syncData["sync/serverPassword"].toString());
   }
 
-  return errCode == Crypter::NoCryptError;
+  return true;
 }
 
 
@@ -1062,33 +1060,24 @@ void MainWindow::sync(void)
 void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
-  int errCode;
-  QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    SecureByteArray remoteKGK;
-    QByteArray _baTmp;
+    QByteArray baDomains;
     try {
-      _baTmp = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, remoteKGK);
+      baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, SecureByteArray());
     }
     catch (CryptoPP::Exception &e) {
-      // TODO ...
-      qErrnoWarning((int)e.GetErrorType(), e.what());
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return;
     }
-    std::string sDomains(_baTmp.constData(), _baTmp.length());
-    QJsonParseError parseError;
-    if (errCode == Crypter::NoCryptError && !sDomains.empty()) {
-      const QByteArray baDomains(sDomains.c_str(), sDomains.length());
+    if (!baDomains.isEmpty()) {
+      QJsonParseError parseError;
       remoteJSON = QJsonDocument::fromJson(baDomains, &parseError);
       if (parseError.error != QJsonParseError::NoError) {
         QMessageBox::warning(this, tr("Bad data from sync server"),
                              tr("Decoding the data from the sync server failed: %1")
                              .arg(parseError.errorString()), QMessageBox::Ok);
       }
-    }
-    else {
-      wrongPasswordWarning(errCode, errMsg);
-      return;
     }
   }
 
@@ -1145,7 +1134,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
       return;
     }
     d->keyGenerationMutex.unlock();
-    if (errCode == Crypter::NoCryptError) {
+    if (!baCipher.isEmpty()) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         QFile syncFile(d->optionsDialog->syncFilename());
         syncFile.open(QIODevice::WriteOnly);

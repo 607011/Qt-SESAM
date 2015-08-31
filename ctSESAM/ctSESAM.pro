@@ -58,7 +58,8 @@ SOURCES += main.cpp \
     securebytearray.cpp \
     servercertificatewidget.cpp \
     util.cpp \
-    pbkdf2.cpp
+    pbkdf2.cpp \
+    password.cpp
 
 win32:SOURCES += \
     3rdparty/cryptopp562/sha.cpp \
@@ -98,7 +99,8 @@ HEADERS  += \
     crypter.h \
     securebytearray.h \
     servercertificatewidget.h \
-    pbkdf2.h
+    pbkdf2.h \
+    password.h
 
 win32:HEADERS += \
     3rdparty/cryptopp562/sha.h \

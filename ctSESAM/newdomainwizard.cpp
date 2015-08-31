@@ -21,7 +21,7 @@
 
 #include "newdomainwizard.h"
 #include "ui_newdomainwizard.h"
-#include "pbkdf2.h"
+#include "password.h"
 #include "crypter.h"
 #include "domainsettings.h"
 #include "global.h"
@@ -56,7 +56,7 @@ void NewDomainWizard::clear(void)
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->clear();
-  ui->usedCharactersPlainTextEdit->setPlainText(PBKDF2::AllChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->forceLowerCaseCheckBox->setChecked(false);
   ui->forceUpperCaseCheckBox->setChecked(false);
   ui->forceDigitsCheckBox->setChecked(false);
@@ -174,25 +174,25 @@ void NewDomainWizard::setForceExtra(bool doForce)
 
 void NewDomainWizard::addLowercaseToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::LowerChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::LowerChars);
 }
 
 
 void NewDomainWizard::addUppercaseToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::UpperChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::UpperChars);
 }
 
 
 void NewDomainWizard::addDigitsToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::Digits);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::Digits);
 }
 
 
 void NewDomainWizard::addExtraCharactersToUsedCharacters(void)
 {
-  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + PBKDF2::ExtraChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::ExtraChars);
 }
 
 
