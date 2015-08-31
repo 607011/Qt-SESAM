@@ -29,6 +29,12 @@
 
 class PBKDF2Private;
 
+/*!
+ * \brief The PBKDF2 class
+ *
+ * `PBKDF2` implements the Password-Based Key Derivation Function 2.
+ *
+ */
 class PBKDF2 : public QObject
 {
   Q_OBJECT
@@ -49,7 +55,6 @@ public:
   void waitForFinished(void);
 
 signals:
-  // void generated(void);
   void generationStarted(void);
   void generationAborted(void);
 
