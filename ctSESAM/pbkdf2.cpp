@@ -74,8 +74,6 @@ void PBKDF2::generate(const SecureByteArray &pwd, const QByteArray &salt, int it
 {
   Q_D(PBKDF2);
 
-  qDebug() << "PBKDF2::generate()";
-
   d->abortMutex.lock();
   d->abort = false;
   d->abortMutex.unlock();

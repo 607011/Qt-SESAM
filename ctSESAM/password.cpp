@@ -75,7 +75,6 @@ void Password::setDomainSettings(const DomainSettings &ds)
 void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
-  qDebug() << "Password::generate() ...";
 
   const QByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
