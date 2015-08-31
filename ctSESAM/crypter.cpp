@@ -38,6 +38,20 @@ const int Crypter::KGKSize = 64;
 const int Crypter::AESBlockSize = CryptoPP::AES::BLOCKSIZE;
 const int Crypter::CryptDataSize = Crypter::SaltSize + Crypter::AESBlockSize + Crypter::KGKSize;
 
+
+/*!
+ * \brief gRandomDevice
+ *
+ * The random number generator used by `Crypter`.
+ *
+ * `std::random_device` is a uniformly-distributed integer random number generator
+ * that produces non-deterministic random numbers.
+ * `std::random_device` may be implemented in terms of an implementation-defined
+ * pseudo-random number engine if a non-deterministic source (e.g. a hardware device)
+ * is not available to the implementation.
+ * In this case each `std::random_device` object may generate the same number sequence.
+ *
+ */
 std::random_device gRandomDevice;
 
 
