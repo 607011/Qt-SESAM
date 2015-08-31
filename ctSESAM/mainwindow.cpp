@@ -74,7 +74,7 @@ public:
   MainWindowPrivate(QWidget *parent = nullptr)
     : settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
-    , trayIcon(QIcon(":/images/ctpwdgen.ico"), parent)
+    , trayIcon(QIcon(":/images/ctSESAM.ico"), parent)
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
     , autoIncrementIterations(true)
