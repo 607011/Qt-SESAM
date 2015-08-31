@@ -23,18 +23,46 @@
 
 #include <QByteArray>
 #include <QString>
-#include <string>
+#include "securebytearray.h"
+#include "util.h"
+#include "3rdparty/cryptopp562/filters.h"
+#include "3rdparty/cryptopp562/aes.h"
 
 class Crypter
 {
 public:
-  static const int NoCryptError = -1;
+  static const int SaltSize;
+  static const int AESKeySize;
+  static const int AESBlockSize;
+  static const int KGKSize;
+  static const int KGKIterations;
+  static const int DomainIterations;
+  static const int EEKSize;
   enum FormatFlags {
-    DefaultEncryptionFormat = 0x00,
+    ObsoleteDefaultEncryptionFormat = 0x00,
     AES256EncryptedMasterkeyFormat = 0x01
   };
-  static QByteArray encode(const QString &masterPassword, const QByteArray &data, bool compress, int iterations, int *errCode = nullptr, QString *errMsg = nullptr);
-  static QByteArray decode(const QString &masterPassword, QByteArray data, bool uncompress, int iterations, int *errCode = nullptr, QString *errMsg = nullptr);
+  static SecureByteArray makeKeyFromPassword(
+      __in const SecureByteArray &masterPassword,
+      __in const QByteArray &salt);
+  static void makeKeyAndIVFromPassword(
+      __in const SecureByteArray &masterPassword,
+      __in const QByteArray &salt,
+      __out SecureByteArray &key,
+      __out SecureByteArray &IV);
+  static QByteArray encode(__in const SecureByteArray &key,
+                           __in const SecureByteArray &IV,
+                           __in const QByteArray &salt,
+                           __in const SecureByteArray &KGK,
+                           __in const QByteArray &data,
+                           __in bool compress);
+  static QByteArray decode(__in const SecureByteArray &masterPassword,
+                           __in QByteArray baCipher,
+                           __in bool uncompress,
+                           __out SecureByteArray &KGK);
+  static QByteArray randomBytes(int size = SaltSize);
+  static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
+  static QByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 };
 
 #endif // __CRYPTER_H_

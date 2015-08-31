@@ -17,43 +17,31 @@
 
 */
 
-#include <cstring>
-
+#include <QDebug>
+#include <QtConcurrent>
+#include <QFuture>
 #include "password.h"
+#include "pbkdf2.h"
 #include "util.h"
-#include "global.h"
 
 #include "3rdparty/bigint/bigInt.h"
-
-#include <QElapsedTimer>
-#include <QCryptographicHash>
-#include <QMessageAuthenticationCode>
-#include <QMutexLocker>
-#include <QtConcurrent>
-#include <QtDebug>
-#include <QChar>
 
 class PasswordPrivate {
 public:
   PasswordPrivate(void)
-    : elapsed(0)
-    , abort(false)
-  { /* ... */ }
+  {
+    // ...
+  }
   ~PasswordPrivate()
   {
-    SecureErase(derivedKey);
     SecureErase(key);
-    SecureErase(hexKey);
   }
-  QByteArray derivedKey;
+  PBKDF2 pbkdf2;
   QString key;
-  QString hexKey;
-  qreal elapsed;
-  bool abort;
-  QMutex abortMutex;
-  QFuture<void> future;
   DomainSettings domainSettings;
+  QFuture<void> future;
 };
+
 
 const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf8();
 const QString Password::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
@@ -63,71 +51,44 @@ const QString Password::ExtraChars = QString("#!\"§$%&/()[]{}=-_+*<>;:.").toUtf
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 
 
-Password::Password(QObject *parent)
+Password::Password(const DomainSettings &ds, QObject *parent)
   : QObject(parent)
   , d_ptr(new PasswordPrivate)
-{ /* ... */ }
-
+{
+  d_ptr->domainSettings = ds;
+  QObject::connect(&d_ptr->pbkdf2, SIGNAL(generationStarted()), SIGNAL(generationStarted()));
+  QObject::connect(&d_ptr->pbkdf2, SIGNAL(generationAborted()), SIGNAL(generationAborted()));
+}
 
 Password::~Password()
-{ /* ... */ }
+{
+  // ...
+}
 
 
-auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
-  Q_ASSERT_X(dst.size() == src.size(), "xorbuf()", "size of source and destination buffers must be equal");
-  for (int i = 0; i < dst.size(); ++i)
-    dst[i] = dst.at(i) ^ src.at(i);
-};
+void Password::setDomainSettings(const DomainSettings &ds)
+{
+  d_ptr->domainSettings = ds;
+}
 
 
-void Password::generate(const QByteArray &masterKey)
+void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
-  d->abortMutex.lock();
-  d->abort = false;
-  d->abortMutex.unlock();
-
-  QElapsedTimer elapsedTimer;
-  elapsedTimer.start();
-
-  emit generationStarted();
+  qDebug() << "Password::generate() ...";
 
   const QByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
       d->domainSettings.userName.toUtf8() +
-      masterKey;
+      masterPassword;
 
-  QByteArray salt = QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8());
-  static const char INT_32_BE1[4] = { 0, 0, 0, 1 };
-  QMessageAuthenticationCode hmac(QCryptographicHash::Sha512);
-  hmac.setKey(pwd);
-  hmac.addData(salt + QByteArray(INT_32_BE1, 4));
+  d->pbkdf2.generate(pwd, QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()), d->domainSettings.iterations, QCryptographicHash::Sha512);
 
-  QByteArray buffer = hmac.result();
-  d->derivedKey = buffer;
-
-  bool completed = true;
-  for (int j = 1; j < d->domainSettings.iterations; ++j) {
-    QMutexLocker locker(&d->abortMutex);
-    if (d->abort) {
-      completed = false;
-      emit generationAborted();
-      break;
-    }
-    hmac.reset();
-    hmac.addData(buffer);
-    buffer = hmac.result();
-    xorbuf(d->derivedKey, buffer);
-  }
-
-  bool success = false;
   const int nChars = d->domainSettings.usedCharacters.count();
-  if (completed && nChars > 0) {
-    d->elapsed = 1e-9 * elapsedTimer.nsecsElapsed();
-    d->hexKey = d->derivedKey.toHex();
+  if (nChars > 0) {
     d->key.clear();
     const QString strModulus = QString("%1").arg(nChars);
-    BigInt::Rossi v(d->hexKey.toStdString(), BigInt::HEX_DIGIT);
+    BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
     static const BigInt::Rossi Zero(0);
     int n = d->domainSettings.length;
@@ -136,97 +97,15 @@ void Password::generate(const QByteArray &masterKey)
       d->key += d->domainSettings.usedCharacters.at(mod.toUlong());
       v = v / Modulus;
     }
-    success = true;
+    emit generated();
   }
-  if (success)
-    emit generated();;
 }
 
 
-void Password::generateAsync(const QByteArray &masterKey)
+void Password::generateAsync(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
-  d->abort = false;
-  d->future = QtConcurrent::run(this, &Password::generate, masterKey);
-}
-
-
-void Password::abortGeneration(void)
-{
-  Q_D(Password);
-  d->abortMutex.lock();
-  d->abort = true;
-  d->abortMutex.unlock();
-}
-
-
-void Password::setDomainSettings(const DomainSettings &ds)
-{
-  Q_D(Password);
-  d->domainSettings = ds;
-}
-
-
-void Password::setSalt_base64(const QByteArray &salt_base64)
-{
-  Q_D(Password);
-  d->domainSettings.salt_base64 = salt_base64;
-}
-
-
-void Password::setSalt(const QByteArray &salt)
-{
-  Q_D(Password);
-  d->domainSettings.salt_base64 = salt.toBase64();
-}
-
-
-void Password::setIterations(int iterations)
-{
-  Q_D(Password);
-  d->domainSettings.iterations = iterations;
-}
-
-
-QByteArray Password::salt(void) const
-{
-  return QByteArray::fromBase64(d_ptr->domainSettings.salt_base64.toUtf8());
-}
-
-
-QByteArray Password::randomSalt(int size)
-{
-  QByteArray salt(size, static_cast<char>(0));
-  for (int i = 0; i < salt.size(); ++i)
-    salt[i] = static_cast<char>(gRandomDevice());
-  return salt;
-}
-
-
-const QString &Password::key(void) const
-{
-  return d_ptr->key;
-}
-
-
-const QString &Password::hexKey(void) const
-{
-  return d_ptr->hexKey;
-}
-
-
-QByteArray Password::derivedKey(int size) const
-{
-  Q_ASSERT_X(size <= d_ptr->derivedKey.size(), "Password::derivedKey()", "size must be <= key size");
-  return size < 0
-      ? d_ptr->derivedKey
-      : QByteArray(d_ptr->derivedKey.constData(), size);
-}
-
-
-qreal Password::elapsedSeconds(void) const
-{
-  return d_ptr->elapsed;
+  d->future = QtConcurrent::run(this, &Password::generate, masterPassword);
 }
 
 
@@ -238,7 +117,31 @@ bool Password::isRunning(void) const
 
 bool Password::isAborted(void) const
 {
-  return d_ptr->abort;
+  return d_ptr->pbkdf2.isAborted();
+}
+
+
+qreal Password::elapsedSeconds(void) const
+{
+  return d_ptr->pbkdf2.elapsedSeconds();
+}
+
+
+void Password::abortGeneration(void)
+{
+  d_ptr->pbkdf2.abortGeneration();
+}
+
+
+const QString &Password::key(void) const
+{
+  return d_ptr->key;
+}
+
+
+const QString &Password::hexKey(void) const
+{
+  return d_ptr->pbkdf2.hexKey();
 }
 
 

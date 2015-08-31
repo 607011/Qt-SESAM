@@ -20,7 +20,6 @@
 #ifndef __GLOBAL_H_
 #define __GLOBAL_H_
 
-#include <random>
 #include <QString>
 
 extern const QString AppCompanyName;
@@ -31,7 +30,6 @@ extern const QString AppAuthor;
 extern const QString AppAuthorMail;
 extern const QString AppUserAgent;
 
-extern std::random_device gRandomDevice;
 
 
 #endif // __GLOBAL_H_

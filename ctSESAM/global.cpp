@@ -23,7 +23,7 @@
 
 const QString AppCompanyName = "c't";
 const QString AppName = "Qt SESAM";
-const QString AppVersion = "1.0.1";
+const QString AppVersion = "1.9.1 (pre2)";
 const QString AppURL = "https://github.com/ola-ct/Qt-SESAM";
 const QString AppAuthor = "Oliver Lau";
 const QString AppAuthorMail = "ola@ct.de";
@@ -43,6 +43,3 @@ const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4")
     .arg(AppURL)
     .arg(qVersion());
 #endif
-
-
-std::random_device gRandomDevice;

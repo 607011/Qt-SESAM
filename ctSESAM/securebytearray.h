@@ -27,10 +27,11 @@ class SecureByteArray : public QByteArray
 {
 public:
   SecureByteArray(void);
-  SecureByteArray(const char * data, int size = -1);
+  SecureByteArray(const char *data, int size = -1);
   SecureByteArray(int size, char ch);
   SecureByteArray(const QByteArray &other);
   ~SecureByteArray();
+  void invalidate(void);
 };
 
 #endif // __SECUREBYTEARRAY_H_

@@ -40,7 +40,7 @@
 
 #include "global.h"
 #include "domainsettingslist.h"
-#include "password.h"
+#include "pbkdf2.h"
 
 namespace Ui {
 class MainWindow;
@@ -79,7 +79,7 @@ private slots:
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
-  void domainSelected(const QString &);
+  void onDomainSelected(const QString &);
   void newDomain(void);
   void renewSalt(void);
   void onRenewSalt(void);
@@ -106,10 +106,13 @@ private slots:
   void hideActivityIcons(void);
   void createFullDump(void);
   void onExpertModeChanged(bool);
+  void generateSaltKeyIV(void);
+  void onGenerateSaltKeyIV(void);
 
 signals:
   void passwordGenerated(void);
   void badMasterPassword(void);
+  void saltKeyIVGenerated(void);
 
 protected:
   bool eventFilter(QObject *obj, QEvent *event);
@@ -129,6 +132,7 @@ private: // methods
   bool keyContainsAnyOf(const QString &forcedCharacters);
   bool generatedPasswordIsValid(void);
   void analyzeGeneratedPassword(void);
+  void generateSaltKeyIVThread(void);
 
   DomainSettings collectedDomainSettings(void) const;
 

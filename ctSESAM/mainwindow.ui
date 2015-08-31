@@ -442,9 +442,12 @@
     </property>
     <addaction name="actionOptions"/>
     <addaction name="actionSyncNow"/>
-    <addaction name="separator"/>
+    <addaction name="actionChangeMasterPassword_2"/>
     <addaction name="actionExpertMode"/>
+    <addaction name="separator"/>
+    <addaction name="actionRegenerateSaltKeyIV"/>
     <addaction name="actionHackLegacyPassword"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>
@@ -505,7 +508,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Hack legacy password ;-)</string>
+    <string>Hack legacy password ...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+H</string>
@@ -517,6 +520,19 @@
    </property>
    <property name="text">
     <string>Expert mode</string>
+   </property>
+  </action>
+  <action name="actionRegenerateSaltKeyIV">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Regenerate salt, key and IV ...</string>
+   </property>
+  </action>
+  <action name="actionChangeMasterPassword_2">
+   <property name="text">
+    <string>Change master password ...</string>
    </property>
   </action>
  </widget>

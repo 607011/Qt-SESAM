@@ -41,6 +41,9 @@
 #include <QProgressDialog>
 #include <QSysInfo>
 #include <QElapsedTimer>
+#include <QtConcurrent>
+#include <QFuture>
+#include <QMutexLocker>
 
 #include "global.h"
 #include "util.h"
@@ -49,6 +52,8 @@
 #include "masterpassworddialog.h"
 #include "optionsdialog.h"
 #include "hackhelper.h"
+#include "pbkdf2.h"
+#include "password.h"
 #include "crypter.h"
 #include "securebytearray.h"
 
@@ -58,8 +63,6 @@
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
-static const int CryptDomainIterations = 32768;
-static const int CryptSyncDataIterations = 8192;
 
 static const QString DefaultServerRoot = "https://localhost/ctSESAM";
 static const QString DefaultWriteUrl = "/ajax/write.php";
@@ -83,6 +86,9 @@ public:
     , newDomainWizard(new NewDomainWizard(parent))
     , masterPasswordDialog(new MasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
+    , salt(Crypter::randomBytes())
+    , key(Crypter::AESKeySize, '\0')
+    , IV(Crypter::AESBlockSize, '\0')
     , progressDialog(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readReply(nullptr)
@@ -117,6 +123,12 @@ public:
   QDateTime createdDate;
   QDateTime modifiedDate;
   QSystemTrayIcon trayIcon;
+  QByteArray salt;
+  SecureByteArray key;
+  SecureByteArray IV;
+  SecureByteArray KGK;
+  QFuture<void> keyGenerationFuture;
+  QMutex keyGenerationMutex;
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
   ProgressDialog *progressDialog;
@@ -139,7 +151,7 @@ MainWindow::MainWindow(QWidget *parent)
   Q_D(MainWindow);
 
   ui->setupUi(this);
-  setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   ui->domainLineEdit->installEventFilter(this);
@@ -155,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   ui->saltBase64LineEdit->installEventFilter(this);
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
@@ -176,9 +188,11 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
-  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
+  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
   QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
+  QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
+  QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
 
   d->progressDialog = new ProgressDialog(this);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
@@ -258,7 +272,17 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
+
+  auto prepareExit = [this]() {
+    d_ptr->masterPasswordDialog->close();
+    d_ptr->optionsDialog->close();
+    saveSettings();
+    invalidatePassword(false);
+    d_ptr->keyGenerationFuture.waitForFinished();
+  };
+
   cancelPasswordGeneration();
+
   QMessageBox::StandardButton rc = (d->parameterSetDirty)
       ? QMessageBox::question(
           this,
@@ -269,6 +293,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
   switch (rc) {
   case QMessageBox::Yes:
     saveCurrentDomainSettings();
+    prepareExit();
+    QMainWindow::closeEvent(e);
+    e->accept();
     break;
   case QMessageBox::Cancel:
     e->ignore();
@@ -276,10 +303,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
   case QMessageBox::NoButton:
     // fall-through
   default:
-    d->masterPasswordDialog->close();
-    d->optionsDialog->close();
-    saveSettings();
-    invalidatePassword(false);
+    prepareExit();
     QMainWindow::closeEvent(e);
     e->accept();
     break;
@@ -370,7 +394,7 @@ void MainWindow::newDomain(void)
 void MainWindow::renewSalt(void)
 {
   Q_D(MainWindow);
-  const QByteArray &salt = Password::randomSalt(d->optionsDialog->saltLength());
+  const QByteArray &salt = Crypter::randomBytes(d->optionsDialog->saltLength());
   ui->saltBase64LineEdit->setText(salt.toBase64());
   updatePassword();
 }
@@ -656,6 +680,30 @@ void MainWindow::onServerCertificatesUpdated(void)
 }
 
 
+void MainWindow::generateSaltKeyIV(void)
+{
+  Q_D(MainWindow);
+  d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
+}
+
+
+void MainWindow::generateSaltKeyIVThread(void)
+{
+  Q_D(MainWindow);
+  QMutexLocker(&d->keyGenerationMutex);
+  d->salt = Crypter::randomBytes();
+  Crypter::makeKeyAndIVFromPassword(d->masterPassword.toUtf8(), d->salt, d->key, d->IV);
+  emit saltKeyIVGenerated();
+}
+
+
+void MainWindow::onGenerateSaltKeyIV(void)
+{
+  Q_D(MainWindow);
+  ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 4).toHex())), 2000);
+}
+
+
 void MainWindow::copyGeneratedPasswordToClipboard(void)
 {
   QApplication::clipboard()->setText(ui->generatedPasswordLineEdit->text());
@@ -742,17 +790,17 @@ void MainWindow::saveCurrentDomainSettings(void)
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
-  int errCode;
-  QString errMsg;
-  const QByteArray &cipher = Crypter::encode(d->masterPassword, d->domains.toJson(), CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
-  if (errCode == Crypter::NoCryptError) {
-    d->settings.setValue("sync/domains", QString(cipher.toBase64()));
-    d->settings.sync();
+  QByteArray cipher;
+  try {
+    cipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled);
   }
-  else {
-    // TODO
-    qWarning() << errMsg;
+  catch (CryptoPP::Exception &e) {
+    qErrnoWarning((int)e.GetErrorType(), e.what());
   }
+
+  d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toBase64()));
+  d->settings.sync();
+  generateSaltKeyIV();
 }
 
 
@@ -764,14 +812,15 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   QStringList domainList;
   const QByteArray &baDomains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
   if (!baDomains.isEmpty()) {
-    qDebug() << "MainWindow::restoreDomainDataFromSettings() trying to decode ...";
-    int errCode;
-    QString errMsg;
-    const QByteArray &recovered = Crypter::decode(d->masterPassword, baDomains, CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
-    if (errCode != Crypter::NoCryptError) {
-      wrongPasswordWarning(errCode, errMsg);
+    QByteArray recovered;
+    try {
+      recovered = Crypter::decode(d->masterPassword.toUtf8(), baDomains, CompressionEnabled, d->KGK);
+    }
+    catch (CryptoPP::Exception &e) {
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
       return false;
     }
+
     QJsonParseError parseError;
     json = QJsonDocument::fromJson(recovered, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
@@ -793,8 +842,6 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
-  int errCode;
-  QString errMsg;
 
   QVariantMap syncData;
   syncData["sync/serverUsername"] = d->optionsDialog->serverUsername();
@@ -808,9 +855,18 @@ void MainWindow::saveSettings(void)
   syncData["sync/useServer"] = d->optionsDialog->useSyncServer();
   syncData["sync/serverRoot"] = d->optionsDialog->serverRootUrl();
 
-  const QByteArray &baCryptedData = Crypter::encode(d->masterPassword, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled, CryptSyncDataIterations, &errCode, &errMsg);
+  d->keyGenerationMutex.lock();
+  QByteArray baCryptedData;
+  try {
+    baCryptedData = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
+  }
+  catch (CryptoPP::Exception &e) {
+    wrongPasswordWarning((int)e.GetErrorType(), e.what());
+    return;
+  }
 
-  d->settings.setValue("sync/param", QString(baCryptedData.toBase64()));
+  d->keyGenerationMutex.unlock();
+  d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
 
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
@@ -853,8 +909,6 @@ void MainWindow::hackLegacyPassword(void)
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
-  int errCode = Crypter::NoCryptError;
-  QString errMsg;
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(
@@ -864,7 +918,15 @@ bool MainWindow::restoreSettings(void)
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
-    QByteArray baSyncData = Crypter::decode(d->masterPassword, baCryptedData, CompressionEnabled, CryptSyncDataIterations, &errCode, &errMsg);
+    QByteArray baSyncData;
+    try {
+      baSyncData = Crypter::decode(d->masterPassword.toUtf8(), baCryptedData, CompressionEnabled, d->KGK);
+    }
+    catch (CryptoPP::Exception &e) {
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return false;
+    }
+
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
     QVariantMap syncData = jsonSyncData.toVariant().toMap();
 
@@ -896,7 +958,7 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setServerPassword(syncData["sync/serverPassword"].toString());
   }
 
-  return errCode == Crypter::NoCryptError;
+  return true;
 }
 
 
@@ -950,7 +1012,9 @@ void MainWindow::sync(void)
                              .arg(d->optionsDialog->syncFilename())
                              .arg(syncFile.errorString()), QMessageBox::Ok);
       }
-      const QByteArray &baDomains = Crypter::encode(d->masterPassword, QByteArray("{}"), CompressionEnabled, CryptDomainIterations);
+      d->keyGenerationMutex.lock();
+      const QByteArray &baDomains = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QByteArray("{}"), CompressionEnabled);
+      d->keyGenerationMutex.unlock();
       syncFile.write(baDomains);
       syncFile.close();
     }
@@ -996,25 +1060,24 @@ void MainWindow::sync(void)
 void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
-  int errCode;
-  QString errMsg;
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
-    QByteArray _baTmp = Crypter::decode(d->masterPassword, remoteDomainsEncoded, CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
-    std::string sDomains(_baTmp.constData(), _baTmp.length());
-    QJsonParseError parseError;
-    if (errCode == Crypter::NoCryptError && !sDomains.empty()) {
-      QByteArray baDomains(sDomains.c_str(), sDomains.length());
+    QByteArray baDomains;
+    try {
+      baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, SecureByteArray());
+    }
+    catch (CryptoPP::Exception &e) {
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return;
+    }
+    if (!baDomains.isEmpty()) {
+      QJsonParseError parseError;
       remoteJSON = QJsonDocument::fromJson(baDomains, &parseError);
       if (parseError.error != QJsonParseError::NoError) {
         QMessageBox::warning(this, tr("Bad data from sync server"),
                              tr("Decoding the data from the sync server failed: %1")
                              .arg(parseError.errorString()), QMessageBox::Ok);
       }
-    }
-    else {
-      wrongPasswordWarning(errCode, errMsg);
-      return;
     }
   }
 
@@ -1060,10 +1123,18 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
   }
 
   if (remoteDomains.isDirty()) {
-    int errCode;
-    QString errMsg;
-    const QByteArray &baCipher = Crypter::encode(d->masterPassword, remoteDomains.toJson(), CompressionEnabled, CryptDomainIterations, &errCode, &errMsg);
-    if (errCode == Crypter::NoCryptError) {
+    QByteArray baCipher;
+    d->keyGenerationMutex.lock();
+    try {
+      baCipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, remoteDomains.toJson(), CompressionEnabled);
+    }
+    catch (CryptoPP::Exception &e) {
+      // TODO ...
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return;
+    }
+    d->keyGenerationMutex.unlock();
+    if (!baCipher.isEmpty()) {
       if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
         QFile syncFile(d->optionsDialog->syncFilename());
         syncFile.open(QIODevice::WriteOnly);
@@ -1074,10 +1145,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
                                .arg(syncFile.errorString()), QMessageBox::Ok);
         }
         syncFile.close();
-
       }
       if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
-        ui->statusBar->showMessage(tr("Sending data to server ..."));
         d->counter = 0;
         d->maxCounter = 1;
         d->progressDialog->setText(tr("Sending data to server ..."));
@@ -1114,7 +1183,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
 }
 
 
-void MainWindow::domainSelected(const QString &domain)
+void MainWindow::onDomainSelected(const QString &domain)
 {
   copyDomainSettingsToGUI(domain);
   setDirty(false);
@@ -1158,8 +1227,12 @@ void MainWindow::onMasterPasswordEntered(void)
   if (!masterPwd.isEmpty()) {
     this->show();
     setEnabled(true);
+    generateSaltKeyIV();
     d->masterPasswordDialog->hide();
     d->masterPassword = masterPwd;
+    if (d->KGK.isEmpty()) {
+      d->KGK = Crypter::randomBytes(Crypter::KGKSize);
+    }
     ok = restoreSettings();
     if (ok) {
       ok = restoreDomainDataFromSettings();
@@ -1172,7 +1245,6 @@ void MainWindow::onMasterPasswordEntered(void)
     }
   }
   if (!ok ) {
-//    d->settings.setValue("mainwindow/masterPasswordEntered", false);
     enterMasterPassword();
   }
 }
@@ -1193,9 +1265,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 void MainWindow::invalidatePassword(bool reenter)
 {
   Q_D(MainWindow);
-  CryptoPP::memset_z(d->masterPassword.data(), 0, d->masterPassword.size());
-  // CryptoPP::memset_z(d->masterKey, 0, AES_KEY_SIZE);
-  d->masterPassword = QByteArray();
+  SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
   if (reenter)
@@ -1307,6 +1377,7 @@ void MainWindow::onExpertModeChanged(bool enabled)
 {
   ui->hashPlainTextEdit->setVisible(enabled);
   ui->actionHackLegacyPassword->setVisible(enabled);
+  ui->actionRegenerateSaltKeyIV->setVisible(enabled);
 }
 
 

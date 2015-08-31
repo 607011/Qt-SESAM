@@ -22,6 +22,7 @@
 #include "newdomainwizard.h"
 #include "ui_newdomainwizard.h"
 #include "password.h"
+#include "crypter.h"
 #include "domainsettings.h"
 #include "global.h"
 
@@ -71,7 +72,7 @@ void NewDomainWizard::clear(void)
 
 void NewDomainWizard::renewSalt(void)
 {
-  ui->saltBase64LineEdit->setText(Password::randomSalt().toBase64());
+  ui->saltBase64LineEdit->setText(Crypter::randomBytes().toBase64());
 }
 
 

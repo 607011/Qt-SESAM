@@ -48,7 +48,6 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     3rdparty/bigint/bigInt.cpp \
     domainsettings.cpp \
-    password.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
     domainsettingslist.cpp \
@@ -58,7 +57,9 @@ SOURCES += main.cpp \
     crypter.cpp \
     securebytearray.cpp \
     servercertificatewidget.cpp \
-    util.cpp
+    util.cpp \
+    pbkdf2.cpp \
+    password.cpp
 
 win32:SOURCES += \
     3rdparty/cryptopp562/sha.cpp \
@@ -88,7 +89,6 @@ HEADERS  += \
     3rdparty/bigint/bigInt.h \
     util.h \
     domainsettings.h \
-    password.h \
     optionsdialog.h \
     progressdialog.h \
     domainsettingslist.h \
@@ -98,7 +98,9 @@ HEADERS  += \
     hackhelper.h \
     crypter.h \
     securebytearray.h \
-    servercertificatewidget.h
+    servercertificatewidget.h \
+    pbkdf2.h \
+    password.h
 
 win32:HEADERS += \
     3rdparty/cryptopp562/sha.h \
@@ -144,6 +146,8 @@ DISTFILES += \
     ../README.md \
     translations/i18n_de.ts \
     ctSESAM.rc \
-    ../deploy/ctSESAM.nsi
+    ../deploy/ctSESAM.nsi \
+    ../.gitignore \
+    Doxyfile
 
 OTHER_FILES +=
