@@ -148,6 +148,7 @@ DISTFILES += \
     ctSESAM.rc \
     ../deploy/ctSESAM.nsi \
     ../.gitignore \
-    Doxyfile
+    Doxyfile \
+    deploy/ctSESAM.nsi
 
 OTHER_FILES +=
