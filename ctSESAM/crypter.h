@@ -62,7 +62,7 @@ public:
                            __out SecureByteArray &KGK);
   static QByteArray randomBytes(int size = SaltSize);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
-  static QByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
+  static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 };
 
 #endif // __CRYPTER_H_
