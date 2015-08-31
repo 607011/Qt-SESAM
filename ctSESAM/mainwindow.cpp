@@ -84,7 +84,7 @@ public:
     , newDomainWizard(new NewDomainWizard(parent))
     , masterPasswordDialog(new MasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
-    , salt(Crypter::randomBytes())
+    , salt(Crypter::randomBytes(Crypter::SaltSize))
     , key(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
     , progressDialog(nullptr)
@@ -689,7 +689,7 @@ void MainWindow::generateSaltKeyIVThread(void)
 {
   Q_D(MainWindow);
   QMutexLocker(&d->keyGenerationMutex);
-  d->salt = Crypter::randomBytes();
+  d->salt = Crypter::randomBytes(Crypter::SaltSize);
   Crypter::makeKeyAndIVFromPassword(d->masterPassword.toUtf8(), d->salt, d->key, d->IV);
   emit saltKeyIVGenerated();
 }

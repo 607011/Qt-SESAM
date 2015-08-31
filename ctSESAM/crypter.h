@@ -60,8 +60,8 @@ public:
                            __in QByteArray baCipher,
                            __in bool uncompress,
                            __out SecureByteArray &KGK);
-  static QByteArray randomBytes(const int size = SaltSize);
-  static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
+  static QByteArray randomBytes(const int size);
+  static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
   static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 };
 
