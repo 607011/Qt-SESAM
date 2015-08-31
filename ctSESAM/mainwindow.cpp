@@ -1211,8 +1211,8 @@ void MainWindow::enterMasterPassword(void)
 {
   Q_D(MainWindow);
   hide();
-  d->optionsDialog->close();
-  d->newDomainWizard->close();
+  d->optionsDialog->hide();
+  d->newDomainWizard->hide();
   d->masterPasswordDialog->setRepeatPassword(d->settings.value("mainwindow/masterPasswordEntered", false).toBool() == false);
   d->masterPasswordDialog->show();
   d->masterPasswordDialog->raise();
