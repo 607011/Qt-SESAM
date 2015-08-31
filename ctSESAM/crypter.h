@@ -57,12 +57,12 @@ public:
                            __in const QByteArray &data,
                            __in bool compress);
   static QByteArray decode(__in const SecureByteArray &masterPassword,
-                           __in QByteArray baCipher,
+                           __in QByteArray cipher,
                            __in bool uncompress,
                            __out SecureByteArray &KGK);
   static QByteArray randomBytes(const int size);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
-  static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
+  static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 };
 
 #endif // __CRYPTER_H_
