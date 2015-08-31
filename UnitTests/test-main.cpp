@@ -184,6 +184,28 @@ private slots:
     QVERIFY(plain == data);
   }
 
+  void crypter_make_key(void)
+  {
+    SecureByteArray masterPassword = QString("7h15p455w0rd15m0r37h4n53cr37").toUtf8();
+    QByteArray salt = QString("pepper").toUtf8();
+    SecureByteArray key = Crypter::makeKeyFromPassword(masterPassword, salt);
+    QVERIFY(key.size() == Crypter::AESKeySize);
+    QVERIFY(key.toBase64() == "T8LlrPN1aqDlsIJVFA19r0RlZRpj7LuY8xbFnk3Tx8M=");
+  }
+
+  void crypter_make_key_iv(void)
+  {
+    SecureByteArray masterPassword = QString("7h15p455w0rd15m0r37h4n53cr37").toUtf8();
+    QByteArray salt = QString("this is my salt.").toUtf8();
+    SecureByteArray key;
+    SecureByteArray IV;
+    Crypter::makeKeyAndIVFromPassword(masterPassword, salt, key, IV);
+    QVERIFY(key.length() == Crypter::AESKeySize);
+    QVERIFY(key.toBase64() == "vGoCE/dCUIpQFfPEHnh+qY9HLTeMNPFPMlA9dz5snjs=");
+    QVERIFY(IV.length() == Crypter::AESBlockSize);
+    QVERIFY(IV.toBase64() == "mHg3BMpk9vwK+eY1YJWAKg==");
+  }
+
   void crypter_encode_decode(void)
   {
     SecureByteArray masterPassword = QString("7h15p455w0rd15m0r37h4n53cr37").toUtf8();
