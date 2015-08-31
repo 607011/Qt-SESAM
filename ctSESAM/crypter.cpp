@@ -81,13 +81,13 @@ QByteArray Crypter::encode(const SecureByteArray &key,
   KGK2.append(KGK);
   Q_ASSERT_X(KGK2.size() == EEKSize, "Crypter::encode()", "KGK2.size()  must equal EEKSize");
 
-  QByteArray EEK = encrypt(key, IV, KGK2, CryptoPP::StreamTransformationFilter::NO_PADDING);
+  const QByteArray &EEK = encrypt(key, IV, KGK2, CryptoPP::StreamTransformationFilter::NO_PADDING);
   Q_ASSERT_X(EEK.size() == EEKSize, "Crypter::encode()", "EEK.size() must equal EEKSize");
 
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
   Q_ASSERT_X(blobKey.size() == AESKeySize, "Crypter::encode()", "blobKey.size() must equal AESKeySize");
-  QByteArray _baPlain = compress ? qCompress(data, 9) : data;
-  QByteArray baCipher = encrypt(blobKey, IV2, _baPlain, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
+  const QByteArray &baPlain = compress ? qCompress(data, 9) : data;
+  const QByteArray &baCipher = encrypt(blobKey, IV2, baPlain, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
 
   QByteArray result;
   result.append(AES256EncryptedMasterkeyFormat);
@@ -129,14 +129,14 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
   QByteArray baKGK = decrypt(key, IV, EEK, CryptoPP::StreamTransformationFilter::NO_PADDING);
   Q_ASSERT_X(baKGK.size() == EEKSize, "Crypter::decode()", "baKGK.size() must equal EEKSize");
 
-  QByteArray salt2(baKGK.constData(), SaltSize);
+  const QByteArray salt2(baKGK.constData(), SaltSize);
   baKGK.remove(0, SaltSize);
-  QByteArray IV2(baKGK.constData(), AESBlockSize);
+  const QByteArray IV2(baKGK.constData(), AESBlockSize);
   baKGK.remove(0, AESBlockSize);
   KGK = SecureByteArray(baKGK.constData(), KGKSize);
 
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
-  QByteArray plain = decrypt(blobKey, IV2, baCipher, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
+  const QByteArray &plain = decrypt(blobKey, IV2, baCipher, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
 
   return uncompress ? qUncompress(plain) : plain;
 }
@@ -144,7 +144,7 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
 
 QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
 {
-  std::string sPlain(baPlain.constData(), baPlain.size());
+  const std::string sPlain(baPlain.constData(), baPlain.size());
   std::string sCipher;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
   enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
@@ -164,7 +164,7 @@ QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &I
 
 QByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
 {
-  std::string sCipher(baCipher.constData(), baCipher.size());
+  const std::string sCipher(baCipher.constData(), baCipher.size());
   std::string sPlain;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
   dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
