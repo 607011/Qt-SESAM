@@ -57,8 +57,6 @@
 #include "crypter.h"
 #include "securebytearray.h"
 
-#include "3rdparty/cryptopp562/misc.h"
-
 #include "dump.h"
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
