@@ -37,7 +37,7 @@ public:
   static const int KGKSize;
   static const int KGKIterations;
   static const int DomainIterations;
-  static const int EEKSize;
+  static const int CryptDataSize;
   enum FormatFlags {
     ObsoleteDefaultEncryptionFormat = 0x00,
     AES256EncryptedMasterkeyFormat = 0x01
@@ -60,7 +60,7 @@ public:
                            __in QByteArray baCipher,
                            __in bool uncompress,
                            __out SecureByteArray &KGK);
-  static QByteArray randomBytes(int size = SaltSize);
+  static QByteArray randomBytes(const int size = SaltSize);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baPlain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
   static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &baCipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 };
