@@ -144,7 +144,7 @@ public:
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
-  , d_ptr(new MainWindowPrivate)
+  , d_ptr(new MainWindowPrivate(this))
 {
   Q_D(MainWindow);
 
