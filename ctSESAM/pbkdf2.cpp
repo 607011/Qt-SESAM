@@ -59,6 +59,13 @@ PBKDF2::PBKDF2(QObject *parent)
 { /* ... */ }
 
 
+PBKDF2::PBKDF2(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm, QObject *parent)
+  : PBKDF2(parent)
+{
+  generate(pwd, salt, iterations, algorithm);
+}
+
+
 PBKDF2::~PBKDF2()
 { /* ... */ }
 

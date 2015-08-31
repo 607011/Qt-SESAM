@@ -66,43 +66,37 @@ private slots:
 
   void pbkdf2(void)
   {
-    PBKDF2 pbkdf2;
-    pbkdf2.generate(QString("message").toUtf8(), QString("pepper").toUtf8(), 3, QCryptographicHash::Sha512);
+    PBKDF2 pbkdf2(QString("message").toUtf8(), QString("pepper").toUtf8(), 3, QCryptographicHash::Sha512);
     QVERIFY(pbkdf2.derivedKey() == QByteArray::fromHex("2646f9ccb58d21406815bafc62245771bf80aaa080a633ff1bdd660eb44f369a89da48fb041c5551a118de20cfb8b96b92e7a9945425ba889e9ad645614522eb"));
   }
 
   void pbkdf2_empty_salt(void)
   {
-    PBKDF2 pbkdf2;
-    pbkdf2.generate(QString("message").toUtf8(), QByteArray(), 3, QCryptographicHash::Sha512);
+    PBKDF2 pbkdf2(QString("message").toUtf8(), QByteArray(), 3, QCryptographicHash::Sha512);
     QVERIFY(pbkdf2.derivedKey() == QByteArray::fromHex("b8ec13cfc9b9d49ca1143018ce8413a962c09c0063f30a466df802897475c57f268d91cc568ac1b6a9f19b1a0db10f30058fb7a453b2675010ef2b5f96487ad3"));
   }
 
   void pbkdf2_empty_message(void)
   {
-    PBKDF2 pbkdf2;
-    pbkdf2.generate(SecureByteArray(), QString("pepper").toUtf8(), 3, QCryptographicHash::Sha512);
+    PBKDF2 pbkdf2(SecureByteArray(), QString("pepper").toUtf8(), 3, QCryptographicHash::Sha512);
     QVERIFY(pbkdf2.derivedKey() == QByteArray::fromHex("9dd331fc67421e1dce619cbbb517170e2dc325491d3426425630c4c01fd0eca8d8f535d6b0555a2aa43efbc9141e3dd7edaef8b1278ac34eabfc2db735d992ee"));
   }
 
   void pbkdf2_long_message(void)
   {
-    PBKDF2 pbkdf2;
-    pbkdf2.generate(QString("ThisMessageIsLongerThanSixtyFourCharactersWhichLeadsToTheSituationThatTheMessageHasToBeHashedWhenCalculatingTheHmac").toUtf8(), QString("pepper").toUtf8(), 3, QCryptographicHash::Sha512);
+    PBKDF2 pbkdf2(QString("ThisMessageIsLongerThanSixtyFourCharactersWhichLeadsToTheSituationThatTheMessageHasToBeHashedWhenCalculatingTheHmac").toUtf8(), QString("pepper").toUtf8(), 3, QCryptographicHash::Sha512);
     QVERIFY(pbkdf2.derivedKey() == QByteArray::fromHex("efc8e734ed5b5657ac220046754b7d1dbea00983f13209b1ec1d0e418e98807cba1026d3ed3fa2a09dfa43c074447bf4777e70e4999d29d2c2f84dc51502a195"));
   }
 
   void pbkdf2_sha384(void)
   {
-    PBKDF2 pbkdf2;
-    pbkdf2.generate(QString("message").toUtf8(), QString("salt").toUtf8(), 3, QCryptographicHash::Sha384);
+    PBKDF2 pbkdf2(QString("message").toUtf8(), QString("salt").toUtf8(), 3, QCryptographicHash::Sha384);
     QVERIFY(pbkdf2.derivedKey() == QByteArray::fromHex("dcbeb0b99a4cf4d1c9c1e8f630f3aa8637c8906f1c3e1c78fb4f462b160df20f7435bdd6a904dd3c3ede7ff04bc53e90"));
   }
 
   void pbkdf2_sha256(void)
   {
-    PBKDF2 pbkdf2;
-    pbkdf2.generate(QString("message").toUtf8(), QString("salt").toUtf8(), 3, QCryptographicHash::Sha256);
+    PBKDF2 pbkdf2(QString("message").toUtf8(), QString("salt").toUtf8(), 3, QCryptographicHash::Sha256);
     QVERIFY(pbkdf2.derivedKey() == QByteArray::fromHex("db78c5091444940f9642fce519097ee7adfeb338fd6970855135539020b53fad"));
   }
 
@@ -176,9 +170,10 @@ private slots:
 
   void crypter_encrypt_decrypt_pkcs_padding(void)
   {
+    static const int nExtra = 3;
     SecureByteArray key = Crypter::randomBytes(Crypter::AESKeySize);
     SecureByteArray IV = Crypter::randomBytes(Crypter::AESBlockSize);
-    QByteArray data = QByteArray(1024 * Crypter::AESBlockSize + 3, 'B');
+    QByteArray data = QByteArray(7 * Crypter::AESBlockSize + nExtra, 'B');
     QByteArray cipher = Crypter::encrypt(key, IV, data, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
     QByteArray plain = Crypter::decrypt(key, IV, cipher, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
     QVERIFY(plain == data);
