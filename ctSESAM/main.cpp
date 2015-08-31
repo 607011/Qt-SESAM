@@ -19,7 +19,7 @@
 
 #include "mainwindow.h"
 #include <QApplication>
-
+#include <QLoggingCategory>
 #include <QLocale>
 #include <QTranslator>
 
@@ -28,15 +28,20 @@ int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(ctSESAM);
 
+#ifdef QT_NO_DEBUG
+  QLoggingCategory::setFilterRules("qt.network.ssl.warning=false");
+#endif
+
   QApplication a(argc, argv);
   QTranslator translator;
   bool ok = translator.load(":/translations/i18n_" + QLocale::system().name());
 #ifndef QT_NO_DEBUG
   if (!ok)
-      qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
+    qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
 #endif
   if (ok)
-      a.installTranslator(&translator);
+    a.installTranslator(&translator);
+
 
   MainWindow w;
   w.activateWindow();
