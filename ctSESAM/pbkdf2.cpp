@@ -73,6 +73,9 @@ auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
 void PBKDF2::generate(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm)
 {
   Q_D(PBKDF2);
+
+  qDebug() << "PBKDF2::generate()";
+
   d->abortMutex.lock();
   d->abort = false;
   d->abortMutex.unlock();
@@ -90,11 +93,9 @@ void PBKDF2::generate(const SecureByteArray &pwd, const QByteArray &salt, int it
   QByteArray buffer = hmac.result();
   d->derivedKey = buffer;
 
-  bool completed = true;
   for (int j = 1; j < iterations; ++j) {
     QMutexLocker locker(&d->abortMutex);
     if (d->abort) {
-      completed = false;
       emit generationAborted();
       break;
     }
@@ -105,6 +106,7 @@ void PBKDF2::generate(const SecureByteArray &pwd, const QByteArray &salt, int it
   }
 
   d->hexKey = QString::fromLatin1(d->derivedKey.toHex());
+  d->elapsed = 1e-9 * elapsedTimer.nsecsElapsed();
 }
 
 

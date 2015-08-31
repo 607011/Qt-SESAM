@@ -126,7 +126,7 @@ public:
   QByteArray salt;
   SecureByteArray key;
   SecureByteArray IV;
-  SecureByteArray KGK; // TODO: set KGK to a random 256 bit value
+  SecureByteArray KGK;
   QFuture<void> keyGenerationFuture;
   QMutex keyGenerationMutex;
   QString masterPassword;
@@ -151,7 +151,7 @@ MainWindow::MainWindow(QWidget *parent)
   Q_D(MainWindow);
 
   ui->setupUi(this);
-  setWindowIcon(QIcon(":/images/ctpwdgen.ico"));
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   ui->domainLineEdit->installEventFilter(this);
@@ -167,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   ui->saltBase64LineEdit->installEventFilter(this);
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
@@ -188,7 +188,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
-  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(domainSelected(QString)));
+  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
   QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
@@ -1147,7 +1147,6 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         syncFile.close();
       }
       if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
-        ui->statusBar->showMessage(tr("Sending data to server ..."));
         d->counter = 0;
         d->maxCounter = 1;
         d->progressDialog->setText(tr("Sending data to server ..."));
@@ -1184,7 +1183,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
 }
 
 
-void MainWindow::domainSelected(const QString &domain)
+void MainWindow::onDomainSelected(const QString &domain)
 {
   copyDomainSettingsToGUI(domain);
   setDirty(false);

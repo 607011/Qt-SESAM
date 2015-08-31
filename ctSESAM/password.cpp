@@ -17,7 +17,7 @@
 
 */
 
-
+#include <QDebug>
 #include <QtConcurrent>
 #include <QFuture>
 #include "password.h"
@@ -51,8 +51,8 @@ const QString Password::ExtraChars = QString("#!\"§$%&/()[]{}=-_+*<>;:.").toUtf
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 
 
-Password::Password(const DomainSettings &ds, const QObject *parent)
-  : QObject(nullptr)
+Password::Password(const DomainSettings &ds, QObject *parent)
+  : QObject(parent)
   , d_ptr(new PasswordPrivate)
 {
   d_ptr->domainSettings = ds;
@@ -66,9 +66,16 @@ Password::~Password()
 }
 
 
+void Password::setDomainSettings(const DomainSettings &ds)
+{
+  d_ptr->domainSettings = ds;
+}
+
+
 void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
+  qDebug() << "Password::generate() ...";
 
   const QByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
@@ -77,25 +84,21 @@ void Password::generate(const SecureByteArray &masterPassword)
 
   d->pbkdf2.generate(pwd, QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()), d->domainSettings.iterations, QCryptographicHash::Sha512);
 
-  bool success = false;
-   const int nChars = d->domainSettings.usedCharacters.count();
-   if (nChars > 0) {
-     d->key.clear();
-     const QString strModulus = QString("%1").arg(nChars);
-     BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-     static const BigInt::Rossi Zero(0);
-     int n = d->domainSettings.length;
-     while (v > Zero && n-- > 0) {
-       const BigInt::Rossi &mod = v % Modulus;
-       d->key += d->domainSettings.usedCharacters.at(mod.toUlong());
-       v = v / Modulus;
-     }
-     success = true;
-   }
-
-   if (success)
-     emit generated();
+  const int nChars = d->domainSettings.usedCharacters.count();
+  if (nChars > 0) {
+    d->key.clear();
+    const QString strModulus = QString("%1").arg(nChars);
+    BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
+    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
+    static const BigInt::Rossi Zero(0);
+    int n = d->domainSettings.length;
+    while (v > Zero && n-- > 0) {
+      const BigInt::Rossi &mod = v % Modulus;
+      d->key += d->domainSettings.usedCharacters.at(mod.toUlong());
+      v = v / Modulus;
+    }
+    emit generated();
+  }
 }
 
 
@@ -108,7 +111,7 @@ void Password::generateAsync(const SecureByteArray &masterPassword)
 
 bool Password::isRunning(void) const
 {
-  return d_ptr->pbkdf2.isRunning();
+  return d_ptr->future.isRunning();
 }
 
 
@@ -145,10 +148,4 @@ const QString &Password::hexKey(void) const
 void Password::waitForFinished(void)
 {
   d_ptr->future.waitForFinished();
-}
-
-
-void Password::setDomainSettings(const DomainSettings &ds)
-{
-  d_ptr->domainSettings = ds;
 }

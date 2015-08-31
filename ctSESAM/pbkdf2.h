@@ -48,7 +48,7 @@ public:
   void waitForFinished(void);
 
 signals:
-  void generated(void);
+  // void generated(void);
   void generationStarted(void);
   void generationAborted(void);
 
