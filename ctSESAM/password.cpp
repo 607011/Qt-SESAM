@@ -101,9 +101,11 @@ void Password::generate(const SecureByteArray &masterPassword)
 }
 
 
-void Password::generateAsync(const SecureByteArray &masterPassword)
+void Password::generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings)
 {
   Q_D(Password);
+  if (!domainSettings.isEmpty())
+    d->domainSettings = domainSettings;
   d->future = QtConcurrent::run(this, &Password::generate, masterPassword);
 }
 

@@ -498,9 +498,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 void MainWindow::generatePassword(void)
 {
   Q_D(MainWindow);
-  const DomainSettings &ds = collectedDomainSettings();
-  d->password.setDomainSettings(ds);
-  d->password.generateAsync(d->KGK);
+  d->password.generateAsync(d->KGK, collectedDomainSettings());
 }
 
 
