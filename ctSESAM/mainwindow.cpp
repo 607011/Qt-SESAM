@@ -50,6 +50,7 @@
 #include "progressdialog.h"
 #include "newdomainwizard.h"
 #include "masterpassworddialog.h"
+#include "changemasterpassworddialog.h"
 #include "optionsdialog.h"
 #include "hackhelper.h"
 #include "pbkdf2.h"
@@ -83,6 +84,7 @@ public:
     , hackingMode(false)
     , newDomainWizard(new NewDomainWizard(parent))
     , masterPasswordDialog(new MasterPasswordDialog(parent))
+    , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , salt(Crypter::randomBytes(Crypter::SaltSize))
     , key(Crypter::AESKeySize, '\0')
@@ -102,6 +104,7 @@ public:
   }
   NewDomainWizard *newDomainWizard;
   MasterPasswordDialog *masterPasswordDialog;
+  ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
   QSettings settings;
   DomainSettingsList domains;
@@ -187,6 +190,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
+  QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
   QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
@@ -514,6 +518,16 @@ void MainWindow::stopPasswordGeneration(void)
   if (d->password.isRunning()) {
     d->password.abortGeneration();
     d->password.waitForFinished();
+  }
+}
+
+
+void MainWindow::changeMasterPassword(void)
+{
+  Q_D(MainWindow);
+  int rc = d->changeMasterPasswordDialog->exec();
+  if (rc == QDialog::Accepted) {
+    // TODO ...
   }
 }
 

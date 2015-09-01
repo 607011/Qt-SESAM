@@ -24,7 +24,9 @@ TRANSLATIONS += translations/i18n_de.ts
 CONFIG += warn_off
 
 win32 {
-    QMAKE_CXXFLAGS += /wd4100
+    QMAKE_CXXFLAGS += -wd4100
+    QMAKE_CXXFLAGS_DEBUG += -sdl
+    QMAKE_CXXFLAGS_RELEASE += -GA -GL -Ox
     DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
     RC_FILE = ctSESAM.rc
     SOURCES += dump.cpp
@@ -59,7 +61,8 @@ SOURCES += main.cpp \
     servercertificatewidget.cpp \
     util.cpp \
     pbkdf2.cpp \
-    password.cpp
+    password.cpp \
+    changemasterpassworddialog.cpp
 
 win32:SOURCES += \
     3rdparty/cryptopp562/sha.cpp \
@@ -100,7 +103,8 @@ HEADERS  += \
     securebytearray.h \
     servercertificatewidget.h \
     pbkdf2.h \
-    password.h
+    password.h \
+    changemasterpassworddialog.h
 
 win32:HEADERS += \
     3rdparty/cryptopp562/sha.h \
@@ -135,7 +139,8 @@ FORMS += mainwindow.ui \
     newcredentialsdialog.ui \
     newdomainwizard.ui \
     masterpassworddialog.ui \
-    servercertificatewidget.ui
+    servercertificatewidget.ui \
+    changemasterpassworddialog.ui
 
 RESOURCES += \
     ctSESAM.qrc
