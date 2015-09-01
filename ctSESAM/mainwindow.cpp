@@ -1087,9 +1087,9 @@ void MainWindow::sync(void)
                              tr("The sync file %1 cannot be opened for reading. Reason: %2")
                              .arg(d->optionsDialog->syncFilename()).arg(syncFile.errorString()), QMessageBox::Ok);
       }
-      QByteArray baDomains = syncFile.readAll();
+      QByteArray domains = syncFile.readAll();
       syncFile.close();
-      sync(SyncPeerFile, baDomains);
+      sync(SyncPeerFile, domains);
     }
     else {
       QMessageBox::warning(this, tr("Sync file read error"),
