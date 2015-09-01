@@ -267,6 +267,8 @@ MainWindow::~MainWindow()
   d_ptr->trayIcon.hide();
   d_ptr->optionsDialog->close();
   d_ptr->newDomainWizard->close();
+  d_ptr->changeMasterPasswordDialog->close();
+  d_ptr->masterPasswordDialog->close();
   delete ui;
 }
 
