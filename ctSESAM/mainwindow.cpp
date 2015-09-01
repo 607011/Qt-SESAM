@@ -1169,9 +1169,25 @@ void MainWindow::sync(SyncPeer syncSource, const QByteArray &remoteDomainsEncode
     }
   }
 
-  // merge local and remote domain data
   d->domains.setDirty(false);
   d->remoteDomains = DomainSettingsList::fromQJsonDocument(remoteJSON);
+  mergeLocalAndRemoteData();
+
+  if (d->remoteDomains.isDirty()) {
+    writeToRemote(syncSource);
+  }
+
+  if (d->domains.isDirty()) {
+    saveAllDomainDataToSettings();
+    restoreDomainDataFromSettings();
+    d->domains.setDirty(false);
+  }
+}
+
+
+void MainWindow::mergeLocalAndRemoteData(void)
+{
+  Q_D(MainWindow);
   QStringList allDomainNames = d->remoteDomains.keys() + d->domains.keys();
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
@@ -1208,16 +1224,6 @@ void MainWindow::sync(SyncPeer syncSource, const QByteArray &remoteDomainsEncode
     else {
       d->domains.updateWith(remote);
     }
-  }
-
-  if (d->remoteDomains.isDirty()) {
-    writeToRemote(syncSource);
-  }
-
-  if (d->domains.isDirty()) {
-    saveAllDomainDataToSettings();
-    restoreDomainDataFromSettings();
-    d->domains.setDirty(false);
   }
 }
 

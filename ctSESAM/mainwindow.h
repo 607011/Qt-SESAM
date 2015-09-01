@@ -140,6 +140,7 @@ private: // methods
   void generateSaltKeyIVThread(void);
   DomainSettings collectedDomainSettings(void) const;
   QByteArray cryptedRemoteDomains(void);
+  void mergeLocalAndRemoteData(void);
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
