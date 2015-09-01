@@ -86,10 +86,10 @@ public:
     , masterPasswordDialog(new MasterPasswordDialog(parent))
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
+    , progressDialog(new ProgressDialog(parent))
     , salt(Crypter::randomBytes(Crypter::SaltSize))
     , key(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
-    , progressDialog(nullptr)
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readReply(nullptr)
     , writeReply(nullptr)
@@ -106,6 +106,7 @@ public:
   MasterPasswordDialog *masterPasswordDialog;
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
+  ProgressDialog *progressDialog;
   QSettings settings;
   DomainSettingsList domains;
   QMovie loaderIcon;
@@ -132,7 +133,6 @@ public:
   QMutex keyGenerationMutex;
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
-  ProgressDialog *progressDialog;
   QSslConfiguration sslConf;
   QNetworkAccessManager readNAM;
   QNetworkAccessManager writeNAM;
@@ -184,8 +184,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
-  QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), d->optionsDialog, SLOT(show()));
-  QObject::connect(d->optionsDialog, SIGNAL(accepted()), SLOT(onOptionsAccepted()));
+  QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
   QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
@@ -195,8 +194,6 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
-
-  d->progressDialog = new ProgressDialog(this);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
@@ -689,6 +686,15 @@ void MainWindow::onServerCertificatesUpdated(void)
     QList<QSslCertificate> caCerts({caCert});
     d->sslConf.setCaCertificates(caCerts);
   }
+}
+
+
+void MainWindow::showOptionsDialog(void)
+{
+  Q_D(MainWindow);
+  int button = d->optionsDialog->exec();
+  if (button == QDialog::Accepted)
+    onOptionsAccepted();
 }
 
 

@@ -75,6 +75,7 @@ private slots:
   void copyUsernameToClipboard(void);
   void onOptionsAccepted(void);
   void onServerCertificatesUpdated(void);
+  void showOptionsDialog(void);
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
@@ -85,6 +86,7 @@ private slots:
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);
   void stopPasswordGeneration(void);
+  void changeMasterPassword(void);
   void setDirty(bool dirty = true);
   void sync(void);
   void sync(SyncSource, const QByteArray &baDomains);

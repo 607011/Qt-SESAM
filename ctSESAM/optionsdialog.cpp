@@ -31,6 +31,8 @@
 #include <QMessageBox>
 
 
+static const QString HTTPS = "https";
+
 class OptionsDialogPrivate
 {
 public:
@@ -72,7 +74,7 @@ void OptionsDialog::checkConnectivity(void)
   d->sslErrors.clear();
   d->serverCertificates.clear();
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
-  if (serverUrl.scheme() == "https") {
+  if (serverUrl.scheme() == HTTPS) {
     static const int HttpsPort = 443;
     d->sslSocket.connectToHostEncrypted(serverUrl.host(), HttpsPort);
     bool connected = d->sslSocket.waitForConnected(10*1000);
@@ -99,7 +101,7 @@ void OptionsDialog::validateHostCertificateChain(void)
 {
   Q_D(OptionsDialog);
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
-  if (serverUrl.scheme() == "https") {
+  if (serverUrl.scheme() == HTTPS) {
     QSslError sslError;
     int errorIndex = -1;
     foreach (QSslError err, d->sslErrors) {
@@ -115,6 +117,9 @@ void OptionsDialog::validateHostCertificateChain(void)
       if (button == QDialog::Accepted) {
         setServerCertificates(d->sslSocket.peerCertificateChain());
       }
+    }
+    else {
+      ui->encryptedLabel->setPixmap(QPixmap());
     }
   }
   d->sslSocket.close();
@@ -257,6 +262,7 @@ void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChai
   d_ptr->serverCertificates = certChain;
   if (!serverRootCertificate().isNull()) {
     ui->fingerprintLabel->setText(fingerprintify(serverRootCertificate().digest(QCryptographicHash::Sha1)));
+    ui->encryptedLabel->setPixmap(QPixmap(":/images/encrypted.png"));
   }
   emit updatedServerCertificates();
 }
