@@ -30,7 +30,6 @@ public:
     , doRepeatPassword(false)
   { /* ... */ }
   QLineEdit *repeatPasswordLineEdit;
-  QByteArray cryptSalt;
   bool doRepeatPassword;
 };
 

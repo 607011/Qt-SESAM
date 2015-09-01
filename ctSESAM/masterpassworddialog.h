@@ -22,10 +22,7 @@
 
 #include <QDialog>
 #include <QShowEvent>
-#include <QLabel>
-#include <QLineEdit>
 #include <QScopedPointer>
-#include <QByteArray>
 
 class MasterPasswordDialogPrivate;
 
