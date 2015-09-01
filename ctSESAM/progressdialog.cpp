@@ -20,6 +20,7 @@
 #include "progressdialog.h"
 #include "ui_progressdialog.h"
 
+// TODO: kick ProgressDialog, use QProgressDialog ;-)
 ProgressDialog::ProgressDialog(QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::ProgressDialog)

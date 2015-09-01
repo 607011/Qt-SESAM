@@ -27,6 +27,7 @@
 #include <QLineEdit>
 #include <QSettings>
 #include <QCompleter>
+#include <QFuture>
 #include <QMutex>
 #include <QTimer>
 #include <QJsonDocument>
@@ -64,9 +65,10 @@ protected:
 
 private:
   typedef enum _Type {
-    FileSource,
-    ServerSource
-  } SyncSource;
+    SyncPeerFile = 0x0001,
+    SyncPeerServer = 0x0002,
+    AllSources = SyncPeerFile | SyncPeerServer
+  } SyncPeer;
 
 private slots:
   void updatePassword(void);
@@ -87,9 +89,10 @@ private slots:
   void cancelPasswordGeneration(void);
   void stopPasswordGeneration(void);
   void changeMasterPassword(void);
+  void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
   void sync(void);
-  void sync(SyncSource, const QByteArray &baDomains);
+  void sync(SyncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);
@@ -108,7 +111,7 @@ private slots:
   void hideActivityIcons(void);
   void createFullDump(void);
   void onExpertModeChanged(bool);
-  void generateSaltKeyIV(void);
+  QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
 
 signals:
@@ -135,8 +138,11 @@ private: // methods
   bool generatedPasswordIsValid(void);
   void analyzeGeneratedPassword(void);
   void generateSaltKeyIVThread(void);
-
   DomainSettings collectedDomainSettings(void) const;
+  QByteArray cryptedRemoteDomains(void);
+  void writeToRemote(SyncPeer syncPeer);
+  void sendToSyncServer(const QByteArray &cipher);
+  void writeToSyncFile(const QByteArray &cipher);
 
 private:
   Ui::MainWindow *ui;

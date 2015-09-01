@@ -28,6 +28,7 @@ ChangeMasterPasswordDialog::ChangeMasterPasswordDialog(QWidget *parent)
 {
   ui->setupUi(this);
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
+  QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->newPasswordLineEdit1, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   QObject::connect(ui->newPasswordLineEdit2, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
 }
@@ -48,30 +49,24 @@ void ChangeMasterPasswordDialog::invalidate(void)
 }
 
 
-void ChangeMasterPasswordDialog::reject(void)
-{
-  // do nothing ...
-}
-
-
 void ChangeMasterPasswordDialog::okClicked(void)
 {
   if (ui->currentPasswordLineEdit->text().isEmpty()) {
     ui->currentPasswordLineEdit->setFocus();
   }
   else {
-
+    accept();
   }
 }
 
 
-const QString &ChangeMasterPasswordDialog::oldPassword(void) const
+QString ChangeMasterPasswordDialog::oldPassword(void) const
 {
   return ui->currentPasswordLineEdit->text();
 }
 
 
-const QString &ChangeMasterPasswordDialog::newPassword(void) const
+QString ChangeMasterPasswordDialog::newPassword(void) const
 {
   return ui->newPasswordLineEdit1->text();
 }

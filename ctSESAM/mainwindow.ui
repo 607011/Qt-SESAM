@@ -317,6 +317,9 @@
              <pointsize>9</pointsize>
             </font>
            </property>
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -442,7 +445,7 @@
     </property>
     <addaction name="actionOptions"/>
     <addaction name="actionSyncNow"/>
-    <addaction name="actionChangeMasterPassword_2"/>
+    <addaction name="actionChangeMasterPassword"/>
     <addaction name="actionExpertMode"/>
     <addaction name="separator"/>
     <addaction name="actionRegenerateSaltKeyIV"/>
@@ -496,17 +499,11 @@
    </property>
   </action>
   <action name="actionChangeMasterPassword">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Change master password ...</string>
    </property>
   </action>
   <action name="actionHackLegacyPassword">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Hack legacy password ...</string>
    </property>
@@ -523,16 +520,8 @@
    </property>
   </action>
   <action name="actionRegenerateSaltKeyIV">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Regenerate salt, key and IV ...</string>
-   </property>
-  </action>
-  <action name="actionChangeMasterPassword_2">
-   <property name="text">
-    <string>Change master password ...</string>
    </property>
   </action>
  </widget>

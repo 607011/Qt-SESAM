@@ -36,16 +36,9 @@ class ChangeMasterPasswordDialog : public QDialog
 public:
   explicit ChangeMasterPasswordDialog(QWidget *parent = nullptr);
   ~ChangeMasterPasswordDialog();
-
   void invalidate(void);
-
-  const QString &oldPassword(void) const;
-  const QString &newPassword(void) const;
-
-
-public slots:
-  virtual void reject(void);
-
+  QString oldPassword(void) const;
+  QString newPassword(void) const;
 
 private slots:
   void okClicked(void);

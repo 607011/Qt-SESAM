@@ -82,11 +82,11 @@ public:
     , hackSalt(4, 0)
     , hackPermutations(1)
     , hackingMode(false)
-    , newDomainWizard(new NewDomainWizard(parent))
-    , masterPasswordDialog(new MasterPasswordDialog(parent))
-    , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
-    , optionsDialog(new OptionsDialog(parent))
-    , progressDialog(new ProgressDialog(parent))
+    , newDomainWizard(new NewDomainWizard)
+    , masterPasswordDialog(new MasterPasswordDialog)
+    , changeMasterPasswordDialog(new ChangeMasterPasswordDialog)
+    , optionsDialog(new OptionsDialog)
+    , progressDialog(new ProgressDialog)
     , salt(Crypter::randomBytes(Crypter::SaltSize))
     , key(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
@@ -95,6 +95,7 @@ public:
     , writeReply(nullptr)
     , counter(0)
     , maxCounter(0)
+    , masterPasswordChangeStep(0)
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
@@ -109,6 +110,7 @@ public:
   ProgressDialog *progressDialog;
   QSettings settings;
   DomainSettingsList domains;
+  DomainSettingsList remoteDomains;
   QMovie loaderIcon;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
@@ -141,6 +143,7 @@ public:
   QList<QSslError> ignoredSslErrors;
   int counter;
   int maxCounter;
+  int masterPasswordChangeStep;
 };
 
 
@@ -495,7 +498,7 @@ void MainWindow::generatePassword(void)
   Q_D(MainWindow);
   const DomainSettings &ds = collectedDomainSettings();
   d->password.setDomainSettings(ds);
-  d->password.generateAsync(d->masterPassword.toUtf8());
+  d->password.generateAsync(d->KGK);
 }
 
 
@@ -522,9 +525,42 @@ void MainWindow::stopPasswordGeneration(void)
 void MainWindow::changeMasterPassword(void)
 {
   Q_D(MainWindow);
-  int rc = d->changeMasterPasswordDialog->exec();
-  if (rc == QDialog::Accepted) {
-    // TODO ...
+  const int rc = d->changeMasterPasswordDialog->exec();
+  if ((rc == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
+    d->masterPasswordChangeStep = 1;
+    nextChangeMasterPasswordStep();
+  }
+}
+
+
+void MainWindow::nextChangeMasterPasswordStep(void)
+{
+  Q_D(MainWindow);
+  switch (d->masterPasswordChangeStep++) {
+  case 1:
+    d->progressDialog->show();
+    d->progressDialog->raise();
+    d->progressDialog->setText(tr("Starting synchronisation ..."));
+    d->counter = 0;
+    d->maxCounter = 1;
+    d->progressDialog->setValue(d->counter);
+    d->progressDialog->setRange(0, d->maxCounter);
+    saveAllDomainDataToSettings();
+    sync();
+    break;
+  case 2:
+    d->masterPassword = d->changeMasterPasswordDialog->newPassword();
+    generateSaltKeyIV().waitForFinished();
+    d->progressDialog->setText(tr("Writing to sync peers ..."));
+    writeToRemote(AllSources);
+    break;
+  case 3:
+    d->masterPasswordChangeStep = 0;
+    d->progressDialog->hide();
+    break;
+  default:
+    // ignore
+    break;
   }
 }
 
@@ -698,10 +734,11 @@ void MainWindow::showOptionsDialog(void)
 }
 
 
-void MainWindow::generateSaltKeyIV(void)
+QFuture<void> &MainWindow::generateSaltKeyIV(void)
 {
   Q_D(MainWindow);
   d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
+  return d->keyGenerationFuture;
 }
 
 
@@ -808,6 +845,7 @@ void MainWindow::saveCurrentDomainSettings(void)
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
+  d->keyGenerationMutex.lock();
   QByteArray cipher;
   try {
     cipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled);
@@ -815,10 +853,12 @@ void MainWindow::saveAllDomainDataToSettings(void)
   catch (CryptoPP::Exception &e) {
     qErrnoWarning((int)e.GetErrorType(), e.what());
   }
+  d->keyGenerationMutex.unlock();
 
   d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toBase64()));
   d->settings.sync();
-  generateSaltKeyIV();
+  if (d->masterPasswordChangeStep == 0)
+    generateSaltKeyIV();
 }
 
 
@@ -828,11 +868,11 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::restoreDomainDataFromSettings()", "d->masterPassword must not be empty");
   QJsonDocument json;
   QStringList domainList;
-  const QByteArray &baDomains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
-  if (!baDomains.isEmpty()) {
+  const QByteArray &domains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
+  if (!domains.isEmpty()) {
     QByteArray recovered;
     try {
-      recovered = Crypter::decode(d->masterPassword.toUtf8(), baDomains, CompressionEnabled, d->KGK);
+      recovered = Crypter::decode(d->masterPassword.toUtf8(), domains, CompressionEnabled, d->KGK);
     }
     catch (CryptoPP::Exception &e) {
       wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -882,8 +922,8 @@ void MainWindow::saveSettings(void)
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
     return;
   }
-
   d->keyGenerationMutex.unlock();
+
   d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
 
   d->settings.setValue("mainwindow/geometry", geometry());
@@ -990,6 +1030,8 @@ void MainWindow::onWriteFinished(QNetworkReply *reply)
       d->loaderIcon.stop();
       d->progressDialog->setText(tr("Sync to server finished."));
       updateSaveButtonIcon();
+      if (d->masterPasswordChangeStep > 0)
+        nextChangeMasterPasswordStep();
     }
   }
   else {
@@ -1019,7 +1061,6 @@ void MainWindow::sync(void)
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
   if (d->optionsDialog->useSyncFile()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
-    QByteArray baDomains;
     QFileInfo fi(d->optionsDialog->syncFilename());
     if (!fi.isFile()) {
       QFile syncFile(d->optionsDialog->syncFilename());
@@ -1031,9 +1072,9 @@ void MainWindow::sync(void)
                              .arg(syncFile.errorString()), QMessageBox::Ok);
       }
       d->keyGenerationMutex.lock();
-      const QByteArray &baDomains = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QByteArray("{}"), CompressionEnabled);
+      const QByteArray &domains = Crypter::encode(d->key, d->IV, d->salt, d->KGK, QByteArray("{}"), CompressionEnabled);
       d->keyGenerationMutex.unlock();
-      syncFile.write(baDomains);
+      syncFile.write(domains);
       syncFile.close();
     }
     if (fi.isFile() && fi.isReadable()) {
@@ -1044,9 +1085,9 @@ void MainWindow::sync(void)
                              tr("The sync file %1 cannot be opened for reading. Reason: %2")
                              .arg(d->optionsDialog->syncFilename()).arg(syncFile.errorString()), QMessageBox::Ok);
       }
-      baDomains = syncFile.readAll();
+      QByteArray baDomains = syncFile.readAll();
       syncFile.close();
-      sync(FileSource, baDomains);
+      sync(SyncPeerFile, baDomains);
     }
     else {
       QMessageBox::warning(this, tr("Sync file read error"),
@@ -1075,14 +1116,29 @@ void MainWindow::sync(void)
 }
 
 
-void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEncoded)
+QByteArray MainWindow::cryptedRemoteDomains(void)
+{
+  Q_D(MainWindow);
+  QMutexLocker(&d->keyGenerationMutex);
+  QByteArray cipher;
+  try {
+    cipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, d->remoteDomains.toJson(), CompressionEnabled);
+  }
+  catch (CryptoPP::Exception &e) {
+    wrongPasswordWarning((int)e.GetErrorType(), e.what());
+  }
+  return cipher;
+}
+
+
+void MainWindow::sync(SyncPeer syncSource, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
     QByteArray baDomains;
     try {
-      baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, SecureByteArray());
+      baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, d->KGK);
     }
     catch (CryptoPP::Exception &e) {
       wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -1101,11 +1157,11 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
 
   // merge local and remote domain data
   d->domains.setDirty(false);
-  DomainSettingsList remoteDomains = DomainSettingsList::fromQJsonDocument(remoteJSON);
-  QStringList allDomainNames = remoteDomains.keys() + d->domains.keys();
+  d->remoteDomains = DomainSettingsList::fromQJsonDocument(remoteJSON);
+  QStringList allDomainNames = d->remoteDomains.keys() + d->domains.keys();
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
-    const DomainSettings &remote = remoteDomains.at(domainName);
+    const DomainSettings &remote = d->remoteDomains.at(domainName);
     const DomainSettings &local = d->domains.at(domainName);
     if (!local.isEmpty() && !remote.isEmpty()) {
       if (remote.modifiedDate > local.modifiedDate) {
@@ -1113,11 +1169,11 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
       }
       else if (remote.modifiedDate < local.modifiedDate) {
         if (local.deleted) {
-          remoteDomains.remove(domainName);
+          d->remoteDomains.remove(domainName);
           d->domains.remove(domainName);
         }
         else {
-          remoteDomains.updateWith(local);
+          d->remoteDomains.updateWith(local);
         }
       }
       else {
@@ -1132,7 +1188,7 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
         DomainSettings ds = local;
         ds.canBeDeletedByRemote = true;
         d->domains.updateWith(ds);
-        remoteDomains.updateWith(local);
+        d->remoteDomains.updateWith(local);
       }
     }
     else {
@@ -1140,57 +1196,8 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     }
   }
 
-  if (remoteDomains.isDirty()) {
-    QByteArray baCipher;
-    d->keyGenerationMutex.lock();
-    try {
-      baCipher = Crypter::encode(d->key, d->IV, d->salt, d->KGK, remoteDomains.toJson(), CompressionEnabled);
-    }
-    catch (CryptoPP::Exception &e) {
-      // TODO ...
-      wrongPasswordWarning((int)e.GetErrorType(), e.what());
-      return;
-    }
-    d->keyGenerationMutex.unlock();
-    if (!baCipher.isEmpty()) {
-      if (syncSource == FileSource && d->optionsDialog->useSyncFile()) {
-        QFile syncFile(d->optionsDialog->syncFilename());
-        syncFile.open(QIODevice::WriteOnly);
-        qint64 bytesWritten = syncFile.write(baCipher);
-        if (bytesWritten < 0) {
-          QMessageBox::warning(this, tr("Sync file write error"), tr("Writing to your sync file %1 failed: %2")
-                               .arg(d->optionsDialog->syncFilename())
-                               .arg(syncFile.errorString()), QMessageBox::Ok);
-        }
-        syncFile.close();
-      }
-      if (syncSource == ServerSource && d->optionsDialog->useSyncServer()) {
-        d->counter = 0;
-        d->maxCounter = 1;
-        d->progressDialog->setText(tr("Sending data to server ..."));
-        d->progressDialog->setRange(0, d->maxCounter);
-        d->progressDialog->setValue(0);
-        d->progressDialog->show();
-        QUrlQuery params;
-        params.addQueryItem("data", baCipher.toBase64()); // TODO: baCipher.toBase64().toPercentEncoding()
-        const QByteArray &data = params.query().toUtf8();
-        QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->writeUrl()));
-        req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
-        req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
-        req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
-        req.setSslConfiguration(d->sslConf);
-        d->writeReply = d->writeNAM.post(req, data);
-        if (!d->ignoredSslErrors.isEmpty())
-          d->writeReply->ignoreSslErrors(d->ignoredSslErrors);
-        d->loaderIcon.start();
-        updateSaveButtonIcon();
-      }
-    }
-    else {
-      // TODO: catch encryption error
-      throw std::string("encryption error");
-    }
+  if (d->remoteDomains.isDirty()) {
+    writeToRemote(syncSource);
   }
 
   if (d->domains.isDirty()) {
@@ -1198,6 +1205,70 @@ void MainWindow::sync(SyncSource syncSource, const QByteArray &remoteDomainsEnco
     restoreDomainDataFromSettings();
     d->domains.setDirty(false);
   }
+}
+
+
+void MainWindow::writeToRemote(SyncPeer syncPeer)
+{
+  Q_D(MainWindow);
+  const QByteArray &cipher = cryptedRemoteDomains();
+  if (!cipher.isEmpty()) {
+    const bool writeToServer = (syncPeer & SyncPeerServer) == SyncPeerServer && d->optionsDialog->useSyncServer();
+    if ((syncPeer & SyncPeerFile) == SyncPeerFile && d->optionsDialog->useSyncFile()) {
+      writeToSyncFile(cipher);
+      if (!writeToServer)
+        nextChangeMasterPasswordStep();
+    }
+    if (writeToServer) {
+      sendToSyncServer(cipher);
+      d->loaderIcon.start();
+      updateSaveButtonIcon();
+    }
+  }
+  else {
+    // TODO: catch encryption error
+    throw std::string("encryption error");
+  }
+}
+
+
+void MainWindow::writeToSyncFile(const QByteArray &cipher)
+{
+  Q_D(MainWindow);
+  QFile syncFile(d->optionsDialog->syncFilename());
+  syncFile.open(QIODevice::WriteOnly);
+  const qint64 bytesWritten = syncFile.write(cipher);
+  syncFile.close();
+  if (bytesWritten < 0) {
+    QMessageBox::warning(this, tr("Sync file write error"), tr("Writing to your sync file %1 failed: %2")
+                         .arg(d->optionsDialog->syncFilename())
+                         .arg(syncFile.errorString()), QMessageBox::Ok);
+  }
+}
+
+
+void MainWindow::sendToSyncServer(const QByteArray &cipher)
+{
+  Q_D(MainWindow);
+  d->counter = 0;
+  d->maxCounter = 1;
+  d->progressDialog->setText(tr("Sending data to server ..."));
+  d->progressDialog->setRange(0, d->maxCounter);
+  d->progressDialog->setValue(0);
+  d->progressDialog->show();
+  QUrlQuery params;
+  // XXX: Wouldn't QByteArray::Base64UrlEncoding be better?
+  params.addQueryItem("data", cipher.toBase64(QByteArray::Base64Encoding));
+  const QByteArray &data = params.query().toUtf8();
+  QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->writeUrl()));
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+  req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
+  req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
+  req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
+  req.setSslConfiguration(d->sslConf);
+  d->writeReply = d->writeNAM.post(req, data);
+  if (!d->ignoredSslErrors.isEmpty())
+    d->writeReply->ignoreSslErrors(d->ignoredSslErrors);
 }
 
 
@@ -1326,12 +1397,14 @@ void MainWindow::onReadFinished(QNetworkReply *reply)
     if (parseError.error == QJsonParseError::NoError) {
       QVariantMap map = json.toVariant().toMap();
       if (map["status"].toString() == "ok") {
-        const QByteArray &domainData = QByteArray::fromBase64(map["result"].toByteArray());
-        sync(ServerSource, domainData);
+        QByteArray baDomains = QByteArray::fromBase64(map["result"].toByteArray());
+        sync(SyncPeerServer, baDomains);
       }
       else {
         d->progressDialog->setText(tr("Reading from the sync server failed. Status: %1 - Error: %2").arg(map["status"].toString()).arg(map["error"].toString()));
       }
+      if (d->masterPasswordChangeStep > 0)
+        nextChangeMasterPasswordStep();
     }
     else {
       d->progressDialog->setText(tr("Decoding the data from the sync server failed: %1").arg(parseError.errorString()));
