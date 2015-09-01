@@ -1137,13 +1137,27 @@ void MainWindow::sync(SyncPeer syncSource, const QByteArray &remoteDomainsEncode
   QJsonDocument remoteJSON;
   if (!remoteDomainsEncoded.isEmpty()) {
     QByteArray baDomains;
+    bool ok = true;
     try {
       baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, d->KGK);
     }
     catch (CryptoPP::Exception &e) {
-      wrongPasswordWarning((int)e.GetErrorType(), e.what());
-      return;
+      ok = false;
+      if (d->masterPasswordChangeStep == 0) {
+        wrongPasswordWarning((int)e.GetErrorType(), e.what());
+        return;
+      }
     }
+    if (!ok) { // fall back to new password
+      try {
+        baDomains = Crypter::decode(d->changeMasterPasswordDialog->newPassword().toUtf8(), remoteDomainsEncoded, CompressionEnabled, d->KGK);
+      }
+      catch (CryptoPP::Exception &e) {
+        wrongPasswordWarning((int)e.GetErrorType(), e.what());
+        return;
+      }
+    }
+
     if (!baDomains.isEmpty()) {
       QJsonParseError parseError;
       remoteJSON = QJsonDocument::fromJson(baDomains, &parseError);
