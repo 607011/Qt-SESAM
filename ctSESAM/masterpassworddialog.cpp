@@ -35,7 +35,7 @@ public:
 
 
 MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
-  : QDialog(parent, Qt::WindowTitleHint)
+  : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint)
   , ui(new Ui::MasterPasswordDialog)
   , d_ptr(new MasterPasswordDialogPrivate)
 {
