@@ -65,8 +65,8 @@ protected:
 
 private:
   typedef enum _Type {
-    SyncPeerFile = 0x0001,
-    SyncPeerServer = 0x0002,
+    SyncPeerFile = 1 << 0,
+    SyncPeerServer = 1 << 1,
     AllSources = SyncPeerFile | SyncPeerServer
   } SyncPeer;
 
