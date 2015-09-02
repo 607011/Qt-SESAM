@@ -27,6 +27,10 @@
         <source>Change Master Password</source>
         <translation>Master-Passwort ändern</translation>
     </message>
+    <message>
+        <source>%1</source>
+        <translation>%1</translation>
+    </message>
 </context>
 <context>
     <name>CredentialsDialog</name>
@@ -554,6 +558,14 @@
         <source>Writing to sync peers ...</source>
         <translation>Senden an Sync-Gegenstelle ...</translation>
     </message>
+    <message>
+        <source>Click to show password</source>
+        <translation>Klicken um Passwort anzuzeigen</translation>
+    </message>
+    <message>
+        <source>Password changed.</source>
+        <translation>Passwort geändert.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -576,6 +588,10 @@
     <message>
         <source>New master password</source>
         <translation>Neues Master-Passwort</translation>
+    </message>
+    <message>
+        <source>%1</source>
+        <translation type="unfinished">%1</translation>
     </message>
 </context>
 <context>
@@ -856,6 +872,49 @@
     <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>Supercalifragilisticexpialidocious</source>
+        <translation>Supercalifragilisticexpialigetisch</translation>
+    </message>
+    <message>
+        <source>Brutally strong</source>
+        <translation>Brutalst stark</translation>
+    </message>
+    <message>
+        <source>Fabulous</source>
+        <translation>Sagenhaft</translation>
+    </message>
+    <message>
+        <source>Very good</source>
+        <translation>Sehr gut</translation>
+    </message>
+    <message>
+        <source>Good</source>
+        <translation>Gut</translation>
+    </message>
+    <message>
+        <source>Mediocre</source>
+        <translation>Mittelmäßig</translation>
+    </message>
+    <message>
+        <source>You can do better</source>
+        <translation>Da geht noch was</translation>
+    </message>
+    <message>
+        <source>Bad</source>
+        <translation>Schlecht</translation>
+    </message>
+    <message>
+        <source>It can hardly be worse</source>
+        <translation>Es könnte kaum schlechter sein</translation>
+    </message>
+    <message>
+        <source>Useless</source>
+        <translation>Nutzlos</translation>
     </message>
 </context>
 <context>
