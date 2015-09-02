@@ -17,7 +17,8 @@
 
 */
 
-
+#include <QDebug>
+#include <QColor>
 #include "changemasterpassworddialog.h"
 #include "ui_changemasterpassworddialog.h"
 #include "util.h"
@@ -29,8 +30,8 @@ ChangeMasterPasswordDialog::ChangeMasterPasswordDialog(QWidget *parent)
   ui->setupUi(this);
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
-  QObject::connect(ui->newPasswordLineEdit1, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
-  QObject::connect(ui->newPasswordLineEdit2, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+  QObject::connect(ui->newPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(comparePasswords()));
+  QObject::connect(ui->newPasswordLineEdit2, SIGNAL(textChanged(QString)), SLOT(comparePasswords()));
 }
 
 
@@ -78,10 +79,16 @@ void ChangeMasterPasswordDialog::showEvent(QShowEvent *)
   ui->newPasswordLineEdit2->clear();
   ui->currentPasswordLineEdit->clear();
   ui->currentPasswordLineEdit->setFocus();
+  comparePasswords();
 }
 
 
 void ChangeMasterPasswordDialog::comparePasswords(void)
 {
-  ui->okPushButton->setEnabled(ui->newPasswordLineEdit1->text() == ui->newPasswordLineEdit2->text());
+  QString grade;
+  QColor color;
+  evaluatePasswordStrength<float>(ui->newPasswordLineEdit1->text(), color, grade, nullptr);
+  ui->strengthLabel->setText(tr("%1").arg(grade));
+  ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
+  ui->okPushButton->setEnabled(!ui->newPasswordLineEdit1->text().isEmpty() && ui->newPasswordLineEdit1->text() == ui->newPasswordLineEdit2->text());
 }

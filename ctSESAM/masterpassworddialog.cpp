@@ -74,9 +74,11 @@ void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
     setTabOrder(ui->passwordLineEdit, d->repeatPasswordLineEdit);
     ui->infoLabel->setText(tr("New master password"));
     QObject::connect(d->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+    ui->strengthLabel->show();
   }
   else {
     ui->infoLabel->setText(tr("Enter master password"));
+    ui->strengthLabel->hide();
   }
 }
 
@@ -132,12 +134,17 @@ void MasterPasswordDialog::okClicked(void)
 void MasterPasswordDialog::comparePasswords(void)
 {
   Q_D(MasterPasswordDialog);
-  if (d->repeatPasswordLineEdit == nullptr)
-    return;
-  if (d->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
-    ui->okPushButton->setEnabled(true);
-  }
-  else {
-    ui->okPushButton->setEnabled(false);
+  if (d->repeatPasswordLineEdit != nullptr) {
+    QString grade;
+    QColor color;
+    evaluatePasswordStrength<float>(ui->passwordLineEdit->text(), color, grade, nullptr);
+    ui->strengthLabel->setText(tr("%1").arg(grade));
+    ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
+    if (d->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
+      ui->okPushButton->setEnabled(true);
+    }
+    else {
+      ui->okPushButton->setEnabled(false);
+    }
   }
 }
