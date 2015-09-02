@@ -1504,6 +1504,14 @@ void MainWindow::onExpertModeChanged(bool enabled)
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
   switch (event->type()) {
+  case QEvent::Enter:
+    if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty())
+      ui->generatedPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
+    break;
+  case QEvent::Leave:
+    if (obj->objectName() == "generatedPasswordLineEdit")
+      ui->generatedPasswordLineEdit->setCursor(Qt::ArrowCursor);
+    break;
   case QEvent::MouseButtonPress:
     if (obj->objectName() == "generatedPasswordLineEdit")
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
