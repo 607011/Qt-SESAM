@@ -173,6 +173,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   ui->saltBase64LineEdit->installEventFilter(this);
+  ui->generatedPasswordLineEdit->installEventFilter(this);
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
   QObject::connect(ui->copyUsernameToClipboardPushButton, SIGNAL(clicked()), SLOT(copyUsernameToClipboard()));
@@ -1503,6 +1504,14 @@ void MainWindow::onExpertModeChanged(bool enabled)
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
   switch (event->type()) {
+  case QEvent::MouseButtonPress:
+    if (obj->objectName() == "generatedPasswordLineEdit")
+      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+    break;
+  case QEvent::MouseButtonRelease:
+    if (obj->objectName() == "generatedPasswordLineEdit")
+      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    break;
   case QEvent::FocusIn:
   {
     if (obj->objectName() == "domainLineEdit" && ui->domainLineEdit->text().isEmpty()) {

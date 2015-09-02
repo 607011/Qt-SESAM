@@ -317,6 +317,9 @@
              <pointsize>9</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>Click to show password</string>
+           </property>
            <property name="echoMode">
             <enum>QLineEdit::Password</enum>
            </property>
