@@ -541,14 +541,13 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->progressDialog->show();
     d->progressDialog->raise();
     d->progressDialog->setText(tr("Starting synchronisation ..."));
-    d->counter = 0;
-    d->maxCounter = 1;
-    d->progressDialog->setValue(d->counter);
-    d->progressDialog->setRange(0, d->maxCounter);
+    d->progressDialog->setRange(0, 3);
+    d->progressDialog->setValue(1);
     saveAllDomainDataToSettings();
     sync();
     break;
   case 2:
+    d->progressDialog->setValue(2);
     d->masterPassword = d->changeMasterPasswordDialog->newPassword();
     generateSaltKeyIV().waitForFinished();
     d->progressDialog->setText(tr("Writing to sync peers ..."));
@@ -556,6 +555,8 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     break;
   case 3:
     d->masterPasswordChangeStep = 0;
+    d->progressDialog->setText(tr("Password changed."));
+    d->progressDialog->setValue(3);
     d->progressDialog->hide();
     break;
   default:
@@ -1026,12 +1027,15 @@ void MainWindow::onWriteFinished(QNetworkReply *reply)
   ++d->counter;
   d->progressDialog->setValue(d->counter);
   if (reply->error() == QNetworkReply::NoError) {
-    if (d->counter == d->maxCounter) {
-      d->loaderIcon.stop();
-      d->progressDialog->setText(tr("Sync to server finished."));
-      updateSaveButtonIcon();
-      if (d->masterPasswordChangeStep > 0)
-        nextChangeMasterPasswordStep();
+    if (d->masterPasswordChangeStep > 0) {
+      nextChangeMasterPasswordStep();
+    }
+    else {
+      if (d->counter == d->maxCounter) {
+        d->loaderIcon.stop();
+        d->progressDialog->setText(tr("Sync to server finished."));
+        updateSaveButtonIcon();
+      }
     }
   }
   else {
@@ -1097,13 +1101,15 @@ void MainWindow::sync(void)
   }
 
   if (d->optionsDialog->useSyncServer()) {
-    d->progressDialog->show();
-    d->progressDialog->raise();
-    d->progressDialog->setText(tr("Reading from server ..."));
-    d->counter = 0;
-    d->maxCounter = 1;
-    d->progressDialog->setValue(d->counter);
-    d->progressDialog->setRange(0, d->maxCounter);
+    if (d->masterPasswordChangeStep == 0) {
+      d->progressDialog->show();
+      d->progressDialog->raise();
+      d->progressDialog->setText(tr("Reading from server ..."));
+      d->counter = 0;
+      d->maxCounter = 1;
+      d->progressDialog->setRange(0, d->maxCounter);
+      d->progressDialog->setValue(d->counter);
+    }
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
@@ -1270,12 +1276,14 @@ void MainWindow::writeToSyncFile(const QByteArray &cipher)
 void MainWindow::sendToSyncServer(const QByteArray &cipher)
 {
   Q_D(MainWindow);
-  d->counter = 0;
-  d->maxCounter = 1;
-  d->progressDialog->setText(tr("Sending data to server ..."));
-  d->progressDialog->setRange(0, d->maxCounter);
-  d->progressDialog->setValue(0);
-  d->progressDialog->show();
+  if (d->masterPasswordChangeStep == 0) {
+    d->counter = 0;
+    d->maxCounter = 1;
+    d->progressDialog->setText(tr("Sending data to server ..."));
+    d->progressDialog->setRange(0, d->maxCounter);
+    d->progressDialog->setValue(0);
+    d->progressDialog->show();
+  }
   QUrlQuery params;
   // XXX: Wouldn't QByteArray::Base64UrlEncoding be better?
   params.addQueryItem("data", cipher.toBase64(QByteArray::Base64Encoding));
