@@ -20,14 +20,13 @@
 #include "progressdialog.h"
 #include "ui_progressdialog.h"
 
-// TODO: kick ProgressDialog, use QProgressDialog ;-)
 ProgressDialog::ProgressDialog(QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::ProgressDialog)
 {
   ui->setupUi(this);
-  QObject::connect(ui->cancelPushButton, SIGNAL(clicked(bool)), this, SIGNAL(cancelled()));
-  QObject::connect(ui->closePushButton, SIGNAL(clicked(bool)), this, SLOT(accept()));
+  QObject::connect(ui->cancelPushButton, SIGNAL(clicked(bool)), SIGNAL(cancelled()));
+  QObject::connect(ui->closePushButton, SIGNAL(clicked(bool)), SLOT(accept()));
 }
 
 
