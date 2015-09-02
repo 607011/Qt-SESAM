@@ -17,34 +17,27 @@
 
 */
 
+#include <QDebug>
 #include "masterpassworddialog.h"
 #include "ui_masterpassworddialog.h"
 #include "util.h"
 #include "global.h"
 
 
-class MasterPasswordDialogPrivate {
-public:
-  MasterPasswordDialogPrivate(void)
-    : repeatPasswordLineEdit(nullptr)
-    , doRepeatPassword(false)
-  { /* ... */ }
-  QLineEdit *repeatPasswordLineEdit;
-  bool doRepeatPassword;
-};
-
 
 MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
-  : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint)
+  : QDialog(parent)
   , ui(new Ui::MasterPasswordDialog)
-  , d_ptr(new MasterPasswordDialogPrivate)
 {
   ui->setupUi(this);
   ui->infoLabel->setStyleSheet("font-weight: bold");
   setWindowTitle(QString("%1 %2").arg(AppName).arg(AppVersion));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+  QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   setRepeatPassword(false);
+  invalidatePassword();
+  comparePasswords();
 }
 
 
@@ -59,33 +52,27 @@ void MasterPasswordDialog::invalidatePassword(void)
 {
   SecureErase(ui->passwordLineEdit->text());
   ui->passwordLineEdit->clear();
+  SecureErase(ui->repeatPasswordLineEdit->text());
+  ui->repeatPasswordLineEdit->clear();
 }
 
 
 void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
 {
-  Q_D(MasterPasswordDialog);
-  d->doRepeatPassword = doRepeat;
   if (doRepeat) {
     invalidatePassword();
-    SafeRenew(d->repeatPasswordLineEdit, new QLineEdit);
-    d->repeatPasswordLineEdit->setEchoMode(QLineEdit::Password);
-    ui->formLayout->insertRow(1, tr("Repeat password"), d->repeatPasswordLineEdit);
-    setTabOrder(ui->passwordLineEdit, d->repeatPasswordLineEdit);
     ui->infoLabel->setText(tr("New master password"));
-    QObject::connect(d->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+    ui->repeatPasswordLineEdit->show();
+    ui->repeatPasswordLabel->show();
     ui->strengthLabel->show();
   }
   else {
     ui->infoLabel->setText(tr("Enter master password"));
+    ui->repeatPasswordLineEdit->hide();
+    ui->repeatPasswordLabel->hide();
     ui->strengthLabel->hide();
   }
-}
-
-
-bool MasterPasswordDialog::repeatPassword(void) const
-{
-  return d_ptr->doRepeatPassword;
+  comparePasswords();
 }
 
 
@@ -97,54 +84,47 @@ QString MasterPasswordDialog::masterPassword(void) const
 
 void MasterPasswordDialog::reject(void)
 {
-  // do nothing
+  // ignore
 }
 
 
-void MasterPasswordDialog::showEvent(QShowEvent *)
+void MasterPasswordDialog::showEvent(QShowEvent*)
 {
   ui->passwordLineEdit->selectAll();
   ui->passwordLineEdit->setFocus();
 }
 
 
+void MasterPasswordDialog::closeEvent(QCloseEvent*)
+{
+  // ...
+}
+
+
 void MasterPasswordDialog::okClicked(void)
 {
-  Q_D(MasterPasswordDialog);
   if (ui->passwordLineEdit->text().isEmpty()) {
     ui->passwordLineEdit->setFocus();
   }
-  else {
-    if (d->repeatPasswordLineEdit != nullptr) {
-      if (d->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
-        QWidget *label = ui->formLayout->labelForField(d->repeatPasswordLineEdit);
-        label->deleteLater();
-        d->repeatPasswordLineEdit->deleteLater();
-        SafeDelete(d->repeatPasswordLineEdit);
-        accept();
-      }
-    }
-    else {
+  else if (ui->repeatPasswordLabel->isVisible()) {
+    if (ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
       accept();
     }
+  }
+  else {
+    accept();
   }
 }
 
 
 void MasterPasswordDialog::comparePasswords(void)
 {
-  Q_D(MasterPasswordDialog);
-  if (d->repeatPasswordLineEdit != nullptr) {
+  if (ui->repeatPasswordLineEdit->isVisible()) {
     QString grade;
     QColor color;
     evaluatePasswordStrength<float>(ui->passwordLineEdit->text(), color, grade, nullptr);
     ui->strengthLabel->setText(tr("%1").arg(grade));
     ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
-    if (d->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
-      ui->okPushButton->setEnabled(true);
-    }
-    else {
-      ui->okPushButton->setEnabled(false);
-    }
+    ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty() && ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text());
   }
 }

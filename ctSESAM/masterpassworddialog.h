@@ -22,9 +22,7 @@
 
 #include <QDialog>
 #include <QShowEvent>
-#include <QScopedPointer>
-
-class MasterPasswordDialogPrivate;
+#include <QCloseEvent>
 
 namespace Ui {
 class MasterPasswordDialog;
@@ -39,14 +37,14 @@ public:
 
   void invalidatePassword(void);
   void setRepeatPassword(bool);
-  bool repeatPassword(void) const;
   QString masterPassword(void) const;
 
 public slots:
   virtual void reject(void);
 
 protected:
-  void showEvent(QShowEvent *);
+  void showEvent(QShowEvent*);
+  void closeEvent(QCloseEvent*);
 
 private slots:
   void okClicked(void);
@@ -54,10 +52,6 @@ private slots:
 
 private:
   Ui::MasterPasswordDialog *ui;
-
-  QScopedPointer<MasterPasswordDialogPrivate> d_ptr;
-  Q_DECLARE_PRIVATE(MasterPasswordDialog)
-  Q_DISABLE_COPY(MasterPasswordDialog)
 };
 
 #endif // __MASTERPASSWORDDIALOG_H_
