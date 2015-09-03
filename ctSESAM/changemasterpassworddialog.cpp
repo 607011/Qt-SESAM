@@ -21,6 +21,7 @@
 #include <QColor>
 #include "changemasterpassworddialog.h"
 #include "ui_changemasterpassworddialog.h"
+#include "passwordchecker.h"
 #include "util.h"
 
 ChangeMasterPasswordDialog::ChangeMasterPasswordDialog(QWidget *parent)
@@ -87,7 +88,7 @@ void ChangeMasterPasswordDialog::comparePasswords(void)
 {
   QString grade;
   QColor color;
-  evaluatePasswordStrength<float>(ui->newPasswordLineEdit1->text(), color, grade, nullptr);
+  PasswordChecker::evaluatePasswordStrength(ui->newPasswordLineEdit1->text(), color, grade, nullptr);
   ui->strengthLabel->setText(tr("%1").arg(grade));
   ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
   ui->okPushButton->setEnabled(!ui->newPasswordLineEdit1->text().isEmpty() && ui->newPasswordLineEdit1->text() == ui->newPasswordLineEdit2->text());

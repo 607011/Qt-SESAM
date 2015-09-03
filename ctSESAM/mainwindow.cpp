@@ -17,6 +17,7 @@
 
 */
 
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -44,8 +45,11 @@
 #include <QElapsedTimer>
 #include <QtConcurrent>
 #include <QFuture>
+#include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QStandardPaths>
+
+#include <string>
 
 #include "global.h"
 #include "util.h"
@@ -59,8 +63,10 @@
 #include "password.h"
 #include "crypter.h"
 #include "securebytearray.h"
+#include "passwordchecker.h"
 
 #include "dump.h"
+
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
@@ -239,6 +245,9 @@ MainWindow::MainWindow(QWidget *parent)
   onExpertModeChanged(false);
   setDirty(false);
   enterMasterPassword();
+
+  PasswordChecker pwdChecker;
+  qDebug() << pwdChecker.findInPasswordFile("!!FTH!!692!!GYH!!67T!HA");
 }
 
 

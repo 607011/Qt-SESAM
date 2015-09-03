@@ -20,9 +20,9 @@
 #include <QDebug>
 #include "masterpassworddialog.h"
 #include "ui_masterpassworddialog.h"
+#include "passwordchecker.h"
 #include "util.h"
 #include "global.h"
-
 
 
 MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
@@ -122,7 +122,7 @@ void MasterPasswordDialog::comparePasswords(void)
   if (ui->repeatPasswordLineEdit->isVisible()) {
     QString grade;
     QColor color;
-    evaluatePasswordStrength<float>(ui->passwordLineEdit->text(), color, grade, nullptr);
+    PasswordChecker::evaluatePasswordStrength(ui->passwordLineEdit->text(), color, grade, nullptr);
     ui->strengthLabel->setText(tr("%1").arg(grade));
     ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
     ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty() && ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text());
