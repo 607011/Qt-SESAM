@@ -931,6 +931,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/geometry", geometry());
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
+  d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
 
   saveAllDomainDataToSettings();
   d->settings.sync();
@@ -971,10 +972,8 @@ bool MainWindow::restoreSettings(void)
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
-  d->optionsDialog->setMasterPasswordInvalidationTimeMins(
-        d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
-  d->optionsDialog->setSaltLength(
-        d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
+  d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
+  d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
