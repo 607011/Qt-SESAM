@@ -495,6 +495,9 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 {
   DomainSettings ds;
   ds.domainName = ui->domainsComboBox->currentText();
+  ds.deleted = ui->deleteCheckBox->isChecked();
+  ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
+  ds.modifiedDate = d_ptr->modifiedDate.isValid() ? d_ptr->modifiedDate : QDateTime::currentDateTime();
   ds.userName = ui->userLineEdit->text();
   ds.notes = ui->notesPlainTextEdit->toPlainText();
   ds.salt_base64 = ui->saltBase64LineEdit->text();
@@ -502,10 +505,6 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.length = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
-  ds.modifiedDate = d_ptr->modifiedDate.isValid() ? d_ptr->modifiedDate : QDateTime::currentDateTime();
-  ds.deleted = ui->deleteCheckBox->isChecked();
-  ds.canBeDeletedByRemote = ds.deleted;
   return ds;
 }
 

@@ -41,7 +41,6 @@ const QString DomainSettings::LENGTH = "length";
 const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
 const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
-const QString DomainSettings::CAN_BE_DELETED_BY_REMOTE = "canBeDeletedByRemote";
 const QString DomainSettings::DELETED = "deleted";
 
 
@@ -53,7 +52,6 @@ DomainSettings::DomainSettings(void)
   , forceUpperCase(false)
   , forceDigits(false)
   , forceExtra(false)
-  , canBeDeletedByRemote(true)
   , deleted(false)
 { /* ... */ }
 
@@ -73,7 +71,6 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , forceExtra(o.forceExtra)
   , createdDate(o.createdDate)
   , modifiedDate(o.modifiedDate)
-  , canBeDeletedByRemote(o.canBeDeletedByRemote)
   , deleted(o.deleted)
 { /* ... */ }
 
@@ -91,7 +88,6 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[USED_CHARACTERS] = usedCharacters;
   map[CDATE] = createdDate;
   map[MDATE] = modifiedDate;
-  map[CAN_BE_DELETED_BY_REMOTE] = canBeDeletedByRemote;
   map[DELETED] = deleted;
   return map;
 }
@@ -110,7 +106,5 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.usedCharacters = map[USED_CHARACTERS].toString();
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
-  if (map.contains(CAN_BE_DELETED_BY_REMOTE))
-    ds.canBeDeletedByRemote = map[CAN_BE_DELETED_BY_REMOTE].toBool();
   return ds;
 }

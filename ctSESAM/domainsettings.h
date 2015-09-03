@@ -72,9 +72,6 @@ public:
   static const QString MDATE;
   QDateTime modifiedDate;
 
-  static const QString CAN_BE_DELETED_BY_REMOTE;
-  bool canBeDeletedByRemote;
-
   static const QString DELETED;
   bool deleted;
 
