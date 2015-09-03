@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QStringListModel>
 #include <QStandardPaths>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QNetworkAccessManager>
@@ -44,6 +45,7 @@
 #include <QtConcurrent>
 #include <QFuture>
 #include <QMutexLocker>
+#include <QStandardPaths>
 
 #include "global.h"
 #include "util.h"
@@ -844,6 +846,22 @@ void MainWindow::saveCurrentDomainSettings(void)
 }
 
 
+void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
+{
+  const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+  const QString &backupFilename = QString("%1/%2-%3-domaindata-backup.txt")
+      .arg(backupFilePath)
+      .arg(QDateTime::currentDateTime().toString("yyyyMMddThhmmss"))
+      .arg(AppName);
+  if (QDir().mkpath(backupFilePath)) {
+    QFile backupFile(backupFilename);
+    backupFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    backupFile.write(binaryDomainData);
+    backupFile.close();
+  }
+}
+
+
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
@@ -857,10 +875,15 @@ void MainWindow::saveAllDomainDataToSettings(void)
   }
   d->keyGenerationMutex.unlock();
 
-  d->settings.setValue("sync/domains", QString::fromUtf8(cipher.toBase64()));
+  const QByteArray &binaryDomainData = cipher.toBase64();
+  d->settings.setValue("sync/domains", QString::fromUtf8(binaryDomainData));
   d->settings.sync();
-  if (d->masterPasswordChangeStep == 0)
+
+
+  if (d->masterPasswordChangeStep == 0) {
     generateSaltKeyIV();
+    writeBackupFile(binaryDomainData);
+  }
 }
 
 

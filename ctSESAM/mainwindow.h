@@ -122,6 +122,13 @@ signals:
 protected:
   bool eventFilter(QObject *obj, QEvent *event);
 
+private:
+  Ui::MainWindow *ui;
+
+  QScopedPointer<MainWindowPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(MainWindow)
+  Q_DISABLE_COPY(MainWindow)
+
 private: // methods
   void resetAllFields(void);
   bool restoreSettings(void);
@@ -144,13 +151,7 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-
-private:
-  Ui::MainWindow *ui;
-
-  QScopedPointer<MainWindowPrivate> d_ptr;
-  Q_DECLARE_PRIVATE(MainWindow)
-  Q_DISABLE_COPY(MainWindow)
+  void writeBackupFile(const QByteArray &binaryDomainData);
 
 };
 
