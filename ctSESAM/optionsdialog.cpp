@@ -195,6 +195,18 @@ QByteArray OptionsDialog::httpBasicAuthenticationString(void) const
 }
 
 
+void OptionsDialog::setWriteBackups(bool enabled)
+{
+  ui->writeBackupsCheckBox->setChecked(enabled);
+}
+
+
+bool OptionsDialog::writeBackups(void) const
+{
+  return ui->writeBackupsCheckBox->isChecked();
+}
+
+
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
 {
   return ui->masterPasswordInvalidationTimeMinsSpinBox->value();

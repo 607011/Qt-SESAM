@@ -902,7 +902,8 @@ void MainWindow::saveAllDomainDataToSettings(void)
 
   if (d->masterPasswordChangeStep == 0) {
     generateSaltKeyIV();
-    writeBackupFile(binaryDomainData);
+    if (d->optionsDialog->writeBackups())
+      writeBackupFile(binaryDomainData);
   }
 }
 
@@ -975,6 +976,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
+  d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
 
   saveAllDomainDataToSettings();
   d->settings.sync();
@@ -1017,6 +1019,7 @@ bool MainWindow::restoreSettings(void)
   ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
+  d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
@@ -1039,6 +1042,7 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
     d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
     d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
+
 
     QString serverRoot = syncData["sync/serverRoot"].toString();
     if (serverRoot.isEmpty())

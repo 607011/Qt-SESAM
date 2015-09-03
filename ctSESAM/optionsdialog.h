@@ -76,6 +76,9 @@ public:
 
   QByteArray httpBasicAuthenticationString(void) const;
 
+  void setWriteBackups(bool);
+  bool writeBackups(void) const;
+
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
 
