@@ -35,6 +35,7 @@ public:
   void remove(const QString &domainName);
   void updateWith(const DomainSettings &);
   QByteArray toJson(void) const;
+  QJsonDocument toJsonDocument(void) const;
   QStringList keys(void) const;
   static DomainSettingsList fromQJsonDocument(const QJsonDocument &);
 

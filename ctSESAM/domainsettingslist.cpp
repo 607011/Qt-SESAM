@@ -82,10 +82,16 @@ void DomainSettingsList::updateWith(const DomainSettings &src)
 
 QByteArray DomainSettingsList::toJson(void) const
 {
+  return toJsonDocument().toJson(QJsonDocument::Compact);
+}
+
+
+QJsonDocument DomainSettingsList::toJsonDocument(void) const
+{
   QVariantMap domains;
   for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d)
     domains[d->domainName] = d->toVariantMap();
-  return QJsonDocument::fromVariant(domains).toJson(QJsonDocument::Compact);
+  return QJsonDocument::fromVariant(domains);
 }
 
 
