@@ -58,7 +58,6 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
-  void setDomainComboBox(QStringList domainList);
 protected:
   void closeEvent(QCloseEvent *);
   void changeEvent(QEvent *);
@@ -137,6 +136,7 @@ private: // methods
   void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
+  void makeDomainComboBox(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
   void unblockUpdatePassword(void);

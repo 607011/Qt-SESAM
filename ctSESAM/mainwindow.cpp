@@ -804,12 +804,18 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 }
 
 
-void MainWindow::setDomainComboBox(QStringList domainList)
+void MainWindow::makeDomainComboBox(void)
 {
-  domainList.sort();
+  Q_D(MainWindow);
+  QStringList domainNames;
   ui->domainsComboBox->clear();
   ui->domainsComboBox->addItem(tr("<New domain ...>"));
-  ui->domainsComboBox->addItems(domainList);
+  foreach(DomainSettings ds, d->domains) {
+    if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
+      domainNames.append(ds.domainName);
+  }
+  domainNames.sort();
+  ui->domainsComboBox->addItems(domainNames);
 }
 
 
@@ -844,11 +850,11 @@ void MainWindow::saveCurrentDomainSettings(void)
     if (!ds.deleted)
       domainList << ds.domainName;
   }
+  d->domains.updateWith(ds);
 
-  setDomainComboBox(domainList);
+  makeDomainComboBox();
   ui->domainsComboBox->setCurrentText(currentDomain);
 
-  d->domains.updateWith(ds);
   saveAllDomainDataToSettings();
 
   setDirty(false);
@@ -931,7 +937,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     }
   }
   d->domains = DomainSettingsList::fromQJsonDocument(json);
-  setDomainComboBox(domainList);
+  makeDomainComboBox();
   return true;
 }
 
@@ -1232,7 +1238,7 @@ void MainWindow::mergeLocalAndRemoteData(void)
 {
   Q_D(MainWindow);
   QStringList allDomainNames = d->remoteDomains.keys() + d->domains.keys();
-  qDebug() << " MainWindow::mergeLocalAndRemoteData() allDomainNames =" << allDomainNames;
+  qDebug() << "mergeLocalAndRemoteData() combined domain names =" << allDomainNames;
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
     const DomainSettings &remoteDomainSetting = d->remoteDomains.at(domainName);
@@ -1242,28 +1248,11 @@ void MainWindow::mergeLocalAndRemoteData(void)
         d->domains.updateWith(remoteDomainSetting);
       }
       else if (remoteDomainSetting.modifiedDate < localDomainSetting.modifiedDate) {
-        if (localDomainSetting.deleted) {
-          d->remoteDomains.remove(domainName);
-          d->domains.remove(domainName);
-        }
-        else {
-          d->remoteDomains.updateWith(localDomainSetting);
-        }
-      }
-      else {
-        // timestamps are identical, do nothing
+        d->remoteDomains.updateWith(localDomainSetting);
       }
     }
     else if (remoteDomainSetting.isEmpty()) {
-      if (localDomainSetting.canBeDeletedByRemote) {
-        d->domains.remove(domainName);
-      }
-      else {
-        DomainSettings ds = localDomainSetting;
-        ds.canBeDeletedByRemote = true;
-        d->domains.updateWith(ds);
-        d->remoteDomains.updateWith(localDomainSetting);
-      }
+      d->remoteDomains.updateWith(localDomainSetting);
     }
     else {
       d->domains.updateWith(remoteDomainSetting);
@@ -1341,6 +1330,10 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")";
+  qDebug() << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
+  qDebug() << "ui->domainsComboBox->currentIndex() =" << ui->domainsComboBox->currentIndex();
+
   if (ui->domainsComboBox->currentIndex() == 0 && !d->parameterSetDirty) {
     newDomain();
   }
