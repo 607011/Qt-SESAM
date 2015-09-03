@@ -1,0 +1,9 @@
+Qt SESAM: Supereinfaches und sicheres Authentifizierung
+
+Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+
+Diese Software wurde zu Lehr- und Demonstrationszwecken programmiert und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und die Heise Medien GmbH & Co. KG haften nicht für eventuelle Schäden, die aus der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.
+
+Weitere Informationen finden Sie unter:
+
+ - Oliver Lau, Sesam, öffne dich!, Passwörter verwalten mit c't SESAM, c't 20/15, S. 182

@@ -155,6 +155,7 @@ DISTFILES += \
     ../deploy/ctSESAM.nsi \
     ../.gitignore \
     Doxyfile \
-    deploy/ctSESAM.nsi
+    deploy/ctSESAM.nsi \
+    ../LIESMICH.txt
 
 OTHER_FILES +=
