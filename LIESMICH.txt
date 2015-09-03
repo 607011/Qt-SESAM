@@ -1,4 +1,4 @@
-Qt SESAM: Supereinfaches und sicheres Authentifizierung
+Qt SESAM: Supereinfaches und sicheres Authentifizierungsmanagement
 
 Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
