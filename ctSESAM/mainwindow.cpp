@@ -1242,7 +1242,6 @@ void MainWindow::mergeLocalAndRemoteData(void)
 {
   Q_D(MainWindow);
   QStringList allDomainNames = d->remoteDomains.keys() + d->domains.keys();
-  qDebug() << "mergeLocalAndRemoteData() combined domain names =" << allDomainNames;
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
     const DomainSettings &remoteDomainSetting = d->remoteDomains.at(domainName);
@@ -1334,10 +1333,6 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")";
-  qDebug() << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
-  qDebug() << "ui->domainsComboBox->currentIndex() =" << ui->domainsComboBox->currentIndex();
-
   if (ui->domainsComboBox->currentIndex() == 0 && !d->parameterSetDirty) {
     newDomain();
   }

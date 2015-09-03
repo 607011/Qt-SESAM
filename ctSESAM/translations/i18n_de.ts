@@ -858,6 +858,10 @@
         <source>Choose certificate file</source>
         <translation type="vanished">Zertifikatskettendatei wählen</translation>
     </message>
+    <message>
+        <source>Write backup files</source>
+        <translation>Backups schreiben</translation>
+    </message>
 </context>
 <context>
     <name>ProgressDialog</name>

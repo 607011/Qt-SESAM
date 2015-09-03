@@ -21,9 +21,9 @@
 #include "global.h"
 #include <QSysInfo>
 
-const QString AppCompanyName = "c't";
-const QString AppName = "Qt SESAM";
-const QString AppVersion = "2.0 BETA";
+const QString AppCompanyName = "ct";
+const QString AppName = "QtSESAM";
+const QString AppVersion = "2.0.0";
 const QString AppURL = "https://github.com/ola-ct/Qt-SESAM";
 const QString AppAuthor = "Oliver Lau";
 const QString AppAuthorMail = "ola@ct.de";
