@@ -151,7 +151,7 @@
     </message>
     <message>
         <source>mandatory</source>
-        <translation>erforderlich</translation>
+        <translation type="vanished">erforderlich</translation>
     </message>
     <message>
         <source>may be empty</source>
@@ -387,7 +387,7 @@
     </message>
     <message>
         <source>&lt;Choose domain ...&gt;</source>
-        <translation>&lt;Domain wählen ...&gt;</translation>
+        <translation type="vanished">&lt;Domain wählen ...&gt;</translation>
     </message>
     <message>
         <source>Empty character table</source>
@@ -566,6 +566,10 @@
         <source>Password changed.</source>
         <translation>Passwort geändert.</translation>
     </message>
+    <message>
+        <source>&lt;New domain ...&gt;</source>
+        <translation>&lt;Neue Domain ...&gt;</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -591,7 +595,7 @@
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished">%1</translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>

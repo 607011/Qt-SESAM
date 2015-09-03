@@ -24,34 +24,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="domainLineEdit">
-        <property name="minimumSize">
-         <size>
-          <width>128</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="cursor">
-         <cursorShape>IBeamCursor</cursorShape>
-        </property>
-        <property name="mouseTracking">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-        <property name="placeholderText">
-         <string>mandatory</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="domainsComboBox"/>
-      </item>
       <item row="8" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -270,6 +242,9 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="domainsComboBox"/>
       </item>
      </layout>
     </item>
@@ -530,7 +505,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>domainsComboBox</tabstop>
   <tabstop>userLineEdit</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
@@ -543,7 +517,6 @@
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>renewSaltPushButton</tabstop>
   <tabstop>deleteCheckBox</tabstop>
-  <tabstop>domainLineEdit</tabstop>
   <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
   <tabstop>saltBase64LineEdit</tabstop>
   <tabstop>copyUsernameToClipboardPushButton</tabstop>

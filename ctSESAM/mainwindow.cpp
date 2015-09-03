@@ -143,6 +143,7 @@ public:
   QNetworkReply *readReply;
   QNetworkReply *writeReply;
   QList<QSslError> ignoredSslErrors;
+  QString currentDomain;
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
@@ -158,9 +159,6 @@ MainWindow::MainWindow(QWidget *parent)
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
-  QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  ui->domainLineEdit->installEventFilter(this);
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
@@ -210,7 +208,6 @@ MainWindow::MainWindow(QWidget *parent)
 
   QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
 
-  ui->domainLineEdit->selectAll();
   ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
@@ -247,6 +244,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::showHide(void)
 {
+  Q_D(MainWindow);
   if (isVisible()) {
     hide();
   }
@@ -356,7 +354,6 @@ void MainWindow::unblockUpdatePassword(void)
 void MainWindow::resetAllFields(void)
 {
   Q_D(MainWindow);
-  ui->domainLineEdit->setText(QString());
   ui->userLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
   ui->saltBase64LineEdit->setText(DomainSettings::DefaultSalt_base64);
@@ -377,23 +374,38 @@ void MainWindow::newDomain(void)
   d->newDomainWizard->clear();
   int rc = d->newDomainWizard->exec();
   if (rc == QDialog::Accepted) {
-    setDirty(false);
-    const QString &domain = d->newDomainWizard->domain();
-    ui->domainLineEdit->setText(domain);
-    ui->userLineEdit->setText(d->newDomainWizard->username());
-    ui->legacyPasswordLineEdit->setText(d->newDomainWizard->legacyPassword());
-    ui->saltBase64LineEdit->setText(d->newDomainWizard->salt_base64());
-    ui->iterationsSpinBox->setValue(d->newDomainWizard->iterations());
-    ui->passwordLengthSpinBox->setValue(d->newDomainWizard->passwordLength());
-    ui->notesPlainTextEdit->setPlainText(d->newDomainWizard->notes());
-    ui->usedCharactersPlainTextEdit->setPlainText(d->newDomainWizard->usedCharacters());
-    ui->createdLabel->setText(QDateTime::currentDateTime().toString(Qt::ISODate));
-    ui->modifiedLabel->setText(QString());
-    ui->deleteCheckBox->setChecked(false);
-    d->autoIncrementIterations = true;
-    updatePassword();
-    saveCurrentDomainSettings();
-    ui->domainsComboBox->setCurrentText(domain);
+    bool alreadyPresent = false;
+    for (int i = 1; i < ui->domainsComboBox->count(); ++i)
+      if (ui->domainsComboBox->itemText(i) == d->newDomainWizard->domain()) {
+        alreadyPresent = true;
+        break;
+      }
+    if (alreadyPresent) {
+      // TODO ...
+      ui->domainsComboBox->setCurrentText(d->currentDomain);
+    }
+    else {
+      setDirty(false);
+      d->currentDomain = d->newDomainWizard->domain();
+      ui->domainsComboBox->addItem(d->currentDomain);
+      ui->domainsComboBox->setCurrentText(d->currentDomain);
+      ui->userLineEdit->setText(d->newDomainWizard->username());
+      ui->legacyPasswordLineEdit->setText(d->newDomainWizard->legacyPassword());
+      ui->saltBase64LineEdit->setText(d->newDomainWizard->salt_base64());
+      ui->iterationsSpinBox->setValue(d->newDomainWizard->iterations());
+      ui->passwordLengthSpinBox->setValue(d->newDomainWizard->passwordLength());
+      ui->notesPlainTextEdit->setPlainText(d->newDomainWizard->notes());
+      ui->usedCharactersPlainTextEdit->setPlainText(d->newDomainWizard->usedCharacters());
+      ui->createdLabel->setText(QDateTime::currentDateTime().toString(Qt::ISODate));
+      ui->modifiedLabel->setText(QString());
+      ui->deleteCheckBox->setChecked(false);
+      d->autoIncrementIterations = true;
+      updatePassword();
+      saveCurrentDomainSettings();
+    }
+  }
+  else {
+    ui->domainsComboBox->setCurrentText(d->currentDomain);
   }
 }
 
@@ -436,7 +448,7 @@ void MainWindow::cancelPasswordGeneration(void)
 void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
-  d->parameterSetDirty = dirty && !ui->domainLineEdit->text().isEmpty();
+  d->parameterSetDirty = dirty && ui->domainsComboBox->currentIndex() > 0;
   updateWindowTitle();
 }
 
@@ -466,7 +478,7 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-  if (!d->updatePasswordBlocked && !d->masterPassword.isEmpty() && !ui->domainLineEdit->text().isEmpty()) {
+  if (!d->updatePasswordBlocked && !d->masterPassword.isEmpty() && ui->domainsComboBox->currentIndex() > 0) {
     stopPasswordGeneration();
     if (!d->hackingMode) {
       ui->generatedPasswordLineEdit->setText(QString());
@@ -482,7 +494,7 @@ void MainWindow::updatePassword(void)
 DomainSettings MainWindow::collectedDomainSettings(void) const
 {
   DomainSettings ds;
-  ds.domainName = ui->domainLineEdit->text();
+  ds.domainName = ui->domainsComboBox->currentText();
   ds.userName = ui->userLineEdit->text();
   ds.notes = ui->notesPlainTextEdit->toPlainText();
   ds.salt_base64 = ui->saltBase64LineEdit->text();
@@ -775,7 +787,7 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
   Q_D(MainWindow);
   blockUpdatePassword();
   const DomainSettings &p = d->domains.at(domain);
-  ui->domainLineEdit->setText(p.domainName);
+  ui->domainsComboBox->setCurrentText(p.domainName);
   ui->userLineEdit->setText(p.userName);
   ui->legacyPasswordLineEdit->setText(p.legacyPassword);
   ui->saltBase64LineEdit->setText(p.salt_base64);
@@ -797,7 +809,7 @@ void MainWindow::setDomainComboBox(QStringList domainList)
 {
   domainList.sort();
   ui->domainsComboBox->clear();
-  ui->domainsComboBox->addItem(tr("<Choose domain ...>"));
+  ui->domainsComboBox->addItem(tr("<New domain ...>"));
   ui->domainsComboBox->addItems(domainList);
 }
 
@@ -816,6 +828,8 @@ void MainWindow::saveCurrentDomainSettings(void)
   ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
 
+  const QString currentDomain = ui->domainsComboBox->currentText();
+
   QStringList domainList;
   for (int i = 1; i < ui->domainsComboBox->count(); ++i)
     domainList.append(ui->domainsComboBox->itemText(i));
@@ -833,6 +847,7 @@ void MainWindow::saveCurrentDomainSettings(void)
   }
 
   setDomainComboBox(domainList);
+  ui->domainsComboBox->setCurrentText(currentDomain);
 
   d->domains.updateWith(ds);
   saveAllDomainDataToSettings();
@@ -1218,40 +1233,41 @@ void MainWindow::mergeLocalAndRemoteData(void)
 {
   Q_D(MainWindow);
   QStringList allDomainNames = d->remoteDomains.keys() + d->domains.keys();
+  qDebug() << " MainWindow::mergeLocalAndRemoteData() allDomainNames =" << allDomainNames;
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
-    const DomainSettings &remote = d->remoteDomains.at(domainName);
-    const DomainSettings &local = d->domains.at(domainName);
-    if (!local.isEmpty() && !remote.isEmpty()) {
-      if (remote.modifiedDate > local.modifiedDate) {
-        d->domains.updateWith(remote);
+    const DomainSettings &remoteDomainSetting = d->remoteDomains.at(domainName);
+    const DomainSettings &localDomainSetting = d->domains.at(domainName);
+    if (!localDomainSetting.isEmpty() && !remoteDomainSetting.isEmpty()) {
+      if (remoteDomainSetting.modifiedDate > localDomainSetting.modifiedDate) {
+        d->domains.updateWith(remoteDomainSetting);
       }
-      else if (remote.modifiedDate < local.modifiedDate) {
-        if (local.deleted) {
+      else if (remoteDomainSetting.modifiedDate < localDomainSetting.modifiedDate) {
+        if (localDomainSetting.deleted) {
           d->remoteDomains.remove(domainName);
           d->domains.remove(domainName);
         }
         else {
-          d->remoteDomains.updateWith(local);
+          d->remoteDomains.updateWith(localDomainSetting);
         }
       }
       else {
         // timestamps are identical, do nothing
       }
     }
-    else if (remote.isEmpty()) {
-      if (local.canBeDeletedByRemote) {
+    else if (remoteDomainSetting.isEmpty()) {
+      if (localDomainSetting.canBeDeletedByRemote) {
         d->domains.remove(domainName);
       }
       else {
-        DomainSettings ds = local;
+        DomainSettings ds = localDomainSetting;
         ds.canBeDeletedByRemote = true;
         d->domains.updateWith(ds);
-        d->remoteDomains.updateWith(local);
+        d->remoteDomains.updateWith(localDomainSetting);
       }
     }
     else {
-      d->domains.updateWith(remote);
+      d->domains.updateWith(remoteDomainSetting);
     }
   }
 }
@@ -1325,8 +1341,17 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 
 void MainWindow::onDomainSelected(const QString &domain)
 {
-  copyDomainSettingsToGUI(domain);
-  setDirty(false);
+  Q_D(MainWindow);
+  if (ui->domainsComboBox->currentIndex() == 0 && !d->parameterSetDirty) {
+    newDomain();
+  }
+  else {
+    copyDomainSettingsToGUI(domain);
+    setDirty(false);
+  }
+  d->currentDomain = ui->domainsComboBox->currentIndex() > 0
+      ? ui->domainsComboBox->currentText()
+      : QString();
 }
 
 
@@ -1542,15 +1567,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     if (obj->objectName() == "generatedPasswordLineEdit")
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
     break;
-  case QEvent::FocusIn:
-  {
-    if (obj->objectName() == "domainLineEdit" && ui->domainLineEdit->text().isEmpty()) {
-      ui->domainLineEdit->clearFocus();
-      newDomain();
-      return true;
-    }
-    return false;
-  }
 #ifdef QT_DEBUG
   case QEvent::MouseButtonDblClick:
   {
