@@ -1,10 +1,8 @@
 # Qt SESAM
 
-**Create domain specific passwords from a master passwort**
+Aktuelle Version 2.0: **>>> [Download des Windows-Installers](https://github.com/ola-ct/Qt-SESAM/releases/tag/v2.0-RELEASE) <<<**
 
-SESAM stands for Super Easy Secure Authentication Management.
-
-References:
+Literatur:
 
  - [Jürgen Schmidt, Eines für alle, Ein neues Konzept für den Umgang mit Passwörtern, c't 18/14, S. 82](http://heise.de/-2284364)
  - [Oliver Lau, Aus kurz wird lang, Passwörter sicher speichern mit Hilfe von PBKDF2, c't 17/15, S. 180](http://heise.de/-2753149)
