@@ -91,7 +91,7 @@ private slots:
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
   void sync(void);
-  void sync(SyncPeer, const QByteArray &baDomains);
+  void sync(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);

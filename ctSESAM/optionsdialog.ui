@@ -35,7 +35,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="syncFileGroupBox">
          <property name="title">
           <string>Sync file</string>
          </property>

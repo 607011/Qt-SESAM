@@ -70,7 +70,7 @@
        <enum>QFrame::Sunken</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageGenerated">
        <property name="geometry">
@@ -540,14 +540,22 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
+  <tabstop>domainsComboBox</tabstop>
   <tabstop>userLineEdit</tabstop>
+  <tabstop>iterationsSpinBox</tabstop>
+  <tabstop>passwordLengthSpinBox</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>savePushButton</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
   <tabstop>cancelPushButton</tabstop>
   <tabstop>renewSaltPushButton</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>saltBase64LineEdit</tabstop>
+  <tabstop>legacyPasswordLineEdit</tabstop>
+  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>deleteCheckBox</tabstop>
+  <tabstop>saltBase64LineEdit</tabstop>
  </tabstops>
  <resources>
   <include location="ctSESAM.qrc"/>

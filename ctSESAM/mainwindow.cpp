@@ -819,7 +819,7 @@ void MainWindow::makeDomainComboBox(void)
     if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
       domainNames.append(ds.domainName);
   }
-  domainNames.sort();
+  domainNames.sort(Qt::CaseInsensitive);
   ui->domainsComboBox->addItems(domainNames);
 }
 
@@ -1046,9 +1046,15 @@ bool MainWindow::restoreSettings(void)
       syncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
     d->optionsDialog->setSyncFilename(syncFilename);
     d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
-    d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
-    d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
 
+#ifdef QT_NO_DEBUG
+    // see https://github.com/ola-ct/Qt-SESAM/issues/23
+    d->optionsDialog->setUseSyncFile(false);
+#else
+    d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
+#endif
+
+    d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
 
     QString serverRoot = syncData["sync/serverRoot"].toString();
     if (serverRoot.isEmpty())
@@ -1190,7 +1196,7 @@ QByteArray MainWindow::cryptedRemoteDomains(void)
 }
 
 
-void MainWindow::sync(SyncPeer syncSource, const QByteArray &remoteDomainsEncoded)
+void MainWindow::sync(SyncPeer syncPeer, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
   QJsonDocument remoteJSON;
@@ -1233,7 +1239,7 @@ void MainWindow::sync(SyncPeer syncSource, const QByteArray &remoteDomainsEncode
   mergeLocalAndRemoteData();
 
   if (d->remoteDomains.isDirty()) {
-    writeToRemote(syncSource);
+    writeToRemote(syncPeer);
   }
 
   if (d->domains.isDirty()) {
