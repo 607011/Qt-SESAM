@@ -21,13 +21,18 @@
 #ifndef __CHANGEMASTERPASSWORDDIALOG_H_
 #define __CHANGEMASTERPASSWORDDIALOG_H_
 
+#include <QWidget>
 #include <QDialog>
 #include <QShowEvent>
+#include <QScopedPointer>
+#include <QString>
 
 
 namespace Ui {
 class ChangeMasterPasswordDialog;
 }
+
+class ChangeMasterPasswordDialogPrivate;
 
 class ChangeMasterPasswordDialog : public QDialog
 {
@@ -39,6 +44,7 @@ public:
   void invalidate(void);
   QString oldPassword(void) const;
   QString newPassword(void) const;
+  void setPasswordFilename(const QString &filename = QString());
 
 private slots:
   void okClicked(void);
@@ -50,6 +56,9 @@ protected:
 
 private:
   Ui::ChangeMasterPasswordDialog *ui;
+  QScopedPointer<ChangeMasterPasswordDialogPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(ChangeMasterPasswordDialog)
+  Q_DISABLE_COPY(ChangeMasterPasswordDialog)
 };
 
 #endif // __CHANGEMASTERPASSWORDDIALOG_H_

@@ -152,7 +152,6 @@ private: // methods
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
   void writeBackupFile(const QByteArray &binaryDomainData);
-
 };
 
 #endif // __MAINWINDOW_H_

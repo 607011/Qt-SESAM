@@ -79,16 +79,18 @@ QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
   map[DOMAIN_NAME] = domainName;
-  map[USER_NAME] = userName;
-  map[LEGACY_PASSWORD] = legacyPassword;
-  map[NOTES] = notes;
-  map[ITERATIONS] = iterations;
-  map[LENGTH] = length;
-  map[SALT] = salt_base64;
-  map[USED_CHARACTERS] = usedCharacters;
+  map[DELETED] = deleted;
   map[CDATE] = createdDate;
   map[MDATE] = modifiedDate;
-  map[DELETED] = deleted;
+  if (!deleted) {
+    map[USER_NAME] = userName;
+    map[LEGACY_PASSWORD] = legacyPassword;
+    map[NOTES] = notes;
+    map[ITERATIONS] = iterations;
+    map[LENGTH] = length;
+    map[SALT] = salt_base64;
+    map[USED_CHARACTERS] = usedCharacters;
+  }
   return map;
 }
 
@@ -106,5 +108,6 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.usedCharacters = map[USED_CHARACTERS].toString();
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
+  ds.deleted = map[DELETED].toBool(); // XXX
   return ds;
 }

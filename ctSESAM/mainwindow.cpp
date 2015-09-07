@@ -17,6 +17,7 @@
 
 */
 
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -44,8 +45,11 @@
 #include <QElapsedTimer>
 #include <QtConcurrent>
 #include <QFuture>
+#include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QStandardPaths>
+
+#include <string>
 
 #include "global.h"
 #include "util.h"
@@ -59,8 +63,10 @@
 #include "password.h"
 #include "crypter.h"
 #include "securebytearray.h"
+#include "passwordchecker.h"
 
 #include "dump.h"
+
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
@@ -539,6 +545,7 @@ void MainWindow::stopPasswordGeneration(void)
 void MainWindow::changeMasterPassword(void)
 {
   Q_D(MainWindow);
+  d->changeMasterPasswordDialog->setPasswordFilename(d->optionsDialog->passwordFilename());
   const int rc = d->changeMasterPasswordDialog->exec();
   if ((rc == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
     d->masterPasswordChangeStep = 1;
@@ -977,6 +984,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
+  d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
 
   saveAllDomainDataToSettings();
   d->settings.sync();
@@ -1020,6 +1028,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
+  d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {

@@ -63,7 +63,8 @@ SOURCES += main.cpp \
     util.cpp \
     pbkdf2.cpp \
     password.cpp \
-    changemasterpassworddialog.cpp
+    changemasterpassworddialog.cpp \
+    passwordchecker.cpp
 
 win32:SOURCES += \
     3rdparty/cryptopp562/sha.cpp \
@@ -105,7 +106,8 @@ HEADERS  += \
     servercertificatewidget.h \
     pbkdf2.h \
     password.h \
-    changemasterpassworddialog.h
+    changemasterpassworddialog.h \
+    passwordchecker.h
 
 win32:HEADERS += \
     3rdparty/cryptopp562/sha.h \

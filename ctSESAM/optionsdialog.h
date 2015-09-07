@@ -82,13 +82,15 @@ public:
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
 
-
+  QString passwordFilename(void) const;
+  void setPasswordFilename(const QString &filename);
 
 signals:
   void updatedServerCertificates(void);
 
 private slots:
   void chooseSyncFile(void);
+  void choosePasswordFile(void);
   void okClicked(void);
   void onEncrypted(void);
   void checkConnectivity(void);
