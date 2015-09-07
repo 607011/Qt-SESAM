@@ -59,17 +59,11 @@ void SafeDelete(T& a)
 }
 
 
-template <typename T>
-void SecureErase(T *m, int size)
-{
-  memset(m, 0, size);
-}
-
-
 template <class T>
 void SecureErase(T &obj)
 {
-  SecureErase(obj.data(), obj.size());
+  for (T::iterator i = obj.begin(); i != obj.end(); ++i)
+    *i = 0;
   obj.clear();
 }
 
