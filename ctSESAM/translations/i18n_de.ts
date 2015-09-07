@@ -574,6 +574,14 @@
         <source>&lt;New domain ...&gt;</source>
         <translation>&lt;Neue Domain ...&gt;</translation>
     </message>
+    <message>
+        <source>Generated</source>
+        <translation>Generiert</translation>
+    </message>
+    <message>
+        <source>Legacy</source>
+        <translation>Klassisch</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
