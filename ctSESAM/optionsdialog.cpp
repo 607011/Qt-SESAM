@@ -58,6 +58,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
   QObject::connect(ui->checkConnectivityPushButton, SIGNAL(pressed()), SLOT(checkConnectivity()));
+  QObject::connect(ui->selectPasswordFilePushButton, SIGNAL(pressed()), SLOT(choosePasswordFile()));
 }
 
 
@@ -219,6 +220,18 @@ void OptionsDialog::setMasterPasswordInvalidationTimeMins(int minutes)
 }
 
 
+QString OptionsDialog::passwordFilename(void) const
+{
+  return ui->passwordFileLineEdit->text();
+}
+
+
+void OptionsDialog::setPasswordFilename(const QString &filename)
+{
+  ui->passwordFileLineEdit->setText(filename);
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);
@@ -318,6 +331,15 @@ void OptionsDialog::chooseSyncFile(void)
   QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), fi.absolutePath());
   if (!chosenFile.isEmpty())
     ui->syncFileLineEdit->setText(chosenFile);
+}
+
+
+void OptionsDialog::choosePasswordFile()
+{
+  QFileInfo fi(ui->passwordFileLineEdit->text());
+  QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose password file"), fi.absolutePath());
+  if (!chosenFile.isEmpty())
+    ui->passwordFileLineEdit->setText(chosenFile);
 }
 
 

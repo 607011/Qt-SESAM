@@ -28,23 +28,19 @@ class PasswordCheckerPrivate
 {
 public:
   PasswordCheckerPrivate(void)
-    : pwdFile("D:/Workspace/QtSESAM/ctSESAM/resources/realhuman_phill.txt")
-  {
-    pwdFile.open(QIODevice::ReadOnly);
-  }
+  { /* ... */ }
   ~PasswordCheckerPrivate()
-  {
-    pwdFile.close();
-  }
+  { /* ... */ }
   QFile pwdFile;
+  QString pwdFilename;
 };
 
 
-PasswordChecker::PasswordChecker(QObject *parent)
+PasswordChecker::PasswordChecker(const QString &passwordFilename, QObject *parent)
   : QObject(parent)
   , d_ptr(new PasswordCheckerPrivate)
 {
-
+  d_ptr->pwdFilename = passwordFilename;
 }
 
 
@@ -57,14 +53,23 @@ PasswordChecker::~PasswordChecker()
 qint64 PasswordChecker::findInPasswordFile(const QString &needle)
 {
   Q_D(PasswordChecker);
-  return findInPasswordFile(0, d->pwdFile.size(), needle);
+  qint64 pos = -1;
+  if (!d->pwdFilename.isEmpty()) {
+    d->pwdFile.setFileName(d->pwdFilename);
+    d->pwdFile.open(QIODevice::ReadOnly);
+    if (d->pwdFile.isOpen()) {
+      pos = findInPasswordFile(0, d->pwdFile.size(), needle);
+      d->pwdFile.close();
+    }
+  }
+  return pos;
 }
 
 
 qint64 PasswordChecker::findInPasswordFile(qint64 lo, qint64 hi, const QString &needle)
 {
   Q_D(PasswordChecker);
-  if (hi < lo)
+  if (hi <= lo)
     return -1;
   qint64 mid = (lo + hi) / 2;
   d->pwdFile.seek(mid);
@@ -115,43 +120,43 @@ void PasswordChecker::evaluatePasswordStrength(const QString &password, QColor &
     fitness = password.size() * entropy(password);
     if (fitness >= 11.0) {
       color.setRgb(0, 255, 30);
-      grade = QObject::tr("Supercalifragilisticexpialidocious");
+      grade = tr("Supercalifragilisticexpialidocious");
     }
     else if (fitness >= 9.0) {
       color.setRgb(0, 255, 30);
-      grade = QObject::tr("Brutally strong");
+      grade = tr("Brutally strong");
     }
     else if (fitness >= 7.0) {
       color.setRgb(0, 255, 30);
-      grade = QObject::tr("Fabulous");
+      grade = tr("Fabulous");
     }
     else if (fitness >= 5.0) {
       color.setRgb(0, 255, 30);
-      grade = QObject::tr("Very good");
+      grade = tr("Very good");
     }
     else if (fitness >= 4.0) {
       color.setRgb(111, 255, 0);
-      grade = QObject::tr("Good");
+      grade = tr("Good");
     }
     else if (fitness >= 3.0) {
       color.setRgb(234, 255, 0);
-      grade = QObject::tr("Mediocre");
+      grade = tr("Mediocre");
     }
     else if (fitness >= 2.5) {
       color.setRgb(255, 153, 0);
-      grade = QObject::tr("You can do better");
+      grade = tr("You can do better");
     }
     else if (fitness >= 2.0) {
       color.setRgb(255, 48, 0);
-      grade = QObject::tr("Bad");
+      grade = tr("Bad");
     }
     else if (fitness >= 1.5) {
       color.setRgb(255, 0, 0);
-      grade = QObject::tr("It can hardly be worse");
+      grade = tr("It can hardly be worse");
     }
     else {
       color.setRgb(200, 0, 0);
-      grade = QObject::tr("Useless");
+      grade = tr("Useless");
     }
   }
   if (_fitness != nullptr)

@@ -24,9 +24,26 @@
 #include "passwordchecker.h"
 #include "util.h"
 
+
+class ChangeMasterPasswordDialogPrivate
+{
+public:
+  ChangeMasterPasswordDialogPrivate(void)
+    : passwordChecker(nullptr)
+  { /* ... */ }
+  ~ChangeMasterPasswordDialogPrivate()
+  {
+    SafeDelete(passwordChecker);
+  }
+
+  PasswordChecker *passwordChecker;
+};
+
+
 ChangeMasterPasswordDialog::ChangeMasterPasswordDialog(QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::ChangeMasterPasswordDialog)
+  , d_ptr(new ChangeMasterPasswordDialogPrivate)
 {
   ui->setupUi(this);
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
@@ -74,6 +91,18 @@ QString ChangeMasterPasswordDialog::newPassword(void) const
 }
 
 
+void ChangeMasterPasswordDialog::setPasswordFilename(const QString &filename)
+{
+  Q_D(ChangeMasterPasswordDialog);
+  if (filename.isEmpty()) {
+    SafeDelete(d->passwordChecker);
+  }
+  else {
+    SafeRenew(d->passwordChecker, new PasswordChecker(filename));
+  }
+}
+
+
 void ChangeMasterPasswordDialog::showEvent(QShowEvent *)
 {
   ui->newPasswordLineEdit1->clear();
@@ -86,10 +115,25 @@ void ChangeMasterPasswordDialog::showEvent(QShowEvent *)
 
 void ChangeMasterPasswordDialog::comparePasswords(void)
 {
-  QString grade;
-  QColor color;
-  PasswordChecker::evaluatePasswordStrength(ui->newPasswordLineEdit1->text(), color, grade, nullptr);
-  ui->strengthLabel->setText(tr("%1").arg(grade));
-  ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
+  Q_D(ChangeMasterPasswordDialog);
+  QString password = ui->newPasswordLineEdit1->text();
+  if (!password.isEmpty()) {
+    bool found = false;
+    QString grade;
+    QColor color;
+    if (d->passwordChecker != nullptr) {
+      qint64 pos = d->passwordChecker->findInPasswordFile(password);
+      found = (pos >= 0);
+      if (found) {
+        grade = tr("Listed");
+        color.setRgb(147, 209, 240);
+      }
+    }
+    if (!found) {
+      PasswordChecker::evaluatePasswordStrength(ui->newPasswordLineEdit1->text(), color, grade, nullptr);
+    }
+    ui->strengthLabel->setText(tr("%1").arg(grade));
+    ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
+  }
   ui->okPushButton->setEnabled(!ui->newPasswordLineEdit1->text().isEmpty() && ui->newPasswordLineEdit1->text() == ui->newPasswordLineEdit2->text());
 }
