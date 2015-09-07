@@ -1345,6 +1345,12 @@ void MainWindow::onDomainSelected(const QString &domain)
   else {
     copyDomainSettingsToGUI(domain);
     setDirty(false);
+    if (d->domains.at(domain).legacyPassword.isEmpty()) {
+      ui->toolBox->setCurrentIndex(0);
+    }
+    else {
+      ui->toolBox->setCurrentIndex(1);
+    }
   }
   d->currentDomain = ui->domainsComboBox->currentIndex() > 0
       ? ui->domainsComboBox->currentText()

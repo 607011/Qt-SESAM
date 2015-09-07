@@ -70,9 +70,9 @@
        <enum>QFrame::Sunken</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
-      <widget class="QWidget" name="page_2">
+      <widget class="QWidget" name="pageGenerated">
        <property name="geometry">
         <rect>
          <x>0</x>
@@ -272,13 +272,13 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page">
+      <widget class="QWidget" name="pageLegacy">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
          <width>246</width>
-         <height>109</height>
+         <height>125</height>
         </rect>
        </property>
        <attribute name="label">
