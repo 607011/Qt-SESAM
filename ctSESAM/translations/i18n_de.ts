@@ -183,7 +183,7 @@
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
-        <translation>SHA512-Hash (hex)</translation>
+        <translation type="vanished">SHA512-Hash (hex)</translation>
     </message>
     <message>
         <source>delete</source>

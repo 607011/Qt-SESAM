@@ -488,7 +488,6 @@ void MainWindow::updatePassword(void)
     stopPasswordGeneration();
     if (!d->hackingMode) {
       ui->generatedPasswordLineEdit->setText(QString());
-      ui->hashPlainTextEdit->setPlainText(QString());
       ui->statusBar->showMessage(QString());
     }
     generatePassword();
@@ -687,7 +686,6 @@ void MainWindow::onPasswordGenerated(void)
   else {
     if (!d->autoIncrementIterations || generatedPasswordIsValid()) {
       ui->generatedPasswordLineEdit->setText(d->password.key());
-      ui->hashPlainTextEdit->setPlainText(d->password.hexKey());
       if (!d->password.isAborted())
         ui->statusBar->showMessage(tr("generation time: %1 ms")
                                    .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 4), 3000);
@@ -1011,7 +1009,6 @@ void MainWindow::hackLegacyPassword(void)
     ui->usedCharactersPlainTextEdit->setReadOnly(true);
     ui->renewSaltPushButton->setEnabled(false);
     ui->passwordLengthSpinBox->setValue(pwd.size());
-    ui->hashPlainTextEdit->setPlainText(QString());
     d->hackClock.restart();
     d->hackIterationClock.restart();
     unblockUpdatePassword();
@@ -1542,7 +1539,6 @@ void MainWindow::createFullDump(void)
 
 void MainWindow::onExpertModeChanged(bool enabled)
 {
-  ui->hashPlainTextEdit->setVisible(enabled);
   ui->actionHackLegacyPassword->setVisible(enabled);
   ui->actionRegenerateSaltKeyIV->setVisible(enabled);
 }
