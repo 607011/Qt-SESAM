@@ -28,10 +28,6 @@ int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(ctSESAM);
 
-#ifdef QT_NO_DEBUG
-  QLoggingCategory::setFilterRules("qt.network.ssl.warning=false");
-#endif
-
   QApplication a(argc, argv);
   QTranslator translator;
   bool ok = translator.load(":/translations/i18n_" + QLocale::system().name());
@@ -41,7 +37,6 @@ int main(int argc, char *argv[])
 #endif
   if (ok)
     a.installTranslator(&translator);
-
 
   MainWindow w;
   w.activateWindow();
