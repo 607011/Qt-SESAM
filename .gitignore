@@ -1,6 +1,7 @@
 *.pro.user*
 Makefile*
 ctSESAM/deploy/ctSESAM*.exe
+ctSESAM/deploy/ctSESAM*.exe.txt
 ctSESAM/Makefile*
 ctSESAM/release/*
 ctSESAM/debug/*
