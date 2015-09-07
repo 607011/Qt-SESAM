@@ -23,7 +23,6 @@
 
 #include <cstring>
 #include <QObject>
-#include <QColor>
 #include <QString>
 #include <QByteArray>
 #include <QVector>
@@ -56,6 +55,13 @@ template <class T>
 void SafeDelete(T& a)
 {
   SafeRenew<T>(a, nullptr);
+}
+
+
+template <class T>
+void SecureErase(T *p, size_t size)
+{
+  memset(p, 0, size);
 }
 
 
