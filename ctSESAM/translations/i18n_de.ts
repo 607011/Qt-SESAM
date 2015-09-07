@@ -31,6 +31,10 @@
         <source>%1</source>
         <translation>%1</translation>
     </message>
+    <message>
+        <source>Listed</source>
+        <translation>Gelistet</translation>
+    </message>
 </context>
 <context>
     <name>CredentialsDialog</name>
@@ -862,28 +866,17 @@
         <source>Write backup files</source>
         <translation>Backups schreiben</translation>
     </message>
-</context>
-<context>
-    <name>ProgressDialog</name>
     <message>
-        <source>Operation in progress ...</source>
-        <translation type="vanished">Bitte warten ...</translation>
+        <source>Password dictionary file</source>
+        <translation>Passwortdatei</translation>
     </message>
     <message>
-        <source>Sync ...</source>
-        <translation>Sync ...</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schließen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <source>Choose password file</source>
+        <translation>Passwortdatei wählen</translation>
     </message>
 </context>
 <context>
-    <name>QObject</name>
+    <name>PasswordChecker</name>
     <message>
         <source>Supercalifragilisticexpialidocious</source>
         <translation>Supercalifragilisticexpialigetisch</translation>
@@ -923,6 +916,68 @@
     <message>
         <source>Useless</source>
         <translation>Nutzlos</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDialog</name>
+    <message>
+        <source>Operation in progress ...</source>
+        <translation type="vanished">Bitte warten ...</translation>
+    </message>
+    <message>
+        <source>Sync ...</source>
+        <translation>Sync ...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>Supercalifragilisticexpialidocious</source>
+        <translation type="vanished">Supercalifragilisticexpialigetisch</translation>
+    </message>
+    <message>
+        <source>Brutally strong</source>
+        <translation type="vanished">Brutalst stark</translation>
+    </message>
+    <message>
+        <source>Fabulous</source>
+        <translation type="vanished">Sagenhaft</translation>
+    </message>
+    <message>
+        <source>Very good</source>
+        <translation type="vanished">Sehr gut</translation>
+    </message>
+    <message>
+        <source>Good</source>
+        <translation type="vanished">Gut</translation>
+    </message>
+    <message>
+        <source>Mediocre</source>
+        <translation type="vanished">Mittelmäßig</translation>
+    </message>
+    <message>
+        <source>You can do better</source>
+        <translation type="vanished">Da geht noch was</translation>
+    </message>
+    <message>
+        <source>Bad</source>
+        <translation type="vanished">Schlecht</translation>
+    </message>
+    <message>
+        <source>It can hardly be worse</source>
+        <translation type="vanished">Es könnte kaum schlechter sein</translation>
+    </message>
+    <message>
+        <source>Useless</source>
+        <translation type="vanished">Nutzlos</translation>
     </message>
 </context>
 <context>
