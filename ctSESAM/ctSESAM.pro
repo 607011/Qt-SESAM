@@ -21,10 +21,10 @@ QT += core gui widgets concurrent network
 
 TRANSLATIONS += translations/i18n_de.ts
 
-CONFIG += warn_off
-CONFIG -= console
-
 win32 {
+    CONFIG += warn_off
+    CONFIG += windows
+    CONFIG -= console
     QMAKE_CXXFLAGS += -wd4100
     QMAKE_CXXFLAGS_DEBUG += -sdl
     QMAKE_CXXFLAGS_RELEASE += -GA -GL -Ox
@@ -35,6 +35,7 @@ win32 {
     LIBS += User32.lib
     QMAKE_LFLAGS += /LTCG
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
+    QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:WINDOWS
 }
 
 unix {
