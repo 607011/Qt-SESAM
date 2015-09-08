@@ -18,8 +18,8 @@
 */
 
 #include "mainwindow.h"
+#include "global.h"
 #include <QApplication>
-#include <QLoggingCategory>
 #include <QLocale>
 #include <QTranslator>
 
@@ -29,9 +29,14 @@ int main(int argc, char *argv[])
   Q_INIT_RESOURCE(ctSESAM);
 
   QApplication a(argc, argv);
+  a.setOrganizationName(AppCompanyName);
+  a.setOrganizationDomain(AppCompanyName);
+  a.setApplicationName(AppName);
+  a.setApplicationVersion(AppVersion);
+
   QTranslator translator;
   bool ok = translator.load(":/translations/i18n_" + QLocale::system().name());
-#ifndef QT_NO_DEBUG
+#ifdef QT_DEBUG
   if (!ok)
     qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
 #endif

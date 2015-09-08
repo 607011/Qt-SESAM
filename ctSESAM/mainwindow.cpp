@@ -77,10 +77,10 @@ static const QString DefaultReadUrl = "/ajax/read.php";
 
 class MainWindowPrivate {
 public:
-  MainWindowPrivate(QWidget *parent = nullptr)
+  MainWindowPrivate(void)
     : settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
-    , trayIcon(QIcon(":/images/ctSESAM.ico"), parent)
+    , trayIcon(QIcon(":/images/ctSESAM.ico"))
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
     , autoIncrementIterations(true)
@@ -164,7 +164,7 @@ const QMap<int, QString> MainWindow::PeerNames = {
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
-  , d_ptr(new MainWindowPrivate(this))
+  , d_ptr(new MainWindowPrivate)
 {
   Q_D(MainWindow);
 
@@ -240,11 +240,10 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
 
-#if defined(QT_DEBUG)
-#if defined(WIN32)
+#ifdef QT_DEBUG
+#ifdef WIN32
   ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_D));
 #endif
-  ui->menuExtras->addAction(tr("[DEBUG] Invalidate password"), this, SLOT(invalidatePassword()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_I));
 #endif
 
   onExpertModeChanged(false);
