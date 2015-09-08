@@ -75,7 +75,6 @@ static const QString DefaultServerRoot = "https://localhost/ctSESAM";
 static const QString DefaultWriteUrl = "/ajax/write.php";
 static const QString DefaultReadUrl = "/ajax/read.php";
 
-
 class MainWindowPrivate {
 public:
   MainWindowPrivate(QWidget *parent = nullptr)
@@ -153,6 +152,12 @@ public:
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
+};
+
+
+const QMap<int, QString> MainWindow::PeerNames = {
+  std::pair<int, QString>(MainWindow::SyncPeerFile, QString("SyncPeerFile")),
+  std::pair<int, QString>(MainWindow::SyncPeerServer, QString("SyncPeerServer"))
 };
 
 
@@ -561,23 +566,31 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->progressDialog->show();
     d->progressDialog->raise();
     d->progressDialog->setText(tr("Starting synchronisation ..."));
-    d->progressDialog->setRange(0, 3);
+    d->progressDialog->setRange(1, 3);
     d->progressDialog->setValue(1);
     saveAllDomainDataToSettings();
     sync();
+    if (!syncToServerEnabled())
+      nextChangeMasterPasswordStep();
     break;
   case 2:
     d->progressDialog->setValue(2);
     d->masterPassword = d->changeMasterPasswordDialog->newPassword();
     generateSaltKeyIV().waitForFinished();
     d->progressDialog->setText(tr("Writing to sync peers ..."));
-    writeToRemote(AllSources);
+    if (d->optionsDialog->useSyncFile()) {
+      writeToRemote(SyncPeerFile);
+      if (!syncToServerEnabled())
+        nextChangeMasterPasswordStep();
+    }
+    if (syncToServerEnabled()) {
+      writeToRemote(SyncPeerServer);
+    }
     break;
   case 3:
     d->masterPasswordChangeStep = 0;
     d->progressDialog->setText(tr("Password changed."));
     d->progressDialog->setValue(3);
-    d->progressDialog->hide();
     break;
   default:
     // ignore
@@ -904,7 +917,6 @@ void MainWindow::saveAllDomainDataToSettings(void)
   d->settings.setValue("sync/domains", QString::fromUtf8(binaryDomainData));
   d->settings.sync();
 
-
   if (d->masterPasswordChangeStep == 0) {
     generateSaltKeyIV();
     if (d->optionsDialog->writeBackups())
@@ -1046,14 +1058,7 @@ bool MainWindow::restoreSettings(void)
       syncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
     d->optionsDialog->setSyncFilename(syncFilename);
     d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
-
-#ifdef QT_NO_DEBUG
-    // see https://github.com/ola-ct/Qt-SESAM/issues/23
-    d->optionsDialog->setUseSyncFile(false);
-#else
     d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
-#endif
-
     d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
 
     QString serverRoot = syncData["sync/serverRoot"].toString();
@@ -1150,7 +1155,7 @@ void MainWindow::sync(void)
       }
       QByteArray domains = syncFile.readAll();
       syncFile.close();
-      sync(SyncPeerFile, domains);
+      syncWith(SyncPeerFile, domains);
     }
     else {
       QMessageBox::warning(this, tr("Sync file read error"),
@@ -1159,16 +1164,16 @@ void MainWindow::sync(void)
     }
   }
 
-  if (d->optionsDialog->useSyncServer()) {
+  if (syncToServerEnabled()) {
     if (d->masterPasswordChangeStep == 0) {
       d->progressDialog->show();
       d->progressDialog->raise();
-      d->progressDialog->setText(tr("Reading from server ..."));
       d->counter = 0;
       d->maxCounter = 1;
       d->progressDialog->setRange(0, d->maxCounter);
       d->progressDialog->setValue(d->counter);
     }
+    d->progressDialog->setText(tr("Reading from server ..."));
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
@@ -1196,7 +1201,7 @@ QByteArray MainWindow::cryptedRemoteDomains(void)
 }
 
 
-void MainWindow::sync(SyncPeer syncPeer, const QByteArray &remoteDomainsEncoded)
+void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
   QJsonDocument remoteJSON;
@@ -1222,13 +1227,12 @@ void MainWindow::sync(SyncPeer syncPeer, const QByteArray &remoteDomainsEncoded)
         return;
       }
     }
-
     if (!baDomains.isEmpty()) {
       QJsonParseError parseError;
       remoteJSON = QJsonDocument::fromJson(baDomains, &parseError);
       if (parseError.error != QJsonParseError::NoError) {
-        QMessageBox::warning(this, tr("Bad data from sync server"),
-                             tr("Decoding the data from the sync server failed: %1")
+        QMessageBox::warning(this, tr("Bad data from sync peer"),
+                             tr("Decoding the data from the sync peer failed: %1")
                              .arg(parseError.errorString()), QMessageBox::Ok);
       }
     }
@@ -1281,13 +1285,10 @@ void MainWindow::writeToRemote(SyncPeer syncPeer)
   Q_D(MainWindow);
   const QByteArray &cipher = cryptedRemoteDomains();
   if (!cipher.isEmpty()) {
-    const bool writeToServer = (syncPeer & SyncPeerServer) == SyncPeerServer && d->optionsDialog->useSyncServer();
-    if ((syncPeer & SyncPeerFile) == SyncPeerFile && d->optionsDialog->useSyncFile()) {
+    if ((syncPeer & SyncPeerFile) == SyncPeerFile && syncToFileEnabled()) {
       writeToSyncFile(cipher);
-      if (!writeToServer)
-        nextChangeMasterPasswordStep();
     }
-    if (writeToServer) {
+    if ((syncPeer & SyncPeerServer) == SyncPeerServer && syncToServerEnabled()) {
       sendToSyncServer(cipher);
       d->loaderIcon.start();
       updateSaveButtonIcon();
@@ -1300,10 +1301,20 @@ void MainWindow::writeToRemote(SyncPeer syncPeer)
 }
 
 
+bool MainWindow::syncToServerEnabled(void) const {
+  return d_ptr->optionsDialog->useSyncServer();
+}
+
+
+bool MainWindow::syncToFileEnabled(void) const {
+  return d_ptr->optionsDialog->useSyncFile() && !d_ptr->optionsDialog->syncFilename().isEmpty();
+}
+
+
 void MainWindow::writeToSyncFile(const QByteArray &cipher)
 {
   Q_D(MainWindow);
-  if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
+  if (syncToFileEnabled()) {
     QFile syncFile(d->optionsDialog->syncFilename());
     syncFile.open(QIODevice::WriteOnly);
     const qint64 bytesWritten = syncFile.write(cipher);
@@ -1485,7 +1496,7 @@ void MainWindow::onReadFinished(QNetworkReply *reply)
       QVariantMap map = json.toVariant().toMap();
       if (map["status"].toString() == "ok") {
         QByteArray baDomains = QByteArray::fromBase64(map["result"].toByteArray());
-        sync(SyncPeerServer, baDomains);
+        syncWith(SyncPeerServer, baDomains);
       }
       else {
         d->progressDialog->setText(tr("Reading from the sync server failed. Status: %1 - Error: %2").arg(map["status"].toString()).arg(map["error"].toString()));

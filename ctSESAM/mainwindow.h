@@ -64,10 +64,11 @@ protected:
 
 private:
   typedef enum _Type {
-    SyncPeerFile = 1 << 0,
-    SyncPeerServer = 1 << 1,
-    AllSources = SyncPeerFile | SyncPeerServer
+    SyncPeerFile = 0x00000001,
+    SyncPeerServer = 0x00000002,
+    LastPeerName
   } SyncPeer;
+  static const QMap<int, QString> PeerNames;
 
 private slots:
   void updatePassword(void);
@@ -91,7 +92,7 @@ private slots:
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
   void sync(void);
-  void sync(SyncPeer syncPeer, const QByteArray &baDomains);
+  void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);
@@ -152,6 +153,8 @@ private: // methods
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
   void writeBackupFile(const QByteArray &binaryDomainData);
+  bool syncToServerEnabled(void) const;
+  bool syncToFileEnabled(void) const;
 };
 
 #endif // __MAINWINDOW_H_
