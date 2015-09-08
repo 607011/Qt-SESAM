@@ -196,6 +196,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
+  QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
+  QObject::connect(ui->actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
@@ -1390,6 +1392,7 @@ void MainWindow::updateWindowTitle(void)
 void MainWindow::clearClipboard(void)
 {
   QApplication::clipboard()->clear();
+  ui->statusBar->showMessage(tr("Clipboard cleared."), 3000);
 }
 
 
@@ -1456,6 +1459,12 @@ void MainWindow::invalidatePassword(bool reenter)
   ui->statusBar->showMessage(tr("Master password cleared for security"));
   if (reenter)
     enterMasterPassword();
+}
+
+
+void MainWindow::lockApplication(void)
+{
+  invalidatePassword(true);
 }
 
 

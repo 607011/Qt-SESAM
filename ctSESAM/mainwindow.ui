@@ -296,8 +296,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>278</width>
-         <height>118</height>
+         <width>98</width>
+         <height>38</height>
         </rect>
        </property>
        <attribute name="label">
@@ -466,6 +466,7 @@
      <string>File</string>
     </property>
     <addaction name="actionNewDomain"/>
+    <addaction name="actionSyncNow"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -481,10 +482,11 @@
      <string>Extras</string>
     </property>
     <addaction name="actionOptions"/>
-    <addaction name="actionSyncNow"/>
     <addaction name="actionChangeMasterPassword"/>
-    <addaction name="actionExpertMode"/>
+    <addaction name="actionLockApplication"/>
+    <addaction name="actionClearClipboard"/>
     <addaction name="separator"/>
+    <addaction name="actionExpertMode"/>
     <addaction name="actionRegenerateSaltKeyIV"/>
     <addaction name="actionHackLegacyPassword"/>
     <addaction name="separator"/>
@@ -559,6 +561,19 @@
   <action name="actionRegenerateSaltKeyIV">
    <property name="text">
     <string>Regenerate salt, key and IV ...</string>
+   </property>
+  </action>
+  <action name="actionLockApplication">
+   <property name="text">
+    <string>Lock application ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+L</string>
+   </property>
+  </action>
+  <action name="actionClearClipboard">
+   <property name="text">
+    <string>Clear clipboard</string>
    </property>
   </action>
  </widget>
