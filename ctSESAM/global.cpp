@@ -23,7 +23,7 @@
 
 const QString AppCompanyName = "ct";
 const QString AppName = "QtSESAM";
-const QString AppVersion = "2.0.1-ALPHA3";
+const QString AppVersion = "2.0.1-BETA";
 const QString AppURL = "https://github.com/ola-ct/Qt-SESAM";
 const QString AppAuthor = "Oliver Lau";
 const QString AppAuthorMail = "ola@ct.de";
