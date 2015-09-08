@@ -582,6 +582,14 @@
         <source>Legacy</source>
         <translation type="vanished">Klassisch</translation>
     </message>
+    <message>
+        <source>Bad data from sync peer</source>
+        <translation>Fehlerhafte Daten von Sync-Gegenstelle</translation>
+    </message>
+    <message>
+        <source>Decoding the data from the sync peer failed: %1</source>
+        <translation>Dekodieren der Daten von Sync-Gegenstelle fehlgeschlagen: %1</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

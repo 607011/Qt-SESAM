@@ -59,12 +59,6 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
   QObject::connect(ui->checkConnectivityPushButton, SIGNAL(pressed()), SLOT(checkConnectivity()));
   QObject::connect(ui->selectPasswordFilePushButton, SIGNAL(pressed()), SLOT(choosePasswordFile()));
-
-#ifdef QT_NO_DEBUG
-  // see https://github.com/ola-ct/Qt-SESAM/issues/23
-  ui->syncFileGroupBox->setEnabled(false);
-#endif
-
 }
 
 
