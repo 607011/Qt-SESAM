@@ -333,8 +333,9 @@ void OptionsDialog::setSaltLength(int n)
 
 void OptionsDialog::chooseSyncFile(void)
 {
-  QFileInfo fi(ui->syncFileLineEdit->text());
-  QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), fi.absolutePath());
+  const QString &currentFile = ui->syncFileLineEdit->text();
+  const QString &savePath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
+  QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), savePath);
   if (!chosenFile.isEmpty())
     ui->syncFileLineEdit->setText(chosenFile);
 }
@@ -342,8 +343,9 @@ void OptionsDialog::chooseSyncFile(void)
 
 void OptionsDialog::choosePasswordFile()
 {
-  QFileInfo fi(ui->passwordFileLineEdit->text());
-  QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose password file"), fi.absolutePath());
+  const QString &currentFile = ui->passwordFileLineEdit->text();
+  const QString &openPath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
+  QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose password file"), openPath);
   if (!chosenFile.isEmpty())
     ui->passwordFileLineEdit->setText(chosenFile);
 }

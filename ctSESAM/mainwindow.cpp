@@ -1122,7 +1122,7 @@ void MainWindow::sync(void)
 {
   Q_D(MainWindow);
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
-  if (d->optionsDialog->useSyncFile()) {
+  if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
     QFileInfo fi(d->optionsDialog->syncFilename());
     if (!fi.isFile()) {
@@ -1303,14 +1303,16 @@ void MainWindow::writeToRemote(SyncPeer syncPeer)
 void MainWindow::writeToSyncFile(const QByteArray &cipher)
 {
   Q_D(MainWindow);
-  QFile syncFile(d->optionsDialog->syncFilename());
-  syncFile.open(QIODevice::WriteOnly);
-  const qint64 bytesWritten = syncFile.write(cipher);
-  syncFile.close();
-  if (bytesWritten < 0) {
-    QMessageBox::warning(this, tr("Sync file write error"), tr("Writing to your sync file %1 failed: %2")
-                         .arg(d->optionsDialog->syncFilename())
-                         .arg(syncFile.errorString()), QMessageBox::Ok);
+  if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
+    QFile syncFile(d->optionsDialog->syncFilename());
+    syncFile.open(QIODevice::WriteOnly);
+    const qint64 bytesWritten = syncFile.write(cipher);
+    syncFile.close();
+    if (bytesWritten < 0) {
+      QMessageBox::warning(this, tr("Sync file write error"), tr("Writing to your sync file %1 failed: %2")
+                           .arg(d->optionsDialog->syncFilename())
+                           .arg(syncFile.errorString()), QMessageBox::Ok);
+    }
   }
 }
 
