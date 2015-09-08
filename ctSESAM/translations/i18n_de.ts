@@ -590,6 +590,18 @@
         <source>Decoding the data from the sync peer failed: %1</source>
         <translation>Dekodieren der Daten von Sync-Gegenstelle fehlgeschlagen: %1</translation>
     </message>
+    <message>
+        <source>Lock application ...</source>
+        <translation>Anwendung sperren ...</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+L</source>
+        <translation>Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <source>Clipboard cleared.</source>
+        <translation>Zwischenablage gelöscht.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
