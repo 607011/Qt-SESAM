@@ -580,7 +580,7 @@
     </message>
     <message>
         <source>Legacy</source>
-        <translation>Klassisch</translation>
+        <translation type="vanished">Klassisch</translation>
     </message>
 </context>
 <context>
