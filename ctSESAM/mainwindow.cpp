@@ -155,12 +155,6 @@ public:
 };
 
 
-const QMap<int, QString> MainWindow::PeerNames = {
-  std::pair<int, QString>(MainWindow::SyncPeerFile, QString("SyncPeerFile")),
-  std::pair<int, QString>(MainWindow::SyncPeerServer, QString("SyncPeerServer"))
-};
-
-
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)

@@ -68,7 +68,6 @@ private:
     SyncPeerServer = 0x00000002,
     LastPeerName
   } SyncPeer;
-  static const QMap<int, QString> PeerNames;
 
 private slots:
   void updatePassword(void);
