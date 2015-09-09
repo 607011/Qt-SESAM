@@ -19,7 +19,7 @@ TEMPLATE = app qt
 
 QT += core gui widgets concurrent network testlib
 
-CONFIG += warn_off
+CONFIG += warn_off c++11
 
 DEFINES += CRYPTOPP_DISABLE_ASM
 
@@ -28,11 +28,6 @@ win32 {
     DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
     LIBS += User32.lib
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
-}
-
-unix {
-    QMAKE_CXXFLAGS += -std=c++11
-    LIBS += -lcryptopp
 }
 
 SOURCES += test-main.cpp \
@@ -60,9 +55,10 @@ HEADERS  += \
 
 INCLUDEPATH += $$PWD/3rdparty
 
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/debug/ -lcryptopp
-else:macx: LIBS += -L$$OUT_PWD/../cryptopp/ -lcryptopp
+else:unix: LIBS += -L$$OUT_PWD/../cryptopp/ -lcryptopp
 
 INCLUDEPATH += $$PWD/../cryptopp
 DEPENDPATH += $$PWD/../cryptopp
@@ -71,4 +67,4 @@ win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptop
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/libcryptopp.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/release/cryptopp.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/cryptopp.lib
-else:macx: PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/libcryptopp.a
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/libcryptopp.a
