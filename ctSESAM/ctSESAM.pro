@@ -25,10 +25,8 @@ win32 {
     CONFIG += warn_off
     CONFIG += windows
     CONFIG -= console
-    QMAKE_CXXFLAGS += -wd4100
     QMAKE_CXXFLAGS_DEBUG += -sdl
     QMAKE_CXXFLAGS_RELEASE += -GA -GL -Ox
-    DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
     RC_FILE = ctSESAM.rc
     SOURCES += dump.cpp
     HEADERS += dump.h
@@ -41,12 +39,6 @@ win32 {
 unix {
     QMAKE_CXXFLAGS += -std=c++11
     LIBS += -lcryptopp
-}
-
-CONFIG(debug) {
-    QT += testlib
-    SOURCES +=
-    HEADERS +=
 }
 
 SOURCES += main.cpp \
@@ -68,29 +60,6 @@ SOURCES += main.cpp \
     changemasterpassworddialog.cpp \
     passwordchecker.cpp
 
-win32:SOURCES += \
-    3rdparty/cryptopp562/sha.cpp \
-    3rdparty/cryptopp562/iterhash.cpp \
-    3rdparty/cryptopp562/misc.cpp \
-    3rdparty/cryptopp562/simple.cpp \
-    3rdparty/cryptopp562/cryptlib.cpp \
-    3rdparty/cryptopp562/cpu.cpp \
-    3rdparty/cryptopp562/filters.cpp \
-    3rdparty/cryptopp562/queue.cpp \
-    3rdparty/cryptopp562/algparam.cpp \
-    3rdparty/cryptopp562/fips140.cpp \
-    3rdparty/cryptopp562/mqueue.cpp \
-    3rdparty/cryptopp562/rijndael.cpp \
-    3rdparty/cryptopp562/ccm.cpp \
-    3rdparty/cryptopp562/authenc.cpp \
-    3rdparty/cryptopp562/modes.cpp \
-    3rdparty/cryptopp562/strciphr.cpp \
-    3rdparty/cryptopp562/des.cpp \
-    3rdparty/cryptopp562/rdtables.cpp \
-    3rdparty/cryptopp562/dessp.cpp \
-    3rdparty/cryptopp562/rng.cpp \
-    3rdparty/cryptopp562/osrng.cpp
-
 HEADERS  += \
     mainwindow.h \
     3rdparty/bigint/bigInt.h \
@@ -111,33 +80,6 @@ HEADERS  += \
     changemasterpassworddialog.h \
     passwordchecker.h
 
-win32:HEADERS += \
-    3rdparty/cryptopp562/sha.h \
-    3rdparty/cryptopp562/config.h \
-    3rdparty/cryptopp562/cryptlib.h \
-    3rdparty/cryptopp562/iterhash.h \
-    3rdparty/cryptopp562/misc.h \
-    3rdparty/cryptopp562/secblock.h \
-    3rdparty/cryptopp562/simple.h \
-    3rdparty/cryptopp562/smartptr.h \
-    3rdparty/cryptopp562/stdcpp.h \
-    3rdparty/cryptopp562/cpu.h \
-    3rdparty/cryptopp562/filters.h \
-    3rdparty/cryptopp562/queue.h \
-    3rdparty/cryptopp562/algparam.h \
-    3rdparty/cryptopp562/fips140.h \
-    3rdparty/cryptopp562/mqueue.h \
-    3rdparty/cryptopp562/aes.h \
-    3rdparty/cryptopp562/ccm.h \
-    3rdparty/cryptopp562/authenc.h \
-    3rdparty/cryptopp562/modes.h \
-    3rdparty/cryptopp562/strciphr.h \
-    3rdparty/cryptopp562/des.h \
-    3rdparty/cryptopp562/rijndael.h \
-    3rdparty/cryptopp562/seckey.h \
-    3rdparty/cryptopp562/rng.h
-
-
 FORMS += mainwindow.ui \
     optionsdialog.ui \
     progressdialog.ui \
@@ -151,15 +93,28 @@ RESOURCES += \
     ctSESAM.qrc
 
 DISTFILES += \
-    .gitignore \
     LICENSE \
     ../README.md \
-    translations/i18n_de.ts \
     ctSESAM.rc \
+    ../LIESMICH.txt
+
+OTHER_FILES += \
+    translations/i18n_de.ts \
+    .gitignore \
     ../deploy/ctSESAM.nsi \
     ../.gitignore \
     Doxyfile \
     deploy/ctSESAM.nsi \
-    ../LIESMICH.txt
 
-OTHER_FILES +=
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/debug/ -lcryptopp
+else:macx: LIBS += -L$$OUT_PWD/../cryptopp/ -lcryptopp
+
+INCLUDEPATH += $$PWD/../cryptopp
+DEPENDPATH += $$PWD/../cryptopp
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/release/libcryptopp.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/libcryptopp.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/release/cryptopp.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/cryptopp.lib
+else:macx: PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/libcryptopp.a

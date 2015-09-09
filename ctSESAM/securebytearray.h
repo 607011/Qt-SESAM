@@ -27,7 +27,7 @@
  * \brief The SecureByteArray class
  *
  * `SecureByteArray` augments `QByteArray` with an invalidation function that overwrites
- * the allocated memory of the object with 0, then clearing the object.
+ * the allocated memory of the object with 0, then clearsg the object.
  *
  */
 class SecureByteArray : public QByteArray

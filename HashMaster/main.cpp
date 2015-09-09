@@ -20,14 +20,13 @@
 #include <iostream>
 #include <fstream>
 
-#include "crc.h"
-#include "md4.h"
-#include "md5.h"
 #include "ripemd.h"
 #include "hex.h"
-#include "cryptopp562/sha.h"
-#include "cryptopp562/ccm.h"
-#include "cryptopp562/misc.h"
+#include "sha.h"
+#include "ccm.h"
+#include "misc.h"
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include "md5.h"
 
 
 struct MatchPathSeparator {
@@ -50,6 +49,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  bool rc = 0;
   std::string fname = argv[1];
   std::string fname_base = basename(fname);
   std::ofstream out(fname + ".txt");
@@ -79,24 +79,10 @@ int main(int argc, char *argv[])
   if (file.read(reinterpret_cast<char*>(buffer), size)) {
 
     {
-      byte digest[CryptoPP::CRC32::DIGESTSIZE];
-      CryptoPP::CRC32 hash;
+      byte digest[CryptoPP::Weak::MD5::DIGESTSIZE];
+      CryptoPP::Weak::MD5 hash;
       hash.CalculateDigest(digest, buffer, (size_t)size);
-      dump("CRC32:    ", digest, CryptoPP::CRC32::DIGESTSIZE);
-    }
-
-    {
-      byte digest[CryptoPP::MD4::DIGESTSIZE];
-      CryptoPP::MD4 hash;
-      hash.CalculateDigest(digest, buffer, (size_t)size);
-      dump("MD4:      ", digest, CryptoPP::MD4::DIGESTSIZE);
-    }
-
-    {
-      byte digest[CryptoPP::MD5::DIGESTSIZE];
-      CryptoPP::MD5 hash;
-      hash.CalculateDigest(digest, buffer, (size_t)size);
-      dump("MD5:      ", digest, CryptoPP::MD5::DIGESTSIZE);
+      dump("MD5:      ", digest, CryptoPP::Weak::MD5::DIGESTSIZE);
     }
 
     {
@@ -129,8 +115,11 @@ int main(int argc, char *argv[])
 
     out.close();
   }
+  else {
+    rc = 2;
+  }
 
   delete[] buffer;
 
-  return 0;
+  return rc;
 }

@@ -20,9 +20,9 @@
 #include <QDebug>
 #include <random>
 #include <string>
-#include "3rdparty/cryptopp562/sha.h"
-#include "3rdparty/cryptopp562/ccm.h"
-#include "3rdparty/cryptopp562/misc.h"
+#include "sha.h"
+#include "ccm.h"
+#include "misc.h"
 #include "securebytearray.h"
 #include "pbkdf2.h"
 #include "crypter.h"

@@ -44,29 +44,6 @@ SOURCES += test-main.cpp \
     ../ctSESAM/securebytearray.cpp \
     ../ctSESAM/util.cpp
 
-win32:SOURCES += \
-    ../ctSESAM/3rdparty/cryptopp562/sha.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/iterhash.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/misc.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/simple.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/cryptlib.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/cpu.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/filters.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/queue.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/algparam.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/fips140.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/mqueue.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/rijndael.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/ccm.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/authenc.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/modes.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/strciphr.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/des.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/rdtables.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/dessp.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/rng.cpp \
-    ../ctSESAM/3rdparty/cryptopp562/osrng.cpp
-
 HEADERS  += \
     ../ctSESAM/3rdparty/bigint/bigInt.h \
     ../ctSESAM/util.h \
@@ -79,31 +56,17 @@ HEADERS  += \
     ../ctSESAM/crypter.h \
     ../ctSESAM/securebytearray.h
 
-win32:HEADERS += \
-    ../ctSESAM/3rdparty/cryptopp562/sha.h \
-    ../ctSESAM/3rdparty/cryptopp562/config.h \
-    ../ctSESAM/3rdparty/cryptopp562/cryptlib.h \
-    ../ctSESAM/3rdparty/cryptopp562/iterhash.h \
-    ../ctSESAM/3rdparty/cryptopp562/misc.h \
-    ../ctSESAM/3rdparty/cryptopp562/secblock.h \
-    ../ctSESAM/3rdparty/cryptopp562/simple.h \
-    ../ctSESAM/3rdparty/cryptopp562/smartptr.h \
-    ../ctSESAM/3rdparty/cryptopp562/stdcpp.h \
-    ../ctSESAM/3rdparty/cryptopp562/cpu.h \
-    ../ctSESAM/3rdparty/cryptopp562/filters.h \
-    ../ctSESAM/3rdparty/cryptopp562/queue.h \
-    ../ctSESAM/3rdparty/cryptopp562/algparam.h \
-    ../ctSESAM/3rdparty/cryptopp562/fips140.h \
-    ../ctSESAM/3rdparty/cryptopp562/mqueue.h \
-    ../ctSESAM/3rdparty/cryptopp562/aes.h \
-    ../ctSESAM/3rdparty/cryptopp562/ccm.h \
-    ../ctSESAM/3rdparty/cryptopp562/authenc.h \
-    ../ctSESAM/3rdparty/cryptopp562/modes.h \
-    ../ctSESAM/3rdparty/cryptopp562/strciphr.h \
-    ../ctSESAM/3rdparty/cryptopp562/des.h \
-    ../ctSESAM/3rdparty/cryptopp562/rijndael.h \
-    ../ctSESAM/3rdparty/cryptopp562/seckey.h \
-    ../ctSESAM/3rdparty/cryptopp562/rng.h
-
-
 INCLUDEPATH += $$PWD/3rdparty
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/debug/ -lcryptopp
+else:macx: LIBS += -L$$OUT_PWD/../cryptopp/ -lcryptopp
+
+INCLUDEPATH += $$PWD/../cryptopp
+DEPENDPATH += $$PWD/../cryptopp
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/release/libcryptopp.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/libcryptopp.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/release/cryptopp.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/cryptopp.lib
+else:macx: PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/libcryptopp.a

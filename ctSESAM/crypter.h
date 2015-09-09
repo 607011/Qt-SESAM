@@ -25,8 +25,8 @@
 #include <QString>
 #include "securebytearray.h"
 #include "util.h"
-#include "3rdparty/cryptopp562/filters.h"
-#include "3rdparty/cryptopp562/aes.h"
+#include "filters.h"
+#include "aes.h"
 
 class Crypter
 {
