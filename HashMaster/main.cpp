@@ -26,6 +26,7 @@
 #include "ccm.h"
 #include "misc.h"
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include "md4.h"
 #include "md5.h"
 
 
@@ -77,6 +78,13 @@ int main(int argc, char *argv[])
 
   byte *buffer = new byte[(unsigned int)size];
   if (file.read(reinterpret_cast<char*>(buffer), size)) {
+
+    {
+      byte digest[CryptoPP::Weak::MD4::DIGESTSIZE];
+      CryptoPP::Weak::MD4 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("MD4:      ", digest, CryptoPP::Weak::MD4::DIGESTSIZE);
+    }
 
     {
       byte digest[CryptoPP::Weak::MD5::DIGESTSIZE];
