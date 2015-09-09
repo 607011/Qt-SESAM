@@ -219,7 +219,7 @@
     </message>
     <message>
         <source>New domain</source>
-        <translation>Neue Domain</translation>
+        <translation type="vanished">Neue Domain</translation>
     </message>
     <message>
         <source>About ...</source>
@@ -231,7 +231,7 @@
     </message>
     <message>
         <source>Sync now</source>
-        <translation>Jetzt synchronisieren</translation>
+        <translation type="vanished">Jetzt synchronisieren</translation>
     </message>
     <message>
         <source>[DEBUG] Invalidate password</source>
@@ -601,6 +601,14 @@
     <message>
         <source>Clipboard cleared.</source>
         <translation>Zwischenablage gelöscht.</translation>
+    </message>
+    <message>
+        <source>New domain ...</source>
+        <translation>Neue Domain ...</translation>
+    </message>
+    <message>
+        <source>Sync now ...</source>
+        <translation>Synchronisieren ...</translation>
     </message>
 </context>
 <context>
