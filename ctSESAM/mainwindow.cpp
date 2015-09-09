@@ -1613,6 +1613,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   }
 #endif
+  default:
+    break;
   }
   return QObject::eventFilter(obj, event);
 }
