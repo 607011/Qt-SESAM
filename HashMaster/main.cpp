@@ -15,71 +15,122 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-*/
+    */
 
-#include <QCoreApplication>
-#include <QFile>
-#include <QFileInfo>
-#include <QCryptographicHash>
 #include <iostream>
+#include <fstream>
+
+#include "crc.h"
+#include "md4.h"
+#include "md5.h"
+#include "ripemd.h"
+#include "hex.h"
+#include "cryptopp562/sha.h"
+#include "cryptopp562/ccm.h"
+#include "cryptopp562/misc.h"
+
+
+struct MatchPathSeparator {
+  bool operator()(char ch) const {
+    return ch == '\\';
+  }
+};
+
+
+std::string basename(const std::string &pathname)
+{
+  return std::string(std::find_if(pathname.rbegin(), pathname.rend(), MatchPathSeparator()).base(), pathname.end());
+}
+
 
 int main(int argc, char *argv[])
 {
   if (argc < 2) {
-    std::cerr << "Usage: HashMaster filename" << std::endl;
+    std::cerr << "Usage: HashMaster <filename>" << std::endl;
     return 1;
   }
 
-  QFileInfo fi(argv[1]);
-  if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
-    std::cerr << "ERROR: " << fi.fileName().toStdString() << " does not exist or is not a readable file." << std::endl;
-    return 2;
+  std::string fname = argv[1];
+  std::string fname_base = basename(fname);
+  std::ofstream out(fname + ".txt");
+
+  auto dump = [&out](std::string algo, byte *digest, size_t digestLen)
+  {
+    CryptoPP::HexEncoder encoder(nullptr, false);
+    std::string hexDigest;
+    encoder.Attach(new CryptoPP::StringSink(hexDigest));
+    encoder.Put(digest, digestLen);
+    encoder.MessageEnd();
+    std::cout << algo << " " << hexDigest << std::endl;
+    if (out.is_open())
+      out << algo << " " << hexDigest << std::endl;
+  };
+
+  std::cout << "*" << fname_base << std::endl;
+  if (out.is_open())
+    out << "*" << fname_base << std::endl;
+
+  std::ifstream file(argv[1], std::ios::binary);
+  file.seekg(0, std::ios::end);
+  std::streamsize size = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  byte *buffer = new byte[(unsigned int)size];
+  if (file.read(reinterpret_cast<char*>(buffer), size)) {
+
+    {
+      byte digest[CryptoPP::CRC32::DIGESTSIZE];
+      CryptoPP::CRC32 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("CRC32:    ", digest, CryptoPP::CRC32::DIGESTSIZE);
+    }
+
+    {
+      byte digest[CryptoPP::MD4::DIGESTSIZE];
+      CryptoPP::MD4 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("MD4:      ", digest, CryptoPP::MD4::DIGESTSIZE);
+    }
+
+    {
+      byte digest[CryptoPP::MD5::DIGESTSIZE];
+      CryptoPP::MD5 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("MD5:      ", digest, CryptoPP::MD5::DIGESTSIZE);
+    }
+
+    {
+      byte digest[CryptoPP::SHA1::DIGESTSIZE];
+      CryptoPP::SHA1 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("SHA1:     ", digest, CryptoPP::SHA1::DIGESTSIZE);
+    }
+
+    {
+      byte digest[CryptoPP::SHA256::DIGESTSIZE];
+      CryptoPP::SHA256 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("SHA256:   ", digest, CryptoPP::SHA256::DIGESTSIZE);
+    }
+
+    {
+      byte digest[CryptoPP::SHA512::DIGESTSIZE];
+      CryptoPP::SHA512 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("SHA512:   ", digest, CryptoPP::SHA512::DIGESTSIZE);
+    }
+
+    {
+      byte digest[CryptoPP::RIPEMD160::DIGESTSIZE];
+      CryptoPP::RIPEMD160 hash;
+      hash.CalculateDigest(digest, buffer, (size_t)size);
+      dump("RIPEMD160:", digest, CryptoPP::RIPEMD160::DIGESTSIZE);
+    }
+
+    out.close();
   }
 
-  QFile f(argv[1]);
-  if (!f.open(QIODevice::ReadOnly)) {
-    std::cerr << "ERROR: Cannot read " << fi.fileName().toStdString() << "." << std::endl;
-    return 3;
-  }
+  delete[] buffer;
 
-  bool ok = false;
-  std::cout << "*" << fi.fileName().toStdString() << std::endl;
-
-  QCryptographicHash md4(QCryptographicHash::Md4);
-  ok = md4.addData(&f);
-  if (ok) {
-    std::cout << "MD4:    " << md4.result().toHex().toStdString() << std::endl;
-    f.reset();
-  }
-
-  QCryptographicHash md5(QCryptographicHash::Md5);
-  ok = md5.addData(&f);
-  if (ok) {
-    std::cout << "MD5:    " << md5.result().toHex().toStdString() << std::endl;
-    f.reset();
-  }
-
-  QCryptographicHash sha1(QCryptographicHash::Sha1);
-  ok = sha1.addData(&f);
-  if (ok) {
-    std::cout << "SHA1:   " << sha1.result().toHex().toStdString() << std::endl;
-    f.reset();
-  }
-
-  QCryptographicHash sha256(QCryptographicHash::Sha256);
-  ok = sha256.addData(&f);
-  if (ok) {
-    std::cout << "SHA256: " << sha256.result().toHex().toStdString() << std::endl;
-    f.reset();
-  }
-
-  QCryptographicHash sha512(QCryptographicHash::Sha512);
-  ok = sha512.addData(&f);
-  if (ok) {
-    std::cout << "SHA512: " << sha512.result().toHex().toStdString() << std::endl;
-    f.reset();
-  }
-
-  f.close();
   return 0;
 }
