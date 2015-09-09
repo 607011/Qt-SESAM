@@ -78,7 +78,6 @@ SOURCES += \
     filters.cpp \
     fips140.cpp \
     fipsalgt.cpp \
-    fipstest.cpp \
     gcm.cpp \
     gf2_32.cpp \
     gf2n.cpp \
@@ -136,7 +135,6 @@ SOURCES += \
     shacal2.cpp \
     shark.cpp \
     sharkbox.cpp \
-    simple.cpp \
     skipjack.cpp \
     socketft.cpp \
     sosemanuk.cpp \
@@ -144,7 +142,6 @@ SOURCES += \
     squaretb.cpp \
     strciphr.cpp \
     tea.cpp \
-    test.cpp \
     tftables.cpp \
     tiger.cpp \
     tigertab.cpp \
@@ -164,7 +161,8 @@ SOURCES += \
     xtrcrypt.cpp \
     zdeflate.cpp \
     zinflate.cpp \
-    zlib.cpp
+    zlib.cpp \
+    simple.cpp
 
 HEADERS += \
     3way.h \
@@ -277,7 +275,6 @@ HEADERS += \
     sha3.h \
     shacal2.h \
     shark.h \
-    simple.h \
     skipjack.h \
     smartptr.h \
     socketft.h \
@@ -303,7 +300,8 @@ HEADERS += \
     xtrcrypt.h \
     zdeflate.h \
     zinflate.h \
-    zlib.h
+    zlib.h \
+    simple.h
 
 unix {
     target.path = /usr/lib
