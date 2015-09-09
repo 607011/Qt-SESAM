@@ -15,8 +15,9 @@
 
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS += UnitTests \
-    ctSESAM \
+SUBDIRS += \
     cryptopp \
+    UnitTests \
+    ctSESAM \
     HashMaster
 

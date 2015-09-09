@@ -25,6 +25,7 @@ win32 {
     CONFIG += warn_off
     CONFIG += windows
     CONFIG -= console
+    DEFINES += _SCL_SECURE_NO_WARNINGS
     QMAKE_CXXFLAGS_DEBUG += -sdl
     QMAKE_CXXFLAGS_RELEASE += -GA -GL -Ox
     RC_FILE = ctSESAM.rc
