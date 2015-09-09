@@ -30,7 +30,7 @@ QString fingerprintify(const QByteArray &ba) {
 }
 
 
-#ifdef __linux__
+#if defined(Q_CC_GNU)
 void SecureErase(QString str)
 {
   for (QString::iterator i = str.begin(); i != str.end(); ++i)

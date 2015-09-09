@@ -22,7 +22,11 @@ CONFIG += staticlib warn_off c++11
 linux:QMAKE_CXXFLAGS += -std=c++11
 linux:CONFIG(release):QMAKE_CXXFLAGS += -O3
 
-win32 {
+win32-g++ {
+    QMAKE_CXXFLAGS_RELEASE += -O3
+}
+
+win32-msvc* {
     QMAKE_CXXFLAGS += -wd4100
     QMAKE_CXXFLAGS_DEBUG += -sdl
     QMAKE_CXXFLAGS_RELEASE += -GA -GL -Ox

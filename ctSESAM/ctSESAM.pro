@@ -25,7 +25,14 @@ CONFIG += c++11
 
 DEFINES += CRYPTOPP_DISABLE_ASM
 
-win32 {
+win32-g++ {
+    CONFIG += warn_off
+    CONFIG += windows
+    CONFIG -= console
+    QMAKE_CXXFLAGS_RELEASE += -O3
+}
+
+win32-msvc* {
     CONFIG += warn_off
     CONFIG += windows
     CONFIG -= console

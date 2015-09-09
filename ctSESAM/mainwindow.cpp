@@ -1567,7 +1567,7 @@ void MainWindow::aboutQt(void)
 void MainWindow::createFullDump(void)
 {
 #if defined(QT_DEBUG)
-#if defined(WIN32)
+#if defined(Q_CC_MSVC)
    make_minidump();
    ui->statusBar->showMessage(tr("Dump created."), 4000);
    qDebug() << "Mini dump created.";
