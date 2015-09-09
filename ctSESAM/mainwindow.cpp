@@ -560,6 +560,7 @@ void MainWindow::changeMasterPassword(void)
     else {
       saveAllDomainDataToSettings();
       d->masterPassword = d->changeMasterPasswordDialog->newPassword();
+      d->keyGenerationFuture.waitForFinished();
       generateSaltKeyIV().waitForFinished();
     }
   }
