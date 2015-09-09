@@ -27,6 +27,8 @@ win32 {
     DEFINES -= UNICODE
 }
 
+DEFINES += CRYPTOPP_DISABLE_ASM
+
 
 SOURCES += \
     3way.cpp \

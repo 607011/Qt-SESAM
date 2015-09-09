@@ -2574,6 +2574,7 @@ std::string BigInt::Rossi::toStr0xHex () const
 // ------------------
 std::string BigInt::Rossi::toStrDec (const std::string& i_prefix) const
 {
+    (void)i_prefix;
     std::ostringstream oss;
 
     BigInt::Vin vin (toStrHex(), BigInt::HEX_DIGIT);
@@ -3011,9 +3012,9 @@ void BigInt::assertCheck()
     ASSERTION (BigInt::OVER_BASE2 > BigInt::SUB_BASE2);
 
     ASSERTION(
-            (sizeof(BigInt::Ulong) == 4) && ((BigInt::ULONG_MSB == static_cast<BigInt::Ulong>(0x80000000)))
+            ((sizeof(BigInt::Ulong) == 4) && ((BigInt::ULONG_MSB == static_cast<BigInt::Ulong>(0x80000000))))
             ||
-            (sizeof(BigInt::Ulong) == 8) && ((BigInt::ULONG_MSB == ((static_cast<BigInt::Ulong>(0x80000000) << 31) << 1)))
+            ((sizeof(BigInt::Ulong) == 8) && ((BigInt::ULONG_MSB == ((static_cast<BigInt::Ulong>(0x80000000) << 31) << 1))))
           );
 }  
 	
