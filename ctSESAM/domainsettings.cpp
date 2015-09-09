@@ -45,14 +45,14 @@ const QString DomainSettings::DELETED = "deleted";
 
 
 DomainSettings::DomainSettings(void)
-  : iterations(DefaultIterations)
+  : salt_base64(DefaultSalt_base64)
+  , iterations(DefaultIterations)
   , length(DefaultPasswordLength)
-  , salt_base64(DefaultSalt_base64)
+  , deleted(false)
   , forceLowerCase(false)
   , forceUpperCase(false)
   , forceDigits(false)
   , forceExtra(false)
-  , deleted(false)
 { /* ... */ }
 
 
@@ -61,17 +61,17 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , userName(o.userName)
   , legacyPassword(o.legacyPassword)
   , notes(o.notes)
+  , salt_base64(o.salt_base64)
   , iterations(o.iterations)
   , length(o.length)
-  , salt_base64(o.salt_base64)
   , usedCharacters(o.usedCharacters)
+  , createdDate(o.createdDate)
+  , modifiedDate(o.modifiedDate)
+  , deleted(o.deleted)
   , forceLowerCase(o.forceLowerCase)
   , forceUpperCase(o.forceUpperCase)
   , forceDigits(o.forceDigits)
   , forceExtra(o.forceExtra)
-  , createdDate(o.createdDate)
-  , modifiedDate(o.modifiedDate)
-  , deleted(o.deleted)
 { /* ... */ }
 
 
