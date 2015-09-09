@@ -57,7 +57,6 @@ void SafeDelete(T& a)
   SafeRenew<T>(a, nullptr);
 }
 
-
 template <class T>
 void SecureErase(T *p, size_t size)
 {
@@ -68,13 +67,18 @@ void SecureErase(T *p, size_t size)
 template <class T>
 void SecureErase(T &obj)
 {
-  for (T::iterator i = obj.begin(); i != obj.end(); ++i)
+  for (typename T::iterator i = obj.begin(); i != obj.end(); ++i)
     *i = 0;
   obj.clear();
 }
 
 
 extern QString fingerprintify(const QByteArray &ba);
+
+#ifdef __linux__
+extern void SecureErase(QString str);
+#endif
+
 
 
 #endif // __UTIL_H_

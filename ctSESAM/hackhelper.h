@@ -70,7 +70,7 @@ public:
   PositionTable(const QString &str)
   {
     mStrSize = str.size();
-    for (int spos = 0; spos < mStrSize; ++spos) {
+    for (quint64 spos = 0; spos < mStrSize; ++spos) {
       const QChar &ch = str.at(spos);
       const int pos = indexOf(ch);
       if (pos == INVALID_POSITION) {
@@ -129,7 +129,7 @@ private: // methods
   static quint64 factorial(unsigned int x)
   {
     quint64 f = 1;
-    for (int i = 2; i <= x; ++i)
+    for (unsigned int i = 2; i <= x; ++i)
       f *= i;
     return f;
   }

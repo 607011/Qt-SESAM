@@ -28,3 +28,13 @@ QString fingerprintify(const QByteArray &ba) {
     result.insert(i, ':');
   return result;
 }
+
+
+#ifdef __linux__
+void SecureErase(QString str)
+{
+  for (QString::iterator i = str.begin(); i != str.end(); ++i)
+    *i = 0;
+  str.clear();
+}
+#endif
