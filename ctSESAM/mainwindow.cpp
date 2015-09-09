@@ -559,8 +559,15 @@ void MainWindow::changeMasterPassword(void)
   d->changeMasterPasswordDialog->setPasswordFilename(d->optionsDialog->passwordFilename());
   const int rc = d->changeMasterPasswordDialog->exec();
   if ((rc == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
-    d->masterPasswordChangeStep = 1;
-    nextChangeMasterPasswordStep();
+    if (syncToServerEnabled() || syncToFileEnabled()) {
+      d->masterPasswordChangeStep = 1;
+      nextChangeMasterPasswordStep();
+    }
+    else {
+      saveAllDomainDataToSettings();
+      d->masterPassword = d->changeMasterPasswordDialog->newPassword();
+      generateSaltKeyIV().waitForFinished();
+    }
   }
 }
 
