@@ -79,26 +79,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\algparam.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\authenc.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\ccm.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\cpu.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\cryptlib.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\des.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\dessp.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\filters.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\fips140.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\hmac.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\iterhash.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\misc.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\mqueue.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\osrng.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\queue.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\rdtables.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\rijndael.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\rng.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\sha.cpp" />
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\simple.cpp" />
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\strciphr.cpp" />
     <ClCompile Include="basecode.cpp" />
     <ClCompile Include="crc.cpp" />
     <ClCompile Include="hex.cpp" />
@@ -108,19 +100,14 @@
     <ClCompile Include="ripemd.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\aes.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\algparam.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\argnames.h" />
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\authenc.h" />
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\ccm.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\config.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\cpu.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\cryptlib.h" />
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\des.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\filters.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\fips140.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\fltrimpl.h" />
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\hmac.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\integer.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\iterhash.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\misc.h" />
@@ -129,7 +116,6 @@
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\pch.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\queue.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\randpool.h" />
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\rijndael.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\rng.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\secblock.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\seckey.h" />
@@ -137,7 +123,6 @@
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\simple.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\smartptr.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\stdcpp.h" />
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\strciphr.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\trdlocal.h" />
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\words.h" />
     <ClInclude Include="basecode.h" />
@@ -145,7 +130,6 @@
     <ClInclude Include="hex.h" />
     <ClInclude Include="md4.h" />
     <ClInclude Include="md5.h" />
-    <ClInclude Include="mdc.h" />
     <ClInclude Include="ripemd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

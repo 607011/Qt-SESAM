@@ -36,31 +36,13 @@
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\algparam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\authenc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\ccm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\cpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\cryptlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\des.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\dessp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\filters.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\fips140.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\hmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\iterhash.cpp">
@@ -75,15 +57,6 @@
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\osrng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\queue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\rdtables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\rijndael.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\rng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -93,10 +66,13 @@
     <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\simple.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\strciphr.cpp">
+    <ClCompile Include="crc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crc.cpp">
+    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\fips140.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ctSESAM\3rdparty\cryptopp562\queue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,28 +89,16 @@
     <ClInclude Include="md5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mdc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ripemd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\aes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\algparam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\argnames.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\authenc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\ccm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\config.h">
@@ -146,9 +110,6 @@
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\cryptlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\des.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\filters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -156,9 +117,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\fltrimpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\hmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\integer.h">
@@ -182,9 +140,6 @@
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\randpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\rijndael.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\rng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -204,9 +159,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\stdcpp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\strciphr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ctSESAM\3rdparty\cryptopp562\trdlocal.h">
