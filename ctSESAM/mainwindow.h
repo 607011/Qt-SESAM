@@ -82,6 +82,7 @@ private slots:
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
   void onDomainSelected(const QString &);
+  void onDomainHighlighted(int);
   void newDomain(void);
   void renewSalt(void);
   void onRenewSalt(void);
@@ -113,6 +114,7 @@ private slots:
   void onExpertModeChanged(bool);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+
 
 signals:
   void passwordGenerated(void);

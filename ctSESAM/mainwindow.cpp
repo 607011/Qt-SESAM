@@ -207,6 +207,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
+  QObject::connect(ui->domainsComboBox, SIGNAL(highlighted(int)), SLOT(onDomainHighlighted(int)));
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(&d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
@@ -1385,6 +1386,14 @@ void MainWindow::onDomainSelected(const QString &domain)
   d->currentDomain = ui->domainsComboBox->currentIndex() > 0
       ? ui->domainsComboBox->currentText()
       : QString();
+}
+
+
+void MainWindow::onDomainHighlighted(int index)
+{
+  Q_D(MainWindow);
+  if (index == 0 && ui->domainsComboBox->count() == 1)
+    newDomain();
 }
 
 
