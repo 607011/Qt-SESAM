@@ -22,7 +22,7 @@ TEMPLATE = app qt
 
 QT += core gui widgets concurrent network testlib
 
-CONFIG += warn_off c++11
+CONFIG += warn_off c++11 testcase
 
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100

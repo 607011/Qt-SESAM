@@ -325,8 +325,3 @@ HEADERS += \
     zinflate.h \
     zlib.h \
     simple.h
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
