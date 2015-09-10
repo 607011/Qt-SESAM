@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+include(../QtSESAM.pri)
+DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
+
 TARGET = ctSESAM
 
 TEMPLATE = app qt
@@ -23,7 +26,7 @@ TRANSLATIONS += translations/i18n_de.ts
 
 CONFIG += c++11
 
-DEFINES += CRYPTOPP_DISABLE_ASM CRYPTOPP_DISABLE_X86ASM CRYPTOPP_DISABLE_SSSE3
+VERSION_PE_HEADER = 2.0
 
 win32-g++ {
     CONFIG += warn_off
@@ -37,8 +40,8 @@ win32-msvc* {
     CONFIG += windows
     CONFIG -= console
     DEFINES += _SCL_SECURE_NO_WARNINGS
-    QMAKE_CXXFLAGS_DEBUG += -sdl
-    QMAKE_CXXFLAGS_RELEASE += -GA -GL -Ox
+    QMAKE_CXXFLAGS_DEBUG += /sdl
+    QMAKE_CXXFLAGS_RELEASE += /GA /GL /Ox
     RC_FILE = ctSESAM.rc
     SOURCES += dump.cpp
     HEADERS += dump.h

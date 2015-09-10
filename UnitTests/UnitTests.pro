@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+include(../QtSESAM.pri)
+DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
+
 TARGET = ctSESAM-testing
 
 TEMPLATE = app qt
@@ -20,8 +23,6 @@ TEMPLATE = app qt
 QT += core gui widgets concurrent network testlib
 
 CONFIG += warn_off c++11
-
-DEFINES += CRYPTOPP_DISABLE_ASM CRYPTOPP_DISABLE_X86ASM CRYPTOPP_DISABLE_SSSE3
 
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100
