@@ -407,10 +407,10 @@ void MainWindow::newDomain(void)
       ui->deleteCheckBox->setChecked(false);
       d->autoIncrementIterations = true;
       if (ui->legacyPasswordLineEdit->text().isEmpty()) {
-        ui->toolBox->setCurrentIndex(0);
+        ui->tabWidget->setCurrentIndex(0);
       }
       else {
-        ui->toolBox->setCurrentIndex(1);
+        ui->tabWidget->setCurrentIndex(1);
       }
       updatePassword();
       saveCurrentDomainSettings();
@@ -687,7 +687,7 @@ void MainWindow::onPasswordGenerated(void)
                "Do you want to clear the legacy password and save the new domain settings?").arg(makeHMS(d->hackClock.elapsed())));
       if (button == QMessageBox::Yes) {
         ui->legacyPasswordLineEdit->setText(QString());
-        ui->toolBox->setCurrentIndex(0);
+        ui->tabWidget->setCurrentIndex(0);
         saveCurrentDomainSettings();
       }
     }
@@ -1375,10 +1375,10 @@ void MainWindow::onDomainSelected(const QString &domain)
     copyDomainSettingsToGUI(domain);
     setDirty(false);
     if (d->domains.at(domain).legacyPassword.isEmpty()) {
-      ui->toolBox->setCurrentIndex(0);
+      ui->tabWidget->setCurrentIndex(0);
     }
     else {
-      ui->toolBox->setCurrentIndex(1);
+      ui->tabWidget->setCurrentIndex(1);
     }
   }
   d->currentDomain = ui->domainsComboBox->currentIndex() > 0
