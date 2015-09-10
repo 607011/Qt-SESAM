@@ -1,0 +1,4 @@
+See
+
+ - https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux
+ - https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Windows
