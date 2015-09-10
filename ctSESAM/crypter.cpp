@@ -107,7 +107,7 @@ QByteArray Crypter::encode(const SecureByteArray &key,
 QByteArray Crypter::decode(const SecureByteArray &masterPassword,
                            QByteArray cipher,
                            bool uncompress,
-                           __out SecureByteArray &KGK)
+                           SecureByteArray &KGK)
 {
   FormatFlags formatFlag = static_cast<FormatFlags>(cipher.at(0));
   if (formatFlag != AES256EncryptedMasterkeyFormat)

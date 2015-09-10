@@ -29,19 +29,6 @@
 #include <qmath.h>
 
 
-#ifndef __in
-#define __in
-#endif
-
-#ifndef __out
-#define __out
-#endif
-
-#ifndef __inout
-#define __inout
-#endif
-
-
 template <class T>
 void SafeRenew(T& a, T obj)
 {

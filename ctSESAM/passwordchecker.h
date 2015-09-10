@@ -40,7 +40,7 @@ public:
   qint64 findInPasswordFile(const QString &needle);
 
   static qreal entropy(const QString &);
-  static void evaluatePasswordStrength(const QString &password, __out QColor &color, __out QString &grade, __out qreal *_fitness);
+  static void evaluatePasswordStrength(const QString &password, QColor &color, QString &grade, qreal *_fitness);
 
 signals:
 

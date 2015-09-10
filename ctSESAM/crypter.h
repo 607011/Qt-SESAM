@@ -42,24 +42,10 @@ public:
     ObsoleteDefaultEncryptionFormat = 0x00,
     AES256EncryptedMasterkeyFormat = 0x01
   };
-  static SecureByteArray makeKeyFromPassword(
-      __in const SecureByteArray &masterPassword,
-      __in const QByteArray &salt);
-  static void makeKeyAndIVFromPassword(
-      __in const SecureByteArray &masterPassword,
-      __in const QByteArray &salt,
-      __out SecureByteArray &key,
-      __out SecureByteArray &IV);
-  static QByteArray encode(__in const SecureByteArray &key,
-                           __in const SecureByteArray &IV,
-                           __in const QByteArray &salt,
-                           __in const SecureByteArray &KGK,
-                           __in const QByteArray &data,
-                           __in bool compress);
-  static QByteArray decode(__in const SecureByteArray &masterPassword,
-                           __in QByteArray cipher,
-                           __in bool uncompress,
-                           __out SecureByteArray &KGK);
+  static SecureByteArray makeKeyFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt);
+  static void makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, SecureByteArray &key, SecureByteArray &IV);
+  static QByteArray encode(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &salt, const SecureByteArray &KGK, const QByteArray &data, bool compress);
+  static QByteArray decode(const SecureByteArray &masterPassword, QByteArray cipher, bool uncompress, SecureByteArray &KGK);
   static QByteArray randomBytes(const int size);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
   static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
