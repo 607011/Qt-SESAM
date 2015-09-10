@@ -523,7 +523,7 @@
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; is a domain specific password generator. See &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; for more info.&lt;/p&gt;&lt;p&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;You should have received a copy of the GNU General Public License along with this program. If not, see &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;No animals were harmed during the development of &lt;i&gt;%1&lt;/i&gt;. The software was programmed with CO&lt;sub&gt;2&lt;/sub&gt; neutrality in mind and without the use of genetic engineering. It&apos;s vegan, free of antibiotics and hypoallergenic.&lt;/p&gt;&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
 &lt;p&gt;Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.&lt;/p&gt;
 &lt;p&gt;Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe  &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;
@@ -580,7 +580,7 @@
     </message>
     <message>
         <source>Legacy</source>
-        <translation type="vanished">Klassisch</translation>
+        <translation>Klassisch</translation>
     </message>
     <message>
         <source>Bad data from sync peer</source>
@@ -609,6 +609,16 @@
     <message>
         <source>Sync now ...</source>
         <translation>Synchronisieren ...</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; is a domain specific password generator. See &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; for more info.&lt;/p&gt;&lt;p&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;You should have received a copy of the GNU General Public License along with this program. If not, see &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;&lt;p&gt;This program uses the Crypto++ library. Crypto++ is licensed under the Boost Software License, Version 1.0.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
+&lt;p&gt;Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.&lt;/p&gt;
+&lt;p&gt;Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe  &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;
+&lt;p&gt;Dieses Programm verwendet die Crypto++-Bibliothek. Sie steht unter der Boost Software License, Version 1.0.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Die Software wurde zu Lehr-, Lern- und Demonstrationszwecken geschaffen und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und die Heise Medien GmbH &amp;amp; Co. KG  haften nicht für Schäden, die aus der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.&lt;/strong&gt;&lt;/p&gt;
+</translation>
     </message>
 </context>
 <context>
