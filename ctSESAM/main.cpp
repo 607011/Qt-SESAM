@@ -19,14 +19,31 @@
 
 #include "mainwindow.h"
 #include "global.h"
+#include <QDebug>
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QString>
+#include <QSettings>
+#include <QDir>
+#include <QFileInfo>
+
+
+void detectPortable(void)
+{
+  static const QString PortableFlagFile = "PORTABLE";
+  QString cwdSettingsFileName = QDir::currentPath() + "/" + PortableFlagFile;
+  QFileInfo fi(cwdSettingsFileName);
+  if (fi.isFile() && fi.isWritable())
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QDir::currentPath());
+}
 
 
 int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(ctSESAM);
+
+  detectPortable();
 
   QApplication a(argc, argv);
   a.setOrganizationName(AppCompanyName);
