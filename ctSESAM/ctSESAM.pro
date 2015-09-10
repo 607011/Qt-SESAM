@@ -16,6 +16,8 @@
 include(../QtSESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
+VERSION = -$${QTSESAM_VERSION}
+
 TARGET = ctSESAM
 
 TEMPLATE = app qt
@@ -103,7 +105,7 @@ RESOURCES += \
     ctSESAM.qrc
 
 DISTFILES += \
-    LICENSE \
+    ../LICENSE \
     ../README.md \
     ctSESAM.rc \
     ../LIESMICH.txt
