@@ -5,7 +5,7 @@ CONFIG -= qt
 
 SOURCES += main.cpp
 
-DEFINES += CRYPTOPP_DISABLE_ASM
+DEFINES += CRYPTOPP_DISABLE_ASM CRYPTOPP_DISABLE_X86ASM CRYPTOPP_DISABLE_SSSE3
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/debug/ -lcryptopp

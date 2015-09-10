@@ -21,7 +21,7 @@ QT += core gui widgets concurrent network testlib
 
 CONFIG += warn_off c++11
 
-DEFINES += CRYPTOPP_DISABLE_ASM
+DEFINES += CRYPTOPP_DISABLE_ASM CRYPTOPP_DISABLE_X86ASM CRYPTOPP_DISABLE_SSSE3
 
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100
