@@ -35,7 +35,8 @@ COPY /B /Y %QTDIR%\..\plugins\platforms\qminimal.dll %DESTDIR%\platforms >NUL
 COPY /B /Y %QTDIR%\..\plugins\platforms\qwindows.dll %DESTDIR%\platforms >NUL
 COPY /B /Y %BUILDDIR%\ctSESAM.exe %DESTDIR% >NUL
 COPY /B /Y ..\resources\images\* %DESTDIR%\resources\images >NUL
+COPY /Y NUL %DESTDIR%\PORTABLE >NUL
 
-ECHO Compressing ...
+ECHO Build compress archives ...
 7z a -t7z -mmt=on %DESTDIR%.7z %DESTDIR%
 7z a -tZip -mmt=on %DESTDIR%.zip %DESTDIR%
