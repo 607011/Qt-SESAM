@@ -179,6 +179,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
   ui->saltBase64LineEdit->installEventFilter(this);
   ui->generatedPasswordLineEdit->installEventFilter(this);
+  ui->legacyPasswordLineEdit->installEventFilter(this);
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
   QObject::connect(ui->copyUsernameToClipboardPushButton, SIGNAL(clicked()), SLOT(copyUsernameToClipboard()));
@@ -1590,6 +1591,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   case QEvent::Enter:
     if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty())
       ui->generatedPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
+    else if (obj->objectName() == "legacyPasswordLineEdit" && !ui->legacyPasswordLineEdit->text().isEmpty())
+      ui->legacyPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
     break;
   case QEvent::Leave:
     if (obj->objectName() == "generatedPasswordLineEdit")
@@ -1598,20 +1601,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   case QEvent::MouseButtonPress:
     if (obj->objectName() == "generatedPasswordLineEdit")
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+    else if (obj->objectName() == "legacyPasswordLineEdit")
+        ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     break;
   case QEvent::MouseButtonRelease:
     if (obj->objectName() == "generatedPasswordLineEdit")
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    else if (obj->objectName() == "legacyPasswordLineEdit")
+      ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Password);
     break;
-#ifdef QT_DEBUG
-  case QEvent::MouseButtonDblClick:
-  {
-    if (obj->objectName() == "saltBase64LineEdit") {
-      QApplication::clipboard()->setText(QString(QByteArray::fromBase64(ui->saltBase64LineEdit->text().toLatin1()).toHex()));
-    }
-    break;
-  }
-#endif
   default:
     break;
   }
