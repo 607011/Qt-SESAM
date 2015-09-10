@@ -3,9 +3,16 @@ Makefile*
 ctSESAM/Makefile*
 ctSESAM/release/*
 ctSESAM/debug/*
-ctSESAM/ui_mainwindow.h
+ctSESAM/ui_*.h
 ctSESAM/doc/*
+ctSESAM/ctSESAM
+ctSESAM/qrc_ctSESAM.cpp
+UnitTests/ctSESAM-testing
+HashMaster/HashMaster
+*.o
+moc_*.cpp
 *.qm
+*.moc
 realhuman_phill.txt
 cain.txt
 hotmail.txt
