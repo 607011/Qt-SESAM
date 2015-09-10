@@ -7,6 +7,7 @@ ctSESAM/ui_*.h
 ctSESAM/doc/*
 ctSESAM/ctSESAM
 ctSESAM/qrc_ctSESAM.cpp
+ctSESAM/deploy/portable/*
 UnitTests/ctSESAM-testing
 HashMaster/HashMaster
 *.o
