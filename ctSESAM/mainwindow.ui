@@ -18,7 +18,11 @@
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="1" column="2">
-       <widget class="QComboBox" name="domainsComboBox"/>
+       <widget class="QComboBox" name="domainsComboBox">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_8">

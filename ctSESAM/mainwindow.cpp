@@ -48,6 +48,7 @@
 #include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QStandardPaths>
+#include <QCompleter>
 
 #include <string>
 
@@ -100,6 +101,7 @@ public:
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readReply(nullptr)
     , writeReply(nullptr)
+    , completer(nullptr)
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
@@ -149,6 +151,7 @@ public:
   QNetworkReply *writeReply;
   QList<QSslError> ignoredSslErrors;
   QString currentDomain;
+  QCompleter *completer;
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
@@ -846,6 +849,13 @@ void MainWindow::makeDomainComboBox(void)
   }
   domainNames.sort(Qt::CaseInsensitive);
   ui->domainsComboBox->addItems(domainNames);
+  if (d->completer) {
+    QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
+    delete d->completer;
+  }
+  d->completer = new QCompleter(domainNames);
+  QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
+  ui->domainsComboBox->setCompleter(d->completer);
 }
 
 
