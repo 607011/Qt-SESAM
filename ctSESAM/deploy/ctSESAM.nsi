@@ -43,7 +43,7 @@ SectionEnd
 
 Page license
 
-  LicenseData "..\LICENSE"
+  LicenseData "..\..\LICENSE"
 
 Page directory
 
@@ -55,7 +55,7 @@ Section "${APP}"
   CreateDirectory "$INSTDIR\resources"
   CreateDirectory "$INSTDIR\resources\images"
   File "..\..\..\QtSESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\ctSESAM\release\${APP}.exe"
-  File "..\LICENSE"
+  File "..\..\LICENSE"
   File "libeay32.dll"
   File "ssleay32.dll"
   File "${QTDIR}\Qt5Core.dll"
