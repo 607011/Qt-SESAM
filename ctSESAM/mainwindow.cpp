@@ -1549,10 +1549,8 @@ void MainWindow::about(void)
            "You should have received a copy of the GNU General Public License "
            "along with this program. "
            "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>"
-           "<p>No animals were harmed during the development of <i>%1</i>. "
-           "The software was programmed with CO<sub>2</sub> neutrality in mind and without the use of genetic engineering. "
-           "It's vegan, free of antibiotics and hypoallergenic.</p>"
            "<p>Copyright &copy; 2015 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
+           "<p>This program uses the Crypto++ library. Crypto++ is licensed under the Boost Software License, Version 1.0.</p>"
            )
         .arg(AppName).arg(AppURL).arg(AppAuthor).arg(AppAuthorMail));
 }
