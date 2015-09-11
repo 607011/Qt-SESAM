@@ -1,6 +1,6 @@
 !define VERSIONMAJOR "2"
 !define VERSIONMINOR "0"
-!define VERSIONPATCH ".2"
+!define VERSIONPATCH ".3"
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}${VERSIONPATCH}"
 !define GUID "{f25f512a-7d58-4e2f-a52b-3663fd8ca813}"
 !define APP "QtSESAM"
