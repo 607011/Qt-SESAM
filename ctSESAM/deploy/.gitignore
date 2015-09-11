@@ -1,5 +1,7 @@
 HashMaster.exe
-ctSESAM*.exe
-ctSESAM*.exe.txt
-ctSESAM*.exe.asc
-QtSESAM-*
+QtSESAM*.exe
+QtSESAM*.exe.txt
+QtSESAM*.exe.asc
+QtSESAM-*.exe
+QtSESAM-Test/*
+QtSESAM-portable*
