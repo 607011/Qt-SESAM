@@ -8,7 +8,7 @@
 !define QTDIR "D:\Qt\5.5\msvc2013\bin"
 
 Name "${APP} ${VERSION}"
-OutFile "${APP}-${VERSION}-setup.exe"
+OutFile "${APP}-${VERSION}-x86-setup.exe"
 InstallDir $PROGRAMFILES\${APP}
 InstallDirRegKey HKLM "Software\${PUBLISHER}\${APP}" "Install_Dir"
 RequestExecutionLevel admin
@@ -75,7 +75,7 @@ Section "${APP}"
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayName" "${APP}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\ctSESAM.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\resources\images\ctSESAM.ico"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "Publisher" "${PUBLISHER}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "NoModify" 1
