@@ -48,6 +48,7 @@
 #include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QStandardPaths>
+#include <QCompleter>
 
 #include <string>
 
@@ -100,6 +101,7 @@ public:
     , sslConf(QSslConfiguration::defaultConfiguration())
     , readReply(nullptr)
     , writeReply(nullptr)
+    , completer(nullptr)
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
@@ -149,6 +151,7 @@ public:
   QNetworkReply *writeReply;
   QList<QSslError> ignoredSslErrors;
   QString currentDomain;
+  QCompleter *completer;
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
@@ -208,6 +211,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
   QObject::connect(ui->domainsComboBox, SIGNAL(highlighted(int)), SLOT(onDomainHighlighted(int)));
+  ui->domainsComboBox->installEventFilter(this);
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(&d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
@@ -376,10 +380,11 @@ void MainWindow::resetAllFields(void)
 }
 
 
-void MainWindow::newDomain(void)
+void MainWindow::newDomain(const QString &domainName)
 {
   Q_D(MainWindow);
   d->newDomainWizard->clear();
+  d->newDomainWizard->setDomain(domainName);
   int rc = d->newDomainWizard->exec();
   if (rc == QDialog::Accepted) {
     bool alreadyPresent = false;
@@ -462,7 +467,7 @@ void MainWindow::cancelPasswordGeneration(void)
 void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
-  d->parameterSetDirty = dirty && ui->domainsComboBox->currentIndex() > 0;
+  d->parameterSetDirty = dirty;
   updateWindowTitle();
 }
 
@@ -492,7 +497,7 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-  if (!d->updatePasswordBlocked && !d->masterPassword.isEmpty() && ui->domainsComboBox->currentIndex() > 0) {
+  if (!d->updatePasswordBlocked && !d->masterPassword.isEmpty()) {
     stopPasswordGeneration();
     if (!d->hackingMode) {
       ui->generatedPasswordLineEdit->setText(QString());
@@ -839,13 +844,21 @@ void MainWindow::makeDomainComboBox(void)
   Q_D(MainWindow);
   QStringList domainNames;
   ui->domainsComboBox->clear();
-  ui->domainsComboBox->addItem(tr("<New domain ...>"));
   foreach(DomainSettings ds, d->domains) {
     if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
       domainNames.append(ds.domainName);
   }
   domainNames.sort(Qt::CaseInsensitive);
   ui->domainsComboBox->addItems(domainNames);
+  if (d->completer) {
+    QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
+    delete d->completer;
+  }
+  d->completer = new QCompleter(domainNames);
+  d->completer->setCaseSensitivity(Qt::CaseInsensitive);
+  QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
+  ui->domainsComboBox->setCompleter(d->completer);
+  ui->domainsComboBox->setCurrentIndex(-1);
 }
 
 
@@ -1370,30 +1383,15 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
-  if (ui->domainsComboBox->currentIndex() == 0 && !d->parameterSetDirty) {
-    newDomain();
+  copyDomainSettingsToGUI(domain);
+  setDirty(false);
+  if (d->domains.at(domain).legacyPassword.isEmpty()) {
+    ui->tabWidget->setCurrentIndex(0);
   }
   else {
-    copyDomainSettingsToGUI(domain);
-    setDirty(false);
-    if (d->domains.at(domain).legacyPassword.isEmpty()) {
-      ui->tabWidget->setCurrentIndex(0);
-    }
-    else {
-      ui->tabWidget->setCurrentIndex(1);
-    }
+    ui->tabWidget->setCurrentIndex(1);
   }
-  d->currentDomain = ui->domainsComboBox->currentIndex() > 0
-      ? ui->domainsComboBox->currentText()
-      : QString();
-}
-
-
-void MainWindow::onDomainHighlighted(int index)
-{
-  Q_D(MainWindow);
-  if (index == 0 && ui->domainsComboBox->count() == 1)
-    newDomain();
+  d->currentDomain = ui->domainsComboBox->currentText();
 }
 
 
@@ -1606,6 +1604,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   case QEvent::Leave:
     if (obj->objectName() == "generatedPasswordLineEdit")
       ui->generatedPasswordLineEdit->setCursor(Qt::ArrowCursor);
+    break;
+  case QEvent::FocusOut:
+    if (obj->objectName() == "domainsComboBox") {
+      const QString &domain = ui->domainsComboBox->currentText();
+      bool found = false;
+      for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
+        if (ui->domainsComboBox->itemText(i) == domain) {
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+        newDomain(domain);
+    }
     break;
   case QEvent::MouseButtonPress:
     if (obj->objectName() == "generatedPasswordLineEdit")

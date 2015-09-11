@@ -54,6 +54,8 @@ public:
   void setForceDigits(bool);
   void setForceExtra(bool);
 
+  void setDomain(const QString&domainName);
+
 private slots:
   void addLowercaseToUsedCharacters(void);
   void addUppercaseToUsedCharacters(void);

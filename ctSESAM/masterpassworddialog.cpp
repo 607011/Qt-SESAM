@@ -30,6 +30,7 @@ MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   , ui(new Ui::MasterPasswordDialog)
 {
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   ui->infoLabel->setStyleSheet("font-weight: bold");
   setWindowTitle(QString("%1 %2").arg(AppName).arg(AppVersion));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
