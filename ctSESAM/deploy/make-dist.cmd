@@ -9,14 +9,17 @@ REM *************************************************************************
 SET QTDIR="D:\Qt\5.5\msvc2013\bin"
 SET DESTDIR="QtSESAM-portable"
 SET BUILDDIR="..\..\..\QtSESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\ctSESAM\release"
-SET PATH=%PATH%;C:\Program Files\7-Zip
+SET PATH=%PATH%;C:\Program Files\7-Zip;D:\Developer\NSIS\
+SET INSTALLER_GLOB="QtSESAM-*-setup.exe"
 
 ECHO Removing old files ...
-RD /S /Q %DESTDIR%
-DEL %DESTDIR%.zip
-DEL %DESTDIR%.7z
-DEL %DESTDIR%.zip.txt
-DEL %DESTDIR%.7z.txt
+RD /S /Q %DESTDIR% >NUL
+DEL %DESTDIR%.zip >NUL
+DEL %DESTDIR%.7z >NUL
+DEL %DESTDIR%.zip.txt >NUL
+DEL %DESTDIR%.7z.txt >NUL
+DEL %INSTALLER_GLOB% >NUL
+DEL %INSTALLER_GLOB%.txt >NUL
 
 ECHO Making directories in %DESTDIR% ...
 IF NOT EXIST %DESTDIR% MKDIR %DESTDIR%
@@ -47,3 +50,11 @@ COPY /Y NUL %DESTDIR%\PORTABLE >NUL
 ECHO Build compressed archives ...
 7z a -t7z -mmt=on %DESTDIR%.7z %DESTDIR%
 7z a -tZip -mmt=on %DESTDIR%.zip %DESTDIR%
+
+ECHO Launching installer script ...
+makensis.exe /V4 QtSESAM.nsi
+
+ECHO Generating hash files ...
+HashMaster.exe %INSTALLER_GLOB%
+HashMaster.exe %DESTDIR%.7z
+HashMaster.exe %DESTDIR%.zip
