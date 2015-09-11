@@ -204,14 +204,13 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(invalidatePassword()));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
+  ui->domainsComboBox->installEventFilter(this);
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
   QObject::connect(ui->actionExpertMode, SIGNAL(toggled(bool)), SLOT(onExpertModeChanged(bool)));
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
-  QObject::connect(ui->domainsComboBox, SIGNAL(highlighted(int)), SLOT(onDomainHighlighted(int)));
-  ui->domainsComboBox->installEventFilter(this);
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
   QObject::connect(&d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
@@ -530,7 +529,8 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 void MainWindow::generatePassword(void)
 {
   Q_D(MainWindow);
-  d->password.generateAsync(d->KGK, collectedDomainSettings());
+  if (!ui->usedCharactersPlainTextEdit->toPlainText().isEmpty())
+    d->password.generateAsync(d->KGK, collectedDomainSettings());
 }
 
 
@@ -1607,16 +1607,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   case QEvent::FocusOut:
     if (obj->objectName() == "domainsComboBox") {
-      const QString &domain = ui->domainsComboBox->currentText();
-      bool found = false;
-      for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
-        if (ui->domainsComboBox->itemText(i) == domain) {
-          found = true;
-          break;
+      if (ui->domainsComboBox->count() > 0) {
+        const QString &domain = ui->domainsComboBox->currentText();
+        if (!domain.isEmpty()) {
+          bool found = false;
+          for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
+            if (ui->domainsComboBox->itemText(i) == domain) {
+              found = true;
+              break;
+            }
+          }
+          if (!found)
+            newDomain(domain);
         }
       }
-      if (!found)
-        newDomain(domain);
     }
     break;
   case QEvent::MouseButtonPress:
