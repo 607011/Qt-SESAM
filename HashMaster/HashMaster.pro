@@ -21,6 +21,8 @@ CONFIG += console c++11 warn_off
 CONFIG -= app_bundle
 CONFIG -= qt
 
+win32:DEFINES -= UNICODE
+
 SOURCES += main.cpp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
