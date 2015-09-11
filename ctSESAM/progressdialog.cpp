@@ -25,6 +25,7 @@ ProgressDialog::ProgressDialog(QWidget *parent)
   , ui(new Ui::ProgressDialog)
 {
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->cancelPushButton, SIGNAL(clicked(bool)), SIGNAL(cancelled()));
   QObject::connect(ui->closePushButton, SIGNAL(clicked(bool)), SLOT(accept()));
 }

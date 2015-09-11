@@ -39,6 +39,7 @@ ServerCertificateWidget::ServerCertificateWidget(QWidget *parent)
   , ui(new Ui::ServerCertificateWidget)
 {
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->acceptPushButton, SIGNAL(pressed()), SLOT(accept()));
   QObject::connect(ui->rejectPushButton, SIGNAL(pressed()), SLOT(reject()));
 }

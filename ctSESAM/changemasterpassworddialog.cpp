@@ -46,6 +46,7 @@ ChangeMasterPasswordDialog::ChangeMasterPasswordDialog(QWidget *parent)
   , d_ptr(new ChangeMasterPasswordDialogPrivate)
 {
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->newPasswordLineEdit1, SIGNAL(textChanged(QString)), SLOT(comparePasswords()));

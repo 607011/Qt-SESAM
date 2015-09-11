@@ -52,6 +52,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
 {
   Q_D(OptionsDialog);
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));

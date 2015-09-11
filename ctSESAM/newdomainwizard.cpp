@@ -31,6 +31,7 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   , ui(new Ui::NewDomainWizard)
 {
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->addPushButton, SIGNAL(pressed()), SLOT(accept()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
