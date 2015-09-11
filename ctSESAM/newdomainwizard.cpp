@@ -173,6 +173,13 @@ void NewDomainWizard::setForceExtra(bool doForce)
 }
 
 
+void NewDomainWizard::setDomain(const QString &domainName)
+{
+  ui->domainLineEdit->setText(domainName);
+  ui->userLineEdit->setFocus();
+}
+
+
 void NewDomainWizard::addLowercaseToUsedCharacters(void)
 {
   ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::LowerChars);
