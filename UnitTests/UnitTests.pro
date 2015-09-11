@@ -24,11 +24,13 @@ QT += core gui widgets concurrent network testlib
 
 CONFIG += warn_off c++11 testcase
 
+
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100
     DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
     LIBS += User32.lib
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
+    DEFINES -= UNICODE
 }
 
 SOURCES += test-main.cpp \
