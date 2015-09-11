@@ -3,7 +3,7 @@
 !define VERSIONPATCH ".2"
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}${VERSIONPATCH}"
 !define GUID "{f25f512a-7d58-4e2f-a52b-3663fd8ca813}"
-!define APP "ctSESAM"
+!define APP "QtSESAM"
 !define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
 !define QTDIR "D:\Qt\5.5\msvc2013\bin"
 
