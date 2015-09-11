@@ -1398,10 +1398,16 @@ void MainWindow::onDomainSelected(const QString &domain)
 void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
-  setWindowTitle(QString("%1 %2%3")
+  setWindowTitle(QString("%1 %2%3 (%4)")
                  .arg(AppName)
                  .arg(AppVersion)
-                 .arg(d->parameterSetDirty ? "*" : ""));
+                 .arg(d->parameterSetDirty ? "*" : "")
+#ifdef Q_OS_WIN64
+                 .arg("x64")
+#else
+                 .arg("x86")
+#endif
+                 );
   ui->savePushButton->setEnabled(d->parameterSetDirty);
 }
 
