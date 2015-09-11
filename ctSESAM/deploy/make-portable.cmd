@@ -11,6 +11,13 @@ SET DESTDIR="QtSESAM-portable"
 SET BUILDDIR="..\..\..\QtSESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\ctSESAM\release"
 SET PATH=%PATH%;C:\Program Files\7-Zip
 
+ECHO Removing old files ...
+RD /S /Q %DESTDIR%
+DEL %DESTDIR%.zip
+DEL %DESTDIR%.7z
+DEL %DESTDIR%.zip.txt
+DEL %DESTDIR%.7z.txt
+
 ECHO Making directories in %DESTDIR% ...
 IF NOT EXIST %DESTDIR% MKDIR %DESTDIR%
 IF NOT EXIST %DESTDIR%\platforms MKDIR %DESTDIR%\platforms
