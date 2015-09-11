@@ -842,7 +842,6 @@ void MainWindow::makeDomainComboBox(void)
   Q_D(MainWindow);
   QStringList domainNames;
   ui->domainsComboBox->clear();
-  ui->domainsComboBox->addItem(tr("<New domain ...>"));
   foreach(DomainSettings ds, d->domains) {
     if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
       domainNames.append(ds.domainName);
@@ -855,9 +854,9 @@ void MainWindow::makeDomainComboBox(void)
   }
   d->completer = new QCompleter(domainNames);
   d->completer->setCaseSensitivity(Qt::CaseInsensitive);
-  d->completer->setFilterMode(Qt::MatchContains);
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->setCompleter(d->completer);
+  ui->domainsComboBox->setCurrentIndex(-1);
 }
 
 
@@ -1382,18 +1381,13 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
-  if (ui->domainsComboBox->currentIndex() == 0 && !d->parameterSetDirty) {
-    newDomain();
+  copyDomainSettingsToGUI(domain);
+  setDirty(false);
+  if (d->domains.at(domain).legacyPassword.isEmpty()) {
+    ui->tabWidget->setCurrentIndex(0);
   }
   else {
-    copyDomainSettingsToGUI(domain);
-    setDirty(false);
-    if (d->domains.at(domain).legacyPassword.isEmpty()) {
-      ui->tabWidget->setCurrentIndex(0);
-    }
-    else {
-      ui->tabWidget->setCurrentIndex(1);
-    }
+    ui->tabWidget->setCurrentIndex(1);
   }
   d->currentDomain = ui->domainsComboBox->currentIndex() > 0
       ? ui->domainsComboBox->currentText()
@@ -1404,8 +1398,8 @@ void MainWindow::onDomainSelected(const QString &domain)
 void MainWindow::onDomainHighlighted(int index)
 {
   Q_D(MainWindow);
-  if (index == 0 && ui->domainsComboBox->count() == 1)
-    newDomain();
+  Q_UNUSED(index);
+  // XXX: do nothing ...
 }
 
 
