@@ -697,6 +697,7 @@ void MainWindow::onPasswordGenerated(void)
         ui->tabWidget->setCurrentIndex(0);
         saveCurrentDomainSettings();
       }
+      restartInvalidationTimer();
     }
     else {
       const qint64 dt = d->hackIterationClock.restart();
@@ -1035,6 +1036,7 @@ void MainWindow::hackLegacyPassword(void)
   }
   else {
     blockUpdatePassword();
+    d->masterPasswordInvalidationTimer.stop();
     d->hackingMode = true;
     d->hackSalt.fill(0);
     d->hackPos = PositionTable(pwd);
