@@ -375,6 +375,8 @@ void MainWindow::resetAllFields(void)
   ui->createdLabel->setText(QString());
   ui->modifiedLabel->setText(QString());
   ui->deleteCheckBox->setChecked(false);
+  ui->domainsComboBox->setCurrentIndex(-1);
+  ui->domainsComboBox->setFocus();
   d->autoIncrementIterations = true;
 }
 
@@ -885,8 +887,10 @@ void MainWindow::saveCurrentDomainSettings(void)
 
   if (domainList.contains(ds.domainName, Qt::CaseInsensitive)) {
     ds.modifiedDate = QDateTime::currentDateTime();
-    if (ds.deleted)
+    if (ds.deleted) {
       domainList.removeOne(ds.domainName);
+      resetAllFields();
+    }
   }
   else {
     ds.createdDate = QDateTime::currentDateTime();
