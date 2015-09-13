@@ -21,6 +21,7 @@
 #ifndef __DOMAINSETTINGS_H_
 #define __DOMAINSETTINGS_H_
 
+#include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QVariantMap>
