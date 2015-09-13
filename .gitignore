@@ -5,7 +5,7 @@ ctSESAM/release/*
 ctSESAM/debug/*
 ctSESAM/ui_*.h
 ctSESAM/doc/*
-ctSESAM/ctSESAM
+ctSESAM/QtSESAM
 ctSESAM/qrc_ctSESAM.cpp
 ctSESAM/deploy/portable/*
 UnitTests/ctSESAM-testing
