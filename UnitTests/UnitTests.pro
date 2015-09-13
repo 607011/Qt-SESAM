@@ -16,7 +16,7 @@
 include(../QtSESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
-TARGET = ctSESAM-testing
+TARGET = QtSESAM-UnitTests
 
 TEMPLATE = app qt
 
