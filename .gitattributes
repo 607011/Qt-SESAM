@@ -6,6 +6,7 @@
 *.pri text eol=lf
 *.ts text eol=lf
 *.yml text eol=lf
+*.spec text eol=lf
 
 *.sln text eol=crlf
 *.vcxproj text eol=crlf

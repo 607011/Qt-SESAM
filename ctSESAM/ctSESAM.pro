@@ -68,40 +68,24 @@ win32-msvc* {
 
 SOURCES += main.cpp \
     mainwindow.cpp \
-    3rdparty/bigint/bigInt.cpp \
-    domainsettings.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
-    domainsettingslist.cpp \
     global.cpp \
     newdomainwizard.cpp \
     masterpassworddialog.cpp \
-    crypter.cpp \
-    securebytearray.cpp \
     servercertificatewidget.cpp \
-    util.cpp \
-    pbkdf2.cpp \
-    password.cpp \
     changemasterpassworddialog.cpp \
     passwordchecker.cpp
 
 HEADERS  += \
     mainwindow.h \
-    3rdparty/bigint/bigInt.h \
-    util.h \
-    domainsettings.h \
     optionsdialog.h \
     progressdialog.h \
-    domainsettingslist.h \
     global.h \
     newdomainwizard.h \
     masterpassworddialog.h \
     hackhelper.h \
-    crypter.h \
-    securebytearray.h \
     servercertificatewidget.h \
-    pbkdf2.h \
-    password.h \
     changemasterpassworddialog.h \
     passwordchecker.h
 
@@ -150,3 +134,10 @@ unix {
     target.path = /bin
     INSTALLS += target
 }
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -llibSESAM
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -llibSESAM
+else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -llibSESAM
+
+INCLUDEPATH += $$PWD/../libSESAM
+DEPENDPATH += $$PWD/../libSESAM

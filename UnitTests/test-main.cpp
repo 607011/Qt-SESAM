@@ -18,10 +18,10 @@
 */
 
 
-#include "../ctSESAM/pbkdf2.h"
-#include "../ctSESAM/password.h"
-#include "../ctSESAM/crypter.h"
-#include "../ctSESAM/domainsettings.h"
+#include "pbkdf2.h"
+#include "password.h"
+#include "crypter.h"
+#include "domainsettings.h"
 
 #include <QMessageAuthenticationCode>
 #include <QtTest/QTest>

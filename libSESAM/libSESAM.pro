@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Oliver Lau <ola@ct.de>
+# Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,32 +13,50 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+QT -= gui
+QT += concurrent
+
 include(../QtSESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
-TARGET = ctSESAM-testing
+VER_MAJ = 1
+VER_MIN = 0
+VER_PAT = 0
 
-TEMPLATE = app qt
+TARGET = libSESAM
+TEMPLATE = lib
 
-QT += core gui widgets concurrent network testlib
+DEFINES += LIBSESAM_LIBRARY
 
-CONFIG += warn_off c++11 testcase
+CONFIG += staticlib warn_off c++11
 
+INCLUDEPATH += $$PWD/../cryptopp
+DEPENDPATH += $$PWD/../cryptopp
 
-win32-msvc* {
-    QMAKE_CXXFLAGS += /wd4100
-    DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
-    LIBS += User32.lib
-    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
-    DEFINES -= UNICODE
+SOURCES += \
+    util.cpp \
+    crypter.cpp \
+    domainsettings.cpp \
+    domainsettingslist.cpp \
+    password.cpp \
+    pbkdf2.cpp \
+    securebytearray.cpp \
+    3rdparty/bigint/bigInt.cpp
+
+HEADERS +=\
+    util.h \
+    crypter.h \
+    domainsettings.h \
+    domainsettingslist.h \
+    password.h \
+    pbkdf2.h \
+    securebytearray.h \
+    3rdparty/bigint/bigInt.h
+
+unix {
+    target.path = /usr/lib
+    INSTALLS += target
 }
-
-SOURCES += test-main.cpp
-
-HEADERS  +=
-
-INCLUDEPATH += $$PWD/3rdparty
-
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/debug/ -lcryptopp
@@ -52,16 +70,3 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryp
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/release/cryptopp.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/debug/cryptopp.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../cryptopp/libcryptopp.a
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -llibSESAM
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -llibSESAM
-else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -llibSESAM
-
-INCLUDEPATH += $$PWD/../libSESAM
-DEPENDPATH += $$PWD/../libSESAM
-
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/liblibSESAM.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/liblibSESAM.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/libSESAM.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/libSESAM.lib
-else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/liblibSESAM.a
