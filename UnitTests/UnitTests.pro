@@ -20,14 +20,14 @@ TARGET = QtSESAM-UnitTests
 
 TEMPLATE = app qt
 
-QT += core gui widgets concurrent network testlib
+QT += core concurrent testlib
+QT -= gui
 
-CONFIG += warn_off c++11 testcase
-
+CONFIG += console warn_off c++11 testcase
 
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100
-    DEFINES += _SCL_SECURE_NO_WARNINGS CRYPTOPP_DISABLE_ASM CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+    DEFINES += _SCL_SECURE_NO_WARNINGS
     LIBS += User32.lib
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
     DEFINES -= UNICODE
@@ -36,9 +36,6 @@ win32-msvc* {
 SOURCES += test-main.cpp
 
 HEADERS  +=
-
-INCLUDEPATH += $$PWD/3rdparty
-
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/release/ -lcryptopp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../cryptopp/debug/ -lcryptopp

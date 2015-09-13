@@ -222,5 +222,5 @@ private slots:
   }
 };
 
-QTEST_MAIN(TestSESAM)
+QTEST_GUILESS_MAIN(TestSESAM)
 #include "test-main.moc"
