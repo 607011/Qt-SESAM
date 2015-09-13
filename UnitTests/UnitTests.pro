@@ -57,11 +57,16 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -llibSESAM
 else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -llibSESAM
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -lSESAM
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -lSESAM
+else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -lSESAM
+
 INCLUDEPATH += $$PWD/../libSESAM
 DEPENDPATH += $$PWD/../libSESAM
 
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/liblibSESAM.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/liblibSESAM.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/libSESAM.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/libSESAM.lib
-else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/liblibSESAM.a
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/libSESAM.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/libSESAM.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/SESAM.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/SESAM.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/libSESAM.a
