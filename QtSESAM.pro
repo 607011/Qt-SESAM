@@ -22,6 +22,7 @@ SUBDIRS += \
     cryptopp \
     libSESAM \
     UnitTests \
-    ctSESAM \
-    HashMaster
+    ctSESAM
 
+
+win32:SUBDIRS += HashMaster
