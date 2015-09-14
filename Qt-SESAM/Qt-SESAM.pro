@@ -13,12 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include(../QtSESAM.pri)
+include(../Qt-SESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
 VERSION = -$${QTSESAM_VERSION}
 
-TARGET = QtSESAM
+TARGET = Qt-SESAM
 
 TEMPLATE = app qt
 
@@ -57,7 +57,7 @@ win32-msvc* {
     DEFINES += _SCL_SECURE_NO_WARNINGS
     QMAKE_CXXFLAGS_DEBUG += /sdl
     QMAKE_CXXFLAGS_RELEASE += /GA /GL /Ox
-    RC_FILE = ctSESAM.rc
+    RC_FILE = QtSESAM.rc
     SOURCES += dump.cpp
     HEADERS += dump.h
     LIBS += User32.lib
@@ -99,21 +99,20 @@ FORMS += mainwindow.ui \
     changemasterpassworddialog.ui
 
 RESOURCES += \
-    ctSESAM.qrc
+    QtSESAM.qrc
 
 DISTFILES += \
     ../LICENSE \
     ../README.md \
-    ctSESAM.rc \
-    ../LIESMICH.txt
+    ../LIESMICH.txt \
+    QtSESAM.rc
 
 OTHER_FILES += \
     translations/i18n_de.ts \
     .gitignore \
-    ../deploy/ctSESAM.nsi \
+    ../deploy/Qt-SESAM.nsi \
     ../.gitignore \
     Doxyfile \
-    deploy/ctSESAM.nsi \
 
 unix {
     target.path = /bin

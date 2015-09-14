@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include(QtSESAM.pri)
+include(Qt-SESAM.pri)
 VERSION = -$${QTSESAM_VERSION}
 
 TEMPLATE = subdirs
@@ -22,7 +22,6 @@ SUBDIRS += \
     cryptopp \
     libSESAM \
     UnitTests \
-    ctSESAM
-
+    Qt-SESAM
 
 win32:SUBDIRS += HashMaster

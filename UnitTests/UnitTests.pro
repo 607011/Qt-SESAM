@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include(../QtSESAM.pri)
+include(../Qt-SESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
-TARGET = QtSESAM-UnitTests
+TARGET = Qt-SESAM-UnitTests
 
 TEMPLATE = app qt
 
