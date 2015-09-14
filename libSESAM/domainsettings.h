@@ -46,6 +46,12 @@ public:
   static const QString DOMAIN_NAME;
   QString domainName;
 
+  static const QString URL;
+  QString url;
+
+  static const QString EXTRAS;
+  QString extras;
+
   static const QString USER_NAME;
   QString userName;
 
