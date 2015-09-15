@@ -48,6 +48,7 @@
 #include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QStandardPaths>
+#include <QDesktopServices>
 #include <QCompleter>
 
 #include <string>
@@ -175,6 +176,9 @@ MainWindow::MainWindow(bool portable, QWidget *parent)
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+  QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(onURLChanged()));
+  QObject::connect(ui->openURLPushButton, SIGNAL(pressed()), SLOT(openURL()));
   QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
@@ -376,6 +380,7 @@ void MainWindow::resetAllFields(void)
 {
   Q_D(MainWindow);
   ui->userLineEdit->setText(QString());
+  ui->urlLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
   ui->saltBase64LineEdit->setText(DomainSettings::DefaultSalt_base64);
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
@@ -411,6 +416,7 @@ void MainWindow::newDomain(const QString &domainName)
     else {
       setDirty(false);
       d->currentDomain = d->newDomainWizard->domain();
+      ui->urlLineEdit->setText(d->newDomainWizard->url());
       ui->domainsComboBox->addItem(d->currentDomain);
       ui->domainsComboBox->setCurrentText(d->currentDomain);
       ui->userLineEdit->setText(d->newDomainWizard->username());
@@ -483,6 +489,19 @@ void MainWindow::setDirty(bool dirty)
 }
 
 
+void MainWindow::openURL(void)
+{
+  if (!ui->urlLineEdit->text().isEmpty())
+    QDesktopServices::openUrl(QUrl(ui->urlLineEdit->text()));
+}
+
+
+void MainWindow::onURLChanged(void)
+{
+  ui->openURLPushButton->setEnabled(!ui->urlLineEdit->text().isEmpty());
+}
+
+
 void MainWindow::restartInvalidationTimer(void)
 {
   Q_D(MainWindow);
@@ -524,6 +543,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 {
   DomainSettings ds;
   ds.domainName = ui->domainsComboBox->currentText();
+  ds.url  = ui->urlLineEdit->text();
   ds.deleted = ui->deleteCheckBox->isChecked();
   ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
   ds.modifiedDate = d_ptr->modifiedDate.isValid() ? d_ptr->modifiedDate : QDateTime::currentDateTime();
@@ -835,6 +855,7 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
   blockUpdatePassword();
   const DomainSettings &p = d->domains.at(domain);
   ui->domainsComboBox->setCurrentText(p.domainName);
+  ui->urlLineEdit->setText(p.url);
   ui->userLineEdit->setText(p.userName);
   ui->legacyPasswordLineEdit->setText(p.legacyPassword);
   ui->saltBase64LineEdit->setText(p.salt_base64);

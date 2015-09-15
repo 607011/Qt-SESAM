@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>358</width>
-    <height>584</height>
+    <height>501</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,58 @@
   <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="5" column="2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Domain</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Notes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>Salt (Base64)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLineEdit" name="legacyPasswordLineEdit">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>don't fill unless you really need to</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Legacy password</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="2">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="6" column="2">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLineEdit" name="saltBase64LineEdit">
@@ -42,14 +93,70 @@
        </item>
       </layout>
      </item>
-     <item row="4" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
         <string>Password length</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
+     <item row="0" column="2">
+      <widget class="QLineEdit" name="domainLineEdit">
+       <property name="minimumSize">
+        <size>
+         <width>128</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>mandatory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QSpinBox" name="passwordLengthSpinBox">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>12</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Min. iterations</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>User name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QSpinBox" name="iterationsSpinBox">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>16777216</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>4096</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
       <widget class="QPlainTextEdit" name="notesPlainTextEdit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -71,117 +178,27 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="2">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Domain</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLineEdit" name="domainLineEdit">
-       <property name="minimumSize">
-        <size>
-         <width>128</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>mandatory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>Salt (Base64)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>User name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Notes</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
+     <item row="2" column="2">
       <widget class="QLineEdit" name="userLineEdit">
        <property name="placeholderText">
         <string>may be empty</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QSpinBox" name="iterationsSpinBox">
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>16777216</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>4096</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Min. iterations</string>
+        <string>URL</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QSpinBox" name="passwordLengthSpinBox">
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>12</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLineEdit" name="legacyPasswordLineEdit">
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="urlLineEdit">
        <property name="text">
         <string/>
        </property>
        <property name="placeholderText">
-        <string>don't fill unless you really need to</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Legacy password</string>
+        <string>may be empty</string>
        </property>
       </widget>
      </item>
@@ -278,12 +295,12 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="1" column="0">
-       <widget class="QCheckBox" name="forceUpperCaseCheckBox">
+       <widget class="QCheckBox" name="forceDigitsCheckBox">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>upper case</string>
+         <string>digits</string>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -303,20 +320,20 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="forceDigitsCheckBox">
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="forceUpperCaseCheckBox">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>digits</string>
+         <string>upper case</string>
         </property>
         <property name="checked">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="1" column="1">
        <widget class="QCheckBox" name="forceExtraCheckBox">
         <property name="enabled">
          <bool>true</bool>
@@ -374,9 +391,6 @@
   <tabstop>notesPlainTextEdit</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
   <tabstop>forceLowerCaseCheckBox</tabstop>
-  <tabstop>forceUpperCaseCheckBox</tabstop>
-  <tabstop>forceDigitsCheckBox</tabstop>
-  <tabstop>forceExtraCheckBox</tabstop>
   <tabstop>addPushButton</tabstop>
   <tabstop>cancelPushButton</tabstop>
   <tabstop>extraPushButton</tabstop>

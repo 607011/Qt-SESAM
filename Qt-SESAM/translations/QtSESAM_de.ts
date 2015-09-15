@@ -626,11 +626,15 @@
     </message>
     <message>
         <source>optional</source>
-        <translation>optional</translation>
+        <translation type="vanished">optional</translation>
     </message>
     <message>
         <source>Minimize window</source>
         <translation>Fenster minimieren</translation>
+    </message>
+    <message>
+        <source>Open URL ...</source>
+        <translation>URL öffnen ...</translation>
     </message>
 </context>
 <context>
@@ -784,6 +788,10 @@
     <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation>URL</translation>
     </message>
 </context>
 <context>
