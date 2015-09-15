@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>242</width>
-    <height>565</height>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,6 +49,18 @@
         </item>
         <item>
          <widget class="QPushButton" name="copyUsernameToClipboardPushButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
           <property name="toolTip">
            <string>Copy username to clipboard</string>
           </property>
@@ -78,7 +90,7 @@
         <item>
          <widget class="QPushButton" name="openURLPushButton">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -170,6 +182,18 @@
              <widget class="QPushButton" name="renewSaltPushButton">
               <property name="enabled">
                <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>24</width>
+                <height>24</height>
+               </size>
               </property>
               <property name="text">
                <string/>
@@ -283,6 +307,18 @@
           </item>
           <item>
            <widget class="QPushButton" name="copyGeneratedPasswordToClipboardPushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Copy password to clipboard</string>
             </property>
@@ -510,7 +546,7 @@
      <x>0</x>
      <y>0</y>
      <width>242</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
