@@ -13,6 +13,7 @@
 *.vcxproj.filters text eol=crlf
 *.nsi text eol=crlf
 *.cmd text eol=crlf
+*.rc text eol=crlf
 
 *.qm binary
 *.dll binary
