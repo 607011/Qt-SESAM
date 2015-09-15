@@ -82,11 +82,12 @@ class MainWindowPrivate {
 public:
   MainWindowPrivate(void)
     : portable(false)
-    : newDomainWizard(new NewDomainWizard)
+    , newDomainWizard(new NewDomainWizard)
     , masterPasswordDialog(new MasterPasswordDialog)
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog)
     , optionsDialog(new OptionsDialog)
     , progressDialog(new ProgressDialog)
+    , actionShow(nullptr)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
     , customCharacterSetDirty(false)
@@ -121,6 +122,7 @@ public:
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
   ProgressDialog *progressDialog;
+  QAction *actionShow;
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
@@ -233,8 +235,8 @@ MainWindow::MainWindow(bool portable, QWidget *parent)
   d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
   QMenu *trayMenu = new QMenu(AppName);
-  QAction *actionShow = trayMenu->addAction(tr("Restore window"));
-  QObject::connect(actionShow, SIGNAL(triggered(bool)), SLOT(showHide()));
+  d->actionShow = trayMenu->addAction(tr("Minimize window"));
+  QObject::connect(d->actionShow, SIGNAL(triggered(bool)), SLOT(showHide()));
   QAction *actionSync = trayMenu->addAction(tr("Sync"));
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
   QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
@@ -260,13 +262,17 @@ MainWindow::MainWindow(bool portable, QWidget *parent)
 void MainWindow::showHide(void)
 {
   Q_D(MainWindow);
-  if (isVisible()) {
-    hide();
+  if (isMinimized()) {
+    show();
+    showNormal();
+    raise();
+    activateWindow();
+    setFocus();
+    d->actionShow->setText(tr("Minimize window"));
   }
   else {
-    show();
-    raise();
-    setFocus();
+    showMinimized();
+    d->actionShow->setText(tr("Restore window"));
   }
 }
 
@@ -342,7 +348,7 @@ void MainWindow::changeEvent(QEvent *e)
   case QEvent::WindowStateChange:
   {
     if (windowState() & Qt::WindowMinimized) {
-      QTimer::singleShot(200, this, SLOT(hide()));
+      QTimer::singleShot(200, this, SLOT(showMinimized()));
     }
     break;
   }
