@@ -10,7 +10,7 @@ SET QTDIR="D:\Qt\5.5\msvc2013\bin"
 SET DESTDIR="QtSESAM-portable"
 SET BUILDDIR="..\..\..\QtSESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
 SET PATH=%PATH%;C:\Program Files\7-Zip;D:\Developer\NSIS\
-SET INSTALLER_GLOB="QtSESAM-*-setup.exe"
+SET INSTALLER_GLOB="Qt-SESAM-*-setup.exe"
 
 ECHO Removing old files ...
 RD /S /Q %DESTDIR% >NUL
