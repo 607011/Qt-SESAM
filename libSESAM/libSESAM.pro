@@ -327,10 +327,5 @@ HEADERS +=\
     3rdparty/cryptopp/zinflate.h \
     3rdparty/cryptopp/zlib.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
-
 DISTFILES += \
     3rdparty/cryptopp/Crypto++-License

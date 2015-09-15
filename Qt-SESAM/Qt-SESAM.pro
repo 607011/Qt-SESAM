@@ -115,7 +115,7 @@ OTHER_FILES += \
     Doxyfile \
 
 unix {
-    target.path = /bin
+    target.path = /usr/bin
     INSTALLS += target
 }
 
