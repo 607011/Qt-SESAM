@@ -22,7 +22,7 @@
 
 #include <QDialog>
 #include <QString>
-
+#include <QShowEvent>
 
 namespace Ui {
 class NewDomainWizard;
@@ -55,6 +55,9 @@ public:
   void setForceDigits(bool);
   void setForceExtra(bool);
   void setDomain(const QString &domainName);
+
+protected:
+  void showEvent(QShowEvent*);
 
 private slots:
   void addLowercaseToUsedCharacters(void);
