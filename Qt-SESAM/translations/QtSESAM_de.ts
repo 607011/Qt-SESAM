@@ -621,6 +621,14 @@
 </translation>
     </message>
     <message>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <source>optional</source>
+        <translation>optional</translation>
+    </message>
+    <message>
         <source>Minimize window</source>
         <translation>Fenster minimieren</translation>
     </message>
