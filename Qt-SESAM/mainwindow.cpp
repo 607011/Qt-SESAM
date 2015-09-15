@@ -72,7 +72,6 @@
 
 #ifdef WIN32
 #include "keyboardhook.h"
-#pragma comment(lib, "user32.lib")
 #endif
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
@@ -83,6 +82,8 @@ static const QString DefaultSyncServerUsername = "me";
 static const QString DefaultSyncServerPassword = "s3Cr37";
 static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
+
+static const int SmartLoginNotActive = -1;
 
 class MainWindowPrivate {
 public:
@@ -115,6 +116,7 @@ public:
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
+    , smartLoginCounter(SmartLoginNotActive)
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
@@ -167,6 +169,7 @@ public:
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
+  int smartLoginCounter;
 };
 
 
@@ -501,8 +504,12 @@ void MainWindow::setDirty(bool dirty)
 
 void MainWindow::openURL(void)
 {
-  if (!ui->urlLineEdit->text().isEmpty())
+  Q_D(MainWindow);
+  if (!ui->urlLineEdit->text().isEmpty()) {
     QDesktopServices::openUrl(QUrl(ui->urlLineEdit->text()));
+    copyUsernameToClipboard();
+    d->smartLoginCounter = 0;
+  }
 }
 
 
@@ -1690,6 +1697,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 #ifdef WIN32
 void MainWindow::onPasted(void)
 {
-  qDebug() << "MainWindow::onPasted()";
+  Q_D(MainWindow);
+  switch (d->smartLoginCounter++) {
+  case 0:
+    if (ui->legacyPasswordLineEdit->text().isEmpty()) {
+      copyGeneratedPasswordToClipboard();
+    }
+    else {
+      copyLegacyPasswordToClipboard();
+    }
+    break;
+  case 1:
+    clearClipboard();
+    d->smartLoginCounter = SmartLoginNotActive;
+    break;
+  default:
+    break;
+  }
 }
 #endif
