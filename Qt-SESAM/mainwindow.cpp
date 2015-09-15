@@ -72,9 +72,11 @@
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
 
-static const QString DefaultServerRoot = "https://localhost/ctSESAM";
-static const QString DefaultWriteUrl = "/ajax/write.php";
-static const QString DefaultReadUrl = "/ajax/read.php";
+static const QString DefaultSyncServerRoot = "https://my.syncserver.io/ctSESAM";
+static const QString DefaultSyncServerUsername = "me";
+static const QString DefaultSyncServerPassword = "s3Cr37";
+static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
+static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 
 class MainWindowPrivate {
 public:
@@ -1069,6 +1071,12 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
+  d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
+  d->optionsDialog->setServerRootUrl(DefaultSyncServerRoot);
+  d->optionsDialog->setServerUsername(DefaultSyncServerUsername);
+  d->optionsDialog->setServerPassword(DefaultSyncServerPassword);
+  d->optionsDialog->setReadUrl(DefaultSyncServerReadUrl);
+  d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
@@ -1083,30 +1091,13 @@ bool MainWindow::restoreSettings(void)
 
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
     QVariantMap syncData = jsonSyncData.toVariant().toMap();
-
-    QString syncFilename = syncData["sync/filename"].toString();
-    if (syncFilename.isEmpty())
-      syncFilename = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin";
-    d->optionsDialog->setSyncFilename(syncFilename);
+    d->optionsDialog->setSyncFilename(syncData["sync/filename"].toString());
     d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
     d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
     d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
-
-    QString serverRoot = syncData["sync/serverRoot"].toString();
-    if (serverRoot.isEmpty())
-      serverRoot = DefaultServerRoot;
-    d->optionsDialog->setServerRootUrl(serverRoot);
-
-    QString writeUrl = syncData["sync/serverWriteUrl"].toString();
-    if (writeUrl.isEmpty())
-      writeUrl = DefaultWriteUrl;
-    d->optionsDialog->setWriteUrl(writeUrl);
-
-    QString readUrl = syncData["sync/serverReadUrl"].toString();
-    if (readUrl.isEmpty())
-      readUrl = DefaultReadUrl;
-    d->optionsDialog->setReadUrl(readUrl);
-
+    d->optionsDialog->setServerRootUrl(syncData["sync/serverRoot"].toString());
+    d->optionsDialog->setWriteUrl(syncData["sync/serverWriteUrl"].toString());
+    d->optionsDialog->setReadUrl(syncData["sync/serverReadUrl"].toString());
     d->optionsDialog->setServerCertificates(QSslCertificate::fromData(syncData["sync/serverRootCertificates"].toByteArray(), QSsl::Pem));
     d->optionsDialog->setServerUsername(syncData["sync/serverUsername"].toString());
     d->optionsDialog->setServerPassword(syncData["sync/serverPassword"].toString());
