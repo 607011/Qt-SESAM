@@ -16,7 +16,7 @@
 QT -= gui
 QT += concurrent
 
-include(../QtSESAM.pri)
+include(../Qt-SESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
 VER_MAJ = 1

@@ -17,44 +17,14 @@
 
 */
 
+#ifndef __DUMP_H_
+#define __DUMP_H_
 
-#include "securebytearray.h"
-#include "util.h"
+#ifdef WIN32
+#include <Windows.h>
+#include <Dbghelp.h>
+#endif
 
-SecureByteArray::SecureByteArray(void)
-{
-  /* ... */
-}
+extern void make_minidump(void);
 
-
-SecureByteArray::SecureByteArray(const char *data, int size)
-  : QByteArray(data, size)
-{
-  /* ... */
-}
-
-
-SecureByteArray::SecureByteArray(int size, char ch)
-  : QByteArray(size, ch)
-{
-  /* ... */
-}
-
-
-SecureByteArray::SecureByteArray(const QByteArray &other)
-  : QByteArray(other)
-{
-  /* ... */
-}
-
-
-SecureByteArray::~SecureByteArray()
-{
-  invalidate();
-}
-
-
-void SecureByteArray::invalidate(void)
-{
-  SecureErase(*this);
-}
+#endif // __DUMP_H_
