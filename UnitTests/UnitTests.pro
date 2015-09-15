@@ -39,7 +39,7 @@ HEADERS  +=
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -lSESAM
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -lSESAM
-else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -llibSESAM
+else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -lSESAM
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -lSESAM
