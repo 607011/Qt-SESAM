@@ -23,6 +23,7 @@
 #include <QString>
 
 extern const QString AppCompanyName;
+extern const QString AppCompanyDomain;
 extern const QString AppName;
 extern const QString AppVersion;
 extern const QString AppURL;

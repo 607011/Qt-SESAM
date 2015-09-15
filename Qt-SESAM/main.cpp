@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
   QApplication a(argc, argv);
   a.setOrganizationName(AppCompanyName);
-  a.setOrganizationDomain(AppCompanyName);
+  a.setOrganizationDomain(AppCompanyDomain);
   a.setApplicationName(AppName);
   a.setApplicationVersion(AppVersion);
 
