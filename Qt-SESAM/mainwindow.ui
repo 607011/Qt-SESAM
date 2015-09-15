@@ -633,19 +633,23 @@
  <tabstops>
   <tabstop>domainsComboBox</tabstop>
   <tabstop>userLineEdit</tabstop>
+  <tabstop>urlLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>usedCharactersPlainTextEdit</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>deleteCheckBox</tabstop>
   <tabstop>savePushButton</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>cancelPushButton</tabstop>
   <tabstop>renewSaltPushButton</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>deleteCheckBox</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
   <tabstop>saltBase64LineEdit</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>openURLPushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>cancelPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>

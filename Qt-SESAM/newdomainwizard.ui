@@ -384,19 +384,23 @@
  </widget>
  <tabstops>
   <tabstop>domainLineEdit</tabstop>
+  <tabstop>urlLineEdit</tabstop>
   <tabstop>userLineEdit</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
+  <tabstop>saltBase64LineEdit</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
   <tabstop>forceLowerCaseCheckBox</tabstop>
+  <tabstop>forceUpperCaseCheckBox</tabstop>
+  <tabstop>forceDigitsCheckBox</tabstop>
+  <tabstop>forceExtraCheckBox</tabstop>
   <tabstop>addPushButton</tabstop>
   <tabstop>cancelPushButton</tabstop>
-  <tabstop>extraPushButton</tabstop>
-  <tabstop>saltBase64LineEdit</tabstop>
-  <tabstop>digitsPushButton</tabstop>
   <tabstop>lowercasePushButton</tabstop>
+  <tabstop>extraPushButton</tabstop>
+  <tabstop>digitsPushButton</tabstop>
   <tabstop>uppercasePushButton</tabstop>
  </tabstops>
  <resources/>
