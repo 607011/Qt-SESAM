@@ -28,6 +28,8 @@ TEMPLATE = lib
 
 CONFIG += staticlib warn_off c++11
 
+unix:QMAKE_CXXFLAGS += -std=c++11
+
 INCLUDEPATH += 3rdparty/cryptopp 3rdparty/bigint
 
 win32-msvc* {

@@ -25,6 +25,8 @@ QT -= gui
 
 CONFIG += console warn_off c++11 testcase no_testcase_installs
 
+unix:QMAKE_CXXFLAGS += -std=c++11
+
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100
     DEFINES += _SCL_SECURE_NO_WARNINGS
@@ -35,12 +37,7 @@ win32-msvc* {
 
 SOURCES += test-main.cpp
 
-HEADERS  +=
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -lSESAM
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -lSESAM
-else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -lSESAM
-
+HEADERS +=
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -lSESAM
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -lSESAM

@@ -28,6 +28,8 @@ TRANSLATIONS = $$files(translations/QtSESAM_*.ts)
 
 CONFIG += c++11
 
+unix:QMAKE_CXXFLAGS += -std=c++11
+
 VERSION_PE_HEADER = 2.0
 
 win32-g++ {
