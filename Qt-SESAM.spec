@@ -3,14 +3,10 @@ Version:        2.0.3
 Release:        1%{?dist}
 Summary:        Super Easy & Secure Authentication Management
 
-# @TODO: is this a legal value for the group tag?
 Group:          Applications/Internet
 License:        GPLv3+ and Boost
-URL:            https://github.com/ola-ct/Qt-SESAM
+URL:            https://github.com/ola-ct/%{name}
 Source0:        https://github.com/ola-ct/%{name}/archive/v%{version}-RELEASE.tar.gz
-Patch0:         Qt-SESAM-2.0.3-fix-hash-master-build.patch
-Patch1:         Qt-SESAM-2.0.3-unit-tests-as-console-app.patch
-Patch2:         Qt-SESAM-2.0.3-automate-translations-build.patch
 
 # build uses qmake, i.e. doesn't use information from pkconfig() or cmake()
 # @TODO: what is correct BR for qmake-qt5?
@@ -22,7 +18,6 @@ BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Widgets)
 # for lrelease-qt5
 BuildRequires:  cmake(Qt5LinguistTools)
-BuildRequires:  dos2unix
 
 
 # @TODO: we need a better description text
@@ -34,31 +29,29 @@ This program uses the Crypto++ library.
 
 %prep
 # github automatic tarball generation directory naming scheme
-%autosetup -n %{name}-%{version}-RELEASE -p1
+%setup -q -n %{name}-%{version}-RELEASE
 
 %build
-qmake-qt5 QtSESAM.pro
+lrelease-qt5 %{name}/%{name}.pro
+qmake-qt5 %{name}.pro
 make %{?_smp_mflags}
 make %{?_smp_mflags} check
 
-# fixup DOS line endings
-dos2unix README.md
-
 %install
-mkdir -p %{buildroot}%{_bindir}
-cp -p ctSESAM/QtSESAM %{buildroot}%{_bindir}/
+%{make_install} INSTALL_ROOT=%{buildroot}
+%{find_lang} QtSESAM --with-qt --without-mo
 
 %clean
 rm -rf %{buildroot}
 
 
-%files
+%files -f QtSESAM.lang
 %defattr(-,root,root,-)
 %doc README.md
-%license LICENSE cryptopp/License.txt
-%{_bindir}/QtSESAM
+%license LICENSE libSESAM/3rdparty/cryptopp/Crypto++-License
+%{_bindir}/%{name}
 
 
 %changelog
-* Sat Sep 12 2015 Stefan Becker <chemobejk@gmail.com> - 2.0.3-1
+* Tue Sep 15 2015 Stefan Becker <chemobejk@gmail.com> - 2.0.3-1
 - Initial packaging.
