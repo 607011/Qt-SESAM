@@ -22,6 +22,7 @@
 #include <QSysInfo>
 
 const QString AppCompanyName = "ct";
+const QString AppCompanyDomain = "http://www.ct.de/";
 const QString AppName = "QtSESAM";
 const QString AppVersion = QTSESAM_VERSION;
 const QString AppURL = "https://github.com/ola-ct/Qt-SESAM";
