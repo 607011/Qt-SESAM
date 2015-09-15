@@ -72,6 +72,7 @@
 
 #ifdef WIN32
 #include "keyboardhook.h"
+static const int SmartLoginNotActive = -1;
 #endif
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
@@ -83,7 +84,6 @@ static const QString DefaultSyncServerPassword = "s3Cr37";
 static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 
-static const int SmartLoginNotActive = -1;
 
 class MainWindowPrivate {
 public:
@@ -116,7 +116,9 @@ public:
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
-    , smartLoginCounter(SmartLoginNotActive)
+  #ifdef WIN32
+    , smartLoginStep(SmartLoginNotActive)
+  #endif
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
@@ -169,7 +171,9 @@ public:
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
-  int smartLoginCounter;
+#ifdef WIN32
+  int smartLoginStep;
+#endif
 };
 
 
@@ -508,7 +512,6 @@ void MainWindow::openURL(void)
   if (!ui->urlLineEdit->text().isEmpty()) {
     QDesktopServices::openUrl(QUrl(ui->urlLineEdit->text()));
     copyUsernameToClipboard();
-    d->smartLoginCounter = 0;
   }
 }
 
@@ -789,20 +792,6 @@ void MainWindow::onPasswordGenerationAborted(void)
 }
 
 
-void MainWindow::copyLegacyPasswordToClipboard(void)
-{
-  QApplication::clipboard()->setText(ui->legacyPasswordLineEdit->text());
-  ui->statusBar->showMessage(tr("Legacy password copied to clipboard."), 5000);
-}
-
-
-void MainWindow::copyUsernameToClipboard(void)
-{
-  QApplication::clipboard()->setText(ui->userLineEdit->text());
-  ui->statusBar->showMessage(tr("Username copied to clipboard."), 5000);
-}
-
-
 void MainWindow::onOptionsAccepted(void)
 {
   Q_D(MainWindow);
@@ -859,10 +848,60 @@ void MainWindow::onGenerateSaltKeyIV(void)
 }
 
 
+#ifdef WIN32
+void MainWindow::onPasted(void)
+{
+  Q_D(MainWindow);
+  switch (d->smartLoginStep) {
+  case 0:
+    if (ui->legacyPasswordLineEdit->text().isEmpty()) {
+      copyGeneratedPasswordToClipboard();
+    }
+    else {
+      copyLegacyPasswordToClipboard();
+    }
+    break;
+  case 1:
+    clearClipboard();
+    d->smartLoginStep = SmartLoginNotActive;
+    break;
+  default:
+    break;
+  }
+}
+#endif
+
+
+void MainWindow::copyUsernameToClipboard(void)
+{
+#ifdef WIN32
+  Q_D(MainWindow);
+  d->smartLoginStep = 0;
+#endif
+  QApplication::clipboard()->setText(ui->userLineEdit->text());
+  ui->statusBar->showMessage(tr("Username copied to clipboard."), 5000);
+}
+
+
 void MainWindow::copyGeneratedPasswordToClipboard(void)
 {
+#ifdef WIN32
+  Q_D(MainWindow);
+  d->smartLoginStep = 1;
+#endif
   QApplication::clipboard()->setText(ui->generatedPasswordLineEdit->text());
   ui->statusBar->showMessage(tr("Generated password copied to clipboard."), 3000);
+}
+
+
+void MainWindow::copyLegacyPasswordToClipboard(void)
+{
+#ifdef WIN32
+  Q_D(MainWindow);
+  d->smartLoginStep = 1;
+#endif
+  QApplication::clipboard()->setText(ui->legacyPasswordLineEdit->text());
+  ui->statusBar->showMessage(tr("Legacy password copied to clipboard."), 5000);
 }
 
 
@@ -1694,25 +1733,3 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-#ifdef WIN32
-void MainWindow::onPasted(void)
-{
-  Q_D(MainWindow);
-  switch (d->smartLoginCounter++) {
-  case 0:
-    if (ui->legacyPasswordLineEdit->text().isEmpty()) {
-      copyGeneratedPasswordToClipboard();
-    }
-    else {
-      copyLegacyPasswordToClipboard();
-    }
-    break;
-  case 1:
-    clearClipboard();
-    d->smartLoginCounter = SmartLoginNotActive;
-    break;
-  default:
-    break;
-  }
-}
-#endif
