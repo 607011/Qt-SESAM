@@ -71,9 +71,9 @@ private:
 
 private slots:
   void updatePassword(void);
+  void copyUsernameToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
-  void copyUsernameToClipboard(void);
   void onOptionsAccepted(void);
   void onServerCertificatesUpdated(void);
   void showOptionsDialog(void);
