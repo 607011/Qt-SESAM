@@ -115,8 +115,9 @@ private slots:
   void onExpertModeChanged(bool);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
-
-
+#ifdef WIN32
+  void onPasted(void);
+#endif
 
 signals:
   void passwordGenerated(void);
