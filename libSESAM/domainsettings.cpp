@@ -81,19 +81,25 @@ QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
   map[DOMAIN_NAME] = domainName;
-  map[DELETED] = deleted;
+  if (deleted)
+    map[DELETED] = true;
   map[CDATE] = createdDate;
   map[MDATE] = modifiedDate;
   if (!deleted) {
-    map[USER_NAME] = userName;
-    map[URL] = url;
-    map[LEGACY_PASSWORD] = legacyPassword;
-    map[NOTES] = notes;
+    if (!userName.isEmpty())
+        map[USER_NAME] = userName;
+    if (!url.isEmpty())
+      map[URL] = url;
+    if (!legacyPassword.isEmpty())
+      map[LEGACY_PASSWORD] = legacyPassword;
+    if (!notes.isEmpty())
+      map[NOTES] = notes;
     map[ITERATIONS] = iterations;
     map[LENGTH] = length;
     map[SALT] = salt_base64;
     map[USED_CHARACTERS] = usedCharacters;
-    map[EXTRAS] = extras;
+    if (!extras.isEmpty())
+      map[EXTRAS] = extras;
   }
   return map;
 }
