@@ -1480,6 +1480,8 @@ void MainWindow::onMasterPasswordEntered(void)
         d->settings.sync();
         if (d->optionsDialog->syncOnStart())
           sync();
+        if (ui->domainsComboBox->count() == 0)
+          newDomain();
       }
     }
   }
