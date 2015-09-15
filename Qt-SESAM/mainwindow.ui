@@ -49,7 +49,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="ctSESAM.qrc">
+           <iconset resource="QtSESAM.qrc">
             <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
           </property>
          </widget>
@@ -60,6 +60,20 @@
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Domain</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>URL</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLineEdit" name="urlLineEdit">
+        <property name="placeholderText">
+         <string>optional</string>
         </property>
        </widget>
       </item>
@@ -129,7 +143,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="ctSESAM.qrc">
+               <iconset resource="QtSESAM.qrc">
                 <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
               </property>
              </widget>
@@ -244,7 +258,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="ctSESAM.qrc">
+             <iconset resource="QtSESAM.qrc">
               <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
             </property>
            </widget>
@@ -343,7 +357,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="ctSESAM.qrc">
+             <iconset resource="QtSESAM.qrc">
               <normaloff>:/images/clipboard_add.png</normaloff>:/images/clipboard_add.png</iconset>
             </property>
            </widget>
@@ -369,14 +383,14 @@
     </item>
     <item>
      <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Notes</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QPlainTextEdit" name="notesPlainTextEdit">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -392,28 +406,28 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Created</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QLabel" name="createdLabel">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>Modified</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QLabel" name="modifiedLabel">
         <property name="text">
          <string/>
@@ -602,7 +616,7 @@
   <tabstop>saltBase64LineEdit</tabstop>
  </tabstops>
  <resources>
-  <include location="ctSESAM.qrc"/>
+  <include location="QtSESAM.qrc"/>
  </resources>
  <connections/>
 </ui>
