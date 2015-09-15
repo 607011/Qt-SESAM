@@ -7,7 +7,6 @@ Qt-SESAM/ui_*.h
 Qt-SESAM/doc/*
 Qt-SESAM/QtSESAM
 Qt-SESAM/qrc_*.cpp
-Qt-SESAM/deploy/portable/*
 Qt-SESAM/Qt-SESAM
 libSESAM/libSESAM.a
 UnitTests/Qt-SESAM-UnitTests
