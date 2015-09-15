@@ -620,6 +620,10 @@
 &lt;p&gt;&lt;strong&gt;Die Software wurde zu Lehr-, Lern- und Demonstrationszwecken geschaffen und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und die Heise Medien GmbH &amp;amp; Co. KG  haften nicht für Schäden, die aus der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.&lt;/strong&gt;&lt;/p&gt;
 </translation>
     </message>
+    <message>
+        <source>Minimize window</source>
+        <translation>Fenster minimieren</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
