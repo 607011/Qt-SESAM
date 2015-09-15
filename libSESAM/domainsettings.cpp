@@ -32,6 +32,7 @@ const int DomainSettings::DefaultSaltLength = 16;
 
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
+const QString DomainSettings::URL = "url";
 const QString DomainSettings::USER_NAME = "username";
 const QString DomainSettings::LEGACY_PASSWORD = "legacyPassword";
 const QString DomainSettings::NOTES = "notes";
@@ -42,6 +43,7 @@ const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
 const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
 const QString DomainSettings::DELETED = "deleted";
+const QString DomainSettings::EXTRAS = "extras";
 
 
 DomainSettings::DomainSettings(void)
@@ -84,12 +86,14 @@ QVariantMap DomainSettings::toVariantMap(void) const
   map[MDATE] = modifiedDate;
   if (!deleted) {
     map[USER_NAME] = userName;
+    map[URL] = url;
     map[LEGACY_PASSWORD] = legacyPassword;
     map[NOTES] = notes;
     map[ITERATIONS] = iterations;
     map[LENGTH] = length;
     map[SALT] = salt_base64;
     map[USED_CHARACTERS] = usedCharacters;
+    map[EXTRAS] = extras;
   }
   return map;
 }
@@ -100,6 +104,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   DomainSettings ds;
   ds.domainName = map[DOMAIN_NAME].toString();
   ds.userName = map[USER_NAME].toString();
+  ds.url = map[URL].toString();
   ds.legacyPassword = map[LEGACY_PASSWORD].toString();
   ds.notes = map[NOTES].toString();
   ds.iterations = map[ITERATIONS].toInt();
@@ -109,5 +114,6 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
   ds.deleted = map[DELETED].toBool(); // XXX
+  ds.extras = map[URL].toString();
   return ds;
 }

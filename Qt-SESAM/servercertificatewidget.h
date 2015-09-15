@@ -17,44 +17,31 @@
 
 */
 
+#ifndef __SERVERCERTIFICATEWIDGET_H_
+#define __SERVERCERTIFICATEWIDGET_H_
 
-#include "securebytearray.h"
-#include "util.h"
+#include <QDialog>
+#include <QSslSocket>
+#include <QScopedPointer>
 
-SecureByteArray::SecureByteArray(void)
-{
-  /* ... */
+
+namespace Ui {
+class ServerCertificateWidget;
 }
 
 
-SecureByteArray::SecureByteArray(const char *data, int size)
-  : QByteArray(data, size)
+class ServerCertificateWidget : public QDialog
 {
-  /* ... */
-}
+  Q_OBJECT
 
+public:
+  explicit ServerCertificateWidget(QWidget *parent = nullptr);
+  ~ServerCertificateWidget();
 
-SecureByteArray::SecureByteArray(int size, char ch)
-  : QByteArray(size, ch)
-{
-  /* ... */
-}
+  void setServerSocket(const QSslSocket &);
 
+private:
+  Ui::ServerCertificateWidget *ui;
+};
 
-SecureByteArray::SecureByteArray(const QByteArray &other)
-  : QByteArray(other)
-{
-  /* ... */
-}
-
-
-SecureByteArray::~SecureByteArray()
-{
-  invalidate();
-}
-
-
-void SecureByteArray::invalidate(void)
-{
-  SecureErase(*this);
-}
+#endif // __SERVERCERTIFICATEWIDGET_H_

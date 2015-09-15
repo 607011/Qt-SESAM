@@ -17,44 +17,41 @@
 
 */
 
+#ifndef __MASTERPASSWORDDIALOG_H_
+#define __MASTERPASSWORDDIALOG_H_
 
-#include "securebytearray.h"
-#include "util.h"
+#include <QDialog>
+#include <QShowEvent>
+#include <QCloseEvent>
 
-SecureByteArray::SecureByteArray(void)
-{
-  /* ... */
+namespace Ui {
+class MasterPasswordDialog;
 }
 
-
-SecureByteArray::SecureByteArray(const char *data, int size)
-  : QByteArray(data, size)
+class MasterPasswordDialog : public QDialog
 {
-  /* ... */
-}
+  Q_OBJECT
+public:
+  explicit MasterPasswordDialog(QWidget *parent = nullptr);
+  ~MasterPasswordDialog();
 
+  void invalidatePassword(void);
+  void setRepeatPassword(bool);
+  QString masterPassword(void) const;
 
-SecureByteArray::SecureByteArray(int size, char ch)
-  : QByteArray(size, ch)
-{
-  /* ... */
-}
+public slots:
+  virtual void reject(void);
 
+protected:
+  void showEvent(QShowEvent*);
+  void closeEvent(QCloseEvent*);
 
-SecureByteArray::SecureByteArray(const QByteArray &other)
-  : QByteArray(other)
-{
-  /* ... */
-}
+private slots:
+  void okClicked(void);
+  void comparePasswords(void);
 
+private:
+  Ui::MasterPasswordDialog *ui;
+};
 
-SecureByteArray::~SecureByteArray()
-{
-  invalidate();
-}
-
-
-void SecureByteArray::invalidate(void)
-{
-  SecureErase(*this);
-}
+#endif // __MASTERPASSWORDDIALOG_H_

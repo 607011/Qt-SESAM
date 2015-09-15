@@ -17,44 +17,19 @@
 
 */
 
+#ifndef __GLOBAL_H_
+#define __GLOBAL_H_
 
-#include "securebytearray.h"
-#include "util.h"
+#include <QString>
 
-SecureByteArray::SecureByteArray(void)
-{
-  /* ... */
-}
-
-
-SecureByteArray::SecureByteArray(const char *data, int size)
-  : QByteArray(data, size)
-{
-  /* ... */
-}
+extern const QString AppCompanyName;
+extern const QString AppName;
+extern const QString AppVersion;
+extern const QString AppURL;
+extern const QString AppAuthor;
+extern const QString AppAuthorMail;
+extern const QString AppUserAgent;
 
 
-SecureByteArray::SecureByteArray(int size, char ch)
-  : QByteArray(size, ch)
-{
-  /* ... */
-}
 
-
-SecureByteArray::SecureByteArray(const QByteArray &other)
-  : QByteArray(other)
-{
-  /* ... */
-}
-
-
-SecureByteArray::~SecureByteArray()
-{
-  invalidate();
-}
-
-
-void SecureByteArray::invalidate(void)
-{
-  SecureErase(*this);
-}
+#endif // __GLOBAL_H_
