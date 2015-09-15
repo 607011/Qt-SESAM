@@ -81,6 +81,7 @@ static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 class MainWindowPrivate {
 public:
   MainWindowPrivate(void)
+    : portable(false)
     : newDomainWizard(new NewDomainWizard)
     , masterPasswordDialog(new MasterPasswordDialog)
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog)
@@ -114,6 +115,7 @@ public:
   {
     SecureErase(masterPassword);
   }
+  bool portable;
   NewDomainWizard *newDomainWizard;
   MasterPasswordDialog *masterPasswordDialog;
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
@@ -160,13 +162,13 @@ public:
 };
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(bool portable, QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , d_ptr(new MainWindowPrivate)
 {
   Q_D(MainWindow);
-
+  d->portable = portable;
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
@@ -1395,7 +1397,7 @@ void MainWindow::onDomainSelected(const QString &domain)
 void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
-  setWindowTitle(QString("%1 %2%3 (%4)")
+  setWindowTitle(QString("%1 %2%3 (%4)%5")
                  .arg(AppName)
                  .arg(AppVersion)
                  .arg(d->parameterSetDirty ? "*" : "")
@@ -1404,6 +1406,7 @@ void MainWindow::updateWindowTitle(void)
 #else
                  .arg("x86")
 #endif
+                 .arg(d->portable ? " - PORTABLE " : "")
                  );
   ui->savePushButton->setEnabled(d->parameterSetDirty);
 }
