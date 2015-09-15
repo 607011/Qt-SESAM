@@ -151,7 +151,6 @@ SOURCES += \
     3rdparty/cryptopp/shacal2.cpp \
     3rdparty/cryptopp/shark.cpp \
     3rdparty/cryptopp/sharkbox.cpp \
-    3rdparty/cryptopp/simple.cpp \
     3rdparty/cryptopp/skipjack.cpp \
     3rdparty/cryptopp/socketft.cpp \
     3rdparty/cryptopp/sosemanuk.cpp \
