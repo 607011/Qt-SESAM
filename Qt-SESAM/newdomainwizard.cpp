@@ -182,7 +182,14 @@ void NewDomainWizard::setForceExtra(bool doForce)
 void NewDomainWizard::setDomain(const QString &domainName)
 {
   ui->domainLineEdit->setText(domainName);
-  ui->userLineEdit->setFocus();
+  ui->urlLineEdit->setFocus();
+}
+
+
+void NewDomainWizard::showEvent(QShowEvent *)
+{
+  if (ui->domainLineEdit->text().isEmpty())
+    ui->domainLineEdit->setFocus();
 }
 
 
