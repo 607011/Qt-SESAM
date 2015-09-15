@@ -19,7 +19,6 @@ VERSION = -$${QTSESAM_VERSION}
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
-    cryptopp \
     libSESAM \
     UnitTests \
     Qt-SESAM
