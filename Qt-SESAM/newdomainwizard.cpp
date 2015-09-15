@@ -83,6 +83,12 @@ QString NewDomainWizard::domain(void) const
 }
 
 
+QString NewDomainWizard::url(void) const
+{
+  return ui->urlLineEdit->text();
+}
+
+
 QString NewDomainWizard::username(void) const
 {
   return ui->userLineEdit->text();

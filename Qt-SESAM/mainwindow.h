@@ -90,6 +90,8 @@ private slots:
   void changeMasterPassword(void);
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
+  void onURLChanged(void);
+  void openURL(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
@@ -113,6 +115,7 @@ private slots:
   void onExpertModeChanged(bool);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+
 
 
 signals:

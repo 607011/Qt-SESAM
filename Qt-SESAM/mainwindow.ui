@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>242</width>
-    <height>529</height>
+    <height>565</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,17 +17,24 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>URL</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Domain</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <widget class="QComboBox" name="domainsComboBox">
         <property name="editable">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>User name</string>
         </property>
        </widget>
       </item>
@@ -56,26 +63,51 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>Domain</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>URL</string>
+         <string>User name</string>
         </property>
        </widget>
       </item>
       <item row="3" column="2">
-       <widget class="QLineEdit" name="urlLineEdit">
-        <property name="placeholderText">
-         <string>optional</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLineEdit" name="urlLineEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="openURLPushButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>1</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Open URL ...</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="QtSESAM.qrc">
+            <normaloff>:/images/open-url.png</normaloff>:/images/open-url.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>

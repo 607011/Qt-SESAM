@@ -6,5 +6,6 @@
         <file alias="encrypted.png">resources/images/encrypted.png</file>
         <file alias="clipboard_add.png">resources/images/clipboard_add.png</file>
         <file alias="refresh.png">resources/images/refresh.png</file>
+        <file alias="open-url.png">resources/images/open-url.png</file>
     </qresource>
 </RCC>

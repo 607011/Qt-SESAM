@@ -45,6 +45,7 @@ public:
   QString salt_base64(void) const;
   QString notes(void) const;
   QString usedCharacters(void) const;
+  QString url(void) const;
   bool forceLowercase(void) const;
   bool forceUppercase(void) const;
   bool forceDigits(void) const;
@@ -53,8 +54,7 @@ public:
   void setForceUppercase(bool);
   void setForceDigits(bool);
   void setForceExtra(bool);
-
-  void setDomain(const QString&domainName);
+  void setDomain(const QString &domainName);
 
 private slots:
   void addLowercaseToUsedCharacters(void);
