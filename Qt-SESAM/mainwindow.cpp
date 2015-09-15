@@ -22,6 +22,7 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
+#include <QObject>
 #include <QClipboard>
 #include <QMessageBox>
 #include <QStringListModel>
@@ -69,6 +70,10 @@
 
 #include "dump.h"
 
+#ifdef WIN32
+#include "keyboardhook.h"
+#pragma comment(lib, "user32.lib")
+#endif
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
@@ -230,6 +235,10 @@ MainWindow::MainWindow(bool portable, QWidget *parent)
 
   QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
 
+#ifdef WIN32
+  QObject::connect(KeyboardHook::instance(), SIGNAL(pasted()), SLOT(onPasted()));
+#endif
+
   ui->processLabel->setMovie(&d->loaderIcon);
   ui->processLabel->hide();
   ui->cancelPushButton->hide();
@@ -260,6 +269,7 @@ MainWindow::MainWindow(bool portable, QWidget *parent)
   onExpertModeChanged(false);
   setDirty(false);
   enterMasterPassword();
+
 }
 
 
@@ -1428,11 +1438,11 @@ void MainWindow::updateWindowTitle(void)
                  .arg(AppName)
                  .arg(AppVersion)
                  .arg(d->parameterSetDirty ? "*" : "")
-#ifdef Q_OS_WIN64
+               #ifdef Q_OS_WIN64
                  .arg("x64")
-#else
+               #else
                  .arg("x86")
-#endif
+               #endif
                  .arg(d->portable ? " - PORTABLE " : "")
                  );
   ui->savePushButton->setEnabled(d->parameterSetDirty);
@@ -1609,12 +1619,12 @@ void MainWindow::createFullDump(void)
 {
 #if defined(QT_DEBUG)
 #if defined(Q_CC_MSVC)
-   make_minidump();
-   ui->statusBar->showMessage(tr("Dump created."), 4000);
-   qDebug() << "Mini dump created.";
+  make_minidump();
+  ui->statusBar->showMessage(tr("Dump created."), 4000);
+  qDebug() << "Mini dump created.";
 #else
-   ui->statusBar->showMessage(tr("Dump not implemented."), 4000);
-   qDebug() << "Dump not implemented.";
+  ui->statusBar->showMessage(tr("Dump not implemented."), 4000);
+  qDebug() << "Dump not implemented.";
 #endif
 #endif
 }
@@ -1662,7 +1672,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     if (obj->objectName() == "generatedPasswordLineEdit")
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     else if (obj->objectName() == "legacyPasswordLineEdit")
-        ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+      ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     break;
   case QEvent::MouseButtonRelease:
     if (obj->objectName() == "generatedPasswordLineEdit")
@@ -1675,3 +1685,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   }
   return QObject::eventFilter(obj, event);
 }
+
+
+#ifdef WIN32
+void MainWindow::onPasted(void)
+{
+  qDebug() << "MainWindow::onPasted()";
+}
+#endif

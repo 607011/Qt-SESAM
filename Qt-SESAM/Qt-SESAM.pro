@@ -47,8 +47,8 @@ win32-msvc* {
     QMAKE_CXXFLAGS_DEBUG += /sdl
     QMAKE_CXXFLAGS_RELEASE += /GA /GL /Ox
     RC_FILE = QtSESAM.rc
-    SOURCES += dump.cpp
-    HEADERS += dump.h
+    SOURCES += dump.cpp keyboardhook.cpp
+    HEADERS += dump.h keyboardhook.h
     LIBS += User32.lib
     QMAKE_LFLAGS += /LTCG
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
