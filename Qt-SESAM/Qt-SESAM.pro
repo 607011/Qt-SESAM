@@ -24,20 +24,7 @@ TEMPLATE = app qt
 
 QT += core gui widgets concurrent network
 
-TRANSLATIONS = $$files(translations/i18n_*.ts)
-isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
-    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
-}
-isEmpty(QM_DIR):QM_DIR = $$PWD/translations
-ts-to-qm.name     = lrelease ${QMAKE_FILE_IN}
-ts-to-qm.input    = TRANSLATIONS
-ts-to-qm.output   = $$QM_DIR/${QMAKE_FILE_BASE}.qm
-ts-to-qm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_OUT}
-ts-to-qm.CONFIG   = no_link
-QMAKE_EXTRA_COMPILERS += ts-to-qm
-PRE_TARGETDEPS += compiler_ts-to-qm_make_all
-
+TRANSLATIONS = $$files(translations/QtSESAM_*.ts)
 
 CONFIG += c++11
 
@@ -101,6 +88,8 @@ FORMS += mainwindow.ui \
 RESOURCES += \
     QtSESAM.qrc
 
+win32: RESOURCES += QtSESAM_translations.qrc
+
 DISTFILES += \
     ../LICENSE \
     ../README.md \
@@ -108,7 +97,7 @@ DISTFILES += \
     QtSESAM.rc
 
 OTHER_FILES += \
-    translations/i18n_de.ts \
+    $$TRANSLATIONS \
     .gitignore \
     ../deploy/Qt-SESAM.nsi \
     ../.gitignore \
@@ -117,6 +106,10 @@ OTHER_FILES += \
 unix {
     target.path = /usr/bin
     INSTALLS += target
+
+    translations.files = $$replace(TRANSLATIONS, .ts, .qm)
+    translations.path  = $$[QT_INSTALL_TRANSLATIONS]
+    INSTALLS += translations
 }
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -lSESAM

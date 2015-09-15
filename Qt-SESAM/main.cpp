@@ -21,6 +21,7 @@
 #include "global.h"
 #include <QDebug>
 #include <QApplication>
+#include <QLibraryInfo>
 #include <QLocale>
 #include <QTranslator>
 #include <QString>
@@ -52,7 +53,15 @@ int main(int argc, char *argv[])
   a.setApplicationVersion(AppVersion);
 
   QTranslator translator;
-  bool ok = translator.load(":/translations/i18n_" + QLocale::system().name());
+  bool ok = translator.load(QLocale::system(),
+			    AppName,
+			    "_",
+#ifdef WIN32
+			    ":/translations"
+#else
+			    QLibraryInfo::location(QLibraryInfo::TranslationsPath)
+#endif
+			    );
 #ifdef QT_DEBUG
   if (!ok)
     qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
