@@ -27,18 +27,19 @@
 class KeyboardHook : public QObject {
   Q_OBJECT
 
-signals:
-  void pasted(void);
-
 public:
   static KeyboardHook *instance(void);
 
+signals:
+  void pasted(void);
+
 private:
-  HHOOK keyboardHook;
   KeyboardHook(void);
   ~KeyboardHook();
   bool hook(void);
+  HHOOK keyboardHook;
   static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+  static KeyboardHook *singleInstance;
 };
 
 #endif

@@ -21,6 +21,8 @@
 #include <QDebug>
 #include "keyboardhook.h"
 
+KeyboardHook *KeyboardHook::singleInstance = nullptr;
+
 KeyboardHook::KeyboardHook(void)
   : QObject()
   , keyboardHook(NULL)
@@ -38,14 +40,17 @@ KeyboardHook::~KeyboardHook()
 
 KeyboardHook *KeyboardHook::instance(void)
 {
-  static KeyboardHook *keyboardHookInstance = new KeyboardHook;
-  keyboardHookInstance->hook();
-  return keyboardHookInstance;
+  if (singleInstance == nullptr) {
+    singleInstance = new KeyboardHook;
+    singleInstance->hook();
+  }
+  return singleInstance;
 }
 
 
 bool KeyboardHook::hook(void)
 {
+  qDebug() << "KeyboardHook::hook()";
   HINSTANCE hApp = GetModuleHandle(NULL);
   keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, hApp, 0);
   if (keyboardHook == NULL)
@@ -56,12 +61,12 @@ bool KeyboardHook::hook(void)
 
 LRESULT CALLBACK KeyboardHook::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-  KBDLLHOOKSTRUCT *pKeyBoard = (KBDLLHOOKSTRUCT*)lParam;
+  KBDLLHOOKSTRUCT *pKeyBoard = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
   switch (wParam) {
   case WM_KEYUP:
   {
-    const DWORD dwKeyCode = pKeyBoard->vkCode;
-    if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && dwKeyCode == 86) {
+    qDebug() << "WM_KEYUP" << nCode << wParam << pKeyBoard->vkCode << pKeyBoard->flags << pKeyBoard->scanCode;
+    if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && pKeyBoard->vkCode == 86) {
       emit KeyboardHook::instance()->pasted();
     }
     break;
