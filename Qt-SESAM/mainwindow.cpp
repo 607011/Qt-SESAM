@@ -88,8 +88,7 @@ static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 class MainWindowPrivate {
 public:
   MainWindowPrivate(void)
-    : portable(false)
-    , newDomainWizard(new NewDomainWizard)
+    : newDomainWizard(new NewDomainWizard)
     , masterPasswordDialog(new MasterPasswordDialog)
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog)
     , optionsDialog(new OptionsDialog)
@@ -126,7 +125,6 @@ public:
   {
     SecureErase(masterPassword);
   }
-  bool portable;
   NewDomainWizard *newDomainWizard;
   MasterPasswordDialog *masterPasswordDialog;
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
@@ -177,13 +175,12 @@ public:
 };
 
 
-MainWindow::MainWindow(bool portable, QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , d_ptr(new MainWindowPrivate)
 {
   Q_D(MainWindow);
-  d->portable = portable;
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
@@ -341,18 +338,17 @@ void MainWindow::closeEvent(QCloseEvent *e)
   case QMessageBox::Yes:
     saveCurrentDomainSettings();
     prepareExit();
-    QMainWindow::closeEvent(e);
     e->accept();
     break;
   case QMessageBox::Cancel:
     e->ignore();
     break;
   case QMessageBox::NoButton:
-    // fall-through
-  default:
     prepareExit();
-    QMainWindow::closeEvent(e);
     e->accept();
+    break;
+  default:
+    qWarning() << "Oops! Should never have come here.";
     break;
   }
 }
@@ -1501,7 +1497,7 @@ void MainWindow::updateWindowTitle(void)
                #else
                  .arg("x86")
                #endif
-                 .arg(d->portable ? " - PORTABLE " : "")
+                 .arg(isPortable() ? " - PORTABLE " : "")
                  );
   ui->savePushButton->setEnabled(d->parameterSetDirty);
 }

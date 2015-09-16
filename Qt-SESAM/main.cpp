@@ -24,31 +24,13 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QTranslator>
-#include <QString>
-#include <QSettings>
-#include <QDir>
-#include <QFileInfo>
-
-
-bool checkPortable(void)
-{
-  static const QString PortableFlagFile = "PORTABLE";
-  QString cwdSettingsFileName = QDir::currentPath() + "/" + PortableFlagFile;
-  QFileInfo fi(cwdSettingsFileName);
-  bool portable = false;
-  if (fi.isFile() && fi.isWritable()) {
-    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QDir::currentPath());
-    portable = true;
-  }
-  return portable;
-}
 
 
 int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(QtSESAM);
 
-  bool portable = checkPortable();
+  checkPortable();
 
   QApplication a(argc, argv);
   a.setOrganizationName(AppCompanyName);
@@ -73,8 +55,7 @@ int main(int argc, char *argv[])
   if (ok)
     a.installTranslator(&translator);
 
-  MainWindow w(portable);
+  MainWindow w;
   w.activateWindow();
-
   return a.exec();
 }

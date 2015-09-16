@@ -31,6 +31,7 @@ extern const QString AppAuthor;
 extern const QString AppAuthorMail;
 extern const QString AppUserAgent;
 
-
+extern void checkPortable(void);
+extern bool isPortable(void);
 
 #endif // __GLOBAL_H_

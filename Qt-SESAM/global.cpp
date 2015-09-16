@@ -17,9 +17,12 @@
 
 */
 
-
 #include "global.h"
 #include <QSysInfo>
+#include <QFileInfo>
+#include <QDir>
+#include <QString>
+#include <QSettings>
 
 const QString AppCompanyName = "ct";
 const QString AppCompanyDomain = "http://www.ct.de/";
@@ -44,3 +47,14 @@ const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4")
     .arg(AppURL)
     .arg(qVersion());
 #endif
+
+static const QString PortableFlagFile = "PORTABLE";
+static bool gPortable = false;
+bool isPortable(void) { return gPortable; }
+void checkPortable(void) {
+  QFileInfo fi(QDir::currentPath() + "/" + PortableFlagFile);
+  if (fi.isFile() && fi.isWritable()) {
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QDir::currentPath());
+    gPortable = true;
+  }
+}
