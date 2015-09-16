@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="loader.gif">resources/images/loader.gif</file>
+        <file alias="ct_logo.png">resources/images/ct_logo.png</file>
+        <file alias="ctSESAM.ico">resources/images/ctSESAM.ico</file>
+        <file alias="encrypted.png">resources/images/encrypted.png</file>
+        <file alias="clipboard_add.png">resources/images/clipboard_add.png</file>
+        <file alias="refresh.png">resources/images/refresh.png</file>
+        <file alias="open-url.png">resources/images/open-url.png</file>
+    </qresource>
+</RCC>

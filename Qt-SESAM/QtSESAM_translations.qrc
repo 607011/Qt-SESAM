@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/translations">
+        <file alias="QtSESAM_de.qm">translations/QtSESAM_de.qm</file>
+    </qresource>
+</RCC>

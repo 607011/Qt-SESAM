@@ -1,0 +1,19 @@
+* text=auto
+*.cpp text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+*.pro text eol=lf
+*.pri text eol=lf
+*.ts text eol=lf
+*.yml text eol=lf
+*.spec text eol=lf
+
+*.sln text eol=crlf
+*.vcxproj text eol=crlf
+*.vcxproj.filters text eol=crlf
+*.nsi text eol=crlf
+*.cmd text eol=crlf
+
+*.qm binary
+*.dll binary
+*.exe binary
