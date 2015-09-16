@@ -32,7 +32,7 @@ MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   ui->infoLabel->setStyleSheet("font-weight: bold");
-  setWindowTitle(QString("%1 %2").arg(AppName).arg(AppVersion));
+  setWindowTitle(QString("%1 %2%3").arg(AppName).arg(AppVersion).arg(isPortable() ? " - PORTABLE" : ""));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
   QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
