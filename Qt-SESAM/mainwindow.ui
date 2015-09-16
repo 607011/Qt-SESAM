@@ -668,14 +668,14 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>domainsComboBox</tabstop>
-  <tabstop>userLineEdit</tabstop>
   <tabstop>urlLineEdit</tabstop>
+  <tabstop>userLineEdit</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>
-  <tabstop>deleteCheckBox</tabstop>
   <tabstop>savePushButton</tabstop>
+  <tabstop>deleteCheckBox</tabstop>
   <tabstop>renewSaltPushButton</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
