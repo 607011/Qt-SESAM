@@ -852,8 +852,11 @@ void MainWindow::onGenerateSaltKeyIV(void)
 void MainWindow::onPasted(void)
 {
   Q_D(MainWindow);
+  if (!d->optionsDialog->smartLogin())
+    return;
   switch (d->smartLoginStep) {
   case 0:
+  {
     if (ui->legacyPasswordLineEdit->text().isEmpty()) {
       copyGeneratedPasswordToClipboard();
     }
@@ -861,10 +864,13 @@ void MainWindow::onPasted(void)
       copyLegacyPasswordToClipboard();
     }
     break;
+  }
   case 1:
+  {
     clearClipboard();
     d->smartLoginStep = SmartLoginNotActive;
     break;
+  }
   default:
     break;
   }
@@ -1112,6 +1118,9 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
+#ifdef WIN32
+  d->settings.setValue("misc/smartLogin", d->optionsDialog->smartLogin());
+#endif
 
   saveAllDomainDataToSettings();
   d->settings.sync();
@@ -1156,6 +1165,9 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
+#ifdef WIN32
+  d->optionsDialog->setSmartLogin(d->settings.value("misc/smartLogin").toBool());
+#endif
   d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
   d->optionsDialog->setServerRootUrl(DefaultSyncServerRoot);
   d->optionsDialog->setServerUsername(DefaultSyncServerUsername);

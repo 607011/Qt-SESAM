@@ -79,6 +79,11 @@ public:
   void setWriteBackups(bool);
   bool writeBackups(void) const;
 
+#ifdef WIN32
+  void setSmartLogin(bool);
+  bool smartLogin(void) const;
+#endif
+
   int masterPasswordInvalidationTimeMins(void) const;
   void setMasterPasswordInvalidationTimeMins(int minutes);
 
