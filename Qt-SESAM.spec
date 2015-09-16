@@ -1,12 +1,12 @@
 Name:           Qt-SESAM
-Version:        2.0.3
+Version:        2.0.4
 Release:        1%{?dist}
 Summary:        Super Easy & Secure Authentication Management
 
 Group:          Applications/Internet
 License:        GPLv3+ and Boost
 URL:            https://github.com/ola-ct/%{name}
-Source0:        https://github.com/ola-ct/%{name}/archive/v%{version}-RELEASE.tar.gz
+Source0:        https://github.com/ola-ct/%{name}/archive/v%{version}.tar.gz
 
 # build uses qmake, i.e. doesn't use information from pkconfig() or cmake()
 # @TODO: what is correct BR for qmake-qt5?
@@ -28,8 +28,7 @@ This program uses the Crypto++ library.
 
 
 %prep
-# github automatic tarball generation directory naming scheme
-%setup -q -n %{name}-%{version}-RELEASE
+%setup -q -n %{name}-%{version}
 
 %build
 lrelease-qt5 %{name}/%{name}.pro
@@ -53,5 +52,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep 16 2015 Stefan Becker <chemobejk@gmail.com> - 2.0.4-1
+- update to 2.0.4
+
 * Tue Sep 15 2015 Stefan Becker <chemobejk@gmail.com> - 2.0.3-1
 - Initial packaging.
