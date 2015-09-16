@@ -96,7 +96,8 @@ DISTFILES += \
     ../LICENSE \
     ../README.md \
     ../LIESMICH.txt \
-    QtSESAM.rc
+    QtSESAM.rc \
+    deploy/Qt-SESAM.nsi
 
 OTHER_FILES += \
     $$TRANSLATIONS \
