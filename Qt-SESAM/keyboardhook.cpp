@@ -50,7 +50,6 @@ KeyboardHook *KeyboardHook::instance(void)
 
 bool KeyboardHook::hook(void)
 {
-  qDebug() << "KeyboardHook::hook()";
   HINSTANCE hApp = GetModuleHandle(NULL);
   keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, hApp, 0);
   if (keyboardHook == NULL)
@@ -65,7 +64,6 @@ LRESULT CALLBACK KeyboardHook::LowLevelKeyboardProc(int nCode, WPARAM wParam, LP
   switch (wParam) {
   case WM_KEYUP:
   {
-    qDebug() << "WM_KEYUP" << nCode << wParam << pKeyBoard->vkCode << pKeyBoard->flags << pKeyBoard->scanCode;
     if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && pKeyBoard->vkCode == 86) {
       emit KeyboardHook::instance()->pasted();
     }

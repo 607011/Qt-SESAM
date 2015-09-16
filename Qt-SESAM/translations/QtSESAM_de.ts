@@ -1045,6 +1045,10 @@
         <source>Useless</source>
         <translation type="vanished">Nutzlos</translation>
     </message>
+    <message>
+        <source>Smart login</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ServerCertificateWidget</name>

@@ -23,13 +23,14 @@
 #include "ui_optionsdialog.h"
 
 #include <QDebug>
+#include <QObject>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QSslCertificate>
 #include <QSslSocket>
 #include <QSslError>
 #include <QMessageBox>
-
+#include <QCheckBox>
 
 static const QString HTTPS = "https";
 
@@ -37,11 +38,17 @@ class OptionsDialogPrivate
 {
 public:
   OptionsDialogPrivate(void)
+#ifdef WIN32
+    : smartLoginCheckbox(nullptr)
+#endif
   { /* ... */ }
   QSslSocket sslSocket;
   QList<QSslError> sslErrors;
   QList<QSslCertificate> serverCertificates;
   ServerCertificateWidget serverCertificateWidget;
+#ifdef WIN32
+  QCheckBox *smartLoginCheckbox;
+#endif
 };
 
 
@@ -60,6 +67,11 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
   QObject::connect(ui->checkConnectivityPushButton, SIGNAL(pressed()), SLOT(checkConnectivity()));
   QObject::connect(ui->selectPasswordFilePushButton, SIGNAL(pressed()), SLOT(choosePasswordFile()));
+#ifdef WIN32
+  d->smartLoginCheckbox = new QCheckBox(tr("Smart login"));
+  d->smartLoginCheckbox->setChecked(true);
+  ui->miscFormLayout->addWidget(d->smartLoginCheckbox);
+#endif
 }
 
 
@@ -207,6 +219,20 @@ bool OptionsDialog::writeBackups(void) const
 {
   return ui->writeBackupsCheckBox->isChecked();
 }
+
+
+#ifdef WIN32
+void OptionsDialog::setSmartLogin(bool enabled)
+{
+   d_ptr->smartLoginCheckbox->setChecked(enabled);
+}
+
+
+bool OptionsDialog::smartLogin(void) const
+{
+  return d_ptr->smartLoginCheckbox->isChecked();
+}
+#endif
 
 
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
