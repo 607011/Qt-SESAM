@@ -1112,7 +1112,7 @@ void MainWindow::saveSettings(void)
 
   d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
 
-  d->settings.setValue("mainwindow/geometry", geometry());
+  d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
