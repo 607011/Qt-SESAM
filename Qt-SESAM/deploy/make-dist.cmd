@@ -29,10 +29,10 @@ IF NOT EXIST %DESTDIR%\resources\images MKDIR %DESTDIR%\resources\images
 ECHO Copying files to %DESTDIR% ...
 COPY /B ..\..\LICENSE %DESTDIR% >NUL
 COPY /B ..\..\LIESMICH.txt %DESTDIR% >NUL
-COPY /B ssleay32.dll %DESTDIR% >NUL
-COPY /B libeay32.dll %DESTDIR% >NUL
-COPY /B msvcp120.dll %DESTDIR% >NUL
-COPY /B msvcr120.dll %DESTDIR% >NUL
+COPY /B x86\ssleay32.dll %DESTDIR% >NUL
+COPY /B x86\libeay32.dll %DESTDIR% >NUL
+COPY /B x86\msvcp120.dll %DESTDIR% >NUL
+COPY /B x86\msvcr120.dll %DESTDIR% >NUL
 COPY /B %QTDIR%\Qt5Core.dll %DESTDIR% >NUL
 COPY /B %QTDIR%\Qt5Gui.dll %DESTDIR% >NUL
 COPY /B %QTDIR%\Qt5Widgets.dll %DESTDIR% >NUL
