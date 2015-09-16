@@ -78,9 +78,9 @@ static const int SmartLoginNotActive = -1;
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
 
-static const QString DefaultSyncServerRoot = "https://my.syncserver.io/ctSESAM";
-static const QString DefaultSyncServerUsername = "me";
-static const QString DefaultSyncServerPassword = "s3Cr37";
+static const QString DefaultSyncServerRoot = "https://syncserver.net/ctSESAM";
+static const QString DefaultSyncServerUsername = "inter";
+static const QString DefaultSyncServerPassword = "op";
 static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 
