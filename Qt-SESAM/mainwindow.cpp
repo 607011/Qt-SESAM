@@ -322,6 +322,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
   auto prepareExit = [this]() {
     d_ptr->masterPasswordDialog->close();
     d_ptr->optionsDialog->close();
+    d_ptr->trayIcon.hide();
     saveSettings();
     invalidatePassword(false);
     d_ptr->keyGenerationFuture.waitForFinished();
