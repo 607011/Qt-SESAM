@@ -1498,11 +1498,11 @@ void MainWindow::updateWindowTitle(void)
                  .arg(AppName)
                  .arg(AppVersion)
                  .arg(d->parameterSetDirty ? "*" : "")
-               #ifdef Q_OS_WIN64
+#if TARGET_PLATFORM == x86_64
                  .arg("x64")
-               #else
+#else
                  .arg("x86")
-               #endif
+#endif
                  .arg(isPortable() ? " - PORTABLE " : "")
                  );
   ui->savePushButton->setEnabled(d->parameterSetDirty);
