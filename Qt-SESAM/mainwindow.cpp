@@ -1548,13 +1548,10 @@ void MainWindow::onMasterPasswordEntered(void)
           sync();
         if (ui->domainsComboBox->count() == 0)
           newDomain();
-        ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
         if (d->optionsDialog->syncOnStart()) {
           sync();
         }
-        else {
-          ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
-        }
+        ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
         generateSaltKeyIV();
         d->masterPasswordDialog->hide();
         show();
