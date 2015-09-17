@@ -1534,10 +1534,6 @@ void MainWindow::onMasterPasswordEntered(void)
   bool ok = true;
   QString masterPwd = d->masterPasswordDialog->masterPassword();
   if (!masterPwd.isEmpty()) {
-    this->show();
-    setEnabled(true);
-    generateSaltKeyIV();
-    d->masterPasswordDialog->hide();
     d->masterPassword = masterPwd;
     if (d->KGK.isEmpty()) {
       d->KGK = Crypter::randomBytes(Crypter::KGKSize);
@@ -1548,11 +1544,18 @@ void MainWindow::onMasterPasswordEntered(void)
       if (ok) {
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();
-        if (d->optionsDialog->syncOnStart())
+        if (d->optionsDialog->syncOnStart()) {
           sync();
-        if (ui->domainsComboBox->count() == 0)
-          newDomain();
-        ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
+        }
+        if (ui->domainsComboBox->count() == 0) {
+          newDomain(); // TODO: really???
+        }
+        else {
+          ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
+        }
+        generateSaltKeyIV();
+        d->masterPasswordDialog->hide();
+        show();
       }
     }
   }
