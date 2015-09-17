@@ -204,12 +204,21 @@ QByteArray Crypter::randomBytes(const int size)
 }
 
 
+/*!
+ * \brief Crypter::generateKGK
+ * \return `Crypter::KGKSize` random bytes.
+ */
 SecureByteArray Crypter::generateKGK(void)
 {
   return randomBytes(KGKSize);
 }
 
 
+/*!
+ * \brief Crypter::generateSalt
+ *
+ * \return `Crypter::SaltSize` random bytes.
+ */
 QByteArray Crypter::generateSalt(void)
 {
   return randomBytes(SaltSize);
@@ -220,15 +229,15 @@ QByteArray Crypter::generateSalt(void)
  * \brief Crypter::makeKeyFromPassword
  *
  * Generates a 256 bit key suitable for AES produced by PBKDF2.
- * PBKDF2 is called with the master password, the salt and an iteration count of `KGKIterations`.
+ * PBKDF2 is called with the master key, the salt and an iteration count of `KGKIterations`.
  *
- * \param masterPassword The master password from which PBKDF2 should generate the key.
+ * \param masterKey The master key from which PBKDF2 should generate the key.
  * \param salt A salt used for PBKDF2.
- * \return A `SecureByteArray` containing a `AESKeySize` long SHA-256 hash generated via PBKDF2 parametrized with `masterPassword`, `salt` and `KGKIterations`.
+ * \return A `SecureByteArray` containing a `AESKeySize` long SHA-256 hash generated via PBKDF2 parametrized with `masterKey`, `salt` and `KGKIterations`.
  */
-SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt)
+SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterKey, const QByteArray &salt)
 {
-  PBKDF2 pbkdf2(masterPassword, salt, KGKIterations, QCryptographicHash::Sha256);
+  PBKDF2 pbkdf2(masterKey, salt, KGKIterations, QCryptographicHash::Sha256);
   return pbkdf2.derivedKey(AESKeySize);
 }
 
