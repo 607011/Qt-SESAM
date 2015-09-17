@@ -940,6 +940,10 @@
         <source>Choose password file</source>
         <translation>Passwortdatei wählen</translation>
     </message>
+    <message>
+        <source>Smart login</source>
+        <translation>Smart Login</translation>
+    </message>
 </context>
 <context>
     <name>PasswordChecker</name>
@@ -1044,10 +1048,6 @@
     <message>
         <source>Useless</source>
         <translation type="vanished">Nutzlos</translation>
-    </message>
-    <message>
-        <source>Smart login</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
