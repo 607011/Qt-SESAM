@@ -499,7 +499,7 @@
     </message>
     <message>
         <source>Decryption error</source>
-        <translation>Entschlüsselungsfehler</translation>
+        <translation type="vanished">Entschlüsselungsfehler</translation>
     </message>
     <message>
         <source>An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Please enter the correct password!</source>
@@ -635,6 +635,10 @@
     <message>
         <source>Open URL ...</source>
         <translation>URL öffnen ...</translation>
+    </message>
+    <message>
+        <source>%1 - Decryption error</source>
+        <translation>%1 - Entschlüsselungsfehler</translation>
     </message>
 </context>
 <context>
