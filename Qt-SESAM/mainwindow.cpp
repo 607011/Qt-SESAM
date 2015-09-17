@@ -258,6 +258,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
   QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
   QObject::connect(actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
+  QAction *actionLockApplication = trayMenu->addAction(tr("Lock application ..."));
+  QObject::connect(actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
   QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(AppName));
   QObject::connect(actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
