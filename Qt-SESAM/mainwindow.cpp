@@ -131,6 +131,7 @@ public:
   OptionsDialog *optionsDialog;
   ProgressDialog *progressDialog;
   QAction *actionShow;
+  QString lastDomainBeforeLock;
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
@@ -1549,6 +1550,7 @@ void MainWindow::onMasterPasswordEntered(void)
           sync();
         if (ui->domainsComboBox->count() == 0)
           newDomain();
+        ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
       }
     }
   }
@@ -1583,6 +1585,8 @@ void MainWindow::invalidatePassword(bool reenter)
 
 void MainWindow::lockApplication(void)
 {
+  Q_D(MainWindow);
+  d->lastDomainBeforeLock = ui->domainsComboBox->currentText();
   saveSettings();
   invalidatePassword(true);
 }
