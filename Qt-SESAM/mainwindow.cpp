@@ -283,6 +283,8 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::showHide(void)
 {
   Q_D(MainWindow);
+  if (d->masterPasswordDialog->isVisible())
+    return;
   if (isMinimized()) {
     show();
     showNormal();
