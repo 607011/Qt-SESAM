@@ -32,6 +32,8 @@ unix:QMAKE_CXXFLAGS += -std=c++11
 
 VERSION_PE_HEADER = 2.0
 
+DEFINES += TARGET_PLATFORM=$${QT_ARCH}
+
 win32-g++ {
     CONFIG += warn_off
     CONFIG += windows
