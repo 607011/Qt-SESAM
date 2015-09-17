@@ -204,14 +204,14 @@ private slots:
   void crypter_encode_decode(void)
   {
     SecureByteArray masterPassword = QString("7h15p455w0rd15m0r37h4n53cr37").toUtf8();
-    QByteArray salt = Crypter::randomBytes(Crypter::SaltSize);
+    QByteArray salt = Crypter::generateSalt();
     SecureByteArray key;
     SecureByteArray IV;
     Crypter::makeKeyAndIVFromPassword(masterPassword, salt, key, IV);
     QVERIFY(key.length() == Crypter::AESKeySize);
     QVERIFY(IV.length() == Crypter::AESBlockSize);
 
-    SecureByteArray KGK = Crypter::randomBytes(Crypter::KGKSize);
+    SecureByteArray KGK = Crypter::generateKGK();
     QByteArray data = Crypter::randomBytes(1024);
     QByteArray cipher = Crypter::encode(key, IV, salt, KGK, data, true);
 

@@ -105,7 +105,7 @@ public:
     , hackPermutations(1)
     , hackingMode(false)
     , trayIcon(QIcon(":/images/ctSESAM.ico"))
-    , salt(Crypter::randomBytes(Crypter::SaltSize))
+    , salt(Crypter::generateSalt())
     , key(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
     , sslConf(QSslConfiguration::defaultConfiguration())
@@ -837,7 +837,7 @@ void MainWindow::generateSaltKeyIVThread(void)
 {
   Q_D(MainWindow);
   QMutexLocker(&d->keyGenerationMutex);
-  d->salt = Crypter::randomBytes(Crypter::SaltSize);
+  d->salt = Crypter::generateSalt();
   Crypter::makeKeyAndIVFromPassword(d->masterPassword.toUtf8(), d->salt, d->key, d->IV);
   emit saltKeyIVGenerated();
 }
@@ -1536,7 +1536,7 @@ void MainWindow::onMasterPasswordEntered(void)
   if (!masterPwd.isEmpty()) {
     d->masterPassword = masterPwd;
     if (d->KGK.isEmpty()) {
-      d->KGK = Crypter::randomBytes(Crypter::KGKSize);
+      d->KGK = Crypter::generateKGK();
     }
     ok = restoreSettings();
     if (ok) {

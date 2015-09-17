@@ -204,6 +204,18 @@ QByteArray Crypter::randomBytes(const int size)
 }
 
 
+SecureByteArray Crypter::generateKGK(void)
+{
+  return randomBytes(KGKSize);
+}
+
+
+QByteArray Crypter::generateSalt(void)
+{
+  return randomBytes(SaltSize);
+}
+
+
 /*!
  * \brief Crypter::makeKeyFromPassword
  *
