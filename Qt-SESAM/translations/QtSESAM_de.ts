@@ -1053,6 +1053,10 @@
         <source>Useless</source>
         <translation type="vanished">Nutzlos</translation>
     </message>
+    <message>
+        <source>Deleting this directory with all its contents will erase all your application and domain settings. So be careful!</source>
+        <translation>Mit dem Löschen dieses Verzeichnis werden alle Anwendungs- und Passworteinstellungen gelöscht. Vorsicht, bitte!</translation>
+    </message>
 </context>
 <context>
     <name>ServerCertificateWidget</name>
