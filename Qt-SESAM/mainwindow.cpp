@@ -1546,11 +1546,6 @@ void MainWindow::onMasterPasswordEntered(void)
         d->settings.sync();
         if (d->optionsDialog->syncOnStart())
           sync();
-        if (ui->domainsComboBox->count() == 0)
-          newDomain();
-        if (d->optionsDialog->syncOnStart()) {
-          sync();
-        }
         ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
         generateSaltKeyIV();
         d->masterPasswordDialog->hide();
