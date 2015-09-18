@@ -1498,7 +1498,7 @@ void MainWindow::updateWindowTitle(void)
                  .arg(AppName)
                  .arg(AppVersion)
                  .arg(d->parameterSetDirty ? "*" : "")
-#if TARGET_PLATFORM == x86_64
+#if PLATFORM == 64
                  .arg("x64")
 #else
                  .arg("x86")
