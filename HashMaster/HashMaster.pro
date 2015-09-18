@@ -17,7 +17,7 @@ include(../Qt-SESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
 TEMPLATE = app
-CONFIG += console c++11 warn_off
+CONFIG += console warn_off
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -29,7 +29,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -lSESAM
 else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -lSESAM
 
-INCLUDEPATH += $$PWD/../libSESAM $$PWD/../libSESAM/3rdparty/cryptopp
+INCLUDEPATH += $$PWD/../libSESAM \
+    $$PWD/../libSESAM/3rdparty/cryptopp
+
 DEPENDPATH += $$PWD/../libSESAM
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/libSESAM.a

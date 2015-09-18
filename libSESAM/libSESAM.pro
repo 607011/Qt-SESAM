@@ -26,9 +26,7 @@ VER_PAT = 0
 TARGET = SESAM
 TEMPLATE = lib
 
-CONFIG += staticlib warn_off c++11
-
-unix:QMAKE_CXXFLAGS += -std=c++11
+CONFIG += staticlib warn_off
 
 INCLUDEPATH += 3rdparty/cryptopp 3rdparty/bigint
 

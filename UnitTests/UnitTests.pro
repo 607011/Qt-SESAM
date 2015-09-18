@@ -23,9 +23,7 @@ TEMPLATE = app qt
 QT += core concurrent testlib
 QT -= gui
 
-CONFIG += console warn_off c++11 testcase no_testcase_installs
-
-unix:QMAKE_CXXFLAGS += -std=c++11
+CONFIG += console warn_off testcase no_testcase_installs
 
 win32-msvc* {
     QMAKE_CXXFLAGS += /wd4100
@@ -43,7 +41,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/release/ -
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libSESAM/debug/ -lSESAM
 else:unix: LIBS += -L$$OUT_PWD/../libSESAM/ -lSESAM
 
-INCLUDEPATH += $$PWD/../libSESAM $$PWD/../libSESAM/3rdparty/cryptopp
+INCLUDEPATH += $$PWD/../libSESAM \
+    $$PWD/../libSESAM/3rdparty/cryptopp
+
 DEPENDPATH += $$PWD/../libSESAM
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/libSESAM.a
