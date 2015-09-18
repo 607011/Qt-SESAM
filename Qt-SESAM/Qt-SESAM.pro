@@ -39,15 +39,10 @@ win32-msvc* {
     CONFIG += warn_off
     CONFIG += windows
     CONFIG -= console
-    DEFINES += _SCL_SECURE_NO_WARNINGS
-    QMAKE_CXXFLAGS_DEBUG += /sdl
-    QMAKE_CXXFLAGS_RELEASE += /GA /GL /Ox
     RC_FILE = QtSESAM.rc
     SOURCES += dump.cpp keyboardhook.cpp
     HEADERS += dump.h keyboardhook.h
     LIBS += User32.lib
-    QMAKE_LFLAGS += /LTCG
-    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
     QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:WINDOWS
 }
 
