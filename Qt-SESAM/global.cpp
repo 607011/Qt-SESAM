@@ -19,6 +19,7 @@
 
 #include "global.h"
 #include <QSysInfo>
+#include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QString>
@@ -49,12 +50,21 @@ const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4")
 #endif
 
 static const QString PortableFlagFile = "PORTABLE";
+static const QString ReadMeFile = "README";
+static const QString SettingsSubDir = "settings";
 static bool gPortable = false;
 bool isPortable(void) { return gPortable; }
 void checkPortable(void) {
-  QFileInfo fi(QDir::currentPath() + "/" + PortableFlagFile);
-  if (fi.isFile() && fi.isWritable()) {
-    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QDir::currentPath());
+  const QString &cwd = QDir::currentPath();
+  QFileInfo cwdfi(cwd);
+  QFileInfo pfffi(cwd + "/" + PortableFlagFile);
+  if (pfffi.isFile() && pfffi.isReadable() && cwdfi.isWritable()) {
+    QDir(cwd).mkdir(SettingsSubDir);
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, cwd + "/" + SettingsSubDir);
+    QFile hintFile(cwd + "/" + SettingsSubDir + "/" + ReadMeFile);
+    hintFile.open(QIODevice::WriteOnly);
+    hintFile.write(QObject::tr("Deleting this directory with all its contents will erase all your application and domain settings. So be careful!").toUtf8());
+    hintFile.close();
     gPortable = true;
   }
 }
