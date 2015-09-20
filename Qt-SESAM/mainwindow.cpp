@@ -250,7 +250,6 @@ MainWindow::MainWindow(QWidget *parent)
   d->masterPasswordInvalidationTimer.setSingleShot(true);
   d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
 
-  d->trayIcon.show();
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
   QMenu *trayMenu = new QMenu(AppName);
   d->actionShow = trayMenu->addAction(tr("Minimize window"));
@@ -266,6 +265,7 @@ MainWindow::MainWindow(QWidget *parent)
   QAction *actionQuit = trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
+  d->trayIcon.show();
 
 #ifdef QT_DEBUG
 #ifdef WIN32
