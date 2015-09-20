@@ -212,6 +212,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
   QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
@@ -1555,6 +1556,31 @@ void MainWindow::onMasterPasswordEntered(void)
   }
   if (!ok ) {
     enterMasterPassword();
+  }
+}
+
+
+void MainWindow::clearAllSettings(void)
+{
+  Q_D(MainWindow);
+  int button = QMessageBox::warning(
+        this,
+        tr("Really clear all settings?"),
+        tr("You have chosen to delete all of your settings, "
+           "i.e. your application settings and all of your domain settings. "
+           "After deletion you'll have to start from scratch. "
+           "Do you really want to do that?"), QMessageBox::Yes, QMessageBox::No);
+  if (button != QMessageBox::Yes)
+    return;
+
+  d->masterPassword.clear();
+  d->settings.remove("sync");
+  d->settings.sync();
+  if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
+    QFile(d->optionsDialog->syncFilename()).remove();
+  }
+  if (d->optionsDialog->useSyncServer()) {
+    // TODO ...
   }
 }
 

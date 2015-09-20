@@ -99,6 +99,7 @@ private slots:
   void aboutQt(void);
   void enterMasterPassword(void);
   void onMasterPasswordEntered(void);
+  void clearAllSettings(void);
   void lockApplication(void);
   void invalidatePassword(bool reenter = true);
   void showHide(void);

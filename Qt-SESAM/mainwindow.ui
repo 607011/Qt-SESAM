@@ -546,7 +546,7 @@
      <x>0</x>
      <y>0</y>
      <width>291</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -578,6 +578,7 @@
     <addaction name="actionRegenerateSaltKeyIV"/>
     <addaction name="actionHackLegacyPassword"/>
     <addaction name="separator"/>
+    <addaction name="actionClearAllSettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>
@@ -662,6 +663,11 @@
   <action name="actionClearClipboard">
    <property name="text">
     <string>Clear clipboard</string>
+   </property>
+  </action>
+  <action name="actionClearAllSettings">
+   <property name="text">
+    <string>Clear all settings ...</string>
    </property>
   </action>
  </widget>
