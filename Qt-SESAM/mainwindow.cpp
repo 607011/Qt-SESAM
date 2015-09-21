@@ -1590,7 +1590,7 @@ void MainWindow::clearAllSettings(void)
     if (fi.isWritable())
       QFile(d->optionsDialog->syncFilename()).remove();
   }
-  if (d->optionsDialog->useSyncServer()) {
+  if (d->optionsDialog->useSyncServer() && !d->optionsDialog->deleteUrl().isEmpty()) {
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->deleteUrl()));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
@@ -1600,6 +1600,7 @@ void MainWindow::clearAllSettings(void)
     if (!d->ignoredSslErrors.isEmpty())
       d->deleteReply->ignoreSslErrors(d->ignoredSslErrors);
   }
+  d->lastDomainBeforeLock.clear();
   invalidatePassword(true);
 }
 

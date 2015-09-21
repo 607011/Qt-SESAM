@@ -646,7 +646,7 @@
     </message>
     <message>
         <source>Really clear all settings?</source>
-        <translation>Wirklich alle Einstellungen löschen?</translation>
+        <translation type="vanished">Wirklich alle Einstellungen löschen?</translation>
     </message>
     <message>
         <source>You have chosen to delete all of your settings, i.e. your application settings and all of your domain settings. After deletion you&apos;ll have to start from scratch. Do you really want to do that?</source>
@@ -667,6 +667,10 @@
     <message>
         <source>The deletion of your domain settings on the server failed: %1</source>
         <translation>Das Löschen der Domain-Einstellungen auf dem Server ist fehlgeschlagen: %1</translation>
+    </message>
+    <message>
+        <source>%1 - Really clear all settings?</source>
+        <translation>%1 - Wirklich alle Einstellungen löschen?</translation>
     </message>
 </context>
 <context>
