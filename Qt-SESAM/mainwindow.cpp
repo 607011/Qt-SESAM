@@ -278,10 +278,24 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 #endif
 
+  QString acc = "secret";
+  QString pass = "my_stored_password";
+//  QKeychain::WritePasswordJob *storeJob = new QKeychain::WritePasswordJob("qtkeychain-testclient");
+//  storeJob->setAutoDelete(false);
+//  storeJob->setKey(acc);
+//  storeJob->setTextData(pass);
+//  storeJob->connect(storeJob, SIGNAL(finished(QKeychain::Job*)), this, SLOT(keychainWriteJobFinished(QKeychain::Job*)));
+//  storeJob->start();
+
+  QKeychain::ReadPasswordJob *readJob = new QKeychain::ReadPasswordJob("qtkeychain-testclient");
+  readJob->setAutoDelete(false);
+  readJob->setKey(acc);
+  readJob->connect(readJob, SIGNAL(finished(QKeychain::Job*)), this, SLOT(keychainReadJobFinished(QKeychain::Job*)));
+  readJob->start();
+
   onExpertModeChanged(false);
   setDirty(false);
   enterMasterPassword();
-
 }
 
 
@@ -1831,3 +1845,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 
+void MainWindow::keychainWriteJobFinished(QKeychain::Job *job)
+{
+  qDebug() << " MainWindow::keychainWriteJobFinished()" << job->service() << job->errorString();
+}
+
+void MainWindow::keychainReadJobFinished(QKeychain::Job *job)
+{
+  QKeychain::ReadPasswordJob *wjob = reinterpret_cast<QKeychain::ReadPasswordJob *>(job);
+  qDebug() << " MainWindow::keychainWriteJobFinished()" << wjob->service() << wjob->errorString() << wjob->textData();
+}

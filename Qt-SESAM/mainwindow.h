@@ -43,6 +43,9 @@
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
 
+#include "keychain.h"
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -120,6 +123,9 @@ private slots:
 #ifdef WIN32
   void onPasted(void);
 #endif
+
+  void keychainWriteJobFinished(QKeychain::Job*);
+  void keychainReadJobFinished(QKeychain::Job*);
 
 signals:
   void passwordGenerated(void);
