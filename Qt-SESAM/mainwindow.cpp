@@ -417,6 +417,7 @@ void MainWindow::resetAllFields(void)
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->setFocus();
   d->autoIncrementIterations = true;
+  setDirty(false);
 }
 
 
@@ -434,7 +435,6 @@ void MainWindow::newDomain(const QString &domainName)
         break;
       }
     if (alreadyPresent) {
-      // TODO ...
       ui->domainsComboBox->setCurrentText(d->currentDomain);
     }
     else {
@@ -1101,6 +1101,7 @@ void MainWindow::saveSettings(void)
   syncData["sync/serverRootCertificates"] = QString(d->optionsDialog->serverRootCertificate().toPem());
   syncData["sync/serverWriteUrl"] = d->optionsDialog->writeUrl();
   syncData["sync/serverReadUrl"] = d->optionsDialog->readUrl();
+  syncData["sync/serverDeleteUrl"] = d->optionsDialog->deleteUrl();
   syncData["sync/onStart"] = d->optionsDialog->syncOnStart();
   syncData["sync/filename"] = d->optionsDialog->syncFilename();
   syncData["sync/useFile"] = d->optionsDialog->useSyncFile();
@@ -1572,7 +1573,7 @@ void MainWindow::clearAllSettings(void)
   Q_D(MainWindow);
   int button = QMessageBox::warning(
         this,
-        tr("Really clear all settings?"),
+        tr("%1 - Really clear all settings?").arg(AppName),
         tr("You have chosen to delete all of your settings, "
            "i.e. your application settings and all of your domain settings. "
            "After deletion you'll have to start from scratch. "
@@ -1580,11 +1581,14 @@ void MainWindow::clearAllSettings(void)
   if (button != QMessageBox::Yes)
     return;
 
-  d->masterPassword.clear();
+  resetAllFields();
+  ui->domainsComboBox->clear();
   d->settings.remove("sync");
   d->settings.sync();
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
-    QFile(d->optionsDialog->syncFilename()).remove();
+    QFileInfo fi(d->optionsDialog->syncFilename());
+    if (fi.isWritable())
+      QFile(d->optionsDialog->syncFilename()).remove();
   }
   if (d->optionsDialog->useSyncServer()) {
     QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->deleteUrl()));
@@ -1594,8 +1598,9 @@ void MainWindow::clearAllSettings(void)
     req.setSslConfiguration(d->sslConf);
     d->deleteReply = d->deleteNAM.post(req, QByteArray());
     if (!d->ignoredSslErrors.isEmpty())
-      d->readReply->ignoreSslErrors(d->ignoredSslErrors);
+      d->deleteReply->ignoreSslErrors(d->ignoredSslErrors);
   }
+  invalidatePassword(true);
 }
 
 
@@ -1604,7 +1609,9 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
   QMessageBox::StandardButton button = QMessageBox::critical(
         this,
         tr("%1 - Decryption error").arg(AppName),
-        tr("An error occured while decrypting your data (#%1, %2). Maybe you entered a wrong password. Please enter the correct password!").arg(errCode).arg(errMsg),
+        tr("An error occured while decrypting your data (#%1, %2). "
+           "Maybe you entered a wrong password. "
+           "Please enter the correct password!").arg(errCode).arg(errMsg),
         QMessageBox::Retry);
   if (button == QMessageBox::Retry)
     enterMasterPassword();
