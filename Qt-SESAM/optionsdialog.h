@@ -71,6 +71,9 @@ public:
   QString readUrl(void) const;
   void setReadUrl(QString);
 
+  QString deleteUrl(void) const;
+  void setDeleteUrl(QString);
+
   int saltLength(void) const;
   void setSaltLength(int);
 

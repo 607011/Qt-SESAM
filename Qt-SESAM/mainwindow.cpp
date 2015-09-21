@@ -83,6 +83,7 @@ static const QString DefaultSyncServerUsername = "inter";
 static const QString DefaultSyncServerPassword = "op";
 static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
+static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
 
 
 class MainWindowPrivate {
@@ -109,6 +110,7 @@ public:
     , key(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
     , sslConf(QSslConfiguration::defaultConfiguration())
+    , deleteReply(nullptr)
     , readReply(nullptr)
     , writeReply(nullptr)
     , completer(nullptr)
@@ -160,8 +162,10 @@ public:
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
   QSslConfiguration sslConf;
+  QNetworkAccessManager deleteNAM;
   QNetworkAccessManager readNAM;
   QNetworkAccessManager writeNAM;
+  QNetworkReply *deleteReply;
   QNetworkReply *readReply;
   QNetworkReply *writeReply;
   QList<QSslError> ignoredSslErrors;
@@ -234,12 +238,12 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
   QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateSaveButtonIcon(int)));
+  QObject::connect(&d->deleteNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onDeleteFinished(QNetworkReply*)));
+  QObject::connect(&d->deleteNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(&d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-
-  QObject::connect(this, SIGNAL(badMasterPassword()), SLOT(enterMasterPassword()), Qt::QueuedConnection);
 
 #ifdef WIN32
   QObject::connect(KeyboardHook::instance(), SIGNAL(pasted()), SLOT(onPasted()));
@@ -807,6 +811,7 @@ void MainWindow::onServerCertificatesUpdated(void)
 {
   Q_D(MainWindow);
   d->ignoredSslErrors.clear();
+  d->deleteNAM.clearAccessCache();
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
   const QSslCertificate &caCert = d->optionsDialog->serverRootCertificate();
@@ -1177,6 +1182,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setServerPassword(DefaultSyncServerPassword);
   d->optionsDialog->setReadUrl(DefaultSyncServerReadUrl);
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
+  d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
 
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
@@ -1198,6 +1204,7 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setServerRootUrl(syncData["sync/serverRoot"].toString());
     d->optionsDialog->setWriteUrl(syncData["sync/serverWriteUrl"].toString());
     d->optionsDialog->setReadUrl(syncData["sync/serverReadUrl"].toString());
+    d->optionsDialog->setDeleteUrl(syncData["sync/serverDeleteUrl"].toString());
     d->optionsDialog->setServerCertificates(QSslCertificate::fromData(syncData["sync/serverRootCertificates"].toByteArray(), QSsl::Pem));
     d->optionsDialog->setServerUsername(syncData["sync/serverUsername"].toString());
     d->optionsDialog->setServerPassword(syncData["sync/serverPassword"].toString());
@@ -1580,7 +1587,14 @@ void MainWindow::clearAllSettings(void)
     QFile(d->optionsDialog->syncFilename()).remove();
   }
   if (d->optionsDialog->useSyncServer()) {
-    // TODO ...
+    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->deleteUrl()));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
+    req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
+    req.setSslConfiguration(d->sslConf);
+    d->deleteReply = d->deleteNAM.post(req, QByteArray());
+    if (!d->ignoredSslErrors.isEmpty())
+      d->readReply->ignoreSslErrors(d->ignoredSslErrors);
   }
 }
 
@@ -1633,6 +1647,40 @@ void MainWindow::updateSaveButtonIcon(int)
   else {
     ui->savePushButton->setIcon(QIcon());
   }
+}
+
+
+void MainWindow::onDeleteFinished(QNetworkReply *reply)
+{
+  Q_D(MainWindow);
+  qDebug() << "onDeleteFinished()";
+  if (reply->error() == QNetworkReply::NoError) {
+    const QByteArray &res = reply->readAll();
+    QJsonParseError parseError;
+    const QJsonDocument &json = QJsonDocument::fromJson(res, &parseError);
+    if (parseError.error == QJsonParseError::NoError) {
+      QVariantMap map = json.toVariant().toMap();
+      if (map["status"].toString() == "ok") {
+        QMessageBox::information(
+              this,
+              tr("Deletion on server finished"),
+              tr("Your domain settings have been successfully deleted on the sync server"));
+      }
+      else {
+        QMessageBox::warning(
+              this,
+              tr("Deletion on server failed"),
+              tr("The deletion of your domain settings on the server failed: %1").arg(map["error"].toString()));
+      }
+    }
+  }
+  else {
+    QMessageBox::warning(
+          this,
+          tr("Deletion on server failed"),
+          tr("The deletion of your domain settings on the server failed: %1").arg(reply->errorString()));
+  }
+  reply->close();
 }
 
 

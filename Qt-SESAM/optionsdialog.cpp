@@ -200,6 +200,12 @@ QString OptionsDialog::readUrl(void) const
 }
 
 
+QString OptionsDialog::deleteUrl(void) const
+{
+  return ui->deleteUrlLineEdit->text();
+}
+
+
 QByteArray OptionsDialog::httpBasicAuthenticationString(void) const
 {
   return QString("Basic %1")
@@ -337,6 +343,12 @@ void OptionsDialog::setWriteUrl(QString url)
 void OptionsDialog::setReadUrl(QString url)
 {
   ui->readUrlLineEdit->setText(url);
+}
+
+
+void OptionsDialog::setDeleteUrl(QString url)
+{
+  ui->deleteUrlLineEdit->setText(url);
 }
 
 

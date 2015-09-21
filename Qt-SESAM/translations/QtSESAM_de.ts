@@ -640,6 +640,34 @@
         <source>%1 - Decryption error</source>
         <translation>%1 - Entschlüsselungsfehler</translation>
     </message>
+    <message>
+        <source>Clear all settings ...</source>
+        <translation>Alle Einstellungen löschen ...</translation>
+    </message>
+    <message>
+        <source>Really clear all settings?</source>
+        <translation>Wirklich alle Einstellungen löschen?</translation>
+    </message>
+    <message>
+        <source>You have chosen to delete all of your settings, i.e. your application settings and all of your domain settings. After deletion you&apos;ll have to start from scratch. Do you really want to do that?</source>
+        <translation>Du hast gewählt, dass du alle Einstellungen löschen willst, d.h. deine Anwendungseinstellungen und deine sämtlichen Domain-Einstellungen. Nach dem Löschen musst du vor vorne anfangen. Möchtest du das wirklich?</translation>
+    </message>
+    <message>
+        <source>Deletion on server finished</source>
+        <translation>Löschen auf dem Sync-Server abgeschlossen</translation>
+    </message>
+    <message>
+        <source>Your domain settings have been successfully deleted on the sync server</source>
+        <translation>Deine Domain-Einstellungen wurden erfolgreich vom Sync-Server gelöscht</translation>
+    </message>
+    <message>
+        <source>Deletion on server failed</source>
+        <translation>Löschen auf dem Server fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>The deletion of your domain settings on the server failed: %1</source>
+        <translation>Das Löschen der Domain-Einstellungen auf dem Server ist fehlgeschlagen: %1</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -947,6 +975,10 @@
     <message>
         <source>Smart login</source>
         <translation>Smart Login</translation>
+    </message>
+    <message>
+        <source>Delete URL</source>
+        <translation>Lösch-URL</translation>
     </message>
 </context>
 <context>

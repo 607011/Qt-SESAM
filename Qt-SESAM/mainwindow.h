@@ -107,6 +107,7 @@ private slots:
   void saveSettings(void);
   void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
   void updateSaveButtonIcon(int frame = 0);
+  void onDeleteFinished(QNetworkReply*);
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
@@ -122,7 +123,6 @@ private slots:
 
 signals:
   void passwordGenerated(void);
-  void badMasterPassword(void);
   void saltKeyIVGenerated(void);
 
 protected:
