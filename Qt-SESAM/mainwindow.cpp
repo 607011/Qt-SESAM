@@ -1583,6 +1583,7 @@ void MainWindow::clearAllSettings(void)
 
   resetAllFields();
   ui->domainsComboBox->clear();
+  d->settings.setValue("mainwindow/masterPasswordEntered", false);
   d->settings.remove("sync");
   d->settings.sync();
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
