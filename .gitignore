@@ -12,6 +12,7 @@ libSESAM/libSESAM.a
 UnitTests/Qt-SESAM-UnitTests
 HashMaster/HashMaster
 cryptopp/libcryptopp.prl
+*.log
 *.o
 moc_*.cpp
 *.qm
