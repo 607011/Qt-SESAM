@@ -89,12 +89,12 @@ static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
 
 class MainWindowPrivate {
 public:
-  MainWindowPrivate(void)
-    : newDomainWizard(new NewDomainWizard)
-    , masterPasswordDialog(new MasterPasswordDialog)
-    , changeMasterPasswordDialog(new ChangeMasterPasswordDialog)
-    , optionsDialog(new OptionsDialog)
-    , progressDialog(new ProgressDialog)
+  MainWindowPrivate(QWidget *parent)
+    : newDomainWizard(new NewDomainWizard(parent))
+    , masterPasswordDialog(new MasterPasswordDialog(parent))
+    , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
+    , optionsDialog(new OptionsDialog(parent))
+    , progressDialog(new ProgressDialog(parent))
     , actionShow(nullptr)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
@@ -184,7 +184,7 @@ public:
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
-  , d_ptr(new MainWindowPrivate)
+  , d_ptr(new MainWindowPrivate(this))
 {
   Q_D(MainWindow);
   ui->setupUi(this);
