@@ -278,7 +278,6 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 #endif
 
-  onExpertModeChanged(false);
   setDirty(false);
   enterMasterPassword();
 
@@ -1122,7 +1121,6 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
 
   d->settings.setValue("mainwindow/geometry", saveGeometry());
-  d->settings.setValue("mainwindow/expertMode", ui->actionExpertMode->isChecked());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
@@ -1169,7 +1167,6 @@ bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  ui->actionExpertMode->setChecked(d->settings.value("mainwindow/expertMode", false).toBool());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
@@ -1771,15 +1768,6 @@ void MainWindow::createFullDump(void)
   qDebug() << "Dump not implemented.";
 #endif
 #endif
-}
-
-
-void MainWindow::onExpertModeChanged(bool enabled)
-{
-  ui->actionHackLegacyPassword->setVisible(enabled);
-  ui->actionRegenerateSaltKeyIV->setVisible(enabled);
-  ui->actionClearAllSettings->setVisible(enabled);
-  ui->menuExtras->show();
 }
 
 

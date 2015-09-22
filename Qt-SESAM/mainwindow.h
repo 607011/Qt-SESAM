@@ -114,7 +114,6 @@ private slots:
   void hackLegacyPassword(void);
   void hideActivityIcons(void);
   void createFullDump(void);
-  void onExpertModeChanged(bool);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
 #ifdef WIN32

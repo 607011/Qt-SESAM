@@ -263,7 +263,7 @@
     </message>
     <message>
         <source>Expert mode</source>
-        <translation>Experten-Modus</translation>
+        <translation type="vanished">Experten-Modus</translation>
     </message>
     <message>
         <source>Restore window</source>
@@ -671,6 +671,10 @@
     <message>
         <source>%1 - Really clear all settings?</source>
         <translation>%1 - Wirklich alle Einstellungen löschen?</translation>
+    </message>
+    <message>
+        <source>Expert actions</source>
+        <translation>Aktionen für Experten</translation>
     </message>
 </context>
 <context>

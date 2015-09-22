@@ -569,15 +569,20 @@
     <property name="title">
      <string>Extras</string>
     </property>
+    <widget class="QMenu" name="menuExpertMode">
+     <property name="title">
+      <string>Expert actions</string>
+     </property>
+     <addaction name="actionHackLegacyPassword"/>
+     <addaction name="actionRegenerateSaltKeyIV"/>
+     <addaction name="actionClearAllSettings"/>
+    </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
     <addaction name="actionLockApplication"/>
     <addaction name="actionClearClipboard"/>
     <addaction name="separator"/>
-    <addaction name="actionExpertMode"/>
-    <addaction name="actionRegenerateSaltKeyIV"/>
-    <addaction name="actionHackLegacyPassword"/>
-    <addaction name="actionClearAllSettings"/>
+    <addaction name="menuExpertMode"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuExtras"/>
@@ -636,14 +641,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+H</string>
-   </property>
-  </action>
-  <action name="actionExpertMode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Expert mode</string>
    </property>
   </action>
   <action name="actionRegenerateSaltKeyIV">
