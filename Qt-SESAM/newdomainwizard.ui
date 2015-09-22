@@ -121,6 +121,9 @@
        <property name="minimum">
         <number>1</number>
        </property>
+       <property name="maximum">
+        <number>9999</number>
+       </property>
        <property name="value">
         <number>12</number>
        </property>
@@ -365,7 +368,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="addPushButton">
+      <widget class="QPushButton" name="acceptPushButton">
        <property name="text">
         <string>Accept</string>
        </property>
@@ -396,7 +399,7 @@
   <tabstop>forceUpperCaseCheckBox</tabstop>
   <tabstop>forceDigitsCheckBox</tabstop>
   <tabstop>forceExtraCheckBox</tabstop>
-  <tabstop>addPushButton</tabstop>
+  <tabstop>acceptPushButton</tabstop>
   <tabstop>cancelPushButton</tabstop>
   <tabstop>lowercasePushButton</tabstop>
   <tabstop>extraPushButton</tabstop>

@@ -32,13 +32,15 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
-  QObject::connect(ui->addPushButton, SIGNAL(pressed()), SLOT(accept()));
+  QObject::connect(ui->acceptPushButton, SIGNAL(pressed()), SLOT(accept()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
   QObject::connect(ui->uppercasePushButton, SIGNAL(pressed()), SLOT(addUppercaseToUsedCharacters()));
   QObject::connect(ui->digitsPushButton, SIGNAL(pressed()), SLOT(addDigitsToUsedCharacters()));
   QObject::connect(ui->extraPushButton, SIGNAL(pressed()), SLOT(addExtraCharactersToUsedCharacters()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
+  QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(checkValidity()));
+  QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(checkValidity()));
   clear();
 }
 
@@ -74,6 +76,13 @@ void NewDomainWizard::clear(void)
 void NewDomainWizard::renewSalt(void)
 {
   ui->saltBase64LineEdit->setText(Crypter::generateSalt().toBase64());
+}
+
+
+void NewDomainWizard::checkValidity(void)
+{
+  bool enabled = !ui->domainLineEdit->text().isEmpty() && !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
+  ui->acceptPushButton->setEnabled(enabled);
 }
 
 
@@ -188,6 +197,7 @@ void NewDomainWizard::setDomain(const QString &domainName)
 
 void NewDomainWizard::showEvent(QShowEvent *)
 {
+  checkValidity();
   if (ui->domainLineEdit->text().isEmpty())
     ui->domainLineEdit->setFocus();
 }

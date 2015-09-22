@@ -66,6 +66,7 @@ private slots:
   void addExtraCharactersToUsedCharacters(void);
   void onUsedCharactersChanged(void);
   void renewSalt(void);
+  void checkValidity(void);
 
 private:
   Ui::NewDomainWizard *ui;
