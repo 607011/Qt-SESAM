@@ -77,6 +77,7 @@ static const int SmartLoginNotActive = -1;
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
+static const int NotFound = -1;
 
 static const QString DefaultSyncServerRoot = "https://syncserver.net/ctSESAM";
 static const QString DefaultSyncServerUsername = "inter";
@@ -189,6 +190,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
+  QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
   ui->domainsComboBox->installEventFilter(this);
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
@@ -404,9 +406,8 @@ void MainWindow::unblockUpdatePassword(void)
 }
 
 
-void MainWindow::resetAllFields(void)
+void MainWindow::resetAllFieldsExceptDomainComboBox(void)
 {
-  Q_D(MainWindow);
   ui->userLineEdit->setText(QString());
   ui->urlLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
@@ -418,10 +419,17 @@ void MainWindow::resetAllFields(void)
   ui->createdLabel->setText(QString());
   ui->modifiedLabel->setText(QString());
   ui->deleteCheckBox->setChecked(false);
+  setDirty(false);
+}
+
+
+void MainWindow::resetAllFields(void)
+{
+  Q_D(MainWindow);
+  resetAllFieldsExceptDomainComboBox();
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->setFocus();
   d->autoIncrementIterations = true;
-  setDirty(false);
 }
 
 
@@ -474,6 +482,40 @@ void MainWindow::newDomain(const QString &domainName)
 }
 
 
+int MainWindow::findDomainInComboBox(const QString &domain, int lo, int hi) const {
+  if (hi < lo)
+    return NotFound;
+  const int idx = (lo + hi) / 2;
+  const int c = ui->domainsComboBox->itemText(idx).compare(domain, Qt::CaseInsensitive);
+  if (c > 0)
+    return findDomainInComboBox(domain, lo, idx - 1);
+  else if (c < 0)
+    return findDomainInComboBox(domain, idx + 1, hi);
+  return idx;
+}
+
+
+int MainWindow::findDomainInComboBox(const QString &domain) const {
+  return findDomainInComboBox(domain, 0, ui->domainsComboBox->count());
+}
+
+
+bool MainWindow::domainComboboxContains(const QString &domain) const {
+  return findDomainInComboBox(domain, 0, ui->domainsComboBox->count()) != NotFound;
+}
+
+
+bool MainWindow::checkOpenNewDomainWizard(void)
+{
+  const QString &domain = ui->domainsComboBox->currentText();
+  if (!domain.isEmpty() && !domainComboboxContains(domain)) {
+    newDomain(domain);
+    return true;
+  }
+  return false;
+}
+
+
 void MainWindow::renewSalt(void)
 {
   Q_D(MainWindow);
@@ -485,14 +527,29 @@ void MainWindow::renewSalt(void)
 
 void MainWindow::onRenewSalt(void)
 {
-  int button = QMessageBox::question(
-        this,
-        tr("Really renew salt?"),
-        tr("Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?"),
-        QMessageBox::Yes,
-        QMessageBox::No);
-  if (button == QMessageBox::Yes)
-    renewSalt();
+  if (!checkOpenNewDomainWizard()) {
+    int button = QMessageBox::question(
+          this,
+          tr("Really renew salt?"),
+          tr("Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?"),
+          QMessageBox::Yes,
+          QMessageBox::No);
+    if (button == QMessageBox::Yes)
+      renewSalt();
+  }
+}
+
+
+void MainWindow::onDomainTextChanged(const QString &domain)
+{
+  Q_D(MainWindow);
+  if (domainComboboxContains(domain)) {
+    onDomainSelected(domain);
+  }
+  else {
+    resetAllFieldsExceptDomainComboBox();
+    updatePassword();
+  }
 }
 
 
@@ -592,8 +649,12 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 void MainWindow::generatePassword(void)
 {
   Q_D(MainWindow);
-  if (!ui->usedCharactersPlainTextEdit->toPlainText().isEmpty())
+  if (ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
+    ui->generatedPasswordLineEdit->setText(QString());
+  }
+  else {
     d->password.generateAsync(d->KGK, collectedDomainSettings());
+  }
 }
 
 
@@ -1792,18 +1853,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   case QEvent::FocusOut:
     if (obj->objectName() == "domainsComboBox") {
-      const QString &domain = ui->domainsComboBox->currentText();
-      if (!domain.isEmpty()) {
-        bool found = false;
-        for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
-          if (ui->domainsComboBox->itemText(i) == domain) {
-            found = true;
-            break;
-          }
-        }
-        if (!found)
-          newDomain(domain);
-      }
+      checkOpenNewDomainWizard();
     }
     break;
   case QEvent::MouseButtonPress:

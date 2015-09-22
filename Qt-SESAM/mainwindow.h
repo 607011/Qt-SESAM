@@ -81,6 +81,7 @@ private slots:
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
+  void onDomainTextChanged(const QString &);
   void onDomainSelected(const QString &);
   void newDomain(const QString &domainName = QString());
   void renewSalt(void);
@@ -135,6 +136,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
   void saveAllDomainDataToSettings(void);
@@ -160,6 +162,10 @@ private: // methods
   void writeBackupFile(const QByteArray &binaryDomainData);
   bool syncToServerEnabled(void) const;
   bool syncToFileEnabled(void) const;
+  bool checkOpenNewDomainWizard(void);
+  int findDomainInComboBox(const QString &domain) const;
+  int findDomainInComboBox(const QString &domain, int lo, int hi) const;
+  bool domainComboboxContains(const QString &domain) const;
 };
 
 #endif // __MAINWINDOW_H_
