@@ -358,7 +358,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
     e->accept();
     break;
   default:
-    qWarning() << "Oops! Should never have come here.";
+    qWarning() << "Oops! Should never have come here. rc =" << rc;
     break;
   }
 }
