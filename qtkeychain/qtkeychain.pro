@@ -12,7 +12,7 @@ macosx {
 }
 
 linux {
-  QT += xml dbus
+  QT += dbus
   SOURCES += gnomekeyring.cpp \
     keychain_unix.cpp
   HEADERS += gnomekeyring_p.h
