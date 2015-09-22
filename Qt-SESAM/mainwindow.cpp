@@ -781,7 +781,7 @@ void MainWindow::onPasswordGenerated(void)
     }
     else if (d->autoIncrementIterations) {
       const int nIterations = ui->iterationsSpinBox->value() + 1;
-      ui->statusBar->showMessage(tr("Password does not follow the required rules. Increasing iteration count."));
+      ui->statusBar->showMessage(tr("Password does not follow the rules. Increasing iteration count."));
       ui->iterationsSpinBox->blockSignals(true);
       ui->iterationsSpinBox->setValue(nIterations);
       ui->iterationsSpinBox->blockSignals(false);
