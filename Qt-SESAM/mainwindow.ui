@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>291</width>
-    <height>689</height>
+    <height>631</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,7 +85,11 @@
       <item row="2" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
-         <widget class="QLineEdit" name="urlLineEdit"/>
+         <widget class="QLineEdit" name="urlLineEdit">
+          <property name="placeholderText">
+           <string>may be empty</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="openURLPushButton">
@@ -471,6 +475,9 @@
           <width>16777215</width>
           <height>60</height>
          </size>
+        </property>
+        <property name="placeholderText">
+         <string>may be empty</string>
         </property>
        </widget>
       </item>
