@@ -1138,7 +1138,7 @@ void MainWindow::hackLegacyPassword(void)
   Q_D(MainWindow);
   const QString &pwd = ui->legacyPasswordLineEdit->text();
   if (pwd.isEmpty()) {
-    ui->statusBar->showMessage(tr("No legacy password given. Cannot hack!"), 5000);
+    QMessageBox::information(this, tr("Cannot hack"), tr("No legacy password given. Cannot hack!"));
   }
   else {
     blockUpdatePassword();
