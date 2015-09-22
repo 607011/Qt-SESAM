@@ -404,11 +404,11 @@ void MainWindow::resetAllFields(void)
   ui->userLineEdit->setText(QString());
   ui->urlLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
-  ui->saltBase64LineEdit->setText(DomainSettings::DefaultSalt_base64);
+  ui->saltBase64LineEdit->setText(QString());
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->setPlainText(QString());
-  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
+  ui->usedCharactersPlainTextEdit->setPlainText(QString());
   ui->createdLabel->setText(QString());
   ui->modifiedLabel->setText(QString());
   ui->deleteCheckBox->setChecked(false);
@@ -1579,6 +1579,7 @@ void MainWindow::clearAllSettings(void)
 
   resetAllFields();
   d->masterPasswordDialog->setRepeatPassword(true);
+  d->newDomainWizard->clear();
   ui->domainsComboBox->clear();
   d->settings.setValue("mainwindow/masterPasswordEntered", false);
   d->settings.remove("sync");
