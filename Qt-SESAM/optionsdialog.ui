@@ -69,6 +69,9 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox">
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These settings are necessary to connect Qt-SESAM to a &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;c't SESAM sync server&lt;/span&gt;&lt;/a&gt;. &lt;/p&gt;&lt;p&gt;The field &amp;quot;Root URL&amp;quot; sets the URL to the server. It's mandatory to supply a URL beginning with &amp;quot;https://&amp;quot;. After that you have to press &amp;quot;Check connectivity&amp;quot; to import the server's SSL certificate. Make sure the downloaded certificate fingerprint matches the actual one.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;User name&amp;quot; and &amp;quot;Password&amp;quot; must contain the credentials used to connect to the server via &lt;a href=&quot;https://en.wikipedia.org/wiki/Basic_access_authentication&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;HTTP Basic Authentication&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;Read URL&amp;quot;, &amp;quot;Write URL&amp;quot; and &amp;quot;Delete URL&amp;quot; contain the paths to scripts to read, write and delete data on the server.&lt;/p&gt;&lt;p&gt;For more information see the &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Wiki&lt;/span&gt;&lt;/a&gt; (work in progress).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="title">
           <string>Sync server</string>
          </property>
