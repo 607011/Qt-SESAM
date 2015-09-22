@@ -1578,6 +1578,7 @@ void MainWindow::clearAllSettings(void)
     return;
 
   resetAllFields();
+  d->masterPasswordDialog->setRepeatPassword(true);
   ui->domainsComboBox->clear();
   d->settings.setValue("mainwindow/masterPasswordEntered", false);
   d->settings.remove("sync");
