@@ -19,9 +19,12 @@ VERSION = -$${QTSESAM_VERSION}
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
-    qtkeychain \
     libSESAM \
     UnitTests \
     Qt-SESAM
+
+unix:!system_qtkeychain {
+    SUBDIRS += qtkeychain
+}
 
 win32:SUBDIRS += HashMaster

@@ -121,7 +121,14 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/libSESAM.a
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qtkeychain/release/ -lqtkeychain
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../qtkeychain/debug/ -lqtkeychain
-else:unix: LIBS += -L$$OUT_PWD/../qtkeychain/ -lqtkeychain
 
-INCLUDEPATH += $$PWD/../qtkeychain
-DEPENDPATH += $$PWD/../qtkeychain
+unix {
+    system_qtkeychain {
+         LIBS += -lqtkeychain
+         INCLUDEPATH += /usr/include/qtkeychain
+    } else {
+         LIBS += -L$$OUT_PWD/../qtkeychain/ -lqtkeychain
+         INCLUDEPATH += $$PWD/../qtkeychain
+         DEPENDPATH += $$PWD/../qtkeychain
+    }
+}

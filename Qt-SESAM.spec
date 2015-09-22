@@ -18,6 +18,7 @@ BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Widgets)
 # for lrelease-qt5
 BuildRequires:  cmake(Qt5LinguistTools)
+BuildRequires:  qtkeychain-devel
 
 
 # @TODO: we need a better description text
@@ -32,7 +33,7 @@ This program uses the Crypto++ library.
 
 %build
 lrelease-qt5 %{name}/%{name}.pro
-qmake-qt5 %{name}.pro
+qmake-qt5 %{name}.pro CONFIG+=system_qtkeychain
 make %{?_smp_mflags}
 make %{?_smp_mflags} check
 
