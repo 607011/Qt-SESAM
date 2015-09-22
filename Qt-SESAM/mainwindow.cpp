@@ -1660,7 +1660,6 @@ void MainWindow::updateSaveButtonIcon(int)
 void MainWindow::onDeleteFinished(QNetworkReply *reply)
 {
   Q_D(MainWindow);
-  qDebug() << "onDeleteFinished()";
   if (reply->error() == QNetworkReply::NoError) {
     const QByteArray &res = reply->readAll();
     QJsonParseError parseError;
