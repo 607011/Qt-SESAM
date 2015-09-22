@@ -379,7 +379,7 @@
     </message>
     <message>
         <source>Password does not follow the required rules. Increasing iteration count.</source>
-        <translation>Passwort entspricht nicht den gewünschten Regeln. Erhöhen des Iterationszählers.</translation>
+        <translation type="vanished">Passwort entspricht nicht den gewünschten Regeln. Erhöhen des Iterationszählers.</translation>
     </message>
     <message>
         <source>Username copied to clipboard.</source>
@@ -675,6 +675,14 @@
     <message>
         <source>Expert actions</source>
         <translation>Aktionen für Experten</translation>
+    </message>
+    <message>
+        <source>Password does not follow the rules. Increasing iteration count.</source>
+        <translation>Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
+    </message>
+    <message>
+        <source>Cannot hack</source>
+        <translation>Kann Passwort nicht hacken</translation>
     </message>
 </context>
 <context>
@@ -987,6 +995,10 @@
     <message>
         <source>Delete URL</source>
         <translation>Lösch-URL</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These settings are necessary to connect Qt-SESAM to a &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;c&apos;t SESAM sync server&lt;/span&gt;&lt;/a&gt;. &lt;/p&gt;&lt;p&gt;The field &amp;quot;Root URL&amp;quot; sets the URL to the server. It&apos;s mandatory to supply a URL beginning with &amp;quot;https://&amp;quot;. After that you have to press &amp;quot;Check connectivity&amp;quot; to import the server&apos;s SSL certificate. Make sure the downloaded certificate fingerprint matches the actual one.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;User name&amp;quot; and &amp;quot;Password&amp;quot; must contain the credentials used to connect to the server via &lt;a href=&quot;https://en.wikipedia.org/wiki/Basic_access_authentication&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;HTTP Basic Authentication&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;Read URL&amp;quot;, &amp;quot;Write URL&amp;quot; and &amp;quot;Delete URL&amp;quot; contain the paths to scripts to read, write and delete data on the server.&lt;/p&gt;&lt;p&gt;For more information see the &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Wiki&lt;/span&gt;&lt;/a&gt; (work in progress).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Diese Einstellungen sind erforderlich, wenn Qt-SESAM die Domain-Einstellungen über einen &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;c&apos;t-SESAM-Server&lt;/span&gt;&lt;/a&gt; synchronisieren soll. &lt;/p&gt;&lt;p&gt;Das Feld &amp;quot;Root-URL&amp;quot; bestimmt die URL, unter der der Server erreichbar ist. Die URL muss mit &amp;quot;https://&amp;quot; beginnen. Drück auf &amp;quot;Verbindung prüfen&amp;quot;, um das Server-Zertifikat zu importieren und auf Korrektheit zu überprüfen.&lt;/p&gt;&lt;p&gt;Die Felder &amp;quot;Benutzername&amp;quot; und &amp;quot;Passwort&amp;quot; müssen die Zugangsdaten für die &lt;a href=&quot;https://en.wikipedia.org/wiki/Basic_access_authentication&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;HTTP-Basic-Authentifizierung&lt;/span&gt;&lt;/a&gt; am Server enthalten.&lt;/p&gt;&lt;p&gt;Die Felder &amp;quot;Lese-URL&amp;quot;, &amp;quot;Schreib-URL&amp;quot; und &amp;quot;Lösch-URL&amp;quot; enthalten Pfade zu Skripten zum Lesen, Schreiben und Löschen von Datensätzen auf dem Server.&lt;/p&gt;&lt;p&gt;Zu Details siehe das &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Wiki&lt;/span&gt;&lt;/a&gt; (in Arbeit).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
