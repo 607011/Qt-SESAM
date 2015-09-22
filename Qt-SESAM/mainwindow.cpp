@@ -1778,6 +1778,7 @@ void MainWindow::onExpertModeChanged(bool enabled)
 {
   ui->actionHackLegacyPassword->setVisible(enabled);
   ui->actionRegenerateSaltKeyIV->setVisible(enabled);
+  ui->actionClearAllSettings->setVisible(enabled);
   ui->menuExtras->show();
 }
 
