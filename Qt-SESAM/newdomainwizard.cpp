@@ -54,6 +54,7 @@ NewDomainWizard::~NewDomainWizard()
 void NewDomainWizard::clear(void)
 {
   ui->domainLineEdit->clear();
+  ui->urlLineEdit->clear();
   ui->userLineEdit->clear();
   ui->legacyPasswordLineEdit->clear();
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
