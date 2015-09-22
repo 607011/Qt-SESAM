@@ -1785,19 +1785,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   case QEvent::FocusOut:
     if (obj->objectName() == "domainsComboBox") {
-      if (ui->domainsComboBox->count() > 0) {
-        const QString &domain = ui->domainsComboBox->currentText();
-        if (!domain.isEmpty()) {
-          bool found = false;
-          for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
-            if (ui->domainsComboBox->itemText(i) == domain) {
-              found = true;
-              break;
-            }
+      const QString &domain = ui->domainsComboBox->currentText();
+      if (!domain.isEmpty()) {
+        bool found = false;
+        for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
+          if (ui->domainsComboBox->itemText(i) == domain) {
+            found = true;
+            break;
           }
-          if (!found)
-            newDomain(domain);
         }
+        if (!found)
+          newDomain(domain);
       }
     }
     break;
