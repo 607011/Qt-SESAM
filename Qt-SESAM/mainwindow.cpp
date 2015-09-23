@@ -1577,7 +1577,8 @@ void MainWindow::updateWindowTitle(void)
 #endif
                  .arg(isPortable() ? " - PORTABLE " : "")
                  );
-  ui->savePushButton->setEnabled(d->parameterSetDirty);
+  bool dirty = d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty();
+  ui->savePushButton->setEnabled(dirty);
 }
 
 
