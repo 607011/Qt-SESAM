@@ -767,13 +767,13 @@ void MainWindow::analyzeGeneratedPassword(void)
 bool MainWindow::generatedPasswordIsValid(void)
 {
   Q_D(MainWindow);
-  if (d_ptr->newDomainWizard->forceLowercase() && !keyContainsAnyOf(Password::LowerChars))
+  if (d->newDomainWizard->forceLowercase() && !keyContainsAnyOf(Password::LowerChars))
     return false;
-  if (d_ptr->newDomainWizard->forceUppercase() && !keyContainsAnyOf(Password::UpperChars))
+  if (d->newDomainWizard->forceUppercase() && !keyContainsAnyOf(Password::UpperChars))
     return false;
-  if (d_ptr->newDomainWizard->forceDigits() && !keyContainsAnyOf(Password::Digits))
+  if (d->newDomainWizard->forceDigits() && !keyContainsAnyOf(Password::Digits))
     return false;
-  if (d_ptr->newDomainWizard->forceExtra() && !keyContainsAnyOf(Password::ExtraChars))
+  if (d->newDomainWizard->forceExtra() && !keyContainsAnyOf(Password::ExtraChars))
     return false;
   return true;
 }
@@ -838,7 +838,7 @@ void MainWindow::onPasswordGenerated(void)
       ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
     }
   }
-  else {
+  else { // not in hacking mode
     if (!d->autoIncrementIterations || generatedPasswordIsValid()) {
       ui->generatedPasswordLineEdit->setText(d->password.key());
       if (!d->password.isAborted())
