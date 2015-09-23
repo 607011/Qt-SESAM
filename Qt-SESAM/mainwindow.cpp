@@ -1262,7 +1262,7 @@ bool MainWindow::restoreSettings(void)
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
     QVariantMap syncData = jsonSyncData.toVariant().toMap();
     d->optionsDialog->setSyncFilename(syncData["sync/filename"].toString());
-    d->optionsDialog->setSyncOnStart(false/*syncData["sync/onStart"].toBool()*/); // TODO: uncomment if issue 56 is resolved
+    d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
     d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
     d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
     d->optionsDialog->setServerRootUrl(syncData["sync/serverRoot"].toString());
