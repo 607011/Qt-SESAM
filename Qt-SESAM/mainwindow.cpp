@@ -1012,6 +1012,7 @@ void MainWindow::makeDomainComboBox(void)
 {
   Q_D(MainWindow);
   QStringList domainNames;
+  ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->clear();
   foreach(DomainSettings ds, d->domains) {
     if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
@@ -1028,6 +1029,7 @@ void MainWindow::makeDomainComboBox(void)
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->setCompleter(d->completer);
   ui->domainsComboBox->setCurrentIndex(-1);
+  ui->domainsComboBox->blockSignals(false);
 }
 
 
