@@ -1673,15 +1673,14 @@ void MainWindow::clearAllSettings(void)
 
 void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 {
-  QMessageBox::StandardButton button = QMessageBox::critical(
+  QMessageBox::critical(
         this,
         tr("%1 - Decryption error").arg(AppName),
         tr("An error occured while decrypting your data (#%1, %2). "
            "Maybe you entered a wrong password. "
            "Please enter the correct password!").arg(errCode).arg(errMsg),
         QMessageBox::Retry);
-  if (button == QMessageBox::Retry)
-    enterMasterPassword();
+  enterMasterPassword();
 }
 
 
