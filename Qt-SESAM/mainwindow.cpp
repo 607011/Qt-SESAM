@@ -1262,7 +1262,7 @@ bool MainWindow::restoreSettings(void)
     const QJsonDocument &jsonSyncData = QJsonDocument::fromJson(baSyncData);
     QVariantMap syncData = jsonSyncData.toVariant().toMap();
     d->optionsDialog->setSyncFilename(syncData["sync/filename"].toString());
-    d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
+    d->optionsDialog->setSyncOnStart(false/*syncData["sync/onStart"].toBool()*/); // TODO: uncomment if issue 56 is resolved
     d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
     d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
     d->optionsDialog->setServerRootUrl(syncData["sync/serverRoot"].toString());
@@ -1618,10 +1618,10 @@ void MainWindow::onMasterPasswordEntered(void)
     if (ok) {
       ok = restoreDomainDataFromSettings();
       if (ok) {
+        generateSaltKeyIV().waitForFinished();
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();
         ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
-        generateSaltKeyIV().waitForFinished();
         d->masterPasswordDialog->hide();
         show();
         if (d->optionsDialog->syncOnStart())

@@ -148,7 +148,8 @@ void OptionsDialog::onEncrypted(void)
 
 bool OptionsDialog::syncOnStart(void) const
 {
-  return ui->syncOnStartCheckBox->isChecked();
+  // return ui->syncOnStartCheckBox->isChecked(); // TODO: uncomment after issue 56 is resolved
+  return false;
 }
 
 
