@@ -52,8 +52,6 @@
 #include <QDesktopServices>
 #include <QCompleter>
 
-#include <string>
-
 #include "global.h"
 #include "util.h"
 #include "progressdialog.h"
@@ -1495,7 +1493,6 @@ void MainWindow::writeToRemote(SyncPeer syncPeer)
   }
   else {
     // TODO: catch encryption error
-    throw std::string("encryption error");
   }
 }
 
