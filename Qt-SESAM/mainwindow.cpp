@@ -1620,12 +1620,12 @@ void MainWindow::onMasterPasswordEntered(void)
       if (ok) {
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();
-        if (d->optionsDialog->syncOnStart())
-          sync();
         ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
-        generateSaltKeyIV();
+        generateSaltKeyIV().waitForFinished();
         d->masterPasswordDialog->hide();
         show();
+        if (d->optionsDialog->syncOnStart())
+          sync();
       }
     }
   }
