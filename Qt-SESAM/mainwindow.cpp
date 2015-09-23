@@ -223,9 +223,9 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->savePushButton, SIGNAL(pressed()), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(cancelPasswordGeneration()));
-  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()), Qt::ConnectionType::QueuedConnection);
-  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()), Qt::ConnectionType::QueuedConnection);
-  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
+  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
+  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(newDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
@@ -767,13 +767,13 @@ void MainWindow::analyzeGeneratedPassword(void)
 bool MainWindow::generatedPasswordIsValid(void)
 {
   Q_D(MainWindow);
-  if (d_ptr->newDomainWizard->forceLowercase() && !keyContainsAnyOf(Password::LowerChars))
+  if (d->newDomainWizard->forceLowercase() && !keyContainsAnyOf(Password::LowerChars))
     return false;
-  if (d_ptr->newDomainWizard->forceUppercase() && !keyContainsAnyOf(Password::UpperChars))
+  if (d->newDomainWizard->forceUppercase() && !keyContainsAnyOf(Password::UpperChars))
     return false;
-  if (d_ptr->newDomainWizard->forceDigits() && !keyContainsAnyOf(Password::Digits))
+  if (d->newDomainWizard->forceDigits() && !keyContainsAnyOf(Password::Digits))
     return false;
-  if (d_ptr->newDomainWizard->forceExtra() && !keyContainsAnyOf(Password::ExtraChars))
+  if (d->newDomainWizard->forceExtra() && !keyContainsAnyOf(Password::ExtraChars))
     return false;
   return true;
 }
@@ -838,7 +838,7 @@ void MainWindow::onPasswordGenerated(void)
       ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
     }
   }
-  else {
+  else { // not in hacking mode
     if (!d->autoIncrementIterations || generatedPasswordIsValid()) {
       ui->generatedPasswordLineEdit->setText(d->password.key());
       if (!d->password.isAborted())
@@ -1012,6 +1012,7 @@ void MainWindow::makeDomainComboBox(void)
 {
   Q_D(MainWindow);
   QStringList domainNames;
+  ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->clear();
   foreach(DomainSettings ds, d->domains) {
     if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
@@ -1028,6 +1029,7 @@ void MainWindow::makeDomainComboBox(void)
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->setCompleter(d->completer);
   ui->domainsComboBox->setCurrentIndex(-1);
+  ui->domainsComboBox->blockSignals(false);
 }
 
 
