@@ -543,8 +543,9 @@ void MainWindow::onRenewSalt(void)
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-  if (domainComboboxContains(domain)) {
-    onDomainSelected(domain);
+  int idx = findDomainInComboBox(domain);
+  if (idx != NotFound) {
+    onDomainSelected(ui->domainsComboBox->itemText(idx));
   }
   else {
     resetAllFieldsExceptDomainComboBox();
