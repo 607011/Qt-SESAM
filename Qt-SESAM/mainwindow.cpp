@@ -1464,7 +1464,10 @@ void MainWindow::mergeLocalAndRemoteData(void)
       }
     }
     else if (remoteDomainSetting.isEmpty()) {
-      d->remoteDomains.updateWith(localDomainSetting);
+      if (!localDomainSetting.deleted)
+        d->remoteDomains.updateWith(localDomainSetting);
+      else
+        d->domains.remove(domainName);
     }
     else {
       d->domains.updateWith(remoteDomainSetting);
