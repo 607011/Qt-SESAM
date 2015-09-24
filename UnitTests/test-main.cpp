@@ -165,6 +165,7 @@ private slots:
     QByteArray data = QByteArray(1024 * Crypter::AESBlockSize, 'A');
     QByteArray cipher = Crypter::encrypt(key, IV, data, CryptoPP::StreamTransformationFilter::NO_PADDING);
     QByteArray plain = Crypter::decrypt(key, IV, cipher, CryptoPP::StreamTransformationFilter::NO_PADDING);
+    QVERIFY(plain.size() == data.size());
     QVERIFY(plain == data);
   }
 
@@ -176,6 +177,7 @@ private slots:
     QByteArray data = QByteArray(7 * Crypter::AESBlockSize + nExtra, 'B');
     QByteArray cipher = Crypter::encrypt(key, IV, data, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
     QByteArray plain = Crypter::decrypt(key, IV, cipher, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
+    QVERIFY(plain.size() == data.size());
     QVERIFY(plain == data);
   }
 

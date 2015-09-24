@@ -172,8 +172,7 @@ SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArr
 {
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
   dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
-  int plainSize = cipher.size();
-  SecureByteArray plain(plainSize, static_cast<char>(0));
+  SecureByteArray plain(cipher.size(), static_cast<char>(0));
   CryptoPP::ArraySource s(
         reinterpret_cast<const byte*>(cipher.constData()), cipher.size(),
         true,
@@ -185,7 +184,7 @@ SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArr
         );
   Q_UNUSED(s); // just to please the compiler
   if (padding == CryptoPP::StreamTransformationFilter::PKCS_PADDING)
-    plain.resize(plainSize - plain.at(plain.size() - 1));
+    plain.resize(plain.size() - plain.at(plain.size() - 1));
   return plain;
 }
 
