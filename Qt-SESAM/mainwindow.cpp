@@ -197,7 +197,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(onURLChanged()));
   ui->urlLineEdit->installEventFilter(this);
   QObject::connect(ui->openURLPushButton, SIGNAL(pressed()), SLOT(openURL()));
-  QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
+  QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(onLegacyPasswordChanged(QString)));
   ui->legacyPasswordLineEdit->installEventFilter(this);
   QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   ui->notesPlainTextEdit->installEventFilter(this);
@@ -1081,6 +1081,13 @@ void MainWindow::saveCurrentDomainSettings(void)
 }
 
 
+void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
+{
+  setDirty();
+  ui->actionHackLegacyPassword->setEnabled(!legacyPassword.isEmpty());
+}
+
+
 void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
 {
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -1209,6 +1216,7 @@ void MainWindow::hackLegacyPassword(void)
     QMessageBox::information(this, tr("Cannot hack"), tr("No legacy password given. Cannot hack!"));
   }
   else {
+    ui->tabWidget->setCurrentIndex(0);
     blockUpdatePassword();
     d->masterPasswordInvalidationTimer.stop();
     d->hackingMode = true;
@@ -1558,9 +1566,11 @@ void MainWindow::onDomainSelected(const QString &domain)
   setDirty(false);
   if (d->domains.at(domain).legacyPassword.isEmpty()) {
     ui->tabWidget->setCurrentIndex(0);
+    ui->actionHackLegacyPassword->setEnabled(false);
   }
   else {
     ui->tabWidget->setCurrentIndex(1);
+    ui->actionHackLegacyPassword->setEnabled(true);
   }
   d->currentDomain = ui->domainsComboBox->currentText();
 }

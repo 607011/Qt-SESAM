@@ -81,6 +81,7 @@ private slots:
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
+  void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
   void onDomainSelected(const QString &);
   void newDomain(const QString &domainName = QString());
