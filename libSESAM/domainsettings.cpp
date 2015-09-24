@@ -26,8 +26,8 @@
 
 const QByteArray DomainSettings::DefaultSalt = QString("pepper").toUtf8();
 const QByteArray DomainSettings::DefaultSalt_base64 = DomainSettings::DefaultSalt.toBase64();
-const int DomainSettings::DefaultIterations = 4096;
-const int DomainSettings::DefaultPasswordLength = 10;
+const int DomainSettings::DefaultIterations = 8192;
+const int DomainSettings::DefaultPasswordLength = 16;
 const int DomainSettings::DefaultSaltLength = 16;
 
 
