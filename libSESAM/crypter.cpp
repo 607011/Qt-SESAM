@@ -19,7 +19,6 @@
 
 #include <QDebug>
 #include <random>
-#include <string>
 #include "sha.h"
 #include "ccm.h"
 #include "misc.h"
@@ -138,21 +137,23 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
  */
 QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
 {
-  const std::string sPlain(plain.constData(), plain.size());
-  std::string sCipher;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
   enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
+  const int cipherSize = (padding == CryptoPP::StreamTransformationFilter::NO_PADDING)
+      ? plain.size()
+      : plain.size() + AESBlockSize - plain.size() % AESBlockSize;
+  QByteArray cipher(cipherSize, static_cast<char>(0));
   CryptoPP::ArraySource s(
-        sPlain,
+        reinterpret_cast<const byte*>(plain.constData()), plain.size(),
         true,
         new CryptoPP::StreamTransformationFilter(
           enc,
-          new CryptoPP::StringSink(sCipher),
+          new CryptoPP::ArraySink(reinterpret_cast<byte*>(cipher.data()), cipher.size()),
           padding
           )
         );
   Q_UNUSED(s); // just to please the compiler
-  return QByteArray(sCipher.c_str(), sCipher.length());
+  return cipher;
 }
 
 
@@ -169,21 +170,23 @@ QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &I
  */
 SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
 {
-  const std::string sCipher(cipher.constData(), cipher.size());
-  std::string sPlain;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
   dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
+  int plainSize = cipher.size();
+  SecureByteArray plain(plainSize, static_cast<char>(0));
   CryptoPP::ArraySource s(
-        sCipher,
+        reinterpret_cast<const byte*>(cipher.constData()), cipher.size(),
         true,
         new CryptoPP::StreamTransformationFilter(
           dec,
-          new CryptoPP::StringSink(sPlain),
+          new CryptoPP::ArraySink(reinterpret_cast<byte*>(plain.data()), plain.size()),
           padding
           )
         );
   Q_UNUSED(s); // just to please the compiler
-  return SecureByteArray(sPlain.c_str(), sPlain.length());
+  if (padding == CryptoPP::StreamTransformationFilter::PKCS_PADDING)
+    plain.resize(plainSize - plain.at(plain.size() - 1));
+  return plain;
 }
 
 
