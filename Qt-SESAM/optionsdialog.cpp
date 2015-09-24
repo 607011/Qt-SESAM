@@ -92,6 +92,8 @@ void OptionsDialog::checkConnectivity(void)
     static const int HttpsPort = 443;
     d->sslSocket.connectToHostEncrypted(serverUrl.host(), HttpsPort);
     bool connected = d->sslSocket.waitForConnected(10*1000);
+    ui->encryptedLabel->setPixmap(QPixmap());
+    ui->fingerprintLabel->setText(QString());
     if (!connected) {
       QMessageBox::information(this, tr("Network timeout"), tr("Cannot connect to %1. Please check the URL above.").arg(serverUrl.host()));
       d->sslSocket.close();
@@ -125,15 +127,14 @@ void OptionsDialog::validateHostCertificateChain(void)
         break;
       }
     }
-    if (errorIndex >= 0) {
+    bool ok = (errorIndex == -1);
+    if (!ok) {
       d->serverCertificateWidget.setServerSocket(d->sslSocket);
       int button = d->serverCertificateWidget.exec();
-      if (button == QDialog::Accepted) {
-        setServerCertificates(d->sslSocket.peerCertificateChain());
-      }
+      ok = (button == QDialog::Accepted);
     }
-    else {
-      ui->encryptedLabel->setPixmap(QPixmap());
+    if (ok) {
+      setServerCertificates(d->sslSocket.peerCertificateChain());
     }
   }
   d->sslSocket.close();
