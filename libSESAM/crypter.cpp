@@ -132,7 +132,7 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
  * \param key The key to be used for encryption.
  * \param IV The initialization vector used to initialize AES.
  * \param plain The block of data to be encrypted.
- * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if `plain` length is a multiple of `Crypter::AESBlockSize`.
+ * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if `plain` length is a multiple of `Crypter::AESBlockSize`. Currently no other padding is supported by this function.
  * \return Encrypted block of data.
  */
 QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
@@ -165,7 +165,7 @@ QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &I
  * \param key The key to be used for decryption.
  * \param IV The initialization vector used to initialize AES.
  * \param cipher The block of data to be decrypted.
- * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if the length of the resulting plaintext data is a multiple of `Crypter::AESBlockSize`.
+ * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if the length of the resulting plaintext data is a multiple of `Crypter::AESBlockSize`). Currently no other padding is supported by this function.
  * \return Decrypted block of data.
  */
 SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
