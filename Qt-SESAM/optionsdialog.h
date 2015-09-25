@@ -24,7 +24,9 @@
 #include <QSslCertificate>
 #include <QSslSocket>
 #include <QSslError>
+#include <QNetworkReply>
 #include <QList>
+#include <QString>
 
 namespace Ui {
 class OptionsDialog;
@@ -94,16 +96,18 @@ public:
   void setPasswordFilename(const QString &filename);
 
 signals:
-  void updatedServerCertificates(void);
+  void serverCertificatesUpdated(void);
 
 private slots:
   void chooseSyncFile(void);
   void choosePasswordFile(void);
   void okClicked(void);
-  void onEncrypted(void);
+  void onEncrypted(QNetworkReply *);
   void checkConnectivity(void);
   void validateHostCertificateChain(void);
-  void sslErrorsOccured(const QList<QSslError> &errors);
+  void onReadFinished(QNetworkReply*);
+  void sslErrorsOccured(QNetworkReply *, const QList<QSslError> &);
+  void onServerRootUrlChanged(QString);
 
 private:
   Ui::OptionsDialog *ui;

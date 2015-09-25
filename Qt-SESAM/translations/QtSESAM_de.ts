@@ -954,11 +954,11 @@
     </message>
     <message>
         <source>Network timeout</source>
-        <translation>Zeitüberschreitung beim Netzwerkzugriff</translation>
+        <translation type="vanished">Zeitüberschreitung beim Netzwerkzugriff</translation>
     </message>
     <message>
         <source>Cannot connect to %1. Please check the URL above.</source>
-        <translation>Verbindung zu %1 fehlgeschlagen. Bitte prüfen Sie die obige URL auf Korrektheit.</translation>
+        <translation type="vanished">Verbindung zu %1 fehlgeschlagen. Bitte prüfen Sie die obige URL auf Korrektheit.</translation>
     </message>
     <message>
         <source>Wrong protocol</source>
@@ -1122,7 +1122,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Only accept the root certificate (last in list) if you&apos;re 100% sure that the fingerprint matches the original one. Same is true for the server&apos;s certificate (first in list).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Akzeptieren Sie das Wurzelzertifikat (s. Listenende) nur dann, wenn Sie 100%ig sicher sind, dass der Fingerabdruck mit dem Original übereinstimmt. Das Gleiche gilt für das Server-Zertifikat (s. Listenanfang).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Du solltest das Stammzertifikat (s. Listenende) nur dann akzeptieren, wenn du 100%ig sicher bist, dass der Fingerabdruck mit dem Original übereinstimmt. Das Gleiche gilt für das Server-Zertifikat (s. Listenanfang).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Accept</source>
@@ -1182,7 +1182,7 @@
     </message>
     <message>
         <source>The certificate chain of host &quot;%1&quot; contains an officially untrusted certificate with the SHA1 fingerprint %2. Do you trust it? If yes, click &quot;Accept&quot; to import it.</source>
-        <translation>Die Zertifikatskette des Hosts &quot;%1&quot; enthält ein offiziell nicht vertrauenswürdiges Zertifikat mit dem SHA1-Fingerabdruck %2. Vertrauen Sie dem Zertifikat? Wenn ja, können Sie es mit &quot;Akzeptieren&quot; importieren.</translation>
+        <translation type="vanished">Die Zertifikatskette des Hosts &quot;%1&quot; enthält ein offiziell nicht vertrauenswürdiges Zertifikat mit dem SHA1-Fingerabdruck %2. Vertrauen Sie dem Zertifikat? Wenn ja, können Sie es mit &quot;Akzeptieren&quot; importieren.</translation>
     </message>
     <message>
         <source>SSL parameters</source>
@@ -1231,6 +1231,18 @@
     <message>
         <source>DN</source>
         <translation type="vanished">DN</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;strong&gt;Attention!&lt;/strong&gt; The certificate chain of host &quot;%1&quot; with the SHA1 fingerprint %2 can not be fully trusted:&lt;p&gt;</source>
+        <translation type="vanished">&lt;p&gt;&lt;strong&gt;Achtung!&lt;/strong&gt; Der Zertifikatskette von %1 mit dem SHA-Fingerabdruck %2 kann nicht voll vertraut werden:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Do you still want to trust it? If yes, click &quot;Accept&quot; to import it.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Möchtest du dem Stammzertifikat trotzdem vertrauen? Wenn ja, klick auf &quot;Annehmen&quot;, um es zu importieren.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;strong&gt;Attention!&lt;/strong&gt; The certificate chain of the host with the SHA1 fingerprint %2 can not be fully trusted:&lt;p&gt;</source>
+        <translation>&lt;p&gt;&lt;strong&gt;Achtung!&lt;/strong&gt; Der Zertifikatskette mit dem SHA1-Fingerabdruck %2 kann nicht voll vertraut werden:&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>

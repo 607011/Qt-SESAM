@@ -233,7 +233,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
-  QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
+  QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated()), SLOT(onServerCertificatesUpdated()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
@@ -874,15 +874,13 @@ void MainWindow::onOptionsAccepted(void)
 void MainWindow::onServerCertificatesUpdated(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::onServerCertificatesUpdated()";
   d->ignoredSslErrors.clear();
   d->deleteNAM.clearAccessCache();
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
-  const QSslCertificate &caCert = d->optionsDialog->serverRootCertificate();
-  if (!caCert.isNull()) {
-    QList<QSslCertificate> caCerts({caCert});
-    d->sslConf.setCaCertificates(caCerts);
-  }
+  if (!d->optionsDialog->serverCertificates().isEmpty())
+    d->sslConf.setCaCertificates(d->optionsDialog->serverCertificates());
 }
 
 

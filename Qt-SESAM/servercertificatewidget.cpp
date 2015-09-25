@@ -51,10 +51,11 @@ ServerCertificateWidget::~ServerCertificateWidget()
 }
 
 
-void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
+void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslConf, const QList<QSslError> &errorList)
 {
-  const QSslCipher &cipher = sslSocket.sessionCipher();
-  const QString &fingerprint = fingerprintify(sslSocket.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
+  qDebug() << "ServerCertificateWidget::setServerSslErrors()";
+  const QSslCipher &cipher = sslConf.sessionCipher();
+  const QString &fingerprint = fingerprintify(sslConf.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow(tr("Encryption"), new QLabel(cipher.name()));
@@ -62,11 +63,15 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   formLayout->addRow(tr("Supported bits"), new QLabel(QString("%1").arg(cipher.supportedBits())));
   formLayout->addRow(tr("Used bits"), new QLabel(QString("%1").arg(cipher.usedBits())));
 
-  ui->warningLabel->setText(
-        tr("The certificate chain of host \"%1\" contains an officially untrusted certificate with the SHA1 fingerprint %2. "
-           "Do you trust it? If yes, click \"Accept\" to import it.")
-        .arg(sslSocket.peerName())
-        .arg(fingerprint));
+  QString warning = tr("<p><strong>Attention!</strong> "
+                       "The certificate chain of the host with the SHA1 fingerprint %2 can not be fully trusted:<p>")
+      .arg(fingerprint);
+  warning += "<ul>";
+  foreach(QSslError err, errorList)
+    warning += "<li>" + err.errorString() + "</li>";
+  warning += "</ul>";
+  warning += tr("<p>Do you still want to trust it? If yes, click \"Accept\" to import it.</p>");
+  ui->warningLabel->setText(warning);
 
   QGroupBox *groupBox = new QGroupBox(tr("SSL parameters"));
   groupBox->setLayout(formLayout);
@@ -76,7 +81,7 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   treeWidget->setHeaderHidden(true);
   QTreeWidgetItem *firstItem = nullptr;
   QTreeWidgetItem *lastItem = nullptr;
-  foreach (QSslCertificate cert, sslSocket.peerCertificateChain()) {
+  foreach (QSslCertificate cert, sslConf.peerCertificateChain()) {
     QTreeWidgetItem *rootItem = new QTreeWidgetItem;
     const QString &fp = fingerprintify(cert.digest(QCryptographicHash::Sha1));
     if (firstItem == nullptr)
