@@ -37,6 +37,7 @@
 #include <QNetworkAccessManager>
 #include <QJsonParseError>
 #include <QJsonDocument>
+#include <QMovie>
 
 static const QString HTTPS = "https";
 
@@ -47,6 +48,7 @@ public:
     : sslConf(QSslConfiguration::defaultConfiguration())
     , reply(nullptr)
     , secure(false)
+    , loaderIcon(":/images/loader.gif")
 #ifdef WIN32
     , smartLoginCheckbox(nullptr)
 #endif
@@ -62,6 +64,7 @@ public:
   QList<QSslCertificate> serverCertificates;
   ServerCertificateWidget serverCertificateWidget;
   bool secure;
+  QMovie loaderIcon;
 #ifdef WIN32
   QCheckBox *smartLoginCheckbox;
 #endif
@@ -105,6 +108,8 @@ void OptionsDialog::checkConnectivity(void)
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
   if (serverUrl.scheme() == HTTPS) {
     setSecure(false);
+    ui->accessibleLabel->setMovie(&d->loaderIcon);
+    d->loaderIcon.start();
     d->sslErrors.clear();
     d->NAM.clearAccessCache();
     d->serverCertificates.clear();
@@ -144,35 +149,34 @@ void OptionsDialog::onEncrypted(QNetworkReply*)
 
 void OptionsDialog::onReadFinished(QNetworkReply *reply)
 {
+  Q_D(OptionsDialog);
+  QString warning;
   QJsonParseError parseError;
   QJsonDocument jDoc = QJsonDocument::fromJson(reply->readAll(), &parseError);
-  bool ok = true;
   if (parseError.error == QJsonParseError::NoError) {
     if (jDoc.isObject()) {
       QVariantMap map = jDoc.toVariant().toMap();
       if (map["status"].toString() == "ok") {
         setSecure(true);
+        ui->accessibleLabel->setPixmap(QPixmap(":/images/check.png"));
+        ui->accessibleLabel->setToolTip(tr("Connection succeeded."));
       }
       else {
-        // TODO
-        qWarning() << "JSON data contains bad status:" << map["status"].toString();
-        ok = false;
+        warning = tr("JSON data contains bad status: %1").arg(map["status"].toString());
       }
     }
     else {
-      // TODO
-      qWarning() << "reply is not a valid JSON object";
-      ok = false;
+      warning = tr("reply is not a JSON object");
     }
   }
   else {
-    // TODO
-    qWarning() << "reply cannot be parsed as JSON data";
-    ok = false;
+    warning = tr("reply cannot be parsed as JSON data");
   }
-  if (!ok) {
-    // TODO
+  if (!warning.isEmpty()) {
+    ui->accessibleLabel->setPixmap(QPixmap(":/images/warning.png"));
+    ui->accessibleLabel->setToolTip(warning);
   }
+  d->loaderIcon.stop();
 }
 
 
@@ -211,14 +215,7 @@ void OptionsDialog::setSecure(bool secure)
 {
   Q_D(OptionsDialog);
   d->secure = secure;
-  if (d->secure) {
-    ui->fingerprintLabel->setText(fingerprintify(serverRootCertificate().digest(QCryptographicHash::Sha1)));
-    ui->encryptedLabel->setPixmap(QPixmap(":/images/encrypted.png"));
-  }
-  else {
-    ui->fingerprintLabel->setText(QString());
-    ui->encryptedLabel->setPixmap(QPixmap());
-  }
+  ui->encryptedLabel->setPixmap(secure ? QPixmap(":/images/encrypted.png") : QPixmap());
 }
 
 

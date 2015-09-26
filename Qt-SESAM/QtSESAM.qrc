@@ -8,5 +8,7 @@
         <file alias="refresh.png">resources/images/refresh.png</file>
         <file alias="open-url.png">resources/images/open-url.png</file>
         <file alias="help.png">resources/images/help.png</file>
+        <file alias="check.png">resources/images/check.png</file>
+        <file alias="warning.png">resources/images/warning.png</file>
     </qresource>
 </RCC>
