@@ -124,7 +124,6 @@ void OptionsDialog::checkConnectivity(void)
 void OptionsDialog::validateHostCertificateChain(void)
 {
   Q_D(OptionsDialog);
-  qDebug() << "OptionsDialog::validateHostCertificateChain()" << d->sslErrors;
   bool ok = (d->sslErrors.count() == 0) || d->sslErrors.at(0) == QSslError::NoError;
   if (!ok) {
     d->serverCertificateWidget.setServerSslErrors(d->reply->sslConfiguration(), d->sslErrors);
@@ -139,21 +138,18 @@ void OptionsDialog::validateHostCertificateChain(void)
 
 void OptionsDialog::onEncrypted(QNetworkReply*)
 {
-  qDebug() << "OptionsDialog::onEncrypted()";
   validateHostCertificateChain();
 }
 
 
 void OptionsDialog::onReadFinished(QNetworkReply *reply)
 {
-  qDebug() << "OptionsDialog::onReadFinished()";
   QJsonParseError parseError;
   QJsonDocument jDoc = QJsonDocument::fromJson(reply->readAll(), &parseError);
   bool ok = true;
   if (parseError.error == QJsonParseError::NoError) {
     if (jDoc.isObject()) {
       QVariantMap map = jDoc.toVariant().toMap();
-      qDebug() << "  --> status:" << map["status"].toString();
       if (map["status"].toString() == "ok") {
         setSecure(true);
       }
@@ -189,11 +185,7 @@ const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
 void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChain)
 {
   Q_D(OptionsDialog);
-  qDebug() << "OptionsDialog::setServerCertificates()";
   d->serverCertificates = certChain;
-  foreach(QSslCertificate crt, certChain) {
-    qDebug() << fingerprintify(crt.digest(QCryptographicHash::Sha1));
-  }
   setSecure(!serverRootCertificate().isNull());
   emit serverCertificatesUpdated(certChain);
 }
@@ -210,7 +202,6 @@ QSslCertificate OptionsDialog::serverRootCertificate(void) const
 void OptionsDialog::sslErrorsOccured(QNetworkReply *reply, const QList<QSslError> &errors)
 {
   Q_D(OptionsDialog);
-  qDebug() << "OptionsDialog::sslErrorsOccured(" << errors << ")";
   d->sslErrors = errors;
   reply->ignoreSslErrors();
 }

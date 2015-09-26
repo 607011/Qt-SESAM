@@ -877,19 +877,13 @@ void MainWindow::onOptionsAccepted(void)
 void MainWindow::onServerCertificatesUpdated(const QList<QSslCertificate> &certs)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onServerCertificatesUpdated()";
   d->ignoredSslErrors.clear();
   d->deleteNAM.clearAccessCache();
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
   d->resetSSLConf();
-  foreach (QSslCertificate crt, certs)
-    qDebug() << fingerprintify(crt.digest(QCryptographicHash::Sha1));
-  if (!certs.isEmpty()) {
+  if (!certs.isEmpty())
     d->sslConf.setCaCertificates(certs);
-    foreach (QSslCertificate crt, certs)
-      qDebug() << "  Adding" << fingerprintify(crt.digest(QCryptographicHash::Sha1));
-  }
 }
 
 
