@@ -108,7 +108,6 @@ public:
     , salt(Crypter::generateSalt())
     , masterKey(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
-    , sslConf(QSslConfiguration::defaultConfiguration())
     , deleteReply(nullptr)
     , readReply(nullptr)
     , writeReply(nullptr)
@@ -120,11 +119,15 @@ public:
     , smartLoginStep(SmartLoginNotActive)
   #endif
   {
-    sslConf.setCiphers(QSslSocket::supportedCiphers());
+    resetSSLConf();
   }
   ~MainWindowPrivate()
   {
     SecureErase(masterPassword);
+  }
+  void resetSSLConf(void) {
+    sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
   NewDomainWizard *newDomainWizard;
   MasterPasswordDialog *masterPasswordDialog;
@@ -233,7 +236,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
-  QObject::connect(d->optionsDialog, SIGNAL(updatedServerCertificates()), SLOT(onServerCertificatesUpdated()));
+  QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
@@ -871,18 +874,16 @@ void MainWindow::onOptionsAccepted(void)
 }
 
 
-void MainWindow::onServerCertificatesUpdated(void)
+void MainWindow::onServerCertificatesUpdated(const QList<QSslCertificate> &certs)
 {
   Q_D(MainWindow);
   d->ignoredSslErrors.clear();
   d->deleteNAM.clearAccessCache();
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
-  const QSslCertificate &caCert = d->optionsDialog->serverRootCertificate();
-  if (!caCert.isNull()) {
-    QList<QSslCertificate> caCerts({caCert});
-    d->sslConf.setCaCertificates(caCerts);
-  }
+  d->resetSSLConf();
+  if (!certs.isEmpty())
+    d->sslConf.setCaCertificates(certs);
 }
 
 
@@ -1169,17 +1170,18 @@ void MainWindow::saveSettings(void)
   Q_D(MainWindow);
 
   QVariantMap syncData;
-  syncData["sync/serverUsername"] = d->optionsDialog->serverUsername();
-  syncData["sync/serverPassword"] = d->optionsDialog->serverPassword();
-  syncData["sync/serverRootCertificates"] = QString(d->optionsDialog->serverRootCertificate().toPem());
-  syncData["sync/serverWriteUrl"] = d->optionsDialog->writeUrl();
-  syncData["sync/serverReadUrl"] = d->optionsDialog->readUrl();
-  syncData["sync/serverDeleteUrl"] = d->optionsDialog->deleteUrl();
+  syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
+  syncData["sync/server/username"] = d->optionsDialog->serverUsername();
+  syncData["sync/server/password"] = d->optionsDialog->serverPassword();
+  syncData["sync/server/rootCertificates"] = QString(d->optionsDialog->serverRootCertificate().toPem());
+  syncData["sync/server/secure"] = d->optionsDialog->secure();
+  syncData["sync/server/writeUrl"] = d->optionsDialog->writeUrl();
+  syncData["sync/server/readUrl"] = d->optionsDialog->readUrl();
+  syncData["sync/server/deleteUrl"] = d->optionsDialog->deleteUrl();
   syncData["sync/onStart"] = d->optionsDialog->syncOnStart();
   syncData["sync/filename"] = d->optionsDialog->syncFilename();
   syncData["sync/useFile"] = d->optionsDialog->useSyncFile();
   syncData["sync/useServer"] = d->optionsDialog->useSyncServer();
-  syncData["sync/serverRoot"] = d->optionsDialog->serverRootUrl();
 
   d->keyGenerationMutex.lock();
   QByteArray baCryptedData;
@@ -1274,13 +1276,14 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setSyncOnStart(syncData["sync/onStart"].toBool());
     d->optionsDialog->setUseSyncFile(syncData["sync/useFile"].toBool());
     d->optionsDialog->setUseSyncServer(syncData["sync/useServer"].toBool());
-    d->optionsDialog->setServerRootUrl(syncData["sync/serverRoot"].toString());
-    d->optionsDialog->setWriteUrl(syncData["sync/serverWriteUrl"].toString());
-    d->optionsDialog->setReadUrl(syncData["sync/serverReadUrl"].toString());
-    d->optionsDialog->setDeleteUrl(syncData["sync/serverDeleteUrl"].toString());
-    d->optionsDialog->setServerCertificates(QSslCertificate::fromData(syncData["sync/serverRootCertificates"].toByteArray(), QSsl::Pem));
-    d->optionsDialog->setServerUsername(syncData["sync/serverUsername"].toString());
-    d->optionsDialog->setServerPassword(syncData["sync/serverPassword"].toString());
+    d->optionsDialog->setServerRootUrl(syncData["sync/server/root"].toString());
+    d->optionsDialog->setWriteUrl(syncData["sync/server/writeUrl"].toString());
+    d->optionsDialog->setReadUrl(syncData["sync/server/readUrl"].toString());
+    d->optionsDialog->setDeleteUrl(syncData["sync/server/deleteUrl"].toString());
+    d->optionsDialog->setServerCertificates(QSslCertificate::fromData(syncData["sync/server/rootCertificates"].toByteArray(), QSsl::Pem));
+    d->optionsDialog->setSecure(syncData["sync/server/secure"].toBool());
+    d->optionsDialog->setServerUsername(syncData["sync/server/username"].toString());
+    d->optionsDialog->setServerPassword(syncData["sync/server/password"].toString());
   }
 
   return true;
@@ -1382,8 +1385,8 @@ void MainWindow::sync(void)
     req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
     req.setSslConfiguration(d->sslConf);
     d->readReply = d->readNAM.post(req, QByteArray());
-    if (!d->ignoredSslErrors.isEmpty())
-      d->readReply->ignoreSslErrors(d->ignoredSslErrors);
+//    if (!d->ignoredSslErrors.isEmpty())
+//      d->readReply->ignoreSslErrors(d->ignoredSslErrors);
   }
 }
 
