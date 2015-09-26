@@ -67,6 +67,9 @@ public:
   void setServerCertificates(const QList<QSslCertificate> &);
   QSslCertificate serverRootCertificate(void) const;
 
+  void setSecure(bool);
+  bool secure(void) const;
+
   QString writeUrl(void) const;
   void setWriteUrl(QString);
 
@@ -96,7 +99,7 @@ public:
   void setPasswordFilename(const QString &filename);
 
 signals:
-  void serverCertificatesUpdated(void);
+  void serverCertificatesUpdated(QList<QSslCertificate>);
 
 private slots:
   void chooseSyncFile(void);
