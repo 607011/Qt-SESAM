@@ -53,7 +53,6 @@ ServerCertificateWidget::~ServerCertificateWidget()
 
 void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslConf, const QList<QSslError> &errorList)
 {
-  qDebug() << "ServerCertificateWidget::setServerSslErrors()";
   const QSslCipher &cipher = sslConf.sessionCipher();
   const QString &fingerprint = fingerprintify(sslConf.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
 
