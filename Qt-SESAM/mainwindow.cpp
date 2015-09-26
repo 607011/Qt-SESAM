@@ -170,7 +170,6 @@ public:
   QNetworkReply *deleteReply;
   QNetworkReply *readReply;
   QNetworkReply *writeReply;
-  QList<QSslError> ignoredSslErrors;
   QString currentDomain;
   QCompleter *completer;
   int counter;
@@ -877,7 +876,6 @@ void MainWindow::onOptionsAccepted(void)
 void MainWindow::onServerCertificatesUpdated(const QList<QSslCertificate> &certs)
 {
   Q_D(MainWindow);
-  d->ignoredSslErrors.clear();
   d->deleteNAM.clearAccessCache();
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
@@ -1385,8 +1383,6 @@ void MainWindow::sync(void)
     req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
     req.setSslConfiguration(d->sslConf);
     d->readReply = d->readNAM.post(req, QByteArray());
-//    if (!d->ignoredSslErrors.isEmpty())
-//      d->readReply->ignoreSslErrors(d->ignoredSslErrors);
   }
 }
 
@@ -1557,8 +1553,6 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
   req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
   req.setSslConfiguration(d->sslConf);
   d->writeReply = d->writeNAM.post(req, data);
-  if (!d->ignoredSslErrors.isEmpty())
-    d->writeReply->ignoreSslErrors(d->ignoredSslErrors);
 }
 
 
@@ -1680,8 +1674,6 @@ void MainWindow::clearAllSettings(void)
     req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
     req.setSslConfiguration(d->sslConf);
     d->deleteReply = d->deleteNAM.post(req, QByteArray());
-    if (!d->ignoredSslErrors.isEmpty())
-      d->deleteReply->ignoreSslErrors(d->ignoredSslErrors);
   }
   d->lastDomainBeforeLock.clear();
   invalidatePassword(true);
