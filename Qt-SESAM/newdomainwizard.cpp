@@ -51,6 +51,21 @@ NewDomainWizard::~NewDomainWizard()
 }
 
 
+void NewDomainWizard::showEvent(QShowEvent *)
+{
+  checkValidity();
+  if (ui->domainLineEdit->text().isEmpty())
+    ui->domainLineEdit->setFocus();
+}
+
+
+void NewDomainWizard::closeEvent(QCloseEvent *e)
+{
+  QDialog::closeEvent(e);
+  reject();
+}
+
+
 void NewDomainWizard::clear(void)
 {
   ui->domainLineEdit->clear();
@@ -193,14 +208,6 @@ void NewDomainWizard::setDomain(const QString &domainName)
 {
   ui->domainLineEdit->setText(domainName);
   ui->urlLineEdit->setFocus();
-}
-
-
-void NewDomainWizard::showEvent(QShowEvent *)
-{
-  checkValidity();
-  if (ui->domainLineEdit->text().isEmpty())
-    ui->domainLineEdit->setFocus();
 }
 
 
