@@ -1555,6 +1555,8 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
+  if (!domainComboboxContains(domain))
+    return;
   copyDomainSettingsToGUI(domain);
   setDirty(false);
   if (d->domains.at(domain).legacyPassword.isEmpty()) {
