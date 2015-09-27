@@ -438,23 +438,17 @@ void MainWindow::newDomain(const QString &domainName)
   Q_D(MainWindow);
   d->newDomainWizard->clear();
   d->newDomainWizard->setDomain(domainName);
-  int rc = d->newDomainWizard->exec();
-  if (rc == QDialog::Accepted) {
-    bool alreadyPresent = false;
-    for (int i = 0; i < ui->domainsComboBox->count(); ++i)
-      if (ui->domainsComboBox->itemText(i) == d->newDomainWizard->domain()) {
-        alreadyPresent = true;
-        break;
-      }
-    if (alreadyPresent) {
+  if (d->newDomainWizard->exec() == QDialog::Accepted) {
+    QString domainFromWizard = d->newDomainWizard->domain();
+    if (domainComboboxContains(domainFromWizard)) {
       ui->domainsComboBox->setCurrentText(d->currentDomain);
     }
     else {
       setDirty(false);
-      d->currentDomain = d->newDomainWizard->domain();
+      blockUpdatePassword();
+      d->currentDomain = domainFromWizard;
       ui->urlLineEdit->setText(d->newDomainWizard->url());
-      ui->domainsComboBox->addItem(d->currentDomain);
-      ui->domainsComboBox->setCurrentText(d->currentDomain);
+      ui->domainsComboBox->setCurrentText(domainFromWizard);
       ui->userLineEdit->setText(d->newDomainWizard->username());
       ui->legacyPasswordLineEdit->setText(d->newDomainWizard->legacyPassword());
       ui->saltBase64LineEdit->setText(d->newDomainWizard->salt_base64());
@@ -472,8 +466,9 @@ void MainWindow::newDomain(const QString &domainName)
       else {
         ui->tabWidget->setCurrentIndex(1);
       }
-      updatePassword();
+      unblockUpdatePassword();
       saveCurrentDomainSettings();
+      updatePassword();
     }
   }
   else {
@@ -507,8 +502,9 @@ bool MainWindow::domainComboboxContains(const QString &domain) const {
 
 bool MainWindow::checkOpenNewDomainWizard(void)
 {
-  const QString &domain = ui->domainsComboBox->currentText();
+  QString domain = ui->domainsComboBox->currentText();
   if (!domain.isEmpty() && !domainComboboxContains(domain)) {
+    ui->domainsComboBox->setCurrentText(QString());
     newDomain(domain);
     return true;
   }
@@ -1048,7 +1044,7 @@ void MainWindow::saveCurrentDomainSettings(void)
   const QString currentDomain = ui->domainsComboBox->currentText();
 
   QStringList domainList;
-  for (int i = 1; i < ui->domainsComboBox->count(); ++i)
+  for (int i = 0; i < ui->domainsComboBox->count(); ++i)
     domainList.append(ui->domainsComboBox->itemText(i));
 
   if (domainList.contains(ds.domainName, Qt::CaseInsensitive)) {
