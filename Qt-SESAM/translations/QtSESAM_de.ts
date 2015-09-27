@@ -1016,6 +1016,10 @@
         <source>reply cannot be parsed as JSON data</source>
         <translation>Antwort vom Server enthält keine JSON-formatierten Daten</translation>
     </message>
+    <message>
+        <source>Encrypted</source>
+        <translation>Verschlüsselt</translation>
+    </message>
 </context>
 <context>
     <name>PasswordChecker</name>
