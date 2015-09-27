@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QString>
 #include <QShowEvent>
+#include <QCloseEvent>
 
 namespace Ui {
 class NewDomainWizard;
@@ -58,6 +59,7 @@ public:
 
 protected:
   void showEvent(QShowEvent*);
+  void closeEvent(QCloseEvent*);
 
 private slots:
   void addLowercaseToUsedCharacters(void);
