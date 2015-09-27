@@ -215,7 +215,14 @@ void OptionsDialog::setSecure(bool secure)
 {
   Q_D(OptionsDialog);
   d->secure = secure;
-  ui->encryptedLabel->setPixmap(secure ? QPixmap(":/images/encrypted.png") : QPixmap());
+  if (secure) {
+    ui->encryptedLabel->setPixmap(QPixmap(":/images/encrypted.png"));
+    ui->encryptedLabel->setToolTip(tr("Encrypted"));
+  }
+  else {
+    ui->encryptedLabel->setPixmap(QPixmap());
+    ui->encryptedLabel->setToolTip(QString());
+  }
 }
 
 
@@ -228,6 +235,9 @@ bool OptionsDialog::secure(void) const
 void OptionsDialog::onServerRootUrlChanged(QString)
 {
   Q_D(OptionsDialog);
+  ui->accessibleLabel->setPixmap(QPixmap());
+  ui->accessibleLabel->setToolTip(QString());
+  setSecure(false);
 }
 
 
