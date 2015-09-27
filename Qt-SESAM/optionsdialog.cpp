@@ -38,6 +38,7 @@
 #include <QJsonParseError>
 #include <QJsonDocument>
 #include <QMovie>
+#include <QShortcut>
 
 static const QString HTTPS = "https";
 
@@ -49,6 +50,7 @@ public:
     , reply(nullptr)
     , secure(false)
     , loaderIcon(":/images/loader.gif")
+    , escShortcut(nullptr)
 #ifdef WIN32
     , smartLoginCheckbox(nullptr)
 #endif
@@ -56,7 +58,9 @@ public:
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
   ~OptionsDialogPrivate()
-  { /* ... */ }
+  {
+      SafeDelete(escShortcut);
+  }
   QNetworkAccessManager NAM;
   QSslConfiguration sslConf;
   QNetworkReply *reply;
@@ -65,6 +69,7 @@ public:
   ServerCertificateWidget serverCertificateWidget;
   bool secure;
   QMovie loaderIcon;
+  QShortcut *escShortcut;
 #ifdef WIN32
   QCheckBox *smartLoginCheckbox;
 #endif
@@ -88,6 +93,8 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(&d->NAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  d->escShortcut = new QShortcut(Qt::Key_Escape, this, SLOT(reject()));
+
 #ifdef WIN32
   d->smartLoginCheckbox = new QCheckBox(tr("Smart login"));
   d->smartLoginCheckbox->setChecked(true);
@@ -132,7 +139,7 @@ void OptionsDialog::validateHostCertificateChain(void)
   bool ok = (d->sslErrors.count() == 0) || d->sslErrors.at(0) == QSslError::NoError;
   if (!ok) {
     d->serverCertificateWidget.setServerSslErrors(d->reply->sslConfiguration(), d->sslErrors);
-    if (d->serverCertificateWidget.exec() == QDialog::Accepted);
+    if (d->serverCertificateWidget.exec() == QDialog::Accepted)
       setServerCertificates(d->reply->sslConfiguration().peerCertificateChain());
   }
   else {
