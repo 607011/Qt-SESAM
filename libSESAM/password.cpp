@@ -76,7 +76,7 @@ void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
 
-  const QByteArray &pwd =
+  const SecureByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
       d->domainSettings.userName.toUtf8() +
       masterPassword;
