@@ -441,7 +441,7 @@ void MainWindow::newDomain(const QString &domainName)
   int rc = d->newDomainWizard->exec();
   if (rc == QDialog::Accepted) {
     bool alreadyPresent = false;
-    for (int i = 1; i < ui->domainsComboBox->count(); ++i)
+    for (int i = 0; i < ui->domainsComboBox->count(); ++i)
       if (ui->domainsComboBox->itemText(i) == d->newDomainWizard->domain()) {
         alreadyPresent = true;
         break;
