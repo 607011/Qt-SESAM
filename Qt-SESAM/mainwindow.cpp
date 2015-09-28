@@ -333,6 +333,11 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
 
+  if (d->masterPasswordDialog->masterPassword().isEmpty()) {
+    e->ignore();
+    return;
+  }
+
   auto prepareExit = [this]() {
     d_ptr->masterPasswordDialog->close();
     d_ptr->optionsDialog->close();
