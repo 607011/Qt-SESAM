@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 
 #include "securebytearray.h"
+#include "securestring.h"
 #include "domainsettings.h"
 
 class PasswordPrivate;
@@ -44,8 +45,8 @@ public:
   static const QString ExtraChars;
   static const QString AllChars;
 
-  const QString &key(void) const;
-  const QString &hexKey(void) const;
+  const SecureString &key(void) const;
+  const SecureString &hexKey(void) const;
   void waitForFinished(void);
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);

@@ -26,6 +26,7 @@
 #include <QCryptographicHash>
 
 #include "securebytearray.h"
+#include "securestring.h"
 
 class PBKDF2Private;
 
@@ -47,8 +48,8 @@ public:
   void generate(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm);
   void generateAsync(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm);
 
-  const QString &hexKey(void) const;
-  QByteArray derivedKey(int size = -1) const;
+  const SecureString &hexKey(void) const;
+  SecureByteArray derivedKey(int size = -1) const;
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
   bool isAborted(void) const;

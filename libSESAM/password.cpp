@@ -20,6 +20,9 @@
 #include <QDebug>
 #include <QtConcurrent>
 #include <QFuture>
+
+#include "securebytearray.h"
+#include "securestring.h"
 #include "password.h"
 #include "pbkdf2.h"
 #include "util.h"
@@ -29,15 +32,11 @@
 class PasswordPrivate {
 public:
   PasswordPrivate(void)
-  {
-    // ...
-  }
+  { /* ... */ }
   ~PasswordPrivate()
-  {
-    SecureErase(key);
-  }
+  { /* ... */ }
   PBKDF2 pbkdf2;
-  QString key;
+  SecureString key;
   DomainSettings domainSettings;
   QFuture<void> future;
 };
@@ -134,13 +133,13 @@ void Password::abortGeneration(void)
 }
 
 
-const QString &Password::key(void) const
+const SecureString &Password::key(void) const
 {
   return d_ptr->key;
 }
 
 
-const QString &Password::hexKey(void) const
+const SecureString &Password::hexKey(void) const
 {
   return d_ptr->pbkdf2.hexKey();
 }
