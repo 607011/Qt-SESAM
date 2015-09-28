@@ -241,7 +241,6 @@ bool OptionsDialog::secure(void) const
 
 void OptionsDialog::onServerRootUrlChanged(QString)
 {
-  Q_D(OptionsDialog);
   ui->accessibleLabel->setPixmap(QPixmap());
   ui->accessibleLabel->setToolTip(QString());
   setSecure(false);
