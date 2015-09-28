@@ -684,6 +684,38 @@
         <source>Cannot hack</source>
         <translation>Kann Passwort nicht hacken</translation>
     </message>
+    <message>
+        <source>Export KGK ...</source>
+        <translation>KGK exportieren ...</translation>
+    </message>
+    <message>
+        <source>Security hint</source>
+        <translation>Sicherheitshinweis</translation>
+    </message>
+    <message>
+        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. It is recommended to protect the KGK with a really strong passphrase. Are you prepared for this?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import KGK ...</source>
+        <translation>KGK  importieren ...</translation>
+    </message>
+    <message>
+        <source>Export KGK to ...</source>
+        <translation>KGK exportieren nach ...</translation>
+    </message>
+    <message>
+        <source>Not implemented yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not implemented yet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import KGK from ...</source>
+        <translation>KGK importieren von ...</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

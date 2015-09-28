@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkSession>
@@ -83,7 +84,8 @@ static const QString DefaultSyncServerPassword = "op";
 static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
-
+static const QString PemPreamble = "-----BEGIN ENCRYPTED PRIVATE KEY-----";
+static const QString PemEpilog = "-----END ENCRYPTED PRIVATE KEY-----";
 
 class MainWindowPrivate {
 public:
@@ -235,6 +237,8 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
+  QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
+  QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(lockApplication()));
@@ -912,6 +916,102 @@ void MainWindow::onGenerateSaltKeyIV(void)
 {
   Q_D(MainWindow);
   ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 4).toHex())), 2000);
+}
+
+
+void MainWindow::onExportKGK(void)
+{
+  Q_D(MainWindow);
+  int rc = QMessageBox::question(this,
+                                 tr("Security hint"),
+                                 tr("You're about to export your key generation key (KGK). "
+                                    "The KGK is used to derive passwords from your master password "
+                                    "and to derive a key to encrypt your settings. "
+                                    "You normally won't export the KGK unless for backup purposes. "
+                                    "It is recommended to protect the KGK with a really strong passphrase. "
+                                    "Are you prepared for this?"));
+  if (rc == QMessageBox::Yes) {
+    QString kgkFilename = QFileDialog::getSaveFileName(this, tr("Export KGK to ..."), QString(), "*.pem");
+    if (kgkFilename.isEmpty())
+      return;
+    QFile kgkFile(kgkFilename);
+    bool opened = kgkFile.open(QIODevice::WriteOnly);
+    qDebug() << d->KGK.toHex();
+    if (opened) {
+      kgkFile.write(PemPreamble.toUtf8());
+      kgkFile.write("\n");
+      SecureByteArray kgk = d->KGK.toBase64();
+      for (int i = 0; i < kgk.size(); i += 64) {
+        kgkFile.write(kgk.mid(i, qMin(64, kgk.size() - i)));
+        kgkFile.write("\n");
+      }
+      kgkFile.write(PemEpilog.toUtf8());
+      kgkFile.write("\n");
+      kgkFile.close();
+    }
+    else {
+      // TODO ...
+    }
+  }
+}
+
+
+void MainWindow::onImportKGK(void)
+{
+  Q_D(MainWindow);
+  int rc = QMessageBox::information(this, tr("Not implemented yet"), tr("Not implemented yet."));
+  if (rc == QMessageBox::Ok) {
+    QString kgkFilename = QFileDialog::getOpenFileName(this, tr("Import KGK from ..."), QString(), "*.pem");
+    if (kgkFilename.isEmpty())
+      return;
+    SecureByteArray kgk;
+    QFile kgkFile(kgkFilename);
+    bool opened = kgkFile.open(QIODevice::ReadOnly);
+    if (opened) {
+      static const int MaxLineSize = 66;
+      char buf[MaxLineSize];
+      int state = 0;
+      SecureByteArray kgkBase64;
+      while (!kgkFile.atEnd()) {
+        qint64 bytesRead = kgkFile.readLine(buf, MaxLineSize);
+        SecureString line = QByteArray(buf, bytesRead).trimmed();
+        switch (state) {
+        case 0:
+          if (line == PemPreamble) {
+            state = 1;
+          }
+          else {
+            qWarning() << "bad format";
+          }
+          break;
+        case 1:
+          if (line != PemEpilog) {
+            kgkBase64.append(line.toUtf8());
+          }
+          else {
+            state = 2;
+          }
+          break;
+        case 2:
+          // ignore trailing lines
+          break;
+        default:
+          qWarning() << "Oops! Should never have gotten here.";
+          break;
+        }
+      }
+      kgk = SecureByteArray::fromBase64(kgkBase64);
+      if (kgk.size() == Crypter::KGKSize) {
+        d->KGK = kgk;
+      }
+      else {
+        qWarning() << "Error: KGK has bad size (is:" << kgk.size() << ", should be:" << Crypter::KGKSize << ")";
+      }
+    }
+    else {
+      // TODO ...
+    }
+  }
 }
 
 

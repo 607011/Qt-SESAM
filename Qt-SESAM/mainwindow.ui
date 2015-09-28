@@ -583,6 +583,8 @@
      <addaction name="actionHackLegacyPassword"/>
      <addaction name="actionRegenerateSaltKeyIV"/>
      <addaction name="actionClearAllSettings"/>
+     <addaction name="actionExportKGK"/>
+     <addaction name="actionImportKGK"/>
     </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
@@ -671,6 +673,16 @@
   <action name="actionClearAllSettings">
    <property name="text">
     <string>Clear all settings ...</string>
+   </property>
+  </action>
+  <action name="actionExportKGK">
+   <property name="text">
+    <string>Export KGK ...</string>
+   </property>
+  </action>
+  <action name="actionImportKGK">
+   <property name="text">
+    <string>Import KGK ...</string>
    </property>
   </action>
  </widget>

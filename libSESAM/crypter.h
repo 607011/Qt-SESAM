@@ -31,6 +31,7 @@
 class Crypter
 {
 public:
+  static const int KGKSize;
   static const int AESKeySize;
   static const int AESBlockSize;
   enum FormatFlags {
@@ -48,7 +49,6 @@ public:
   static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
 
 private:
-  static const int KGKSize;
   static const int SaltSize;
   static const int KGKIterations;
   static const int DomainIterations;

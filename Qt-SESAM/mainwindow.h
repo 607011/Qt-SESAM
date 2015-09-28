@@ -118,6 +118,8 @@ private slots:
   void createFullDump(void);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+  void onExportKGK(void);
+  void onImportKGK(void);
 #ifdef WIN32
   void onPasted(void);
 #endif
