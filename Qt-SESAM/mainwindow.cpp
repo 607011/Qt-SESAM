@@ -65,6 +65,7 @@
 #include "password.h"
 #include "crypter.h"
 #include "securebytearray.h"
+#include "securestring.h"
 #include "passwordchecker.h"
 #include "exporter.h"
 
@@ -937,7 +938,7 @@ void MainWindow::onExportKGK(void)
     QString kgkFilename = QFileDialog::getSaveFileName(this, tr("Export KGK to ..."), QString(), "*.pem");
     if (kgkFilename.isEmpty())
       return;
-    Exporter(kgkFilename).write(d->masterPassword.toUtf8(), d->KGK);
+    Exporter(kgkFilename).write(d->KGK, d->masterPassword.toUtf8());
   }
 }
 
