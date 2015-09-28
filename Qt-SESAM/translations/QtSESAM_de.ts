@@ -698,7 +698,7 @@
     </message>
     <message>
         <source>Import KGK ...</source>
-        <translation>KGK  importieren ...</translation>
+        <translation>KGK importieren ...</translation>
     </message>
     <message>
         <source>Export KGK to ...</source>

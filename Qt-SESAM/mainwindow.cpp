@@ -66,6 +66,7 @@
 #include "crypter.h"
 #include "securebytearray.h"
 #include "passwordchecker.h"
+#include "exporter.h"
 
 #include "dump.h"
 
@@ -84,8 +85,6 @@ static const QString DefaultSyncServerPassword = "op";
 static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
-static const QString PemPreamble = "-----BEGIN ENCRYPTED PRIVATE KEY-----";
-static const QString PemEpilog = "-----END ENCRYPTED PRIVATE KEY-----";
 
 class MainWindowPrivate {
 public:
@@ -291,7 +290,6 @@ MainWindow::MainWindow(QWidget *parent)
 
   setDirty(false);
   enterMasterPassword();
-
 }
 
 
@@ -939,24 +937,7 @@ void MainWindow::onExportKGK(void)
     QString kgkFilename = QFileDialog::getSaveFileName(this, tr("Export KGK to ..."), QString(), "*.pem");
     if (kgkFilename.isEmpty())
       return;
-    QFile kgkFile(kgkFilename);
-    bool opened = kgkFile.open(QIODevice::WriteOnly);
-    qDebug() << d->KGK.toHex();
-    if (opened) {
-      kgkFile.write(PemPreamble.toUtf8());
-      kgkFile.write("\n");
-      SecureByteArray kgk = d->KGK.toBase64();
-      for (int i = 0; i < kgk.size(); i += 64) {
-        kgkFile.write(kgk.mid(i, qMin(64, kgk.size() - i)));
-        kgkFile.write("\n");
-      }
-      kgkFile.write(PemEpilog.toUtf8());
-      kgkFile.write("\n");
-      kgkFile.close();
-    }
-    else {
-      // TODO ...
-    }
+    Exporter(kgkFilename).write(d->KGK);
   }
 }
 
@@ -969,53 +950,9 @@ void MainWindow::onImportKGK(void)
     QString kgkFilename = QFileDialog::getOpenFileName(this, tr("Import KGK from ..."), QString(), "*.pem");
     if (kgkFilename.isEmpty())
       return;
-    SecureByteArray kgk;
-    QFile kgkFile(kgkFilename);
-    bool opened = kgkFile.open(QIODevice::ReadOnly);
-    if (opened) {
-      static const int MaxLineSize = 66;
-      char buf[MaxLineSize];
-      int state = 0;
-      SecureByteArray kgkBase64;
-      while (!kgkFile.atEnd()) {
-        qint64 bytesRead = kgkFile.readLine(buf, MaxLineSize);
-        SecureString line = QByteArray(buf, bytesRead).trimmed();
-        switch (state) {
-        case 0:
-          if (line == PemPreamble) {
-            state = 1;
-          }
-          else {
-            qWarning() << "bad format";
-          }
-          break;
-        case 1:
-          if (line != PemEpilog) {
-            kgkBase64.append(line.toUtf8());
-          }
-          else {
-            state = 2;
-          }
-          break;
-        case 2:
-          // ignore trailing lines
-          break;
-        default:
-          qWarning() << "Oops! Should never have gotten here.";
-          break;
-        }
-      }
-      kgk = SecureByteArray::fromBase64(kgkBase64);
-      if (kgk.size() == Crypter::KGKSize) {
-        d->KGK = kgk;
-      }
-      else {
-        qWarning() << "Error: KGK has bad size (is:" << kgk.size() << ", should be:" << Crypter::KGKSize << ")";
-      }
-    }
-    else {
-      // TODO ...
-    }
+    SecureByteArray kgk = Exporter(kgkFilename).read();
+    if (kgk.size() != Crypter::KGKSize)
+      qWarning() << "bad size (is:" << kgk.size() << ", must:" << Crypter::KGKSize << ")";
   }
 }
 
