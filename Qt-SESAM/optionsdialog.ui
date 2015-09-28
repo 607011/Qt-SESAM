@@ -429,15 +429,24 @@
  <tabstops>
   <tabstop>syncOnStartCheckBox</tabstop>
   <tabstop>useSyncFileCheckBox</tabstop>
+  <tabstop>syncFileLineEdit</tabstop>
   <tabstop>chooseSyncFilePushButton</tabstop>
   <tabstop>useSyncServerCheckBox</tabstop>
   <tabstop>serverRootURLLineEdit</tabstop>
+  <tabstop>usernameLineEdit</tabstop>
+  <tabstop>passwordLineEdit</tabstop>
+  <tabstop>readUrlLineEdit</tabstop>
+  <tabstop>writeUrlLineEdit</tabstop>
+  <tabstop>deleteUrlLineEdit</tabstop>
+  <tabstop>checkConnectivityPushButton</tabstop>
   <tabstop>okPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>syncFileLineEdit</tabstop>
   <tabstop>cancelPushButton</tabstop>
   <tabstop>masterPasswordInvalidationTimeMinsSpinBox</tabstop>
   <tabstop>saltLengthSpinBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>passwordFileLineEdit</tabstop>
+  <tabstop>selectPasswordFilePushButton</tabstop>
+  <tabstop>writeBackupsCheckBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>
