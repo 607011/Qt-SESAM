@@ -24,6 +24,7 @@
 #include "exporter.h"
 #include "domainsettings.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QMessageAuthenticationCode>
 #include <QtTest/QTest>
@@ -225,13 +226,14 @@ private slots:
     QVERIFY(KGK == KGK2);
   }
 
-  void exporter(void)
+  void export_import(void)
   {
     QString filename = QDir::tempPath() + "/qt-sesam-unit-test.pem";
+    SecureString pwd("wonderful password");
     Exporter ex(filename);
-    SecureByteArray original = Crypter::generateKGK();
-    ex.write(original);
-    SecureByteArray recovered = ex.read();
+    const SecureByteArray &original = Crypter::generateKGK();
+    ex.write(original, pwd);
+    const SecureByteArray &recovered = ex.read(pwd);
     QVERIFY(original.size() == recovered.size());
     QVERIFY(original == recovered);
   }

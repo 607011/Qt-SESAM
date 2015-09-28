@@ -937,7 +937,7 @@ void MainWindow::onExportKGK(void)
     QString kgkFilename = QFileDialog::getSaveFileName(this, tr("Export KGK to ..."), QString(), "*.pem");
     if (kgkFilename.isEmpty())
       return;
-    Exporter(kgkFilename).write(d->KGK);
+    Exporter(kgkFilename).write(d->masterPassword.toUtf8(), d->KGK);
   }
 }
 
@@ -950,7 +950,7 @@ void MainWindow::onImportKGK(void)
     QString kgkFilename = QFileDialog::getOpenFileName(this, tr("Import KGK from ..."), QString(), "*.pem");
     if (kgkFilename.isEmpty())
       return;
-    SecureByteArray kgk = Exporter(kgkFilename).read();
+    SecureByteArray kgk = Exporter(kgkFilename).read(d->masterPassword.toUtf8());
     if (kgk.size() != Crypter::KGKSize)
       qWarning() << "bad size (is:" << kgk.size() << ", must:" << Crypter::KGKSize << ")";
   }
