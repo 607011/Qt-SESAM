@@ -182,14 +182,16 @@ public:
 };
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(bool forceStart, QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , d_ptr(new MainWindowPrivate(this))
 {
   Q_D(MainWindow);
 
-  if (SingleInstanceDetector::instance().alreadyRunning()) {
+  qDebug() << "forceStart =" << forceStart;
+
+  if (!forceStart && SingleInstanceDetector::instance().alreadyRunning()) {
     QMessageBox::information(nullptr, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
     close();
     ::exit(1);

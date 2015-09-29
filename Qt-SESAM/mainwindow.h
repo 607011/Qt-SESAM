@@ -55,7 +55,8 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(bool forceStart, QWidget *parent = nullptr);
+
   ~MainWindow();
 
 protected:
