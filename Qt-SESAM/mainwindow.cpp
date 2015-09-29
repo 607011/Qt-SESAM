@@ -52,6 +52,7 @@
 #include <QDesktopServices>
 #include <QCompleter>
 
+#include "singleinstancedetector.h"
 #include "global.h"
 #include "util.h"
 #include "progressdialog.h"
@@ -187,6 +188,13 @@ MainWindow::MainWindow(QWidget *parent)
   , d_ptr(new MainWindowPrivate(this))
 {
   Q_D(MainWindow);
+
+  if (SingleInstanceDetector::instance()->alreadyRunning()) {
+    QMessageBox::information(nullptr, QObject::tr("Can run only once"), QObject::tr("Only one instance of this program can run at a time."));
+    close();
+    ::exit(1);
+  }
+
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
@@ -287,7 +295,6 @@ MainWindow::MainWindow(QWidget *parent)
 
   setDirty(false);
   enterMasterPassword();
-
 }
 
 

@@ -67,7 +67,8 @@ HEADERS  += \
     hackhelper.h \
     servercertificatewidget.h \
     changemasterpassworddialog.h \
-    passwordchecker.h
+    passwordchecker.h \
+    singleinstancedetector.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

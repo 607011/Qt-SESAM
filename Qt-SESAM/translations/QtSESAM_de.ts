@@ -1129,6 +1129,14 @@
         <source>Deleting this directory with all its contents will erase all your application and domain settings. So be careful!</source>
         <translation>Mit dem Löschen dieses Verzeichnis werden alle Anwendungs- und Passworteinstellungen gelöscht. Vorsicht, bitte!</translation>
     </message>
+    <message>
+        <source>Can run only once</source>
+        <translation>Mein Mehrfachstart erlaubt</translation>
+    </message>
+    <message>
+        <source>Only one instance of this program can run at a time.</source>
+        <translation>Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
+    </message>
 </context>
 <context>
     <name>ServerCertificateWidget</name>
