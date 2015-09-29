@@ -189,7 +189,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
   Q_D(MainWindow);
 
-  if (SingleInstanceDetector::instance()->alreadyRunning()) {
+  if (SingleInstanceDetector::instance().alreadyRunning()) {
     QMessageBox::information(nullptr, QObject::tr("Can run only once"), QObject::tr("Only one instance of this program can run at a time."));
     close();
     ::exit(1);
@@ -327,7 +327,6 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 MainWindow::~MainWindow()
 {
-  SingleInstanceDetector::instance()->release();
   d_ptr->trayIcon.hide();
   d_ptr->optionsDialog->close();
   d_ptr->newDomainWizard->close();

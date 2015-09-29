@@ -27,22 +27,24 @@
 #include <QSharedMemory>
 #include "global.h"
 #include "util.h"
+#include <iostream>
 
 class SingleInstanceDetector
 {
 public:
-  static SingleInstanceDetector *instance(void)
+  static SingleInstanceDetector &instance(void)
   {
-    static SingleInstanceDetector *singleInstance = new SingleInstanceDetector;
+    static SingleInstanceDetector singleInstance;
     return singleInstance;
   }
 
 
   bool alreadyRunning(void)
   {
+    if (sharedMem == nullptr)
+      sharedMem = new QSharedMemory(AppName);
     if (sharedMem->create(1, QSharedMemory::ReadOnly))
       return false;
-    qWarning() << sharedMem->errorString();
     return true;
   }
 
@@ -57,15 +59,13 @@ public:
 
 private:
   SingleInstanceDetector(void)
-    : sharedMem(new QSharedMemory(AppName))
+    : sharedMem(nullptr)
   { /* ... */ }
   ~SingleInstanceDetector()
   {
     release();
   }
   QSharedMemory *sharedMem;
-
-  static SingleInstanceDetector *singleInstance;
 };
 
 #endif // __SINGLEINSTANCEDETECTOR_H_
