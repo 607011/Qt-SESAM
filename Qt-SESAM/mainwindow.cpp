@@ -327,7 +327,6 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 MainWindow::~MainWindow()
 {
-  qDebug() << "MainWindow::~MainWindow()";
   SingleInstanceDetector::instance()->release();
   d_ptr->trayIcon.hide();
   d_ptr->optionsDialog->close();
