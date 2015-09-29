@@ -27,7 +27,6 @@
 #include <QSharedMemory>
 #include "global.h"
 #include "util.h"
-#include <iostream>
 
 class SingleInstanceDetector
 {
