@@ -51,7 +51,7 @@ public:
   {
     if (sharedMem != nullptr)
       sharedMem->detach();
-    SafeDelete(shareMem);
+    SafeDelete(sharedMem);
   }
 
 
