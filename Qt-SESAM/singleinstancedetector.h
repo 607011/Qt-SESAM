@@ -49,7 +49,9 @@ public:
 
   void release(void)
   {
-    SafeDelete(sharedMem);
+    if (sharedMem != nullptr)
+      sharedMem->detach();
+    SafeDelete(shareMem);
   }
 
 
