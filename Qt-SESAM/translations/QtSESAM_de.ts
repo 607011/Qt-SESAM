@@ -1130,12 +1130,16 @@
         <translation>Mit dem Löschen dieses Verzeichnis werden alle Anwendungs- und Passworteinstellungen gelöscht. Vorsicht, bitte!</translation>
     </message>
     <message>
-        <source>Can run only once</source>
-        <translation>Mein Mehrfachstart erlaubt</translation>
+        <source>Only one instance of this program can run at a time.</source>
+        <translation type="vanished">Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
     </message>
     <message>
-        <source>Only one instance of this program can run at a time.</source>
-        <translation>Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
+        <source>%1 can run only once</source>
+        <translation>%1 - Kein Mehrfachstart möglich</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time.</source>
+        <translation>Von %1 kann nureine Instanz gleichzeitig laufen.</translation>
     </message>
 </context>
 <context>
