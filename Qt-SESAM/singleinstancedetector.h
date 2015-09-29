@@ -37,6 +37,7 @@ public:
     return singleInstance;
   }
 
+
   bool alreadyRunning(void)
   {
     if (sharedMem->create(1, QSharedMemory::ReadOnly))
@@ -46,13 +47,19 @@ public:
   }
 
 
+  void release(void)
+  {
+    SafeDelete(sharedMem);
+  }
+
+
 private:
   SingleInstanceDetector(void)
     : sharedMem(new QSharedMemory(AppName))
   { /* ... */ }
   ~SingleInstanceDetector()
   {
-    SafeDelete(sharedMem);
+    release();
   }
   QSharedMemory *sharedMem;
 
