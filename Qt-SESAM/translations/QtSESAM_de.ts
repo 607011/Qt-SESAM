@@ -857,6 +857,38 @@
         <source>Force the use of any digit</source>
         <translation>Die Verwendung von Ziffern erzwingen</translation>
     </message>
+    <message>
+        <source>Lowercase characters missing</source>
+        <translation>Kleinbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce lowercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Kleinbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Uppercase characters missing</source>
+        <translation>Großbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce uppercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Großbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Digits missing</source>
+        <translation>Ziffern fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce digits but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Ziffern in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Extra characters missing</source>
+        <translation>Sonderzeichen fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce extra characters but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
 </context>
 <context>
     <name>OptionsDialog</name>
@@ -1156,6 +1188,14 @@
     <message>
         <source>Only one instance of %1 can run at a time.</source>
         <translation>Von %1 kann nureine Instanz gleichzeitig laufen.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Accept</source>
+        <translation>Übernehmen</translation>
     </message>
 </context>
 <context>
