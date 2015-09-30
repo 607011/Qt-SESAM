@@ -189,8 +189,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 {
   Q_D(MainWindow);
 
-  qDebug() << "forceStart =" << forceStart;
-
   if (!forceStart && SingleInstanceDetector::instance().alreadyRunning()) {
     QMessageBox::information(nullptr, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
     close();
@@ -303,8 +301,12 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 void MainWindow::showHide(void)
 {
   Q_D(MainWindow);
-  if (d->masterPasswordDialog->isVisible())
+  if (d->masterPasswordDialog->isVisible()) {
+    d->masterPasswordDialog->raise();
+    d->masterPasswordDialog->activateWindow();
+    d->masterPasswordDialog->setFocus();
     return;
+  }
   if (isMinimized()) {
     show();
     showNormal();
