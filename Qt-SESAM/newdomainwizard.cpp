@@ -411,6 +411,8 @@ void NewDomainWizard::passwordGenerated(void)
 
 void NewDomainWizard::passwordGenerationAborted(void)
 {
+  Q_D(NewDomainWizard);
+  d->password.waitForFinished();
   resetAcceptButton();
 }
 
@@ -423,8 +425,6 @@ void NewDomainWizard::acceptOrCancel(void)
   }
   else {
     d->password.abortGeneration();
-    d->password.waitForFinished();
-    resetAcceptButton();
   }
 }
 
