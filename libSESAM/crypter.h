@@ -43,9 +43,11 @@ public:
   static QByteArray decode(const SecureByteArray &masterPassword, QByteArray cipher, bool uncompress, SecureByteArray &KGK);
   static QByteArray randomBytes(const int size);
   static SecureByteArray generateKGK(void);
+  static SecureByteArray generateIV(void);
   static QByteArray generateSalt(void);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
   static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
+
 
 private:
   static const int KGKSize;
