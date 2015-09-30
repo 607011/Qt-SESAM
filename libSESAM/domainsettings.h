@@ -82,10 +82,8 @@ public:
   static const QString DELETED;
   bool deleted;
 
-  bool forceLowerCase;
-  bool forceUpperCase;
-  bool forceDigits;
-  bool forceExtra;
+  static const QString PASSWORD_TEMPLATE;
+  QString passwordTemplate;
 };
 
 

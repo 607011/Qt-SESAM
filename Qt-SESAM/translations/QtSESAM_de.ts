@@ -678,7 +678,7 @@
     </message>
     <message>
         <source>Password does not follow the rules. Increasing iteration count.</source>
-        <translation>Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
+        <translation type="vanished">Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
     </message>
     <message>
         <source>Cannot hack</source>
@@ -872,6 +872,54 @@
     <message>
         <source>URL</source>
         <translation>URL</translation>
+    </message>
+    <message>
+        <source>Force the use of any of %1</source>
+        <translation>Die Benutzung von einem der Zeichen %1 erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any lower case character</source>
+        <translation>Die Verwendung von Kleinbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any upper case character</source>
+        <translation>Die Verwendung von Großbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any digit</source>
+        <translation>Die Verwendung von Ziffern erzwingen</translation>
+    </message>
+    <message>
+        <source>Lowercase characters missing</source>
+        <translation>Kleinbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce lowercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Kleinbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Uppercase characters missing</source>
+        <translation>Großbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce uppercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Großbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Digits missing</source>
+        <translation>Ziffern fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce digits but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Ziffern in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Extra characters missing</source>
+        <translation>Sonderzeichen fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce extra characters but your character set does not contain any. Do you want to add them?</source>
+        <translation>Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
     </message>
 </context>
 <context>
@@ -1160,6 +1208,26 @@
     <message>
         <source>Deleting this directory with all its contents will erase all your application and domain settings. So be careful!</source>
         <translation>Mit dem Löschen dieses Verzeichnis werden alle Anwendungs- und Passworteinstellungen gelöscht. Vorsicht, bitte!</translation>
+    </message>
+    <message>
+        <source>Only one instance of this program can run at a time.</source>
+        <translation type="vanished">Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
+    </message>
+    <message>
+        <source>%1 can run only once</source>
+        <translation>%1 - Kein Mehrfachstart möglich</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time.</source>
+        <translation>Von %1 kann nureine Instanz gleichzeitig laufen.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Accept</source>
+        <translation>Übernehmen</translation>
     </message>
 </context>
 <context>

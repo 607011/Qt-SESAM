@@ -53,6 +53,7 @@
 #include <QDesktopServices>
 #include <QCompleter>
 
+#include "singleinstancedetector.h"
 #include "global.h"
 #include "util.h"
 #include "progressdialog.h"
@@ -100,7 +101,6 @@ public:
     , loaderIcon(":/images/loader.gif")
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
-    , autoIncrementIterations(true)
     , updatePasswordBlocked(false)
     , hackIterationDurationMs(0)
     , hackSalt(4, 0)
@@ -122,6 +122,7 @@ public:
   #endif
   {
     resetSSLConf();
+    newDomainWizard->setKGK(&KGK);
   }
   ~MainWindowPrivate()
   {
@@ -144,7 +145,6 @@ public:
   QMovie loaderIcon;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
-  bool autoIncrementIterations;
   bool updatePasswordBlocked;
   qint64 hackIterationDurationMs;
   QElapsedTimer hackClock;
@@ -183,12 +183,19 @@ public:
 };
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(bool forceStart, QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , d_ptr(new MainWindowPrivate(this))
 {
   Q_D(MainWindow);
+
+  if (!forceStart && SingleInstanceDetector::instance().alreadyRunning()) {
+    QMessageBox::information(nullptr, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
+    close();
+    ::exit(1);
+  }
+
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
@@ -239,6 +246,7 @@ MainWindow::MainWindow(QWidget *parent)
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
   QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
   QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
+  QObject::connect(d->optionsDialog, SIGNAL(saltLengthChanged(int)), d->newDomainWizard, SLOT(setSaltSize(int)));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(lockApplication()));
@@ -297,8 +305,12 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::showHide(void)
 {
   Q_D(MainWindow);
-  if (d->masterPasswordDialog->isVisible())
+  if (d->masterPasswordDialog->isVisible()) {
+    d->masterPasswordDialog->raise();
+    d->masterPasswordDialog->activateWindow();
+    d->masterPasswordDialog->setFocus();
     return;
+  }
   if (isMinimized()) {
     show();
     showNormal();
@@ -437,7 +449,6 @@ void MainWindow::resetAllFields(void)
   resetAllFieldsExceptDomainComboBox();
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->setFocus();
-  d->autoIncrementIterations = true;
 }
 
 
@@ -467,7 +478,6 @@ void MainWindow::newDomain(const QString &domainName)
       ui->createdLabel->setText(QDateTime::currentDateTime().toString(Qt::ISODate));
       ui->modifiedLabel->setText(QString());
       ui->deleteCheckBox->setChecked(false);
-      d->autoIncrementIterations = true;
       if (ui->legacyPasswordLineEdit->text().isEmpty()) {
         ui->tabWidget->setCurrentIndex(0);
       }
@@ -609,7 +619,7 @@ void MainWindow::restartInvalidationTimer(void)
 void MainWindow::onPasswordGenerationStarted(void)
 {
   Q_D(MainWindow);
-  d->autoIncrementIterations = false;
+  // d->autoIncrementIterations = false;
   ui->copyGeneratedPasswordToClipboardPushButton->hide();
   ui->processLabel->show();
   ui->cancelPushButton->show();
@@ -636,7 +646,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 {
   DomainSettings ds;
   ds.domainName = ui->domainsComboBox->currentText();
-  ds.url  = ui->urlLineEdit->text();
+  ds.url = ui->urlLineEdit->text();
   ds.deleted = ui->deleteCheckBox->isChecked();
   ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
   ds.modifiedDate = d_ptr->modifiedDate.isValid() ? d_ptr->modifiedDate : QDateTime::currentDateTime();
@@ -744,46 +754,6 @@ void MainWindow::nextChangeMasterPasswordStep(void)
 }
 
 
-bool MainWindow::keyContainsAnyOf(const QString &forcedCharacters)
-{
-  foreach (QChar c, forcedCharacters) {
-    if (d_ptr->password.key().contains(c))
-      return true;
-  }
-  return false;
-}
-
-
-
-void MainWindow::analyzeGeneratedPassword(void)
-{
-  Q_D(MainWindow);
-  if (keyContainsAnyOf(Password::LowerChars))
-    d->newDomainWizard->setForceLowercase(true);
-  if (keyContainsAnyOf(Password::UpperChars))
-    d->newDomainWizard->setForceUppercase(true);
-  if (keyContainsAnyOf(Password::Digits))
-    d->newDomainWizard->setForceDigits(true);
-  if (keyContainsAnyOf(Password::ExtraChars))
-    d->newDomainWizard->setForceExtra(true);
-}
-
-
-bool MainWindow::generatedPasswordIsValid(void)
-{
-  Q_D(MainWindow);
-  if (d->newDomainWizard->forceLowercase() && !keyContainsAnyOf(Password::LowerChars))
-    return false;
-  if (d->newDomainWizard->forceUppercase() && !keyContainsAnyOf(Password::UpperChars))
-    return false;
-  if (d->newDomainWizard->forceDigits() && !keyContainsAnyOf(Password::Digits))
-    return false;
-  if (d->newDomainWizard->forceExtra() && !keyContainsAnyOf(Password::ExtraChars))
-    return false;
-  return true;
-}
-
-
 auto makeHMS = [](qint64 ms) {
   QString sign;
   if (ms < 0) {
@@ -804,9 +774,16 @@ auto makeHMS = [](qint64 ms) {
 void MainWindow::onPasswordGenerated(void)
 {
   Q_D(MainWindow);
-  if (d->hackingMode) {
-    ui->generatedPasswordLineEdit->setText(d->password.key());
-    PositionTable st(d->password.key());
+  if (!d->hackingMode) {
+    ui->generatedPasswordLineEdit->setText(d->password());
+    if (!d->password.isAborted())
+      ui->statusBar->showMessage(tr("generation time: %1 ms")
+                                 .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 4), 3000);
+    hideActivityIcons();
+  }
+  else { // in hacking mode
+    ui->generatedPasswordLineEdit->setText(d->password());
+    PositionTable st(d->password());
     if (d->hackPos == st) {
       const QString &newCharTable = d->hackPos.substitute(st, ui->usedCharactersPlainTextEdit->toPlainText());
       ui->usedCharactersPlainTextEdit->setPlainText(newCharTable);
@@ -841,23 +818,6 @@ void MainWindow::onPasswordGenerated(void)
             );
       incrementEndianless(d->hackSalt);
       ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
-    }
-  }
-  else { // not in hacking mode
-    if (!d->autoIncrementIterations || generatedPasswordIsValid()) {
-      ui->generatedPasswordLineEdit->setText(d->password.key());
-      if (!d->password.isAborted())
-        ui->statusBar->showMessage(tr("generation time: %1 ms")
-                                   .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 4), 3000);
-      hideActivityIcons();
-    }
-    else if (d->autoIncrementIterations) {
-      const int nIterations = ui->iterationsSpinBox->value() + 1;
-      ui->statusBar->showMessage(tr("Password does not follow the rules. Increasing iteration count."));
-      ui->iterationsSpinBox->blockSignals(true);
-      ui->iterationsSpinBox->setValue(nIterations);
-      ui->iterationsSpinBox->blockSignals(false);
-      updatePassword();
     }
   }
 }

@@ -100,6 +100,7 @@ public:
 
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
+  void saltLengthChanged(int);
 
 private slots:
   void chooseSyncFile(void);

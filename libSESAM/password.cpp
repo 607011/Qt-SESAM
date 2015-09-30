@@ -36,7 +36,7 @@ public:
   ~PasswordPrivate()
   { /* ... */ }
   PBKDF2 pbkdf2;
-  SecureString key;
+  SecureString password;
   DomainSettings domainSettings;
   QFuture<void> future;
 };
@@ -84,7 +84,7 @@ void Password::generate(const SecureByteArray &masterPassword)
 
   const int nChars = d->domainSettings.usedCharacters.count();
   if (nChars > 0) {
-    d->key.clear();
+    d->password.clear();
     const QString strModulus = QString("%1").arg(nChars);
     BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
@@ -92,7 +92,7 @@ void Password::generate(const SecureByteArray &masterPassword)
     int n = d->domainSettings.length;
     while (v > Zero && n-- > 0) {
       const BigInt::Rossi &mod = v % Modulus;
-      d->key += d->domainSettings.usedCharacters.at(mod.toUlong());
+      d->password += d->domainSettings.usedCharacters.at(mod.toUlong());
       v = v / Modulus;
     }
     emit generated();
@@ -133,9 +133,15 @@ void Password::abortGeneration(void)
 }
 
 
-const SecureString &Password::key(void) const
+SecureString Password::operator()(void) const
 {
-  return d_ptr->key;
+  return password();
+}
+
+
+const SecureString &Password::password(void) const
+{
+  return d_ptr->password;
 }
 
 
