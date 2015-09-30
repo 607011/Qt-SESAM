@@ -96,8 +96,9 @@ private: // methods
   bool containsAnyOf(const QString &haystack, const QString &forcedCharacters) const;
   bool passwordContainsAnyOf(const QString &forcedCharacters) const;
   bool passwordMeetsRules(void) const;
-  void checkUsedCharactersMeetRules(void);
+  void enforceUsedCharactersMeetRules(void);
   void resetAcceptButton(void);
+  bool checkPasswordLengthMeetsRules(void) const;
 };
 
 #endif // __NEWDOMAINWIZARD_H_

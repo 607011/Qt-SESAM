@@ -63,6 +63,7 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   QObject::connect(ui->uppercasePushButton, SIGNAL(pressed()), SLOT(addUppercaseToUsedCharacters()));
   QObject::connect(ui->digitsPushButton, SIGNAL(pressed()), SLOT(addDigitsToUsedCharacters()));
   QObject::connect(ui->extraPushButton, SIGNAL(pressed()), SLOT(addExtraCharactersToUsedCharacters()));
+  QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(checkValidity()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(checkValidity()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(checkValidity()));
@@ -134,10 +135,28 @@ void NewDomainWizard::renewSalt(void)
 }
 
 
+bool NewDomainWizard::checkPasswordLengthMeetsRules(void) const {
+  int nRules = 0;
+  if (ui->forceLowerCaseCheckBox->isChecked())
+    ++nRules;
+  if (ui->forceUpperCaseCheckBox->isChecked())
+    ++nRules;
+  if (ui->forceDigitsCheckBox->isChecked())
+    ++nRules;
+  if (ui->forceExtraCheckBox->isChecked())
+    ++nRules;
+  bool ok = nRules <= ui->passwordLengthSpinBox->value();
+  return ok;
+}
+
+
 bool NewDomainWizard::checkValidity(void)
 {
-  checkUsedCharactersMeetRules();
-  bool enabled = !ui->domainLineEdit->text().isEmpty() && !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
+  enforceUsedCharactersMeetRules();
+  bool enabled =
+      checkPasswordLengthMeetsRules() &&
+      !ui->domainLineEdit->text().isEmpty() &&
+      !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
   ui->acceptPushButton->setEnabled(enabled);
   return enabled;
 }
@@ -330,7 +349,7 @@ bool NewDomainWizard::passwordMeetsRules(void) const
 }
 
 
-void NewDomainWizard::checkUsedCharactersMeetRules(void)
+void NewDomainWizard::enforceUsedCharactersMeetRules(void)
 {
   Q_D(NewDomainWizard);
   const QString &usedChars = ui->usedCharactersPlainTextEdit->toPlainText();
