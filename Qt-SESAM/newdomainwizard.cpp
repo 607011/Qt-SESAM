@@ -294,13 +294,13 @@ bool NewDomainWizard::passwordContainsAnyOf(const QString &forcedCharacters) con
 
 bool NewDomainWizard::passwordMeetsRules(void) const
 {
-  if (ui->forceLowerCaseCheckBox && !passwordContainsAnyOf(Password::LowerChars))
+  if (ui->forceLowerCaseCheckBox->isChecked() && !passwordContainsAnyOf(Password::LowerChars))
     return false;
-  if (ui->forceUpperCaseCheckBox && !passwordContainsAnyOf(Password::UpperChars))
+  if (ui->forceUpperCaseCheckBox->isChecked() && !passwordContainsAnyOf(Password::UpperChars))
     return false;
-  if (ui->forceDigitsCheckBox && !passwordContainsAnyOf(Password::Digits))
+  if (ui->forceDigitsCheckBox->isChecked() && !passwordContainsAnyOf(Password::Digits))
     return false;
-  if (ui->forceExtraCheckBox && !passwordContainsAnyOf(Password::ExtraChars))
+  if (ui->forceExtraCheckBox->isChecked() && !passwordContainsAnyOf(Password::ExtraChars))
     return false;
   return true;
 }
