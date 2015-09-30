@@ -684,6 +684,38 @@
         <source>Cannot hack</source>
         <translation>Kann Passwort nicht hacken</translation>
     </message>
+    <message>
+        <source>Export KGK ...</source>
+        <translation type="vanished">KGK exportieren ...</translation>
+    </message>
+    <message>
+        <source>Security hint</source>
+        <translation type="vanished">Sicherheitshinweis</translation>
+    </message>
+    <message>
+        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. It is recommended to protect the KGK with a really strong passphrase. Are you prepared for this?</source>
+        <translation type="vanished">Du stehst kurz davor deinen Key Generation Key (KGK) zu exportieren. Der KGK wird zum Generieren deiner Passwörter und der Schlüssel zum Chiffrieren der Domain-Einstellungen verwendet. Wenn du nicht unbedingt ein Backup davon benötigst, solltest du ihn nicht exportieren. Wenn doch, dann schütze ihn mit einer schwer zu erratenden Passphrase. Bist du dazu bereit?</translation>
+    </message>
+    <message>
+        <source>Import KGK ...</source>
+        <translation type="vanished">KGK importieren ...</translation>
+    </message>
+    <message>
+        <source>Export KGK to ...</source>
+        <translation type="vanished">KGK exportieren nach ...</translation>
+    </message>
+    <message>
+        <source>Not implemented yet</source>
+        <translation type="vanished">Noch nicht implementiert</translation>
+    </message>
+    <message>
+        <source>Not implemented yet.</source>
+        <translation type="vanished">Noch nicht implementiert.</translation>
+    </message>
+    <message>
+        <source>Import KGK from ...</source>
+        <translation type="vanished">KGK importieren von ...</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1191,11 +1223,11 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation>Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
 </context>
 <context>

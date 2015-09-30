@@ -45,10 +45,6 @@ public:
 };
 
 
-static const QString CancelText = QObject::tr("Cancel");
-static const QString AcceptText = QObject::tr("Accept");
-
-
 NewDomainWizard::NewDomainWizard(QWidget *parent)
   : QDialog(parent, Qt::Dialog)
   , ui(new Ui::NewDomainWizard)
@@ -408,7 +404,7 @@ void NewDomainWizard::resetAcceptButton(void)
 {
   Q_D(NewDomainWizard);
   ui->acceptPushButton->setIcon(QIcon());
-  ui->acceptPushButton->setText(AcceptText);
+  ui->acceptPushButton->setText(tr("Accept"));
   d->loaderIcon.stop();
 }
 
@@ -439,7 +435,7 @@ void NewDomainWizard::passwordGenerationAborted(void)
 void NewDomainWizard::acceptOrCancel(void)
 {
   Q_D(NewDomainWizard);
-  if (ui->acceptPushButton->text() == AcceptText) {
+  if (ui->acceptPushButton->text() == tr("Accept")) {
     generatePassword();
   }
   else {
@@ -461,7 +457,7 @@ void NewDomainWizard::generatePassword(void)
   ds.iterations = ui->iterationsSpinBox->value();
   ds.length = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ui->acceptPushButton->setText(CancelText);
+  ui->acceptPushButton->setText(tr("Cancel"));
   ui->acceptPushButton->setIcon(d->loaderIcon.currentPixmap());
   d->loaderIcon.start();
   d->password.generateAsync(*d->KGK, ds);

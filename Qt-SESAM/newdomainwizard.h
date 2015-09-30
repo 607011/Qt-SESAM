@@ -87,7 +87,6 @@ private slots:
 
 private:
   Ui::NewDomainWizard *ui;
-
   QScopedPointer<NewDomainWizardPrivate> d_ptr;
   Q_DECLARE_PRIVATE(NewDomainWizard)
   Q_DISABLE_COPY(NewDomainWizard)
