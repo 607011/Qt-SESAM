@@ -81,6 +81,9 @@ public:
 
   static const QString DELETED;
   bool deleted;
+
+  static const QString PASSWORD_TEMPLATE;
+  QString passwordTemplate;
 };
 
 
