@@ -19,6 +19,9 @@
 
 #include <QDebug>
 #include <QByteArray>
+#include <QMessageBox>
+#include <QIcon>
+#include <QMovie>
 
 #include "newdomainwizard.h"
 #include "ui_newdomainwizard.h"
@@ -33,11 +36,17 @@ public:
   NewDomainWizardPrivate(void)
     : saltSize(12)
     , KGK(nullptr)
+    , loaderIcon(":/images/loader.gif")
   { /* ... */ }
   int saltSize;
   Password password;
   const SecureByteArray *KGK;
+  QMovie loaderIcon;
 };
+
+
+static const QString CancelText = QObject::tr("Cancel");
+static const QString AcceptText = QObject::tr("Accept");
 
 
 NewDomainWizard::NewDomainWizard(QWidget *parent)
@@ -48,7 +57,7 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   Q_D(NewDomainWizard);
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
-  QObject::connect(ui->acceptPushButton, SIGNAL(pressed()), SLOT(generatePassword()));
+  QObject::connect(ui->acceptPushButton, SIGNAL(pressed()), SLOT(acceptOrCancel()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
   QObject::connect(ui->uppercasePushButton, SIGNAL(pressed()), SLOT(addUppercaseToUsedCharacters()));
@@ -57,11 +66,18 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(checkValidity()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(checkValidity()));
+  QObject::connect(ui->forceLowerCaseCheckBox, SIGNAL(toggled(bool)), SLOT(checkValidity()));
+  QObject::connect(ui->forceUpperCaseCheckBox, SIGNAL(toggled(bool)), SLOT(checkValidity()));
+  QObject::connect(ui->forceDigitsCheckBox, SIGNAL(toggled(bool)), SLOT(checkValidity()));
+  QObject::connect(ui->forceExtraCheckBox, SIGNAL(toggled(bool)), SLOT(checkValidity()));
   QObject::connect(&d->password, SIGNAL(generated()), SLOT(passwordGenerated()));
+  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(passwordGenerationAborted()));
+  QObject::connect(&d->loaderIcon, SIGNAL(frameChanged(int)), SLOT(updateAcceptButtonIcon(int)));
   ui->forceLowerCaseCheckBox->setToolTip(tr("Force the use of any lower case character"));
   ui->forceUpperCaseCheckBox->setToolTip(tr("Force the use of any upper case character"));
   ui->forceDigitsCheckBox->setToolTip(tr("Force the use of any digit"));
   ui->forceExtraCheckBox->setToolTip(tr("Force the use of any of %1").arg(Password::ExtraChars));
+  resetAcceptButton();
   clear();
 }
 
@@ -75,6 +91,7 @@ NewDomainWizard::~NewDomainWizard()
 void NewDomainWizard::showEvent(QShowEvent *)
 {
   checkValidity();
+  resetAcceptButton();
   if (ui->domainLineEdit->text().isEmpty())
     ui->domainLineEdit->setFocus();
 }
@@ -119,6 +136,7 @@ void NewDomainWizard::renewSalt(void)
 
 bool NewDomainWizard::checkValidity(void)
 {
+  checkUsedCharactersMeetRules();
   bool enabled = !ui->domainLineEdit->text().isEmpty() && !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
   ui->acceptPushButton->setEnabled(enabled);
   return enabled;
@@ -282,13 +300,19 @@ void NewDomainWizard::onUsedCharactersChanged(void)
 }
 
 
-bool NewDomainWizard::passwordContainsAnyOf(const QString &forcedCharacters) const
+bool NewDomainWizard::containsAnyOf(const QString &haystack, const QString &forcedCharacters) const
 {
   foreach (QChar c, forcedCharacters) {
-    if (d_ptr->password().contains(c))
+    if (haystack.contains(c))
       return true;
   }
   return false;
+}
+
+
+bool NewDomainWizard::passwordContainsAnyOf(const QString &forcedCharacters) const
+{
+  return containsAnyOf(d_ptr->password(), forcedCharacters);
 }
 
 
@@ -306,15 +330,104 @@ bool NewDomainWizard::passwordMeetsRules(void) const
 }
 
 
+void NewDomainWizard::checkUsedCharactersMeetRules(void)
+{
+  Q_D(NewDomainWizard);
+  const QString &usedChars = ui->usedCharactersPlainTextEdit->toPlainText();
+  if (ui->forceLowerCaseCheckBox->isChecked() && !containsAnyOf(usedChars, Password::LowerChars)) {
+    int button = QMessageBox::question(this,
+                          tr("Lowercase characters missing"),
+                          tr("You want to enforce lowercase characters but your character set does not contain any. "
+                             "Do you want to add them?"));
+    if (button == QMessageBox::Yes) {
+      addLowercaseToUsedCharacters();
+    }
+    else {
+      ui->forceLowerCaseCheckBox->setChecked(false);
+    }
+  }
+  if (ui->forceUpperCaseCheckBox->isChecked() && !containsAnyOf(usedChars, Password::UpperChars)) {
+    int button = QMessageBox::question(this,
+                          tr("Uppercase characters missing"),
+                          tr("You want to enforce uppercase characters but your character set does not contain any. "
+                             "Do you want to add them?"));
+    if (button == QMessageBox::Yes) {
+      addUppercaseToUsedCharacters();
+    }
+    else {
+      ui->forceDigitsCheckBox->setChecked(false);
+    }
+  }
+  if (ui->forceDigitsCheckBox->isChecked() && !containsAnyOf(usedChars, Password::Digits)) {
+    int button = QMessageBox::question(this,
+                          tr("Digits missing"),
+                          tr("You want to enforce digits but your character set does not contain any. "
+                             "Do you want to add them?"));
+    if (button == QMessageBox::Yes) {
+      addDigitsToUsedCharacters();
+    }
+    else {
+      ui->forceDigitsCheckBox->setChecked(false);
+    }
+  }
+  if (ui->forceExtraCheckBox->isChecked() && !containsAnyOf(usedChars, Password::ExtraChars)) {
+    int button = QMessageBox::question(this,
+                          tr("Extra characters missing"),
+                          tr("You want to enforce extra characters but your character set does not contain any. "
+                             "Do you want to add them?"));
+    if (button == QMessageBox::Yes) {
+      addExtraCharactersToUsedCharacters();
+    }
+    else {
+      ui->forceExtraCheckBox->setChecked(false);
+    }
+  }
+}
+
+
+void NewDomainWizard::resetAcceptButton(void)
+{
+  Q_D(NewDomainWizard);
+  ui->acceptPushButton->setIcon(QIcon());
+  ui->acceptPushButton->setText(AcceptText);
+  d->loaderIcon.stop();
+}
+
+
 void NewDomainWizard::passwordGenerated(void)
 {
   Q_D(NewDomainWizard);
-  if (!passwordMeetsRules()) {
+  if (d->password.isAborted())
+    return;
+  if (passwordMeetsRules()) {
+    accept();
+  }
+  else {
     renewSalt();
     generatePassword();
   }
+}
+
+
+void NewDomainWizard::passwordGenerationAborted(void)
+{
+  qDebug() << "NewDomainWizard::passwordGenerationAborted()";
+  resetAcceptButton();
+}
+
+
+void NewDomainWizard::acceptOrCancel(void)
+{
+  Q_D(NewDomainWizard);
+  qDebug() << "NewDomainWizard::acceptOrCancel() -> " << ui->acceptPushButton->text();
+  if (ui->acceptPushButton->text() == AcceptText) {
+    generatePassword();
+  }
   else {
-    accept();
+    qDebug() << ui->acceptPushButton->text();
+    d->password.abortGeneration();
+    d->password.waitForFinished();
+    resetAcceptButton();
   }
 }
 
@@ -322,17 +435,25 @@ void NewDomainWizard::passwordGenerated(void)
 void NewDomainWizard::generatePassword(void)
 {
   Q_D(NewDomainWizard);
-  if (!ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
-    DomainSettings ds;
-    ds.domainName = ui->domainLineEdit->text();
-    ds.url = ui->urlLineEdit->text();
-    ds.userName = ui->userLineEdit->text();
-    ds.notes = ui->notesPlainTextEdit->toPlainText();
-    ds.salt_base64 = ui->saltBase64LineEdit->text();
-    ds.legacyPassword = ui->legacyPasswordLineEdit->text();
-    ds.iterations = ui->iterationsSpinBox->value();
-    ds.length = ui->passwordLengthSpinBox->value();
-    ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-    d->password.generateAsync(*d->KGK, ds);
-  }
+  DomainSettings ds;
+  ds.domainName = ui->domainLineEdit->text();
+  ds.url = ui->urlLineEdit->text();
+  ds.userName = ui->userLineEdit->text();
+  ds.notes = ui->notesPlainTextEdit->toPlainText();
+  ds.salt_base64 = ui->saltBase64LineEdit->text();
+  ds.legacyPassword = ui->legacyPasswordLineEdit->text();
+  ds.iterations = ui->iterationsSpinBox->value();
+  ds.length = ui->passwordLengthSpinBox->value();
+  ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
+  ui->acceptPushButton->setText(CancelText);
+  ui->acceptPushButton->setIcon(d->loaderIcon.currentPixmap());
+  d->loaderIcon.start();
+  d->password.generateAsync(*d->KGK, ds);
+}
+
+
+void NewDomainWizard::updateAcceptButtonIcon(int)
+{
+  Q_D(NewDomainWizard);
+  ui->acceptPushButton->setIcon(QIcon(d->loaderIcon.currentPixmap()));
 }

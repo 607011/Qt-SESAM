@@ -80,17 +80,24 @@ private slots:
   void renewSalt(void);
   bool checkValidity(void);
   void passwordGenerated(void);
+  void passwordGenerationAborted(void);
   void generatePassword(void);
-
-private: // methods
-  bool passwordContainsAnyOf(const QString &forcedCharacters) const;
-  bool passwordMeetsRules(void) const;
+  void updateAcceptButtonIcon(int);
+  void acceptOrCancel(void);
 
 private:
   Ui::NewDomainWizard *ui;
 
   QScopedPointer<NewDomainWizardPrivate> d_ptr;
   Q_DECLARE_PRIVATE(NewDomainWizard)
-  Q_DISABLE_COPY(NewDomainWizard)};
+  Q_DISABLE_COPY(NewDomainWizard)
+
+private: // methods
+  bool containsAnyOf(const QString &haystack, const QString &forcedCharacters) const;
+  bool passwordContainsAnyOf(const QString &forcedCharacters) const;
+  bool passwordMeetsRules(void) const;
+  void checkUsedCharactersMeetRules(void);
+  void resetAcceptButton(void);
+};
 
 #endif // __NEWDOMAINWIZARD_H_
