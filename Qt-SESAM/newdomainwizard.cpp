@@ -17,6 +17,7 @@
 
 */
 
+#include <QDebug>
 #include <QByteArray>
 
 #include "newdomainwizard.h"
@@ -26,13 +27,28 @@
 #include "domainsettings.h"
 #include "global.h"
 
+
+class NewDomainWizardPrivate {
+public:
+  NewDomainWizardPrivate(void)
+    : saltSize(12)
+    , KGK(nullptr)
+  { /* ... */ }
+  int saltSize;
+  Password password;
+  const SecureByteArray *KGK;
+};
+
+
 NewDomainWizard::NewDomainWizard(QWidget *parent)
   : QDialog(parent, Qt::Dialog)
   , ui(new Ui::NewDomainWizard)
+  , d_ptr(new NewDomainWizardPrivate)
 {
+  Q_D(NewDomainWizard);
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
-  QObject::connect(ui->acceptPushButton, SIGNAL(pressed()), SLOT(accept()));
+  QObject::connect(ui->acceptPushButton, SIGNAL(pressed()), SLOT(generatePassword()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->lowercasePushButton, SIGNAL(pressed()), SLOT(addLowercaseToUsedCharacters()));
   QObject::connect(ui->uppercasePushButton, SIGNAL(pressed()), SLOT(addUppercaseToUsedCharacters()));
@@ -41,6 +57,11 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
   QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(checkValidity()));
   QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(checkValidity()));
+  QObject::connect(&d->password, SIGNAL(generated()), SLOT(passwordGenerated()));
+  ui->forceLowerCaseCheckBox->setToolTip(tr("Force the use of any lower case character"));
+  ui->forceUpperCaseCheckBox->setToolTip(tr("Force the use of any upper case character"));
+  ui->forceDigitsCheckBox->setToolTip(tr("Force the use of any digit"));
+  ui->forceExtraCheckBox->setToolTip(tr("Force the use of any of %1").arg(Password::ExtraChars));
   clear();
 }
 
@@ -91,14 +112,16 @@ void NewDomainWizard::clear(void)
 
 void NewDomainWizard::renewSalt(void)
 {
-  ui->saltBase64LineEdit->setText(Crypter::generateSalt().toBase64());
+  Q_D(NewDomainWizard);
+  ui->saltBase64LineEdit->setText(Crypter::randomBytes(d->saltSize).toBase64());
 }
 
 
-void NewDomainWizard::checkValidity(void)
+bool NewDomainWizard::checkValidity(void)
 {
   bool enabled = !ui->domainLineEdit->text().isEmpty() && !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
   ui->acceptPushButton->setEnabled(enabled);
+  return enabled;
 }
 
 
@@ -211,6 +234,21 @@ void NewDomainWizard::setDomain(const QString &domainName)
 }
 
 
+void NewDomainWizard::setKGK(const SecureByteArray *kgk)
+{
+  Q_D(NewDomainWizard);
+  d->KGK = kgk;
+}
+
+
+void NewDomainWizard::setSaltSize(int saltLength)
+{
+  Q_D(NewDomainWizard);
+  d->saltSize = saltLength;
+  renewSalt();
+}
+
+
 void NewDomainWizard::addLowercaseToUsedCharacters(void)
 {
   ui->usedCharactersPlainTextEdit->setPlainText(ui->usedCharactersPlainTextEdit->toPlainText() + Password::LowerChars);
@@ -241,4 +279,60 @@ void NewDomainWizard::onUsedCharactersChanged(void)
   ui->uppercasePushButton->setEnabled(true);
   ui->digitsPushButton->setEnabled(true);
   ui->extraPushButton->setEnabled(true);
+}
+
+
+bool NewDomainWizard::passwordContainsAnyOf(const QString &forcedCharacters) const
+{
+  foreach (QChar c, forcedCharacters) {
+    if (d_ptr->password().contains(c))
+      return true;
+  }
+  return false;
+}
+
+
+bool NewDomainWizard::passwordMeetsRules(void) const
+{
+  if (ui->forceLowerCaseCheckBox && !passwordContainsAnyOf(Password::LowerChars))
+    return false;
+  if (ui->forceUpperCaseCheckBox && !passwordContainsAnyOf(Password::UpperChars))
+    return false;
+  if (ui->forceDigitsCheckBox && !passwordContainsAnyOf(Password::Digits))
+    return false;
+  if (ui->forceExtraCheckBox && !passwordContainsAnyOf(Password::ExtraChars))
+    return false;
+  return true;
+}
+
+
+void NewDomainWizard::passwordGenerated(void)
+{
+  Q_D(NewDomainWizard);
+  if (!passwordMeetsRules()) {
+    renewSalt();
+    generatePassword();
+  }
+  else {
+    accept();
+  }
+}
+
+
+void NewDomainWizard::generatePassword(void)
+{
+  Q_D(NewDomainWizard);
+  if (!ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
+    DomainSettings ds;
+    ds.domainName = ui->domainLineEdit->text();
+    ds.url = ui->urlLineEdit->text();
+    ds.userName = ui->userLineEdit->text();
+    ds.notes = ui->notesPlainTextEdit->toPlainText();
+    ds.salt_base64 = ui->saltBase64LineEdit->text();
+    ds.legacyPassword = ui->legacyPasswordLineEdit->text();
+    ds.iterations = ui->iterationsSpinBox->value();
+    ds.length = ui->passwordLengthSpinBox->value();
+    ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
+    d->password.generateAsync(*d->KGK, ds);
+  }
 }

@@ -678,7 +678,7 @@
     </message>
     <message>
         <source>Password does not follow the rules. Increasing iteration count.</source>
-        <translation>Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
+        <translation type="vanished">Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
     </message>
     <message>
         <source>Cannot hack</source>
@@ -840,6 +840,22 @@
     <message>
         <source>URL</source>
         <translation>URL</translation>
+    </message>
+    <message>
+        <source>Force the use of any of %1</source>
+        <translation>Die Benutzung von einem der Zeichen %1 erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any lower case character</source>
+        <translation>Die Verwendung von Kleinbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any upper case character</source>
+        <translation>Die Verwendung von Großbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any digit</source>
+        <translation>Die Verwendung von Ziffern erzwingen</translation>
     </message>
 </context>
 <context>

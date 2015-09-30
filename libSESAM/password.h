@@ -45,7 +45,8 @@ public:
   static const QString ExtraChars;
   static const QString AllChars;
 
-  const SecureString &key(void) const;
+  SecureString operator()(void) const;
+  const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
   void waitForFinished(void);
   QString errorString(void) const;
@@ -58,6 +59,7 @@ public:
   bool isAborted(void) const;
   qreal elapsedSeconds(void) const;
   void abortGeneration(void);
+
 
 signals:
   void generated(void);

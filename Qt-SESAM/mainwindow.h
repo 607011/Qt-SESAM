@@ -151,9 +151,6 @@ private: // methods
   void restartInvalidationTimer(void);
   void unblockUpdatePassword(void);
   void blockUpdatePassword(void);
-  bool keyContainsAnyOf(const QString &forcedCharacters);
-  bool generatedPasswordIsValid(void);
-  void analyzeGeneratedPassword(void);
   void generateSaltKeyIVThread(void);
   DomainSettings collectedDomainSettings(void) const;
   QByteArray cryptedRemoteDomains(void);

@@ -323,10 +323,10 @@
             <enum>QAbstractSpinBox::PlusMinus</enum>
            </property>
            <property name="maximum">
-            <number>99999</number>
+            <number>255</number>
            </property>
            <property name="singleStep">
-            <number>3</number>
+            <number>1</number>
            </property>
            <property name="value">
             <number>16</number>

@@ -24,10 +24,16 @@
 #include <QString>
 #include <QShowEvent>
 #include <QCloseEvent>
+#include <QScopedPointer>
+
+#include "securebytearray.h"
 
 namespace Ui {
 class NewDomainWizard;
 }
+
+
+class NewDomainWizardPrivate;
 
 class NewDomainWizard : public QDialog
 {
@@ -56,6 +62,10 @@ public:
   void setForceDigits(bool);
   void setForceExtra(bool);
   void setDomain(const QString &domainName);
+  void setKGK(const SecureByteArray *);
+
+public slots:
+  void setSaltSize(int);
 
 protected:
   void showEvent(QShowEvent*);
@@ -68,10 +78,19 @@ private slots:
   void addExtraCharactersToUsedCharacters(void);
   void onUsedCharactersChanged(void);
   void renewSalt(void);
-  void checkValidity(void);
+  bool checkValidity(void);
+  void passwordGenerated(void);
+  void generatePassword(void);
+
+private: // methods
+  bool passwordContainsAnyOf(const QString &forcedCharacters) const;
+  bool passwordMeetsRules(void) const;
 
 private:
   Ui::NewDomainWizard *ui;
-};
+
+  QScopedPointer<NewDomainWizardPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(NewDomainWizard)
+  Q_DISABLE_COPY(NewDomainWizard)};
 
 #endif // __NEWDOMAINWIZARD_H_

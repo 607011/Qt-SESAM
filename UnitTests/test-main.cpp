@@ -111,7 +111,7 @@ private slots:
     Password pwd(ds);
     pwd.generate("test");
     QVERIFY(pwd.hexKey() == "f4d54b303b21ee3d8bff9c1eae6f66d90db58c0a5cc770eee322cc59d4dec65793bf8f5dec717fd1404bbfacf59befa68c4ad9168bfeaa6a9e28b326a76a82bb");
-    QVERIFY(pwd.key() == "YBVUH=sN/3");
+    QVERIFY(pwd() == "YBVUH=sN/3");
   }
 
   void pwdgen_simple_password_2(void)
@@ -125,10 +125,10 @@ private slots:
     Password pwd(ds);
     pwd.generate("foobar");
     QVERIFY(pwd.hexKey() == "cb0ae7b2b7fc969770a9bfc1eef3a9afd02d2b28d6d8e9cb324f41a31392a0f800ea7e2e43e847537ceb863a16a869d5e4dd6822cf3be0206440eff97dc2001c");
-    QVERIFY(pwd.key() == "wLUwoQvKzBaYXbme");
+    QVERIFY(pwd.password() == "wLUwoQvKzBaYXbme");
   }
 
-  void pwdgen_pin(void)
+  void pwdgen_pin4(void)
   {
     DomainSettings ds;
     ds.domainName = "Bank";
@@ -139,7 +139,7 @@ private slots:
     Password pwd(ds);
     pwd.generate("reallysafe");
     QVERIFY(pwd.hexKey() == "55b5f5cdd9bf2845e339650b4f6e1398cf7fe9ceed087eb5f5bc059882723579fc8ec27443417cf33c9763bafac6277fbe991bf27dd0206e78f7d9dfd574167f");
-    QVERIFY(pwd.key() == "7809");
+    QVERIFY(pwd.password() == "7809");
   }
 
   void pwdgen_binary_salt_and_password(void)
@@ -155,7 +155,7 @@ private slots:
     Password pwd(ds);
     pwd.generate(SecureByteArray(reinterpret_cast<char*>(password), 256));
     QVERIFY(pwd.hexKey() == "e217c512b32d61f94bccad89b9c79012d073f4c0960854803a6115aa928f5b823d3bcd167872d4df102450f4dc26d82c6fa6666f749f82b2ec12593edb6ba2b0");
-    QVERIFY(pwd.key() == "XQCjlTFKFWBAsmgYgzTwJdbFPjCyykCl");
+    QVERIFY(pwd.password() == "XQCjlTFKFWBAsmgYgzTwJdbFPjCyykCl");
   }
 
   void crypter_encrypt_decrypt_no_padding(void)
