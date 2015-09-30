@@ -78,7 +78,7 @@ private slots:
   void addExtraCharactersToUsedCharacters(void);
   void onUsedCharactersChanged(void);
   void renewSalt(void);
-  bool checkValidity(void);
+  void checkValidity(void);
   void passwordGenerated(void);
   void passwordGenerationAborted(void);
   void generatePassword(void);

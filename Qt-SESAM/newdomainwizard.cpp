@@ -146,7 +146,7 @@ bool NewDomainWizard::checkPasswordLengthMeetsRules(void) const {
 }
 
 
-bool NewDomainWizard::checkValidity(void)
+void NewDomainWizard::checkValidity(void)
 {
   enforceUsedCharactersMeetRules();
   bool enabled =
@@ -154,7 +154,6 @@ bool NewDomainWizard::checkValidity(void)
       !ui->domainLineEdit->text().isEmpty() &&
       !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
   ui->acceptPushButton->setEnabled(enabled);
-  return enabled;
 }
 
 
