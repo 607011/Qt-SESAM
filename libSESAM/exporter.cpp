@@ -74,8 +74,9 @@ bool Exporter::write(const SecureByteArray &data, const SecureString &pwd)
   Q_D(Exporter);
   Q_ASSERT((data.size() % Crypter::AESBlockSize) == 0);
   QByteArray salt = Crypter::generateSalt();
-  QByteArray iv = Crypter::randomBytes(Crypter::AESBlockSize);
-  SecureByteArray key = Crypter::makeKeyFromPassword(pwd.toUtf8(), salt);
+  SecureByteArray iv;
+  SecureByteArray key;
+  Crypter::makeKeyAndIVFromPassword(pwd.toUtf8(), salt, key, iv);
   CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
   enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(iv.constData()));
   const int cipherSize = data.size();
@@ -94,7 +95,7 @@ bool Exporter::write(const SecureByteArray &data, const SecureString &pwd)
   bool opened = file.open(QIODevice::WriteOnly);
   if (!opened)
     return false;
-  QByteArray block = salt + iv + cipher;
+  QByteArray block = salt + cipher;
   file.write(PemPreamble.toUtf8());
   file.write("\n");
   const SecureByteArray &b64 = block.toBase64();
@@ -149,11 +150,12 @@ SecureByteArray Exporter::read(const SecureString &pwd)
     }
   }
   file.close();
+  SecureByteArray iv;
+  SecureByteArray key;
   QByteArray imported = QByteArray::fromBase64(b64);
   QByteArray salt = imported.mid(0, Crypter::SaltSize);
-  QByteArray iv = imported.mid(Crypter::SaltSize, Crypter::AESBlockSize);
-  QByteArray cipher = imported.mid(Crypter::SaltSize + Crypter::AESBlockSize);
-  SecureByteArray key = Crypter::makeKeyFromPassword(pwd.toUtf8(), salt);
+  QByteArray cipher = imported.mid(Crypter::SaltSize);
+  Crypter::makeKeyAndIVFromPassword(pwd.toUtf8(), salt, key, iv);
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
   dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(iv.constData()));
   SecureByteArray plain(cipher.size(), static_cast<char>(0));
