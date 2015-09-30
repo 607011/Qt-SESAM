@@ -51,10 +51,6 @@ DomainSettings::DomainSettings(void)
   , iterations(DefaultIterations)
   , length(DefaultPasswordLength)
   , deleted(false)
-  , forceLowerCase(false)
-  , forceUpperCase(false)
-  , forceDigits(false)
-  , forceExtra(false)
 { /* ... */ }
 
 
@@ -72,10 +68,6 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , modifiedDate(o.modifiedDate)
   , deleted(o.deleted)
   , extras(o.extras)
-  , forceLowerCase(o.forceLowerCase)
-  , forceUpperCase(o.forceUpperCase)
-  , forceDigits(o.forceDigits)
-  , forceExtra(o.forceExtra)
 { /* ... */ }
 
 
@@ -121,7 +113,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.usedCharacters = map[USED_CHARACTERS].toString();
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
-  ds.deleted = map[DELETED].toBool(); // XXX
+  ds.deleted = map[DELETED].toBool();
   ds.extras = map[URL].toString();
   return ds;
 }
