@@ -411,7 +411,6 @@ void NewDomainWizard::passwordGenerated(void)
 
 void NewDomainWizard::passwordGenerationAborted(void)
 {
-  qDebug() << "NewDomainWizard::passwordGenerationAborted()";
   resetAcceptButton();
 }
 
@@ -419,12 +418,10 @@ void NewDomainWizard::passwordGenerationAborted(void)
 void NewDomainWizard::acceptOrCancel(void)
 {
   Q_D(NewDomainWizard);
-  qDebug() << "NewDomainWizard::acceptOrCancel() -> " << ui->acceptPushButton->text();
   if (ui->acceptPushButton->text() == AcceptText) {
     generatePassword();
   }
   else {
-    qDebug() << ui->acceptPushButton->text();
     d->password.abortGeneration();
     d->password.waitForFinished();
     resetAcceptButton();
