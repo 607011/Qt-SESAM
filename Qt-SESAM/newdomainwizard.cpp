@@ -89,6 +89,7 @@ void NewDomainWizard::showEvent(QShowEvent *)
 {
   checkValidity();
   resetAcceptButton();
+  clear();
   if (ui->domainLineEdit->text().isEmpty())
     ui->domainLineEdit->setFocus();
 }
@@ -103,7 +104,6 @@ void NewDomainWizard::closeEvent(QCloseEvent *e)
 
 void NewDomainWizard::clear(void)
 {
-  ui->domainLineEdit->clear();
   ui->urlLineEdit->clear();
   ui->userLineEdit->clear();
   ui->legacyPasswordLineEdit->clear();
@@ -456,7 +456,7 @@ void NewDomainWizard::generatePassword(void)
   ds.iterations = ui->iterationsSpinBox->value();
   ds.length = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ui->acceptPushButton->setText(tr("Cancel"));
+  ui->acceptPushButton->setText(tr("Interrupt"));
   ui->acceptPushButton->setIcon(d->loaderIcon.currentPixmap());
   d->loaderIcon.start();
   d->password.generateAsync(*d->KGK, ds);
