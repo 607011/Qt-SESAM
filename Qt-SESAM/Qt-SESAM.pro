@@ -82,7 +82,7 @@ FORMS += mainwindow.ui \
 RESOURCES += \
     QtSESAM.qrc
 
-win32: RESOURCES += QtSESAM_translations.qrc
+RESOURCES += QtSESAM_translations.qrc
 
 DISTFILES += \
     ../LICENSE \
@@ -97,6 +97,11 @@ OTHER_FILES += \
     ../deploy/Qt-SESAM.nsi \
     ../.gitignore \
     Doxyfile \
+
+
+macx {
+    ICON = resources/images/QtSESAM.icns
+}
 
 unix {
     target.path = /usr/bin
