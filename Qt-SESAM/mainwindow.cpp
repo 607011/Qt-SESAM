@@ -193,6 +193,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
     close();
     ::exit(1);
   }
+  SingleInstanceDetector::instance().attach();
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
