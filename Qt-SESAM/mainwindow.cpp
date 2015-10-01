@@ -51,6 +51,8 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QCompleter>
+#include <QUndoStack>
+#include <QUndoCommand>
 
 #include "singleinstancedetector.h"
 #include "global.h"
