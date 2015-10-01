@@ -40,8 +40,8 @@ win32-msvc* {
     CONFIG += windows
     CONFIG -= console
     RC_FILE = QtSESAM.rc
-    SOURCES += dump.cpp keyboardhook.cpp
-    HEADERS += dump.h keyboardhook.h
+    SOURCES += dump.cpp clipboardmonitor.cpp
+    HEADERS += dump.h clipboardmonitor.h
     LIBS += User32.lib
     QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:WINDOWS
 }

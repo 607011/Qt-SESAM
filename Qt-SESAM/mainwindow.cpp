@@ -70,7 +70,7 @@
 #include "dump.h"
 
 #ifdef WIN32
-#include "keyboardhook.h"
+#include "clipboardmonitor.h"
 static const int SmartLoginNotActive = -1;
 #endif
 
@@ -262,7 +262,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
 #ifdef WIN32
-  QObject::connect(KeyboardHook::instance(), SIGNAL(pasted()), SLOT(onPasted()));
+  QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
 #endif
 
   ui->processLabel->setMovie(&d->loaderIcon);
