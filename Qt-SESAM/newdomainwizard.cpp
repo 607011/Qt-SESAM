@@ -74,6 +74,8 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   ui->forceUpperCaseCheckBox->setToolTip(tr("Force the use of any upper case character"));
   ui->forceDigitsCheckBox->setToolTip(tr("Force the use of any digit"));
   ui->forceExtraCheckBox->setToolTip(tr("Force the use of any of %1").arg(Password::ExtraChars));
+  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   resetAcceptButton();
   clear();
 }
@@ -107,20 +109,18 @@ void NewDomainWizard::clear(void)
   ui->urlLineEdit->clear();
   ui->userLineEdit->clear();
   ui->legacyPasswordLineEdit->clear();
-  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
-  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->clear();
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->forceLowerCaseCheckBox->setChecked(false);
   ui->forceUpperCaseCheckBox->setChecked(false);
   ui->forceDigitsCheckBox->setChecked(false);
   ui->forceExtraCheckBox->setChecked(false);
-  renewSalt();
   ui->lowercasePushButton->setEnabled(false);
   ui->uppercasePushButton->setEnabled(false);
   ui->digitsPushButton->setEnabled(false);
   ui->extraPushButton->setEnabled(false);
   ui->domainLineEdit->setFocus();
+  renewSalt();
 }
 
 
@@ -263,6 +263,18 @@ void NewDomainWizard::setDomain(const QString &domainName)
 {
   ui->domainLineEdit->setText(domainName);
   ui->urlLineEdit->setFocus();
+}
+
+
+void NewDomainWizard::setIterations(int iterations)
+{
+  ui->iterationsSpinBox->setValue(iterations);
+}
+
+
+void NewDomainWizard::setPasswordLength(int length)
+{
+  ui->passwordLengthSpinBox->setValue(length);
 }
 
 

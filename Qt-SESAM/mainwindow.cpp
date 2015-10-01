@@ -452,8 +452,11 @@ void MainWindow::resetAllFields(void)
 void MainWindow::newDomain(const QString &domainName)
 {
   Q_D(MainWindow);
-  d->newDomainWizard->clear();
   d->newDomainWizard->setDomain(domainName);
+  if (ui->domainsComboBox->currentText().isEmpty()) {
+    d->newDomainWizard->setIterations(ui->iterationsSpinBox->value());
+    d->newDomainWizard->setPasswordLength(ui->passwordLengthSpinBox->value());
+  }
   if (d->newDomainWizard->exec() == QDialog::Accepted) {
     QString domainFromWizard = d->newDomainWizard->domain();
     if (domainComboboxContains(domainFromWizard)) {

@@ -62,6 +62,8 @@ public:
   void setForceDigits(bool);
   void setForceExtra(bool);
   void setDomain(const QString &domainName);
+  void setIterations(int);
+  void setPasswordLength(int);
   void setKGK(const SecureByteArray *);
 
 public slots:
