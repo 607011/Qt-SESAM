@@ -68,6 +68,7 @@
 #include "crypter.h"
 #include "securebytearray.h"
 #include "passwordchecker.h"
+#include "commands.h"
 
 #include "dump.h"
 
@@ -117,6 +118,7 @@ public:
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
+    , undoStack(new QUndoStack(parent))
   #ifdef WIN32
     , smartLoginStep(SmartLoginNotActive)
   #endif
@@ -177,6 +179,8 @@ public:
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
+  QUndoStack *undoStack;
+  QAction *undoAction;
 #ifdef WIN32
   int smartLoginStep;
 #endif
@@ -261,6 +265,11 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+
+  d->undoAction = d->undoStack->createUndoAction(this, tr("&Undo"));
+  d->undoAction->setShortcuts(QKeySequence::Undo);
+  ui->menuEdit->addAction(d->undoAction);
+
 
 #ifdef WIN32
   QObject::connect(KeyboardHook::instance(), SIGNAL(pasted()), SLOT(onPasted()));
