@@ -18,28 +18,29 @@
 */
 
 
-#ifndef __KEYBOADHOOK_H_
-#define __KEYBOADHOOK_H_
+#ifndef __CLIPBOARDMONITOR_H_
+#define __CLIPBOARDMONITOR_H_
 
 #include <QObject>
 #include <Windows.h>
 
-class KeyboardHook : public QObject {
+class ClipboardMonitor : public QObject {
   Q_OBJECT
 
 public:
-  static KeyboardHook *instance(void);
+  static ClipboardMonitor *instance(void);
 
 signals:
   void pasted(void);
 
 private:
-  KeyboardHook(void);
-  ~KeyboardHook();
+  ClipboardMonitor(void);
+  ~ClipboardMonitor();
   bool hook(void);
+  bool hookIntoClipboard(HWND);
   HHOOK keyboardHook;
   static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
-  static KeyboardHook *singleInstance;
+  static ClipboardMonitor *singleInstance;
 };
 
-#endif
+#endif // __CLIPBOARDMONITOR_H_

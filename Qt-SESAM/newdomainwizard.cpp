@@ -74,6 +74,8 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   ui->forceUpperCaseCheckBox->setToolTip(tr("Force the use of any upper case character"));
   ui->forceDigitsCheckBox->setToolTip(tr("Force the use of any digit"));
   ui->forceExtraCheckBox->setToolTip(tr("Force the use of any of %1").arg(Password::ExtraChars));
+  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   resetAcceptButton();
   clear();
 }
@@ -89,6 +91,7 @@ void NewDomainWizard::showEvent(QShowEvent *)
 {
   checkValidity();
   resetAcceptButton();
+  clear();
   if (ui->domainLineEdit->text().isEmpty())
     ui->domainLineEdit->setFocus();
 }
@@ -103,24 +106,21 @@ void NewDomainWizard::closeEvent(QCloseEvent *e)
 
 void NewDomainWizard::clear(void)
 {
-  ui->domainLineEdit->clear();
   ui->urlLineEdit->clear();
   ui->userLineEdit->clear();
   ui->legacyPasswordLineEdit->clear();
-  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
-  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->clear();
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->forceLowerCaseCheckBox->setChecked(false);
   ui->forceUpperCaseCheckBox->setChecked(false);
   ui->forceDigitsCheckBox->setChecked(false);
   ui->forceExtraCheckBox->setChecked(false);
-  renewSalt();
   ui->lowercasePushButton->setEnabled(false);
   ui->uppercasePushButton->setEnabled(false);
   ui->digitsPushButton->setEnabled(false);
   ui->extraPushButton->setEnabled(false);
   ui->domainLineEdit->setFocus();
+  renewSalt();
 }
 
 
@@ -263,6 +263,18 @@ void NewDomainWizard::setDomain(const QString &domainName)
 {
   ui->domainLineEdit->setText(domainName);
   ui->urlLineEdit->setFocus();
+}
+
+
+void NewDomainWizard::setIterations(int iterations)
+{
+  ui->iterationsSpinBox->setValue(iterations);
+}
+
+
+void NewDomainWizard::setPasswordLength(int length)
+{
+  ui->passwordLengthSpinBox->setValue(length);
 }
 
 
@@ -456,7 +468,7 @@ void NewDomainWizard::generatePassword(void)
   ds.iterations = ui->iterationsSpinBox->value();
   ds.length = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ui->acceptPushButton->setText(tr("Cancel"));
+  ui->acceptPushButton->setText(tr("Interrupt"));
   ui->acceptPushButton->setIcon(d->loaderIcon.currentPixmap());
   d->loaderIcon.start();
   d->password.generateAsync(*d->KGK, ds);

@@ -38,7 +38,7 @@ public:
   }
 
 
-  bool alreadyRunning(void)
+  bool attach(void)
   {
     if (sharedMem == nullptr)
       sharedMem = new QSharedMemory(AppName);
@@ -48,7 +48,13 @@ public:
   }
 
 
-  void release(void)
+  bool alreadyRunning(void)
+  {
+    return attach();
+  }
+
+
+  void detach(void)
   {
     if (sharedMem != nullptr)
       sharedMem->detach();
@@ -62,7 +68,7 @@ private:
   { /* ... */ }
   ~SingleInstanceDetector()
   {
-    release();
+    detach();
   }
   QSharedMemory *sharedMem;
 };

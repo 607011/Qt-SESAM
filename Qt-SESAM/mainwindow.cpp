@@ -73,7 +73,7 @@
 #include "dump.h"
 
 #ifdef WIN32
-#include "keyboardhook.h"
+#include "clipboardmonitor.h"
 static const int SmartLoginNotActive = -1;
 #endif
 
@@ -199,6 +199,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
     close();
     ::exit(1);
   }
+  SingleInstanceDetector::instance().attach();
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
@@ -272,7 +273,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
 
 #ifdef WIN32
-  QObject::connect(KeyboardHook::instance(), SIGNAL(pasted()), SLOT(onPasted()));
+  QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
 #endif
 
   ui->processLabel->setMovie(&d->loaderIcon);
@@ -462,8 +463,11 @@ void MainWindow::resetAllFields(void)
 void MainWindow::newDomain(const QString &domainName)
 {
   Q_D(MainWindow);
-  d->newDomainWizard->clear();
   d->newDomainWizard->setDomain(domainName);
+  if (ui->domainsComboBox->currentText().isEmpty()) {
+    d->newDomainWizard->setIterations(ui->iterationsSpinBox->value());
+    d->newDomainWizard->setPasswordLength(ui->passwordLengthSpinBox->value());
+  }
   if (d->newDomainWizard->exec() == QDialog::Accepted) {
     QString domainFromWizard = d->newDomainWizard->domain();
     if (domainComboboxContains(domainFromWizard)) {
