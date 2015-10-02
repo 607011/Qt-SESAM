@@ -62,6 +62,8 @@ public:
   void setForceDigits(bool);
   void setForceExtra(bool);
   void setDomain(const QString &domainName);
+  void setIterations(int);
+  void setPasswordLength(int);
   void setKGK(const SecureByteArray *);
 
 public slots:
@@ -78,7 +80,7 @@ private slots:
   void addExtraCharactersToUsedCharacters(void);
   void onUsedCharactersChanged(void);
   void renewSalt(void);
-  bool checkValidity(void);
+  void checkValidity(void);
   void passwordGenerated(void);
   void passwordGenerationAborted(void);
   void generatePassword(void);
@@ -87,7 +89,6 @@ private slots:
 
 private:
   Ui::NewDomainWizard *ui;
-
   QScopedPointer<NewDomainWizardPrivate> d_ptr;
   Q_DECLARE_PRIVATE(NewDomainWizard)
   Q_DISABLE_COPY(NewDomainWizard)

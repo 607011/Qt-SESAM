@@ -705,16 +705,8 @@
         <translation>KGK exportieren nach ...</translation>
     </message>
     <message>
-        <source>Not implemented yet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not implemented yet.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import KGK from ...</source>
-        <translation>KGK importieren von ...</translation>
     </message>
 </context>
 <context>
@@ -1223,11 +1215,11 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation>Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
 </context>
 <context>

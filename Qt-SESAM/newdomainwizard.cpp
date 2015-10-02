@@ -45,10 +45,6 @@ public:
 };
 
 
-static const QString CancelText = QObject::tr("Cancel");
-static const QString AcceptText = QObject::tr("Accept");
-
-
 NewDomainWizard::NewDomainWizard(QWidget *parent)
   : QDialog(parent, Qt::Dialog)
   , ui(new Ui::NewDomainWizard)
@@ -78,6 +74,8 @@ NewDomainWizard::NewDomainWizard(QWidget *parent)
   ui->forceUpperCaseCheckBox->setToolTip(tr("Force the use of any upper case character"));
   ui->forceDigitsCheckBox->setToolTip(tr("Force the use of any digit"));
   ui->forceExtraCheckBox->setToolTip(tr("Force the use of any of %1").arg(Password::ExtraChars));
+  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   resetAcceptButton();
   clear();
 }
@@ -93,6 +91,7 @@ void NewDomainWizard::showEvent(QShowEvent *)
 {
   checkValidity();
   resetAcceptButton();
+  clear();
   if (ui->domainLineEdit->text().isEmpty())
     ui->domainLineEdit->setFocus();
 }
@@ -107,24 +106,21 @@ void NewDomainWizard::closeEvent(QCloseEvent *e)
 
 void NewDomainWizard::clear(void)
 {
-  ui->domainLineEdit->clear();
   ui->urlLineEdit->clear();
   ui->userLineEdit->clear();
   ui->legacyPasswordLineEdit->clear();
-  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
-  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->clear();
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->forceLowerCaseCheckBox->setChecked(false);
   ui->forceUpperCaseCheckBox->setChecked(false);
   ui->forceDigitsCheckBox->setChecked(false);
   ui->forceExtraCheckBox->setChecked(false);
-  renewSalt();
   ui->lowercasePushButton->setEnabled(false);
   ui->uppercasePushButton->setEnabled(false);
   ui->digitsPushButton->setEnabled(false);
   ui->extraPushButton->setEnabled(false);
   ui->domainLineEdit->setFocus();
+  renewSalt();
 }
 
 
@@ -150,7 +146,7 @@ bool NewDomainWizard::checkPasswordLengthMeetsRules(void) const {
 }
 
 
-bool NewDomainWizard::checkValidity(void)
+void NewDomainWizard::checkValidity(void)
 {
   enforceUsedCharactersMeetRules();
   bool enabled =
@@ -158,7 +154,6 @@ bool NewDomainWizard::checkValidity(void)
       !ui->domainLineEdit->text().isEmpty() &&
       !ui->usedCharactersPlainTextEdit->toPlainText().isEmpty();
   ui->acceptPushButton->setEnabled(enabled);
-  return enabled;
 }
 
 
@@ -268,6 +263,18 @@ void NewDomainWizard::setDomain(const QString &domainName)
 {
   ui->domainLineEdit->setText(domainName);
   ui->urlLineEdit->setFocus();
+}
+
+
+void NewDomainWizard::setIterations(int iterations)
+{
+  ui->iterationsSpinBox->setValue(iterations);
+}
+
+
+void NewDomainWizard::setPasswordLength(int length)
+{
+  ui->passwordLengthSpinBox->setValue(length);
 }
 
 
@@ -408,7 +415,7 @@ void NewDomainWizard::resetAcceptButton(void)
 {
   Q_D(NewDomainWizard);
   ui->acceptPushButton->setIcon(QIcon());
-  ui->acceptPushButton->setText(AcceptText);
+  ui->acceptPushButton->setText(tr("Accept"));
   d->loaderIcon.stop();
 }
 
@@ -439,7 +446,7 @@ void NewDomainWizard::passwordGenerationAborted(void)
 void NewDomainWizard::acceptOrCancel(void)
 {
   Q_D(NewDomainWizard);
-  if (ui->acceptPushButton->text() == AcceptText) {
+  if (ui->acceptPushButton->text() == tr("Accept")) {
     generatePassword();
   }
   else {
@@ -461,7 +468,7 @@ void NewDomainWizard::generatePassword(void)
   ds.iterations = ui->iterationsSpinBox->value();
   ds.length = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ui->acceptPushButton->setText(CancelText);
+  ui->acceptPushButton->setText(tr("Interrupt"));
   ui->acceptPushButton->setIcon(d->loaderIcon.currentPixmap());
   d->loaderIcon.start();
   d->password.generateAsync(*d->KGK, ds);

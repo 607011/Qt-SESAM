@@ -40,8 +40,8 @@ win32-msvc* {
     CONFIG += windows
     CONFIG -= console
     RC_FILE = QtSESAM.rc
-    SOURCES += dump.cpp keyboardhook.cpp
-    HEADERS += dump.h keyboardhook.h
+    SOURCES += dump.cpp clipboardmonitor.cpp
+    HEADERS += dump.h clipboardmonitor.h
     LIBS += User32.lib
     QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:WINDOWS
 }
@@ -82,7 +82,7 @@ FORMS += mainwindow.ui \
 RESOURCES += \
     QtSESAM.qrc
 
-win32: RESOURCES += QtSESAM_translations.qrc
+RESOURCES += QtSESAM_translations.qrc
 
 DISTFILES += \
     ../LICENSE \
@@ -97,6 +97,11 @@ OTHER_FILES += \
     ../deploy/Qt-SESAM.nsi \
     ../.gitignore \
     Doxyfile \
+
+
+macx {
+    ICON = resources/images/QtSESAM.icns
+}
 
 unix {
     target.path = /usr/bin
