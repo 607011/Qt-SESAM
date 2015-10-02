@@ -48,6 +48,7 @@ void SecureErase(QString str)
  * \param s String to be shuffled
  * \return shuffled string
  */
+
 QString shuffle(const QString& s)
 {
   QString result = s;
@@ -55,8 +56,31 @@ QString shuffle(const QString& s)
   QChar *c = result.data();
   while (n) {
     int j = qrand() % n--;
-    QChar tmp = result.at(n);
-    *(c + n) = result.at(j);
+    QChar tmp = *(c + n);
+    *(c + n) = *(c + j);
+    *(c + j) = tmp;
+  }
+  return result;
+}
+
+
+/*!
+ * \brief shuffle
+ *
+ * Fisher-Yates shuffling of a byte array.
+ *
+ * \param s byte array to be shuffled
+ * \return shuffled byte array
+ */
+QByteArray shuffle(const QByteArray& ba)
+{
+  QByteArray result = ba;
+  int n = result.count();
+  char *c = result.data();
+  while (n) {
+    int j = qrand() % n--;
+    char tmp = *(c + n);
+    *(c + n) = *(c + j);
     *(c + j) = tmp;
   }
   return result;
