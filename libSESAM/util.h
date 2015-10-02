@@ -60,12 +60,11 @@ void SecureErase(T &obj)
 }
 
 
+extern QString shuffle(const QString&);
 extern QString fingerprintify(const QByteArray &ba);
 
 #if defined(Q_CC_GNU)
 extern void SecureErase(QString str);
 #endif
-
-
 
 #endif // __UTIL_H_

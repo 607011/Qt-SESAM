@@ -38,3 +38,26 @@ void SecureErase(QString str)
   str.clear();
 }
 #endif
+
+
+/*!
+ * \brief shuffle
+ *
+ * Fisher-Yates shuffling of a string.
+ *
+ * \param s String to be shuffled
+ * \return shuffled string
+ */
+QString shuffle(const QString& s)
+{
+  QString result = s;
+  int n = result.count();
+  QChar *c = result.data();
+  while (n) {
+    int j = qrand() % n--;
+    QChar tmp = result.at(n);
+    *(c + n) = result.at(j);
+    *(c + j) = tmp;
+  }
+  return result;
+}
