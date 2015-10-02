@@ -56,7 +56,7 @@ bool ClipboardMonitor::hook(void)
 }
 
 
-bool ClipboardMonitor::hookIntoClipboard(HWND hWnd)
+void ClipboardMonitor::hookIntoClipboard(HWND hWnd)
 {
   SetClipboardViewer(hWnd);
 }
