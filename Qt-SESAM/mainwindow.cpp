@@ -55,6 +55,7 @@
 #include "singleinstancedetector.h"
 #include "global.h"
 #include "util.h"
+#include "presets.h"
 #include "progressdialog.h"
 #include "newdomainwizard.h"
 #include "masterpassworddialog.h"
@@ -194,6 +195,36 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
     ::exit(1);
   }
   SingleInstanceDetector::instance().attach();
+
+#if 1
+  {
+    Password pwd;
+    Preset preset2 = Preset::presetFor(QObject::tr("Low security (6 chars)"));
+    qDebug() << QObject::tr("Low security (6 chars)") << preset2.doShuffle() << preset2.templates().count();
+    for (int i = 0; i < 20; ++i) {
+      Preset::TemplateList tl = preset2.templates();
+      const QByteArray &templ = shuffle(tl.first());
+      pwd.generate("my_secret", templ);
+      qDebug() << " > " << tl.first() << templ << pwd.password();
+    }
+
+    Preset preset1 = Preset::presetFor(QObject::tr("High security (18 chars, easy to type)"));
+    qDebug() << QObject::tr("High security (18 chars, easy to type)") << preset1.doShuffle() << preset1.templates().count();
+    for (int i = 0; i < 20; ++i) {
+      const QByteArray &templ = preset1.randomTemplate();
+      pwd.generate("my_secret", templ);
+      qDebug() << " > " << templ << pwd.password();
+    }
+
+    Preset preset3 = Preset::presetFor(QObject::tr("Basic security (8 chars, easy to type)"));
+    qDebug() << QObject::tr("Basic security (8 chars, easy to type)") << preset3.doShuffle() << preset3.templates().count();
+    for (int i = 0; i < 20; ++i) {
+      const QByteArray &templ = preset3.randomTemplate();
+      pwd.generate("my_secret", templ);
+      qDebug() << " > " << templ << pwd.password();
+    }
+  }
+#endif
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));

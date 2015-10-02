@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QString>
 #include <QScopedPointer>
+#include <QByteArray>
 
 #include "securebytearray.h"
 #include "securestring.h"
@@ -52,6 +53,7 @@ public:
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
 
+  void generate(const SecureByteArray &masterPassword, const QByteArray &templ);
   void generate(const SecureByteArray &masterPassword);
   void generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings = DomainSettings());
 

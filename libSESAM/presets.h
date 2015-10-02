@@ -20,24 +20,51 @@
 #ifndef __PRESETS_H_
 #define __PRESETS_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QMap>
 #include <QList>
-#include <QChar>
 #include <QString>
+
+#include "util.h"
 
 class Preset {
 public:
-  typedef QMap<QChar, QString> TemplateCharacterMap;
-  typedef QList<QByteArray> TemplateType;
+  typedef QMap<char, QString> TemplateCharacterMap;
+  typedef QList<QByteArray> TemplateList;
 
   Preset(void)
-    : shuffle(true)
+    : mShuffle(true)
   { /* ... */ }
-  Preset(const TemplateType &templates, bool shuffle)
-    : templates(templates)
-    , shuffle(shuffle)
+
+  Preset(const Preset &other)
+    : mTemplates(other.mTemplates)
+    , mShuffle(other.mShuffle)
   { /* ... */ }
+
+  Preset(const TemplateList &templates, bool shuffle)
+    : mTemplates(templates)
+    , mShuffle(shuffle)
+  { /* ... */ }
+
+  QByteArray randomTemplate(void) const
+  {
+    const QByteArray &templ = mTemplates.at(qrand() % mTemplates.size());
+    return mShuffle ? shuffle(templ) : templ;
+  }
+
+  const TemplateList &templates(void) const
+  {
+    return mTemplates;
+  }
+
+  bool doShuffle(void) const
+  {
+    return mShuffle;
+  }
+
+  static const QString &charSetFor(char);
+  static const Preset &presetFor(const QString&);
 
   typedef QMap<QString, Preset> PresetType;
 
@@ -45,8 +72,8 @@ public:
   static const PresetType Presets;
 
 private:
-  TemplateType templates;
-  bool shuffle;
+  TemplateList mTemplates;
+  bool mShuffle;
 };
 
 

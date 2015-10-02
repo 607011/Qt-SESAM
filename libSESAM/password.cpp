@@ -23,6 +23,7 @@
 
 #include "securebytearray.h"
 #include "securestring.h"
+#include "presets.h"
 #include "password.h"
 #include "pbkdf2.h"
 #include "util.h"
@@ -68,6 +69,35 @@ Password::~Password()
 void Password::setDomainSettings(const DomainSettings &ds)
 {
   d_ptr->domainSettings = ds;
+}
+
+
+void Password::generate(const SecureByteArray &masterPassword, const QByteArray &templ)
+{
+  Q_D(Password);
+  Q_ASSERT(templ.count() > 0);
+
+  const SecureByteArray &pwd =
+      d->domainSettings.domainName.toUtf8() +
+      d->domainSettings.userName.toUtf8() +
+      masterPassword;
+
+  d->pbkdf2.generate(pwd, QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()), d->domainSettings.iterations, QCryptographicHash::Sha512);
+
+  d->password.clear();
+  BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
+  static const BigInt::Rossi Zero(0);
+  int n = 0;
+  while (v > Zero && n < templ.count()) {
+    const QString &charSet = Preset::charSetFor(templ.at(n));
+    const QString strModulus = QString("%1").arg(charSet.count());
+    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
+    const BigInt::Rossi &mod = v % Modulus;
+    d->password += charSet.at(mod.toUlong());
+    v = v / Modulus;
+    ++n;
+  }
+  emit generated();
 }
 
 

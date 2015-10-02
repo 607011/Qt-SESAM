@@ -20,15 +20,15 @@
 #include "presets.h"
 
 const Preset::TemplateCharacterMap Preset::TemplateCharacters = {
-  std::pair<QChar, QString>('V', "AEIOU"),
-  std::pair<QChar, QString>('v', "aeiuo"),
-  std::pair<QChar, QString>('C', "BCDFGHJKLMNPQRSTVWXYZ"),
-  std::pair<QChar, QString>('c', "bcdfghjklmnpqrstvwxyz"),
-  std::pair<QChar, QString>('A', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-  std::pair<QChar, QString>('a', "abcdefghijklmnopqrstuvwxyz"),
-  std::pair<QChar, QString>('n', "0123456789"),
-  std::pair<QChar, QString>('o', "@&%?,=[]_:-+*$#!'^~;()/."),
-  std::pair<QChar, QString>('x', "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&%?,=[]_:-+*$#!'^~;()/.")
+  std::pair<char, QString>('V', "AEIOUY"),
+  std::pair<char, QString>('v', "aeiuoy"),
+  std::pair<char, QString>('C', "BCDFGHJKLMNPQRSTVWXZ"),
+  std::pair<char, QString>('c', "bcdfghjklmnpqrstvwxz"),
+  std::pair<char, QString>('A', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+  std::pair<char, QString>('a', "abcdefghiJklmnopqrstuvwxyz"),
+  std::pair<char, QString>('n', "0123456789"),
+  std::pair<char, QString>('o', "@&%?,=[]_:-+*$#!'^~;()/."),
+  std::pair<char, QString>('x', "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&%?,=[]_:-+*$#!'^~;()/.")
 };
 
 
@@ -72,6 +72,28 @@ const Preset::PresetType Preset::Presets = {
     "CvccCvcvCvccnocvCv",
     "CVVVCvvvnnnnCvcvvo",
     "ocvvcvvvCvCvCvvvCv",
+    "cvcvnoCvcvcvcvCvcv",
+    "cvcvCvcvnocvcvcvno",
+    "cvcvCvcvCvcvnocvCv",
+    "cvccnoCvcvcvcvCvcv",
+    "cvccCvcvnocvcvcvno",
+    "cvccCvcvCvcvnocvCv",
+    "cvcvnoCvcccvcvCvcc",
+    "cvcvCvccnocvcvccno",
+    "cvcvCvccCvcvnoccCv",
+    "cvcvnoCvcvcvccCvcv",
+    "cvcvCvcvnocvcccvno",
+    "cvcvCvcvCvccnocvCv",
+    "cvccnoCvcccvcvCvcc",
+    "cvccCvccnocvcvccno",
+    "cvccCvccCvcvnoccCv",
+    "cvcvnoCvcccvccCvcc",
+    "cvcvCvccnocvccccno",
+    "cvcvCvccCvccnoccCv",
+    "cvccnoCvcvcvccCvcv",
+    "cvccCvcvnocvcccvno",
+    "cvccCvcvCvccnocvCv",
+    "cVVVCvvvnnnnCvcvvo",
   }, false)),
   std::pair<QString, Preset>(QObject::tr("Medium security (12 chars, easy to type)"), Preset({
     "CvcvnoCvcvcv",
@@ -131,3 +153,14 @@ const Preset::PresetType Preset::Presets = {
   }, false))
 };
 
+
+const QString &Preset::charSetFor(char ch)
+{
+  return TemplateCharacters[ch];
+}
+
+
+const Preset &Preset::presetFor(const QString &id)
+{
+  return Presets[id];
+}

@@ -17,7 +17,7 @@
 
 */
 
-
+#include <QDebug>
 #include "util.h"
 
 

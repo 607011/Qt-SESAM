@@ -921,6 +921,10 @@
         <source>You want to enforce extra characters but your character set does not contain any. Do you want to add them?</source>
         <translation>Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
     </message>
+    <message>
+        <source>Interrupt</source>
+        <translation>Unterbrechen</translation>
+    </message>
 </context>
 <context>
     <name>OptionsDialog</name>
@@ -1228,6 +1232,34 @@
     <message>
         <source>Accept</source>
         <translation type="vanished">Übernehmen</translation>
+    </message>
+    <message>
+        <source>Extreme security (32 chars)</source>
+        <translation type="vanished">Extreme Sicherheit (32 Zeichen)</translation>
+    </message>
+    <message>
+        <source>Very high security (24 chars)</source>
+        <translation type="vanished">Sehr hohe Sicherheit (24 Zeichen)</translation>
+    </message>
+    <message>
+        <source>High security (18 chars)</source>
+        <translation type="vanished">Hohe Sicherheit (18 Zeichen)</translation>
+    </message>
+    <message>
+        <source>Medium security (12 chars)</source>
+        <translation type="vanished">Mittlere Sicherheit (12 Zeichen)</translation>
+    </message>
+    <message>
+        <source>High security (18 chars, easy to type)</source>
+        <translation type="vanished">Hohe Sicherheit (18 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Medium security (12 chars, easy to type)</source>
+        <translation type="vanished">Mittlere Sicherheit (12 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Basic security (8 chars, easy to type)</source>
+        <translation type="vanished">Niedrige Sicherheit (18 Zeichen, leicht einzutippen)</translation>
     </message>
 </context>
 <context>
