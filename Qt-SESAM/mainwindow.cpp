@@ -3068,6 +3068,7 @@ void MainWindow::onSelectLanguage(QAction *action)
                                 tr("You've changed Qt-SESAM's language. Do you want to restart Qt-SESAM to take the change into effect?"));
       if (button == QMessageBox::Yes) {
         d->lockFile->unlock();
+        _LOG("Restart.");
         qApp->exit(EXIT_CODE_REBOOT);
       }
     }
