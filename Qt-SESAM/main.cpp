@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   Q_INIT_RESOURCE(QtSESAM);
   checkPortable();
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName);
-  bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
+  const bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
   int exitCode = 0;
   do {
     QApplication a(argc, argv);
