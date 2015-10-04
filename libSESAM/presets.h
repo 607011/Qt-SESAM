@@ -43,7 +43,8 @@ public:
   { /* ... */ }
 
   Preset(const QString &name, const TemplateList &templates, bool shuffle)
-    : mTemplates(templates)
+    : mName(name)
+    , mTemplates(templates)
     , mShuffle(shuffle)
   { /* ... */ }
 

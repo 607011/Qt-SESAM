@@ -46,11 +46,11 @@ public:
   { /* ... */ }
   ~EasySelectorWidgetPrivate()
   { /* ... */ }
+  bool buttonDown;
   int length;
   int complexity;
   int oldLength;
   int oldComplexity;
-  bool buttonDown;
   int minLength;
   int maxLength;
   int minComplexity;
