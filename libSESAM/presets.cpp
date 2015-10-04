@@ -25,30 +25,30 @@ const Preset::TemplateCharacterMap Preset::TemplateCharacters = {
   std::pair<char, QString>('C', "BCDFGHJKLMNPQRSTVWXZ"),
   std::pair<char, QString>('c', "bcdfghjklmnpqrstvwxz"),
   std::pair<char, QString>('A', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-  std::pair<char, QString>('a', "abcdefghiJklmnopqrstuvwxyz"),
+  std::pair<char, QString>('a', "abcdefghijklmnopqrstuvwxyz"),
   std::pair<char, QString>('n', "0123456789"),
   std::pair<char, QString>('o', "@&%?,=[]_:-+*$#!'^~;()/."),
   std::pair<char, QString>('x', "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&%?,=[]_:-+*$#!'^~;()/.")
 };
 
 
-const Preset::PresetType Preset::Presets = {
-  std::pair<QString, Preset>(QObject::tr("Extreme security (32 chars)"), Preset({
+const Preset::PresetList Preset::Presets = {
+  Preset(QObject::tr("Extreme security (32 chars)"), {
     "Aanoxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  }, true)),
-  std::pair<QString, Preset>(QObject::tr("Very high security (24 chars)"), Preset({
+  }, true),
+  Preset(QObject::tr("Very high security (24 chars)"), {
     "Aanoxxxxxxxxxxxxxxxxxxxx"
-  }, true)),
-  std::pair<QString, Preset>(QObject::tr("High security (18 chars)"), Preset({
+  }, true),
+  Preset(QObject::tr("High security (18 chars)"), {
     "Aanoxxxxxxxxxxxxxx"
-  }, true)),
-  std::pair<QString, Preset>(QObject::tr("Medium security (12 chars)"), Preset({
+  }, true),
+  Preset(QObject::tr("Medium security (12 chars)"), {
     "Aanoxxxxxxxx"
-  }, true)),
-  std::pair<QString, Preset>(QObject::tr("Low security (6 chars)"), Preset({
+  }, true),
+  Preset(QObject::tr("Low security (6 chars)"), {
     "Aanoxx"
-  }, true)),
-  std::pair<QString, Preset>(QObject::tr("High security (18 chars, easy to type)"), Preset({
+  }, true),
+  Preset(QObject::tr("High security (18 chars, easy to type)"), {
     "CvcvnoCvcvCvcvCvcv",
     "CvcvCvcvnoCvcvcvno",
     "CvcvCvcvCvcvnocvCv",
@@ -94,8 +94,8 @@ const Preset::PresetType Preset::Presets = {
     "cvccCvcvnocvcccvno",
     "cvccCvcvCvccnocvCv",
     "cVVVCvvvnnnnCvcvvo",
-  }, false)),
-  std::pair<QString, Preset>(QObject::tr("Medium security (12 chars, easy to type)"), Preset({
+  }, false),
+  Preset(QObject::tr("Medium security (12 chars, easy to type)"), {
     "CvcvnoCvcvcv",
     "CvcvCvCvcvno",
     "CvcvCvcvnoCv",
@@ -119,8 +119,8 @@ const Preset::PresetType Preset::Presets = {
     "CvccCvccnoCv",
     "CVVVCvnnCvvo",
     "ocvvcvCvCvCv",
-  }, false)),
-  std::pair<QString, Preset>(QObject::tr("Basic security (8 chars, easy to type)"), Preset({
+  }, false),
+  Preset(QObject::tr("Basic security (8 chars, easy to type)"), {
     "noCvcvcv",
     "CvCvcvno",
     "CvcvnoCv",
@@ -144,13 +144,13 @@ const Preset::PresetType Preset::Presets = {
     "CvccnoCv",
     "CvnnCvvo",
     "cvCvvvCn",
-  }, false)),
-  std::pair<QString, Preset>(QObject::tr("4-digit PIN"), Preset({
+  }, false),
+  Preset(QObject::tr("4-digit PIN"), {
     "nnnn"
-  }, false)),
-  std::pair<QString, Preset>(QObject::tr("5-digit PIN"), Preset({
+  }, false),
+  Preset(QObject::tr("5-digit PIN"), {
     "nnnnn"
-  }, false))
+  }, false)
 };
 
 
@@ -160,7 +160,11 @@ const QString &Preset::charSetFor(char ch)
 }
 
 
-const Preset &Preset::presetFor(const QString &id)
+const Preset &Preset::presetFor(const QString &name)
 {
-  return Presets[id];
+  foreach (Preset preset, Presets) {
+    if (preset.name() == name)
+      return preset;
+  }
+  return Preset();
 }

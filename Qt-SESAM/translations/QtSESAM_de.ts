@@ -179,7 +179,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
@@ -295,7 +295,7 @@
     </message>
     <message>
         <source>Your domain parameters have changed. Do you want to save the changes before exiting?</source>
-        <translation>Deine Domain-Parameters wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
+        <translation>Deine Domain-Parameter wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
     </message>
     <message>
         <source>Really renew salt?</source>
@@ -564,7 +564,7 @@
     </message>
     <message>
         <source>Click to show password</source>
-        <translation>Klicken um Passwort anzuzeigen</translation>
+        <translation type="vanished">Klicken um Passwort anzuzeigen</translation>
     </message>
     <message>
         <source>Password changed.</source>
@@ -576,7 +576,7 @@
     </message>
     <message>
         <source>Generated</source>
-        <translation>Generiert</translation>
+        <translation type="vanished">Generiert</translation>
     </message>
     <message>
         <source>Legacy</source>
@@ -716,6 +716,42 @@
         <source>Import KGK from ...</source>
         <translation type="vanished">KGK importieren von ...</translation>
     </message>
+    <message>
+        <source>Parameters</source>
+        <translation>Parameter</translation>
+    </message>
+    <message>
+        <source>Simple</source>
+        <translation>Einfach</translation>
+    </message>
+    <message>
+        <source>Expert</source>
+        <translation>Experten</translation>
+    </message>
+    <message>
+        <source>Force</source>
+        <translation>Erzwingen</translation>
+    </message>
+    <message>
+        <source>Use</source>
+        <translation>Verwenden</translation>
+    </message>
+    <message>
+        <source>abc ...</source>
+        <translation>abc ...</translation>
+    </message>
+    <message>
+        <source>ABC ...</source>
+        <translation>ABC ...</translation>
+    </message>
+    <message>
+        <source>#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</source>
+        <translation>#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</translation>
+    </message>
+    <message>
+        <source>0123 ...</source>
+        <translation>0123 ...</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -755,175 +791,175 @@
     <name>NewDomainWizard</name>
     <message>
         <source>Create new domain</source>
-        <translation>Neue Domain anlegen</translation>
+        <translation type="vanished">Neue Domain anlegen</translation>
     </message>
     <message>
         <source>Base64 encoded salt</source>
-        <translation>Base64-kodiertes Salt</translation>
+        <translation type="vanished">Base64-kodiertes Salt</translation>
     </message>
     <message>
         <source>Password length</source>
-        <translation>Passwortlänge</translation>
+        <translation type="vanished">Passwortlänge</translation>
     </message>
     <message>
         <source>optional</source>
-        <translation>optional</translation>
+        <translation type="vanished">optional</translation>
     </message>
     <message>
         <source>Domain</source>
-        <translation>Domain</translation>
+        <translation type="vanished">Domain</translation>
     </message>
     <message>
         <source>mandatory</source>
-        <translation>erforderlich</translation>
+        <translation type="vanished">erforderlich</translation>
     </message>
     <message>
         <source>Salt (Base64)</source>
-        <translation>Salt (Base64)</translation>
+        <translation type="vanished">Salt (Base64)</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Benutzername</translation>
+        <translation type="vanished">Benutzername</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation>Notizen</translation>
+        <translation type="vanished">Notizen</translation>
     </message>
     <message>
         <source>may be empty</source>
-        <translation>kann leer bleiben</translation>
+        <translation type="vanished">kann leer bleiben</translation>
     </message>
     <message>
         <source>Min. iterations</source>
-        <translation>Min. Iterationen</translation>
+        <translation type="vanished">Min. Iterationen</translation>
     </message>
     <message>
         <source>don&apos;t fill unless you really need to</source>
-        <translation>nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
+        <translation type="vanished">nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
     </message>
     <message>
         <source>Legacy password</source>
-        <translation>Klassisches Passwort</translation>
+        <translation type="vanished">Klassisches Passwort</translation>
     </message>
     <message>
         <source>Used characters</source>
-        <translation>Verwendete Zeichen</translation>
+        <translation type="vanished">Verwendete Zeichen</translation>
     </message>
     <message>
         <source>add lower case characters to character set</source>
-        <translation>Kleinbuchstaben hinzufügen</translation>
+        <translation type="vanished">Kleinbuchstaben hinzufügen</translation>
     </message>
     <message>
         <source>abc…</source>
-        <translation>abc...</translation>
+        <translation type="vanished">abc...</translation>
     </message>
     <message>
         <source>add upper case characters to character set</source>
-        <translation>Großbuchstaben hinzufügen</translation>
+        <translation type="vanished">Großbuchstaben hinzufügen</translation>
     </message>
     <message>
         <source>ABC…</source>
-        <translation>ABC...</translation>
+        <translation type="vanished">ABC...</translation>
     </message>
     <message>
         <source>add digits to character set</source>
-        <translation>Ziffern hinzufügen</translation>
+        <translation type="vanished">Ziffern hinzufügen</translation>
     </message>
     <message>
         <source>0123…</source>
-        <translation>0123...</translation>
+        <translation type="vanished">0123...</translation>
     </message>
     <message>
         <source>add some special characters to character set</source>
-        <translation>Sonderzeichen hinzufügen</translation>
+        <translation type="vanished">Sonderzeichen hinzufügen</translation>
     </message>
     <message>
         <source>#!&quot;.…</source>
-        <translation>#!&quot;.…</translation>
+        <translation type="vanished">#!&quot;.…</translation>
     </message>
     <message>
         <source>Forced characters</source>
-        <translation>Erzwungene Zeichen</translation>
+        <translation type="vanished">Erzwungene Zeichen</translation>
     </message>
     <message>
         <source>upper case</source>
-        <translation>Großbuchstaben</translation>
+        <translation type="vanished">Großbuchstaben</translation>
     </message>
     <message>
         <source>lower case</source>
-        <translation>Kleinbuchstaben</translation>
+        <translation type="vanished">Kleinbuchstaben</translation>
     </message>
     <message>
         <source>digits</source>
-        <translation>Ziffern</translation>
+        <translation type="vanished">Ziffern</translation>
     </message>
     <message>
         <source>extra</source>
-        <translation>Sonderzeichen</translation>
+        <translation type="vanished">Sonderzeichen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation>Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation type="vanished">URL</translation>
     </message>
     <message>
         <source>Force the use of any of %1</source>
-        <translation>Die Benutzung von einem der Zeichen %1 erzwingen</translation>
+        <translation type="vanished">Die Benutzung von einem der Zeichen %1 erzwingen</translation>
     </message>
     <message>
         <source>Force the use of any lower case character</source>
-        <translation>Die Verwendung von Kleinbuchstaben erzwingen</translation>
+        <translation type="vanished">Die Verwendung von Kleinbuchstaben erzwingen</translation>
     </message>
     <message>
         <source>Force the use of any upper case character</source>
-        <translation>Die Verwendung von Großbuchstaben erzwingen</translation>
+        <translation type="vanished">Die Verwendung von Großbuchstaben erzwingen</translation>
     </message>
     <message>
         <source>Force the use of any digit</source>
-        <translation>Die Verwendung von Ziffern erzwingen</translation>
+        <translation type="vanished">Die Verwendung von Ziffern erzwingen</translation>
     </message>
     <message>
         <source>Lowercase characters missing</source>
-        <translation>Kleinbuchstaben fehlen</translation>
+        <translation type="vanished">Kleinbuchstaben fehlen</translation>
     </message>
     <message>
         <source>You want to enforce lowercase characters but your character set does not contain any. Do you want to add them?</source>
-        <translation>Du willst Kleinbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+        <translation type="vanished">Du willst Kleinbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
     </message>
     <message>
         <source>Uppercase characters missing</source>
-        <translation>Großbuchstaben fehlen</translation>
+        <translation type="vanished">Großbuchstaben fehlen</translation>
     </message>
     <message>
         <source>You want to enforce uppercase characters but your character set does not contain any. Do you want to add them?</source>
-        <translation>Du willst Großbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+        <translation type="vanished">Du willst Großbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
     </message>
     <message>
         <source>Digits missing</source>
-        <translation>Ziffern fehlen</translation>
+        <translation type="vanished">Ziffern fehlen</translation>
     </message>
     <message>
         <source>You want to enforce digits but your character set does not contain any. Do you want to add them?</source>
-        <translation>Du willst Ziffern in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+        <translation type="vanished">Du willst Ziffern in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
     </message>
     <message>
         <source>Extra characters missing</source>
-        <translation>Sonderzeichen fehlen</translation>
+        <translation type="vanished">Sonderzeichen fehlen</translation>
     </message>
     <message>
         <source>You want to enforce extra characters but your character set does not contain any. Do you want to add them?</source>
-        <translation>Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+        <translation type="vanished">Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
     </message>
     <message>
         <source>Interrupt</source>
-        <translation>Unterbrechen</translation>
+        <translation type="vanished">Unterbrechen</translation>
     </message>
 </context>
 <context>
@@ -1103,6 +1139,10 @@
     <message>
         <source>Encrypted</source>
         <translation>Verschlüsselt</translation>
+    </message>
+    <message>
+        <source>Max. password length</source>
+        <translation>Max. Passwortlänge</translation>
     </message>
 </context>
 <context>

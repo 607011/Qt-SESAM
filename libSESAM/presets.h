@@ -42,7 +42,7 @@ public:
     , mShuffle(other.mShuffle)
   { /* ... */ }
 
-  Preset(const TemplateList &templates, bool shuffle)
+  Preset(const QString &name, const TemplateList &templates, bool shuffle)
     : mTemplates(templates)
     , mShuffle(shuffle)
   { /* ... */ }
@@ -50,7 +50,17 @@ public:
   QByteArray randomTemplate(void) const
   {
     const QByteArray &templ = mTemplates.at(qrand() % mTemplates.size());
-    return mShuffle ? shuffle(templ) : templ;
+    return mShuffle ? shuffled(templ) : templ;
+  }
+
+  bool isNull(void) const
+  {
+    return mTemplates.isEmpty();
+  }
+
+  const QString &name(void) const
+  {
+    return mName;
   }
 
   const TemplateList &templates(void) const
@@ -64,14 +74,15 @@ public:
   }
 
   static const QString &charSetFor(char);
-  static const Preset &presetFor(const QString&);
+  static const Preset &presetFor(const QString &name);
 
-  typedef QMap<QString, Preset> PresetType;
+  typedef QList<Preset> PresetList;
 
   static const TemplateCharacterMap TemplateCharacters;
-  static const PresetType Presets;
+  static const PresetList Presets;
 
 private:
+  QString mName;
   TemplateList mTemplates;
   bool mShuffle;
 };

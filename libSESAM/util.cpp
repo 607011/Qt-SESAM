@@ -49,7 +49,7 @@ void SecureErase(QString str)
  * \return shuffled string
  */
 
-QString shuffle(const QString& s)
+QString shuffled(const QString& s)
 {
   QString result = s;
   int n = result.count();
@@ -72,7 +72,7 @@ QString shuffle(const QString& s)
  * \param s byte array to be shuffled
  * \return shuffled byte array
  */
-QByteArray shuffle(const QByteArray& ba)
+QByteArray shuffled(const QByteArray& ba)
 {
   QByteArray result = ba;
   int n = result.count();

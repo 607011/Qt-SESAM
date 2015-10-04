@@ -60,8 +60,15 @@ void SecureErase(T &obj)
 }
 
 
-extern QString shuffle(const QString&);
-extern QByteArray shuffle(const QByteArray&);
+template<typename T>
+T clamp(const T &x, const T &lo, const T &hi)
+{
+  return qMax(lo, qMin(hi, x));
+}
+
+
+extern QString shuffled(const QString&);
+extern QByteArray shuffled(const QByteArray&);
 extern QString fingerprintify(const QByteArray &ba);
 
 #if defined(Q_CC_GNU)

@@ -85,7 +85,9 @@ private slots:
   void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
   void onDomainSelected(const QString &);
-  void newDomain(const QString &domainName = QString());
+  void onEasySelectorValuesChanged(int, int);
+  void newDomain(void);
+  void makeEditable(bool);
   void renewSalt(void);
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);
@@ -114,7 +116,9 @@ private slots:
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+#if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
+#endif
   void hideActivityIcons(void);
   void createFullDump(void);
   QFuture<void> &generateSaltKeyIV(void);
@@ -149,8 +153,6 @@ private: // methods
   void makeDomainComboBox(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
-  void unblockUpdatePassword(void);
-  void blockUpdatePassword(void);
   void generateSaltKeyIVThread(void);
   DomainSettings collectedDomainSettings(void) const;
   QByteArray cryptedRemoteDomains(void);
@@ -165,6 +167,9 @@ private: // methods
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
+  void createTemplate_v3(void);
+  QString usedCharacters_v3(void);
+  void analyzeTemplate(const QByteArray &);
 };
 
 #endif // __MAINWINDOW_H_

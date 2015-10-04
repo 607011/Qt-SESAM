@@ -98,6 +98,9 @@ public:
   QString passwordFilename(void) const;
   void setPasswordFilename(const QString &filename);
 
+  int maxPasswordLength(void) const;
+  void setMaxPasswordLength(int);
+
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
   void saltLengthChanged(int);

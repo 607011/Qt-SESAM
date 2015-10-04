@@ -367,6 +367,18 @@ void OptionsDialog::setPasswordFilename(const QString &filename)
 }
 
 
+int OptionsDialog::maxPasswordLength(void) const
+{
+  return ui->maxPasswordLengthSpinBox->value();
+}
+
+
+void OptionsDialog::setMaxPasswordLength(int l)
+{
+  ui->maxPasswordLengthSpinBox->setValue(l);
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);

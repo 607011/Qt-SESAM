@@ -47,7 +47,8 @@ const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf
 const QString Password::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
 const QString Password::UpperCharsNoAmbiguous = QString("ABCDEFGHJKLMNPQRTUVWXYZ").toUtf8();
 const QString Password::Digits = QString("0123456789").toUtf8();
-const QString Password::ExtraChars = QString("#!\"§$%&/()[]{}=-_+*<>;:.").toUtf8();
+// !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
+const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8();
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 
 
@@ -72,35 +73,6 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
-void Password::generate(const SecureByteArray &masterPassword, const QByteArray &templ)
-{
-  Q_D(Password);
-  Q_ASSERT(templ.count() > 0);
-
-  const SecureByteArray &pwd =
-      d->domainSettings.domainName.toUtf8() +
-      d->domainSettings.userName.toUtf8() +
-      masterPassword;
-
-  d->pbkdf2.generate(pwd, QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()), d->domainSettings.iterations, QCryptographicHash::Sha512);
-
-  d->password.clear();
-  BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  static const BigInt::Rossi Zero(0);
-  int n = 0;
-  while (v > Zero && n < templ.count()) {
-    const QString &charSet = Preset::charSetFor(templ.at(n));
-    const QString strModulus = QString("%1").arg(charSet.count());
-    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-    const BigInt::Rossi &mod = v % Modulus;
-    d->password += charSet.at(mod.toUlong());
-    v = v / Modulus;
-    ++n;
-  }
-  emit generated();
-}
-
-
 void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
@@ -112,21 +84,61 @@ void Password::generate(const SecureByteArray &masterPassword)
 
   d->pbkdf2.generate(pwd, QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()), d->domainSettings.iterations, QCryptographicHash::Sha512);
 
-  const int nChars = d->domainSettings.usedCharacters.count();
-  if (nChars > 0) {
-    d->password.clear();
+  remixed();
+  emit generated();
+}
+
+
+const SecureString &Password::remixed(void)
+{
+  Q_D(Password);
+  d->password.clear();
+  static const BigInt::Rossi Zero(0);
+  BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
+  if (d->domainSettings.passwordTemplate.isEmpty() && !d->domainSettings.usedCharacters.isEmpty()) { // v2 method
+    const int nChars = d->domainSettings.usedCharacters.count();
     const QString strModulus = QString("%1").arg(nChars);
-    BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
     const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-    static const BigInt::Rossi Zero(0);
-    int n = d->domainSettings.length;
+    int n = d->domainSettings.passwordLength;
     while (v > Zero && n-- > 0) {
       const BigInt::Rossi &mod = v % Modulus;
-      d->password += d->domainSettings.usedCharacters.at(mod.toUlong());
+      d->password += d->domainSettings.usedCharacters.at(int(mod.toUlong()));
       v = v / Modulus;
     }
-    emit generated();
   }
+  else { // v3 method
+    const QByteArray &templ = d->domainSettings.passwordTemplate;
+    int n = 0;
+    while (v > Zero && n < templ.length()) {
+      const char m = templ.at(n);
+      QString charSet;
+      switch (m) {
+      case 'x':
+        charSet = d->domainSettings.usedCharacters;
+        break;
+      case 'o':
+        charSet = d->domainSettings.extraCharacters;
+        break;
+      case 'a':
+      case 'A':
+      case 'n':
+        charSet = Preset::charSetFor(m);
+        break;
+      default:
+        qWarning() << "Invalid template character:" << m;
+        break;
+      }
+      if (!charSet.isEmpty()) {
+        const QString strModulus = QString("%1").arg(charSet.count());
+        const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
+        const BigInt::Rossi &mod = v % Modulus;
+        d->password += charSet.at(int(mod.toUlong()));
+        v = v / Modulus;
+      }
+      ++n;
+    }
+  }
+  return d->password;
 }
 
 

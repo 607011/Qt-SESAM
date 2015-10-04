@@ -49,11 +49,11 @@ public:
   SecureString operator()(void) const;
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
+  const SecureString &remixed(void);
   void waitForFinished(void);
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
 
-  void generate(const SecureByteArray &masterPassword, const QByteArray &templ);
   void generate(const SecureByteArray &masterPassword);
   void generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings = DomainSettings());
 
@@ -61,7 +61,6 @@ public:
   bool isAborted(void) const;
   qreal elapsedSeconds(void) const;
   void abortGeneration(void);
-
 
 signals:
   void generated(void);
