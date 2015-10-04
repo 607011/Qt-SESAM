@@ -24,6 +24,7 @@
 #include <QWidget>
 #include <QMouseEvent>
 #include <QPaintEvent>
+#include <QResizeEvent>
 #include <QScopedPointer>
 
 class EasySelectorWidgetPrivate;
@@ -48,6 +49,7 @@ protected:
   void mousePressEvent(QMouseEvent*);
   void mouseReleaseEvent(QMouseEvent*);
   void paintEvent(QPaintEvent*);
+  void resizeEvent(QResizeEvent*);
 
 signals:
   void valuesChanged(int length, int complexity);

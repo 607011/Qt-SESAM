@@ -26,7 +26,10 @@
 #include <QColor>
 #include <QBrush>
 #include <QPen>
+#include <QLinearGradient>
+#include <QGradientStop>
 #include <QPoint>
+#include <QPixmap>
 
 class EasySelectorWidgetPrivate {
 public:
@@ -48,6 +51,7 @@ public:
   int maxLength;
   int minComplexity;
   int maxComplexity;
+  QPixmap background;
 };
 
 
@@ -135,16 +139,34 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   const qreal xs = (d->length - d->minLength) * width();
   const qreal ys = (d->complexity - d->minComplexity) * height();
   QPainter p(this);
-  p.fillRect(rect(), QColor(0, 0, 100, 90));
+  p.drawPixmap(0, 0, d->background);
+  p.setBrush(QColor(255, 255, 255, 192));
+  p.setPen(Qt::transparent);
+  p.drawRect(QRectF(xs / ld, height() - ys / cd, xo, yo));
+}
+
+
+void EasySelectorWidget::resizeEvent(QResizeEvent *e)
+{
+  Q_D(EasySelectorWidget);
+  d->background = QPixmap(e->size());
+  const int ld = d->maxLength - d->minLength;
+  const int cd = d->maxComplexity - d->minComplexity;
+  const qreal xo = qreal(e->size().width()) / ld;
+  const qreal yo = qreal(e->size().height()) / cd;
+  QPainter p(&d->background);
+  QLinearGradient gradient(rect().bottomLeft(), rect().topRight());
+  gradient.setColorAt(0.0, QColor(255, 0, 0, 255).darker());
+  gradient.setColorAt(0.5, QColor(255, 255, 0, 255).darker());
+  gradient.setColorAt(1.0, QColor(0, 255, 0, 255).darker());
+  p.fillRect(rect(), gradient);
   p.setBrush(Qt::transparent);
-  p.setPen(QPen(QBrush(QColor(0, 0, 100, 190)), 1.0));
+  p.setPen(QPen(QBrush(QColor(255, 255, 255, 160)), 1.0));
   for (int x = d->minLength; x < d->maxLength; ++x)
     p.drawLine(QLineF(xo * (x - d->minLength), 0, xo * (x - d->minLength), height()));
   for (int y = d->minComplexity; y < d->maxComplexity; ++y)
     p.drawLine(QLineF(0, yo * (y - d->minComplexity), width(), yo * (y - d->minComplexity)));
-  p.setBrush(QColor(255, 0, 0, 128));
-  p.setPen(Qt::transparent);
-  p.drawRect(QRectF(xs / ld, height() - ys / cd, xo, yo));
+
 }
 
 
