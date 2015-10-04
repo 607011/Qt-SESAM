@@ -86,6 +86,7 @@ private slots:
   void onDomainTextChanged(const QString &);
   void onDomainSelected(const QString &);
   void onEasySelectorValuesChanged(int, int);
+  void onEasySelectorValuesChanged(int, int, int, int);
   void newDomain(void);
   void makeEditable(bool);
   void renewSalt(void);

@@ -37,6 +37,8 @@ public:
     : buttonDown(false)
     , length((EasySelectorWidget::DefaultMaxLength - EasySelectorWidget::DefaultMinLength) / 2)
     , complexity((EasySelectorWidget::DefaultMaxComplexity - EasySelectorWidget::DefaultMinComplexity) / 2)
+    , oldLength(length)
+    , oldComplexity(complexity)
     , minLength(EasySelectorWidget::DefaultMinLength)
     , maxLength(EasySelectorWidget::DefaultMaxLength)
     , minComplexity(EasySelectorWidget::DefaultMinComplexity)
@@ -46,6 +48,8 @@ public:
   { /* ... */ }
   int length;
   int complexity;
+  int oldLength;
+  int oldComplexity;
   bool buttonDown;
   int minLength;
   int maxLength;
@@ -86,9 +90,25 @@ void EasySelectorWidget::setMouseY(int y)
 }
 
 
+void EasySelectorWidget::setLength(int length)
+{
+  Q_D(EasySelectorWidget);
+  d->length = length;
+  update();
+}
+
+
 int EasySelectorWidget::length(void) const
 {
   return d_ptr->length;
+}
+
+
+void EasySelectorWidget::setComplexity(int complexity)
+{
+  Q_D(EasySelectorWidget);
+  d->complexity = complexity;
+  update();
 }
 
 
@@ -104,7 +124,8 @@ void EasySelectorWidget::mouseMoveEvent(QMouseEvent *e)
   if (d->buttonDown) {
     setMouseX(e->pos().x());
     setMouseY(e->pos().y());
-    emit valuesChanged(d->length, d->complexity);
+    if (d->length != d->oldLength || d->complexity != d->oldComplexity)
+      emit valuesChanged(d->length, d->complexity);
   }
 }
 
@@ -116,7 +137,10 @@ void EasySelectorWidget::mousePressEvent(QMouseEvent *e)
   if (d->buttonDown) {
     setMouseX(e->pos().x());
     setMouseY(e->pos().y());
-    emit valuesChanged(d->length, d->complexity);
+    if (d->length != d->oldLength || d->complexity != d->oldComplexity)
+      emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
+    d->oldLength = d->length;
+    d->oldComplexity = d->complexity;
   }
 }
 
@@ -124,13 +148,16 @@ void EasySelectorWidget::mousePressEvent(QMouseEvent *e)
 void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
   Q_D(EasySelectorWidget);
-  if (e->button() == Qt::LeftButton)
+  if (e->button() == Qt::LeftButton) {
     d->buttonDown = false;
+    emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
+  }
 }
 
 
 void EasySelectorWidget::paintEvent(QPaintEvent *)
-{
+{ // TODO: wrong grid drawn (one field short in each direction)
+  // TODO: don't use floats, but integers so that grids are equally sized
   Q_D(EasySelectorWidget);
   const int ld = d->maxLength - d->minLength;
   const int cd = d->maxComplexity - d->minComplexity;
@@ -147,7 +174,8 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
 
 
 void EasySelectorWidget::resizeEvent(QResizeEvent *e)
-{
+{ // TODO: wrong grid drawn (one field short in each direction)
+  // TODO: don't use floats, but integers so that grids are equally sized
   Q_D(EasySelectorWidget);
   d->background = QPixmap(e->size());
   const int ld = d->maxLength - d->minLength;
@@ -166,7 +194,6 @@ void EasySelectorWidget::resizeEvent(QResizeEvent *e)
     p.drawLine(QLineF(xo * (x - d->minLength), 0, xo * (x - d->minLength), height()));
   for (int y = d->minComplexity; y < d->maxComplexity; ++y)
     p.drawLine(QLineF(0, yo * (y - d->minComplexity), width(), yo * (y - d->minComplexity)));
-
 }
 
 

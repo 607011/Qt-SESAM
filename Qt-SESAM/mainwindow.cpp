@@ -150,6 +150,7 @@ public:
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
+  DomainSettings lastDomainSettings;
   QMovie loaderIcon;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
@@ -212,6 +213,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
 
   ui->selectorGridLayout->addWidget(d->easySelector, 0, 1);
+  QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int, int, int)), SLOT(onEasySelectorValuesChanged(int, int, int, int)));
   QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
   resetAllFields();
@@ -1620,11 +1622,31 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::onDomainSelected(" << domain << ")";
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")";
   if (!domainComboboxContains(domain))
     return;
+  if (d->parameterSetDirty) {
+    QMessageBox::StandardButton rc =
+        QMessageBox::question(this,
+                              tr("Save changes?"),
+                              tr("You have changed the current domain settings. Do you want to save or discard the changes before selecting a new domain?"),
+                              QMessageBox::Discard | QMessageBox::Save | QMessageBox::Cancel);
+    switch (rc) {
+    case QMessageBox::Save:
+      saveCurrentDomainSettings();
+      break;
+    case QMessageBox::Cancel:
+      return;
+    case QMessageBox::Discard:
+      break;
+    default:
+      break;
+    }
+  }
   copyDomainSettingsToGUI(domain);
+  d->lastDomainSettings = collectedDomainSettings();
   setDirty(false);
+  d->undoStack->clear();
   if (d->domains.at(domain).legacyPassword.isEmpty()) {
     ui->tabWidget->setCurrentIndex(0);
     ui->actionHackLegacyPassword->setEnabled(false);
@@ -1656,6 +1678,15 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   createTemplate_v3();
   d->password.setDomainSettings(collectedDomainSettings());
   ui->generatedPasswordLineEdit->setText(d->password.remixed());
+  setDirty();
+}
+
+
+void MainWindow::onEasySelectorValuesChanged(int length, int complexity, int oldLength, int oldComplexity)
+{
+  Q_D(MainWindow);
+  d->undoStack->push(new ChangeEasySelectorCommand(d->easySelector, oldLength, oldComplexity));
+  onEasySelectorValuesChanged(length, complexity);
 }
 
 

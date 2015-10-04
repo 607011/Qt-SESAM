@@ -41,7 +41,9 @@ public:
   void setMouseX(int);
   void setMouseY(int);
 
+  void setLength(int);
   int length(void) const;
+  void setComplexity(int);
   int complexity(void) const;
 
 protected:
@@ -52,7 +54,8 @@ protected:
   void resizeEvent(QResizeEvent*);
 
 signals:
-  void valuesChanged(int length, int complexity);
+  void valuesChanged(int newLength, int newComplexity);
+  void valuesChanged(int newLength, int newComplexity, int oldLength, int oldComplexity);
 
 public slots:
   void setMinLength(int);

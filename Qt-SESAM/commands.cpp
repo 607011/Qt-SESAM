@@ -17,6 +17,7 @@
 
 */
 
+#include <QDebug>
 #include "commands.h"
 
 // ----------------------------------------------------------------------
@@ -123,3 +124,31 @@ void ChangeCheckboxCommand::redo(void)
 }
 
 
+// ----------------------------------------------------------------------
+// ChangeEasySelectorCommand
+// ----------------------------------------------------------------------
+
+ChangeEasySelectorCommand::ChangeEasySelectorCommand(EasySelectorWidget *easySelector, int oldLength, int oldComplexity, QUndoCommand *parent)
+    : QUndoCommand(parent)
+    , easySelector(easySelector)
+    , oldLength(oldLength)
+    , oldComplexity(oldComplexity)
+    , newLength(easySelector->length())
+    , newComplexity(easySelector->complexity())
+{ /* ... */ }
+
+
+void ChangeEasySelectorCommand::undo(void)
+{
+    easySelector->setLength(oldLength);
+    easySelector->setComplexity(oldComplexity);
+    setText(QObject::tr("Change length/complexity to %1/%2").arg(oldLength).arg(oldComplexity));
+}
+
+
+void ChangeEasySelectorCommand::redo(void)
+{
+  easySelector->setLength(newLength);
+  easySelector->setComplexity(newComplexity);
+  setText(QObject::tr("Change length/complexity to %1/%2").arg(newLength).arg(newComplexity));
+}

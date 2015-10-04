@@ -752,6 +752,30 @@
         <source>0123 ...</source>
         <translation>0123 ...</translation>
     </message>
+    <message>
+        <source>Edit</source>
+        <translation>Edit</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+Z</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Save changes?</source>
+        <translation>Änderungen speichern?</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save or discard the changes before selecting a new domain?</source>
+        <translation>Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor die gewählte Domain angezeigt wird?</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1300,6 +1324,14 @@
     <message>
         <source>Basic security (8 chars, easy to type)</source>
         <translation type="vanished">Niedrige Sicherheit (18 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Change to %1</source>
+        <translation>Ändern auf %1</translation>
+    </message>
+    <message>
+        <source>Change length/complexity to %1/%2</source>
+        <translation>Länge/Komplexität auf %1/%2 ändern</translation>
     </message>
 </context>
 <context>

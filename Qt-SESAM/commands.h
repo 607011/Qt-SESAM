@@ -26,6 +26,7 @@
 #include <QPlainTextEdit>
 #include <QCheckBox>
 
+#include "easyselectorwidget.h"
 
 class ChangeSpinBoxCommand : public QUndoCommand
 {
@@ -89,6 +90,24 @@ private:
     QCheckBox *checkBox;
     bool oldValue;
     bool newValue;
+};
+
+
+class ChangeEasySelectorCommand : public QUndoCommand
+{
+public:
+  enum { Id = 0x249c15ef };
+  ChangeEasySelectorCommand(EasySelectorWidget *easySelector, int oldLength, int oldComplexity, QUndoCommand *parent = nullptr);
+  void undo(void) Q_DECL_OVERRIDE;
+  void redo(void) Q_DECL_OVERRIDE;
+  int id(void) const Q_DECL_OVERRIDE { return Id; }
+
+private:
+    EasySelectorWidget *easySelector;
+    int oldLength;
+    int oldComplexity;
+    int newLength;
+    int newComplexity;
 };
 
 
