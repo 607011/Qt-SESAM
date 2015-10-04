@@ -655,7 +655,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 }
 
 
-void MainWindow::analyzeTemplate(const QByteArray &templ)
+void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 {
   foreach(char c, templ) {
     switch (c) {
@@ -1044,7 +1044,7 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
   ui->passwordTemplateLineEdit->blockSignals(true);
   ui->passwordTemplateLineEdit->setText(p.passwordTemplate);
   ui->passwordTemplateLineEdit->blockSignals(false);
-  analyzeTemplate(p.passwordTemplate);
+  analyzeTemplate_v3(p.passwordTemplate);
   updatePassword();
 }
 

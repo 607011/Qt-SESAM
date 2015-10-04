@@ -169,7 +169,7 @@ private: // methods
   bool domainComboboxContains(const QString &domain) const;
   void createTemplate_v3(void);
   QString usedCharacters_v3(void);
-  void analyzeTemplate(const QByteArray &);
+  void analyzeTemplate_v3(const QByteArray &);
 };
 
 #endif // __MAINWINDOW_H_
