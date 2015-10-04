@@ -91,6 +91,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->selectPasswordFilePushButton, SIGNAL(pressed()), SLOT(choosePasswordFile()));
   QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(onServerRootUrlChanged(QString)));
   QObject::connect(ui->saltLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(saltLengthChanged(int)));
+  QObject::connect(ui->maxPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(maxPasswordLengthChanged(int)));
   QObject::connect(&d->NAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
@@ -373,9 +374,9 @@ int OptionsDialog::maxPasswordLength(void) const
 }
 
 
-void OptionsDialog::setMaxPasswordLength(int l)
+void OptionsDialog::setMaxPasswordLength(int len)
 {
-  ui->maxPasswordLengthSpinBox->setValue(l);
+  ui->maxPasswordLengthSpinBox->setValue(len);
 }
 
 

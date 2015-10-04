@@ -213,6 +213,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   ui->selectorGridLayout->addWidget(d->easySelector, 0, 1);
   QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
+  QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
   resetAllFields();
 
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
@@ -1627,6 +1628,10 @@ void MainWindow::onDomainSelected(const QString &domain)
   if (d->domains.at(domain).legacyPassword.isEmpty()) {
     ui->tabWidget->setCurrentIndex(0);
     ui->actionHackLegacyPassword->setEnabled(false);
+    if (d->domains.at(domain).passwordTemplate.isEmpty())
+      ui->tabWidgetVersions->setCurrentIndex(0);
+    else
+      ui->tabWidgetVersions->setCurrentIndex(1);
   }
   else {
     ui->tabWidget->setCurrentIndex(1);
