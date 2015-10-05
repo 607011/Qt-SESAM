@@ -87,10 +87,9 @@ private slots:
   void onDomainSelected(const QString &);
   void onEasySelectorValuesChanged(int, int);
   void onEasySelectorValuesChanged(int, int, int, int);
-  void newDomain(void);
-  void makeEditable(bool);
   void renewSalt(void);
   void onRenewSalt(void);
+  void onNewDomain(void);
   void cancelPasswordGeneration(void);
   void stopPasswordGeneration(void);
   void changeMasterPassword(void);
@@ -112,7 +111,6 @@ private slots:
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
   void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
-  void updateSaveButtonIcon(int frame = 0);
   void onDeleteFinished(QNetworkReply*);
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
@@ -143,6 +141,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  int checkSaveOnDirty(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
@@ -164,7 +163,6 @@ private: // methods
   void writeBackupFile(const QByteArray &binaryDomainData);
   bool syncToServerEnabled(void) const;
   bool syncToFileEnabled(void) const;
-  bool checkOpenNewDomainWizard(void);
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;

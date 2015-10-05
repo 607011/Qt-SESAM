@@ -774,7 +774,11 @@
     </message>
     <message>
         <source>You have changed the current domain settings. Do you want to save or discard the changes before selecting a new domain?</source>
-        <translation>Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor die gewählte Domain angezeigt wird?</translation>
+        <translation type="vanished">Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor die gewählte Domain angezeigt wird?</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save or discard the changes before proceeding?</source>
+        <translation>Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor du weiter machts?</translation>
     </message>
 </context>
 <context>

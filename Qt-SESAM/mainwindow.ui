@@ -722,6 +722,9 @@
    </property>
   </action>
   <action name="actionNewDomain">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>New domain ...</string>
    </property>
@@ -814,18 +817,18 @@
  <tabstops>
   <tabstop>domainsComboBox</tabstop>
   <tabstop>urlLineEdit</tabstop>
-  <tabstop>openURLPushButton</tabstop>
   <tabstop>userLineEdit</tabstop>
-  <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>renewSaltPushButton</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
+  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>openURLPushButton</tabstop>
+  <tabstop>copyUsernameToClipboardPushButton</tabstop>
   <tabstop>tabWidgetVersions</tabstop>
   <tabstop>passwordLengthSpinBox</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
-  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
   <tabstop>deleteCheckBox</tabstop>
   <tabstop>saltBase64LineEdit</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
@@ -838,6 +841,8 @@
   <tabstop>forceLowerCaseCheckBox</tabstop>
   <tabstop>extraLineEdit</tabstop>
   <tabstop>passwordTemplateLineEdit</tabstop>
+  <tabstop>useDigitsCheckBox</tabstop>
+  <tabstop>forceDigitsCheckBox</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>

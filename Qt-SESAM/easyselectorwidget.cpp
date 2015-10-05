@@ -63,7 +63,9 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
   : QWidget(parent)
   , d_ptr(new EasySelectorWidgetPrivate)
 {
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  setMinimumSize(100, 100);
+  setMaximumHeight(250);
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setCursor(Qt::PointingHandCursor);
 }
 
@@ -74,18 +76,19 @@ EasySelectorWidget::~EasySelectorWidget()
 }
 
 
-void EasySelectorWidget::setMouseX(int x)
+void EasySelectorWidget::setMousePos(const QPoint &pos)
 {
   Q_D(EasySelectorWidget);
-  d->length = d->minLength + (d->maxLength - d->minLength) * clamp(x, 0, width()) / width();
-  update();
-}
-
-
-void EasySelectorWidget::setMouseY(int y)
-{
-  Q_D(EasySelectorWidget);
-  d->complexity = d->maxComplexity - (d->minComplexity + (d->maxComplexity - d->minComplexity) * clamp(y, 0, height()) / height());
+  if (d->background.isNull())
+    return;
+  const int nX = d->maxLength - d->minLength + 1;
+  const int nY = d->maxComplexity - d->minComplexity + 1;
+  const int xs = d->background.width() / nX;
+  const int ys = d->background.height() / nY;
+  const int clampedX = clamp(pos.x(), 0, d->background.width() - xs);
+  const int clampedY = clamp(pos.y(), 0, d->background.height() - ys);
+  d->length = d->minLength + clampedX / xs;
+  d->complexity = d->maxComplexity - (d->minComplexity + clampedY / ys);
   update();
 }
 
@@ -122,8 +125,8 @@ void EasySelectorWidget::mouseMoveEvent(QMouseEvent *e)
 {
   Q_D(EasySelectorWidget);
   if (d->buttonDown) {
-    setMouseX(e->pos().x());
-    setMouseY(e->pos().y());
+    setMousePos(e->pos());
+    qDebug() << d->length << d->complexity;
     if (d->length != d->oldLength || d->complexity != d->oldComplexity)
       emit valuesChanged(d->length, d->complexity);
   }
@@ -135,8 +138,7 @@ void EasySelectorWidget::mousePressEvent(QMouseEvent *e)
   Q_D(EasySelectorWidget);
   d->buttonDown = e->button() == Qt::LeftButton;
   if (d->buttonDown) {
-    setMouseX(e->pos().x());
-    setMouseY(e->pos().y());
+    setMousePos(e->pos());
     if (d->length != d->oldLength || d->complexity != d->oldComplexity)
       emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
     d->oldLength = d->length;
@@ -156,44 +158,51 @@ void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
 
 
 void EasySelectorWidget::paintEvent(QPaintEvent *)
-{ // TODO: wrong grid drawn (one field short in each direction)
-  // TODO: don't use floats, but integers so that grids are equally sized
+{
   Q_D(EasySelectorWidget);
-  const int ld = d->maxLength - d->minLength;
-  const int cd = d->maxComplexity - d->minComplexity;
-  const qreal xo = qreal(width()) / ld;
-  const qreal yo = qreal(height()) / cd;
-  const qreal xs = (d->length - d->minLength) * width();
-  const qreal ys = (d->complexity - d->minComplexity) * height();
+  if (d->background.isNull())
+    return;
+  const int nX = d->maxLength - d->minLength + 1;
+  const int nY = d->maxComplexity - d->minComplexity + 1;
+  const int xs = d->background.width() / nX;
+  const int ys = d->background.height() / nY;
   QPainter p(this);
-  p.drawPixmap(0, 0, d->background);
+  p.drawPixmap(QPoint(0, 0), d->background);
   p.setBrush(QColor(255, 255, 255, 192));
   p.setPen(Qt::transparent);
-  p.drawRect(QRectF(xs / ld, height() - ys / cd, xo, yo));
+  p.drawRect(QRect(QPoint(xs * (d->length - d->minLength),
+                          d->background.height() - ys * (d->complexity - d->minComplexity + 1)),
+                   QSize(xs, ys));
 }
 
 
 void EasySelectorWidget::resizeEvent(QResizeEvent *e)
-{ // TODO: wrong grid drawn (one field short in each direction)
-  // TODO: don't use floats, but integers so that grids are equally sized
+{
   Q_D(EasySelectorWidget);
-  d->background = QPixmap(e->size());
-  const int ld = d->maxLength - d->minLength;
-  const int cd = d->maxComplexity - d->minComplexity;
-  const qreal xo = qreal(e->size().width()) / ld;
-  const qreal yo = qreal(e->size().height()) / cd;
+  QSize size = e->size();
+  if (size.width() == 0 || size.height() == 0) {
+    d->background = QPixmap();
+    return;
+  }
+  const int nX = d->maxLength - d->minLength + 1;
+  const int nY = d->maxComplexity - d->minComplexity + 1;
+  const int xs = size.width() / nX;
+  const int ys = size.height() / nY;
+  size = QSize(xs * nX, ys * nY);
+  d->background = QPixmap(size);
   QPainter p(&d->background);
-  QLinearGradient gradient(rect().bottomLeft(), rect().topRight());
+  QLinearGradient gradient(0, size.height(), size.width(), 0);
   gradient.setColorAt(0.0, QColor(255, 0, 0, 255).darker());
   gradient.setColorAt(0.5, QColor(255, 255, 0, 255).darker());
   gradient.setColorAt(1.0, QColor(0, 255, 0, 255).darker());
-  p.fillRect(rect(), gradient);
+  p.fillRect(0, 0, size.width(), size.height(), gradient);
   p.setBrush(Qt::transparent);
-  p.setPen(QPen(QBrush(QColor(255, 255, 255, 160)), 1.0));
-  for (int x = d->minLength; x < d->maxLength; ++x)
-    p.drawLine(QLineF(xo * (x - d->minLength), 0, xo * (x - d->minLength), height()));
-  for (int y = d->minComplexity; y < d->maxComplexity; ++y)
-    p.drawLine(QLineF(0, yo * (y - d->minComplexity), width(), yo * (y - d->minComplexity)));
+  p.setPen(QPen(QBrush(QColor(255, 255, 255, 160)), 1));
+  for (int x = 0; x < nX; ++x)
+    p.drawLine(xs * x, 0, xs * x, d->background.height());
+  for (int y = 0; y < nY; ++y)
+    p.drawLine(0, ys * y, d->background.width(), ys * y);
+  setSizeIncrement(xs, ys);
 }
 
 

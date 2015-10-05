@@ -34,6 +34,7 @@ public:
 
   QVariantMap toVariantMap(void) const;
   bool isEmpty(void) const;
+  void clear(void);
 
   static DomainSettings fromVariantMap(const QVariantMap &);
 

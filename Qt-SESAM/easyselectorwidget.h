@@ -25,6 +25,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QPoint>
 #include <QScopedPointer>
 
 class EasySelectorWidgetPrivate;
@@ -35,11 +36,8 @@ class EasySelectorWidget : public QWidget
 public:
   explicit EasySelectorWidget(QWidget *parent = nullptr);
   ~EasySelectorWidget();
-  QSize minimumSizeHint(void ) { return QSize(180, 180); }
-  QSize sizeHint(void) { return QSize(320, 240); }
 
-  void setMouseX(int);
-  void setMouseY(int);
+  void setMousePos(const QPoint &);
 
   void setLength(int);
   int length(void) const;
