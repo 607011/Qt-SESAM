@@ -219,41 +219,32 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
   ui->domainsComboBox->installEventFilter(this);
-  QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+  QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(onUserChanged(QString)));
   ui->userLineEdit->installEventFilter(this);
-  QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(onURLChanged()));
+  QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(onURLChanged(QString)));
   ui->urlLineEdit->installEventFilter(this);
   QObject::connect(ui->openURLPushButton, SIGNAL(pressed()), SLOT(openURL()));
   QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(onLegacyPasswordChanged(QString)));
   ui->legacyPasswordLineEdit->installEventFilter(this);
   QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   ui->notesPlainTextEdit->installEventFilter(this);
-  QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
-  QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(updatePassword()));
+  QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
   ui->usedCharactersPlainTextEdit->installEventFilter(this);
-  QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
-  QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
-  QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
+  QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(onExtraCharactersChanged(QString)));
+  QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(onPasswordLengthChanged(int)));
   ui->passwordLengthSpinBox->installEventFilter(this);
-  QObject::connect(ui->deleteCheckBox, SIGNAL(toggled(bool)), SLOT(setDirty()));
-  QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(setDirty()));
-  QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(updatePassword()));
+  QObject::connect(ui->deleteCheckBox, SIGNAL(toggled(bool)), SLOT(onDeleteChanged(bool)));
+  QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(onIterationsChanged(int)));
   ui->iterationsSpinBox->installEventFilter(this);
-  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(setDirty()));
-  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(updatePassword()));
+  QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(onSaltChanged(QString)));
   ui->saltBase64LineEdit->installEventFilter(this);
   ui->generatedPasswordLineEdit->installEventFilter(this);
+  QObject::connect(ui->passwordTemplateLineEdit, SIGNAL(textChanged(QString)), SLOT(onPasswordTemplateChanged(QString)));
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
   QObject::connect(ui->copyUsernameToClipboardPushButton, SIGNAL(clicked()), SLOT(copyUsernameToClipboard()));
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
-  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
-  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
-  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(onNewDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
@@ -269,10 +260,16 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
+#else
+  ui->actionHackLegacyPassword->setEnabled(false);
 #endif
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
+
+  QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
+  QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
+  QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
 
   QObject::connect(&d->deleteNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onDeleteFinished(QNetworkReply*)));
   QObject::connect(&d->deleteNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
@@ -284,11 +281,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->undoAction = d->undoStack->createUndoAction(this, tr("&Undo"));
   d->undoAction->setShortcuts(QKeySequence::Undo);
   ui->menuEdit->addAction(d->undoAction);
-
-
-#ifdef WIN32
-  QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
-#endif
 
   d->masterPasswordInvalidationTimer.setSingleShot(true);
   d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
@@ -310,8 +302,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
 
-#ifdef QT_DEBUG
 #ifdef WIN32
+  QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
+#ifdef QT_DEBUG
   ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_D));
 #endif
 #endif
@@ -385,7 +378,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
   cancelPasswordGeneration();
 
-  int rc = (d->parameterSetDirty)
+  int rc = (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty())
       ? QMessageBox::question(
           this,
           tr("Save before exit?"),
@@ -451,13 +444,9 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   // v3
   ui->extraLineEdit->setText(Password::ExtraChars);
   ui->useLowerCaseCheckBox->setChecked(true);
-  ui->forceLowerCaseCheckBox->setChecked(true);
   ui->useUpperCaseCheckBox->setChecked(true);
-  ui->forceUpperCaseCheckBox->setChecked(true);
   ui->useDigitsCheckBox->setChecked(true);
-  ui->forceDigitsCheckBox->setChecked(true);
   ui->useExtraCheckBox->setChecked(true);
-  ui->forceExtraCheckBox->setChecked(true);
   setDirty(false);
 }
 
@@ -504,52 +493,41 @@ void MainWindow::renewSalt(void)
 
 void MainWindow::onRenewSalt(void)
 {
-  int button = QMessageBox::question(
-        this,
-        tr("Really renew salt?"),
-        tr("Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?"),
-        QMessageBox::Yes,
-        QMessageBox::No);
+  int button = QMessageBox::Yes;
+  if (domainComboboxContains(ui->domainsComboBox->currentText())) {
+    button = QMessageBox::question(
+          this,
+          tr("Really renew salt?"),
+          tr("Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?"),
+          QMessageBox::Yes,
+          QMessageBox::No);
+  }
   if (button == QMessageBox::Yes)
     renewSalt();
 }
 
 
-int MainWindow::checkSaveOnDirty(void)
+void MainWindow::checkSaveOnDirty(void)
 {
   // XXX: check all calls of this function
   Q_D(MainWindow);
-  int rc = QMessageBox::Ok;
   if (d->parameterSetDirty) {
-    rc = QMessageBox::question(
+    if (QMessageBox::question(
           this,
           tr("Save changes?"),
           tr("You have changed the current domain settings. "
              "Do you want to save or discard the changes before proceeding?"),
-          QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-          QMessageBox::Save);
-    switch (rc) {
-    case QMessageBox::Save:
+          QMessageBox::Save | QMessageBox::Discard,
+          QMessageBox::Save) == QMessageBox::Save)
       saveCurrentDomainSettings();
-      break;
-    case QMessageBox::Cancel:
-      // fall-through
-    case QMessageBox::Discard:
-      // fall-through
-    default:
-      break;
-    }
   }
-  return rc;
 }
 
 
 void MainWindow::onNewDomain(void)
 {
   Q_D(MainWindow);
-  int button = checkSaveOnDirty();
-  if (button == QMessageBox::Cancel)
-    return;
+  checkSaveOnDirty();
   resetAllFields();
   ui->tabWidgetVersions->setCurrentIndex(1);
 }
@@ -587,9 +565,63 @@ void MainWindow::openURL(void)
 }
 
 
-void MainWindow::onURLChanged(void)
+void MainWindow::onURLChanged(QString)
 {
+  setDirty();
+  restartInvalidationTimer();
   ui->openURLPushButton->setEnabled(!ui->urlLineEdit->text().isEmpty());
+}
+
+
+void MainWindow::onUserChanged(QString)
+{
+  setDirty();
+  updatePassword();
+}
+
+
+void MainWindow::onUsedCharactersChanged(void)
+{
+  setDirty();
+  updatePassword();
+}
+
+
+void MainWindow::onExtraCharactersChanged(QString)
+{
+  setDirty();
+  updatePassword();
+}
+
+
+void MainWindow::onPasswordLengthChanged(int len)
+{
+  Q_D(MainWindow);
+  setDirty();
+  d->easySelector->setLength(len);
+  updatePassword();
+}
+
+
+void MainWindow::onIterationsChanged(int)
+{
+  setDirty();
+  updatePassword();
+}
+
+
+void MainWindow::onSaltChanged(QString)
+{
+  setDirty();
+  restartInvalidationTimer();
+  updatePassword();
+}
+
+
+void MainWindow::onDeleteChanged(bool)
+{
+  setDirty();
+  restartInvalidationTimer();
 }
 
 
@@ -656,29 +688,43 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 
 void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 {
+  const QList<QByteArray> &templateParts = templ.split(';');
+  qDebug() << "MainWindow::analyzeTemplate_v()" << "#parts =" << templateParts.count() << templateParts;
+  switch (templateParts.count()) {
+  case 1:
+    ui->passwordLengthSpinBox->blockSignals(true);
+    ui->passwordLengthSpinBox->setValue(templateParts.at(0).length());
+    ui->passwordLengthSpinBox->blockSignals(false);
+    break;
+  case 2:
+    ui->passwordLengthSpinBox->blockSignals(true);
+    ui->passwordLengthSpinBox->setValue(templateParts.at(1).length());
+    ui->passwordLengthSpinBox->blockSignals(false);
+    break;
+  default:
+    break;
+  }
+  ui->useDigitsCheckBox->setChecked(false);
+  ui->useLowerCaseCheckBox->setChecked(false);
+  ui->useUpperCaseCheckBox->setChecked(false);
+  ui->useExtraCheckBox->setChecked(false);
   foreach(char c, templ) {
     switch (c) {
     case 'a':
       ui->useLowerCaseCheckBox->setChecked(true);
-      ui->forceLowerCaseCheckBox->setChecked(true);
       break;
     case 'A':
       ui->useUpperCaseCheckBox->setChecked(true);
-      ui->forceUpperCaseCheckBox->setChecked(true);
       break;
     case 'n':
       ui->useDigitsCheckBox->setChecked(true);
-      ui->forceDigitsCheckBox->setChecked(true);
       break;
     case 'o':
       ui->useExtraCheckBox->setChecked(true);
-      ui->forceExtraCheckBox->setChecked(true);
       break;
     default:
       break;
     }
-
-    // TODO ...
   }
 }
 
@@ -701,17 +747,17 @@ QString MainWindow::usedCharacters_v3(void)
 void MainWindow::createTemplate_v3(void)
 {
   Q_D(MainWindow);
-  QByteArray pwdTemplate;
-  if (ui->forceLowerCaseCheckBox->isChecked())
-    pwdTemplate += 'a';
-  if (ui->forceUpperCaseCheckBox->isChecked())
-    pwdTemplate += 'A';
-  if (ui->forceDigitsCheckBox->isChecked())
-    pwdTemplate += 'n';
-  if (ui->forceExtraCheckBox->isChecked())
-    pwdTemplate += 'o';
-  pwdTemplate += QByteArray(d->easySelector->length() - pwdTemplate.count(), 'x');
-  ui->passwordTemplateLineEdit->setText(shuffled(QString::fromUtf8(pwdTemplate)));
+  QByteArray used;
+  if (ui->useLowerCaseCheckBox->isChecked())
+    used += 'a';
+  if (ui->useUpperCaseCheckBox->isChecked())
+    used += 'A';
+  if (ui->useDigitsCheckBox->isChecked())
+    used += 'n';
+  if (ui->useExtraCheckBox->isChecked())
+    used += 'o';
+  QByteArray pwdTemplate = used + QByteArray(d->easySelector->length() - used.count(), 'x');
+  ui->passwordTemplateLineEdit->setText(used + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
   ui->usedCharactersPlainTextEdit->blockSignals(true);
   ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters_v3());
   ui->usedCharactersPlainTextEdit->blockSignals(false);
@@ -1110,7 +1156,9 @@ void MainWindow::saveCurrentDomainSettings(void)
   d->domains.updateWith(ds);
 
   makeDomainComboBox();
+  ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(currentDomain);
+  ui->domainsComboBox->blockSignals(false);
 
   saveAllDomainDataToSettings();
 
@@ -1293,7 +1341,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
-  d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength").toInt());
+  d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength", Password::DefaultMaxLength).toInt());
 #ifdef WIN32
   d->optionsDialog->setSmartLogin(d->settings.value("misc/smartLogin").toBool());
 #endif
@@ -1607,9 +1655,7 @@ void MainWindow::onDomainSelected(const QString &domain)
   qDebug() << "MainWindow::onDomainSelected(" << domain << ")";
   if (!domainComboboxContains(domain))
     return;
-  int button = checkSaveOnDirty();
-  if (button == QMessageBox::Cancel)
-    return;
+  checkSaveOnDirty();
   copyDomainSettingsToGUI(domain);
   d->lastDomainSettings = collectedDomainSettings();
   setDirty(false);
@@ -1657,18 +1703,53 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 {
   Q_D(MainWindow);
   Q_UNUSED(length);
-  ui->useDigitsCheckBox->setChecked(true);
-  ui->useLowerCaseCheckBox->setChecked(complexity > 0);
-  ui->useUpperCaseCheckBox->setChecked(complexity > 2);
-  ui->useExtraCheckBox->setChecked(complexity > 4 && !ui->extraLineEdit->text().isEmpty());
-  ui->forceDigitsCheckBox->setChecked(complexity > 1 && ui->useDigitsCheckBox->isChecked());
-  ui->forceLowerCaseCheckBox->setChecked(complexity > 3 && ui->useLowerCaseCheckBox->isChecked());
-  ui->forceUpperCaseCheckBox->setChecked(complexity > 5 && ui->useUpperCaseCheckBox->isChecked());
-  ui->forceExtraCheckBox->setChecked(complexity > 6 && ui->useExtraCheckBox->isChecked());
+  if (complexity > 5) {
+    ui->useDigitsCheckBox->setChecked(true);
+    ui->useLowerCaseCheckBox->setChecked(true);
+    ui->useUpperCaseCheckBox->setChecked(true);
+    ui->useExtraCheckBox->setChecked(!ui->extraLineEdit->text().isEmpty());
+  }
+  else if (complexity > 4) {
+    ui->useDigitsCheckBox->setChecked(true);
+    ui->useLowerCaseCheckBox->setChecked(true);
+    ui->useUpperCaseCheckBox->setChecked(true);
+    ui->useExtraCheckBox->setChecked(false);
+  }
+  else if (complexity > 3) {
+    ui->useDigitsCheckBox->setChecked(false);
+    ui->useLowerCaseCheckBox->setChecked(true);
+    ui->useUpperCaseCheckBox->setChecked(true);
+    ui->useExtraCheckBox->setChecked(false);
+  }
+  else if (complexity > 2) {
+    ui->useDigitsCheckBox->setChecked(true);
+    ui->useLowerCaseCheckBox->setChecked(true);
+    ui->useUpperCaseCheckBox->setChecked(false);
+    ui->useExtraCheckBox->setChecked(false);
+  }
+  else if (complexity > 1) {
+    ui->useDigitsCheckBox->setChecked(false);
+    ui->useLowerCaseCheckBox->setChecked(false);
+    ui->useUpperCaseCheckBox->setChecked(true);
+    ui->useExtraCheckBox->setChecked(false);
+  }
+  else if (complexity > 0) {
+    ui->useDigitsCheckBox->setChecked(false);
+    ui->useLowerCaseCheckBox->setChecked(true);
+    ui->useUpperCaseCheckBox->setChecked(false);
+    ui->useExtraCheckBox->setChecked(false);
+  }
+  else {
+    ui->useDigitsCheckBox->setChecked(true);
+    ui->useLowerCaseCheckBox->setChecked(false);
+    ui->useUpperCaseCheckBox->setChecked(false);
+    ui->useExtraCheckBox->setChecked(false);
+  }
   createTemplate_v3();
   d->password.setDomainSettings(collectedDomainSettings());
   ui->generatedPasswordLineEdit->setText(d->password.remixed());
   setDirty();
+  restartInvalidationTimer();
 }
 
 
@@ -1680,13 +1761,22 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity, int old
 }
 
 
+void MainWindow::onPasswordTemplateChanged(const QString &templ)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
+  analyzeTemplate_v3(templ.toUtf8());
+}
+
+
 void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
+  bool dirty = d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty();
   setWindowTitle(QString("%1 %2%3 (%4)%5")
                  .arg(AppName)
                  .arg(AppVersion)
-                 .arg(d->parameterSetDirty ? "*" : "")
+                 .arg(dirty ? "*" : "")
 #if PLATFORM == 64
                  .arg("x64")
 #else
@@ -1694,7 +1784,6 @@ void MainWindow::updateWindowTitle(void)
 #endif
                  .arg(isPortable() ? " - PORTABLE " : "")
                  );
-  bool dirty = d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty();
 }
 
 
@@ -1954,16 +2043,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
       ui->legacyPasswordLineEdit->setCursor(Qt::ArrowCursor);
     break;
   case QEvent::MouseButtonPress:
-//    if (obj->objectName() == "generatedPasswordLineEdit")
-//      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
-//    else if (obj->objectName() == "legacyPasswordLineEdit")
-//      ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+    if (domainComboboxContains(ui->domainsComboBox->currentText())) {
+      if (obj->objectName() == "generatedPasswordLineEdit")
+        ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+      else if (obj->objectName() == "legacyPasswordLineEdit")
+        ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+    }
     break;
   case QEvent::MouseButtonRelease:
-//    if (obj->objectName() == "generatedPasswordLineEdit")
-//      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-//    else if (obj->objectName() == "legacyPasswordLineEdit")
-//      ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    if (domainComboboxContains(ui->domainsComboBox->currentText())) {
+      if (obj->objectName() == "generatedPasswordLineEdit")
+        ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+      else if (obj->objectName() == "legacyPasswordLineEdit")
+        ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    }
     break;
   default:
     break;

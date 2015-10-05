@@ -50,7 +50,7 @@ const QString Password::Digits = QString("0123456789").toUtf8();
 // !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8();
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
-
+const int Password::DefaultMaxLength = 36;
 
 Password::Password(const DomainSettings &ds, QObject *parent)
   : QObject(parent)
@@ -107,7 +107,19 @@ const SecureString &Password::remixed(void)
     }
   }
   else { // v3 method
-    const QByteArray &templ = d->domainSettings.passwordTemplate;
+    QByteArray templ;
+    const QList<QByteArray> &templateParts = d->domainSettings.passwordTemplate.split(';');
+    switch (templateParts.count()) {
+    case 1:
+      templ = templateParts.at(0);
+      break;
+    case 2:
+      templ = templateParts.at(1);
+      break;
+    default:
+      qWarning() << "Malformed template.";
+      break;
+    }
     int n = 0;
     while (v > Zero && n < templ.length()) {
       const char m = templ.at(n);

@@ -45,6 +45,7 @@ public:
   static const QString Digits;
   static const QString ExtraChars;
   static const QString AllChars;
+  static const int DefaultMaxLength;
 
   SecureString operator()(void) const;
   const SecureString &password(void) const;

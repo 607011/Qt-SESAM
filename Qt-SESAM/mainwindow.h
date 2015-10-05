@@ -71,6 +71,14 @@ private:
   } SyncPeer;
 
 private slots:
+  void onUserChanged(QString);
+  void onURLChanged(QString);
+  void onUsedCharactersChanged(void);
+  void onExtraCharactersChanged(QString);
+  void onPasswordLengthChanged(int);
+  void onIterationsChanged(int);
+  void onSaltChanged(QString);
+  void onDeleteChanged(bool);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
@@ -87,6 +95,7 @@ private slots:
   void onDomainSelected(const QString &);
   void onEasySelectorValuesChanged(int, int);
   void onEasySelectorValuesChanged(int, int, int, int);
+  void onPasswordTemplateChanged(const QString &);
   void renewSalt(void);
   void onRenewSalt(void);
   void onNewDomain(void);
@@ -95,7 +104,6 @@ private slots:
   void changeMasterPassword(void);
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
-  void onURLChanged(void);
   void openURL(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
@@ -141,7 +149,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
-  int checkSaveOnDirty(void);
+  void checkSaveOnDirty(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);

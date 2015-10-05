@@ -20,6 +20,7 @@
 
 #include "easyselectorwidget.h"
 #include "util.h"
+#include "password.h"
 #include <QDebug>
 #include <QSizePolicy>
 #include <QPainter>
@@ -31,17 +32,20 @@
 #include <QPoint>
 #include <QPixmap>
 
+const int EasySelectorWidget::DefaultMinLength = 4;
+const int EasySelectorWidget::DefaultMaxLength = 36;
+const int EasySelectorWidget::DefaultMaxComplexity = 6;
+
 class EasySelectorWidgetPrivate {
 public:
   EasySelectorWidgetPrivate(void)
     : buttonDown(false)
     , length((EasySelectorWidget::DefaultMaxLength - EasySelectorWidget::DefaultMinLength) / 2)
-    , complexity((EasySelectorWidget::DefaultMaxComplexity - EasySelectorWidget::DefaultMinComplexity) / 2)
+    , complexity(EasySelectorWidget::DefaultMaxComplexity / 2)
     , oldLength(length)
     , oldComplexity(complexity)
     , minLength(EasySelectorWidget::DefaultMinLength)
     , maxLength(EasySelectorWidget::DefaultMaxLength)
-    , minComplexity(EasySelectorWidget::DefaultMinComplexity)
     , maxComplexity(EasySelectorWidget::DefaultMaxComplexity)
   { /* ... */ }
   ~EasySelectorWidgetPrivate()
@@ -53,7 +57,6 @@ public:
   int oldComplexity;
   int minLength;
   int maxLength;
-  int minComplexity;
   int maxComplexity;
   QPixmap background;
 };
@@ -82,13 +85,13 @@ void EasySelectorWidget::setMousePos(const QPoint &pos)
   if (d->background.isNull())
     return;
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = d->maxComplexity - d->minComplexity + 1;
+  const int nY = d->maxComplexity + 1;
   const int xs = d->background.width() / nX;
   const int ys = d->background.height() / nY;
   const int clampedX = clamp(pos.x(), 0, d->background.width() - xs);
   const int clampedY = clamp(pos.y(), 0, d->background.height() - ys);
   d->length = d->minLength + clampedX / xs;
-  d->complexity = d->maxComplexity - (d->minComplexity + clampedY / ys);
+  d->complexity = d->maxComplexity - clampedY / ys;
   update();
 }
 
@@ -97,6 +100,10 @@ void EasySelectorWidget::setLength(int length)
 {
   Q_D(EasySelectorWidget);
   d->length = length;
+  if (d->length != d->oldLength) {
+    emit valuesChanged(d->length, d->complexity);
+    d->oldLength = d->length;
+  }
   update();
 }
 
@@ -126,8 +133,11 @@ void EasySelectorWidget::mouseMoveEvent(QMouseEvent *e)
   Q_D(EasySelectorWidget);
   if (d->buttonDown) {
     setMousePos(e->pos());
-    if (d->length != d->oldLength || d->complexity != d->oldComplexity)
+    if (d->length != d->oldLength || d->complexity != d->oldComplexity) {
       emit valuesChanged(d->length, d->complexity);
+      d->oldLength = d->length;
+      d->oldComplexity = d->complexity;
+    }
   }
 }
 
@@ -138,10 +148,11 @@ void EasySelectorWidget::mousePressEvent(QMouseEvent *e)
   d->buttonDown = e->button() == Qt::LeftButton;
   if (d->buttonDown) {
     setMousePos(e->pos());
-    if (d->length != d->oldLength || d->complexity != d->oldComplexity)
+    if (d->length != d->oldLength || d->complexity != d->oldComplexity) {
       emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
-    d->oldLength = d->length;
-    d->oldComplexity = d->complexity;
+      d->oldLength = d->length;
+      d->oldComplexity = d->complexity;
+    }
   }
 }
 
@@ -151,7 +162,11 @@ void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
   Q_D(EasySelectorWidget);
   if (e->button() == Qt::LeftButton) {
     d->buttonDown = false;
-    emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
+    if (d->length != d->oldLength || d->complexity != d->oldComplexity) {
+      emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
+      d->oldLength = d->length;
+      d->oldComplexity = d->complexity;
+    }
   }
 }
 
@@ -162,7 +177,7 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   if (d->background.isNull())
     return;
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = d->maxComplexity - d->minComplexity + 1;
+  const int nY = d->maxComplexity + 1;
   const int xs = d->background.width() / nX;
   const int ys = d->background.height() / nY;
   QPainter p(this);
@@ -170,7 +185,7 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   p.setBrush(QColor(255, 255, 255, 192));
   p.setPen(Qt::transparent);
   p.drawRect(QRect(QPoint(xs * (d->length - d->minLength),
-                          d->background.height() - ys * (d->complexity - d->minComplexity + 1)),
+                          d->background.height() - ys * (d->complexity + 1)),
                    QSize(xs, ys)));
 }
 
@@ -178,30 +193,39 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
 void EasySelectorWidget::resizeEvent(QResizeEvent *e)
 {
   Q_D(EasySelectorWidget);
-  QSize size = e->size();
-  if (size.width() == 0 || size.height() == 0) {
+  redrawBackground();
+}
+
+
+void EasySelectorWidget::redrawBackground(void)
+{
+  Q_D(EasySelectorWidget);
+  if (width() == 0 || height() == 0) {
     d->background = QPixmap();
     return;
   }
+  QSize sz = size();
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = d->maxComplexity - d->minComplexity + 1;
-  const int xs = size.width() / nX;
-  const int ys = size.height() / nY;
-  size = QSize(xs * nX, ys * nY);
-  d->background = QPixmap(size);
+  const int nY = d->maxComplexity + 1;
+  const int xs = sz.width() / nX;
+  const int ys = sz.height() / nY;
+  sz = QSize(xs * nX, ys * nY);
+  d->background = QPixmap(sz);
   QPainter p(&d->background);
-  QLinearGradient gradient(0, size.height(), size.width(), 0);
+  QLinearGradient gradient(0, sz.height(), sz.width(), 0);
   gradient.setColorAt(0.0, QColor(255, 0, 0, 255).darker());
-  gradient.setColorAt(0.5, QColor(255, 255, 0, 255).darker());
-  gradient.setColorAt(1.0, QColor(0, 255, 0, 255).darker());
-  p.fillRect(0, 0, size.width(), size.height(), gradient);
+  const qreal stretch = qreal(Password::DefaultMaxLength) / d->maxLength;
+  const qreal y = clamp(0.5 * stretch, 0.0, 0.999);
+  const qreal g = clamp(1.0 * stretch, 0.0, 1.000);
+  gradient.setColorAt(y, QColor(255, 255, 0, 255).darker());
+  gradient.setColorAt(g, QColor(0, 255, 0, 255).darker());
+  p.fillRect(QRect(QPoint(0, 0), sz), gradient);
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(255, 255, 255, 160)), 1));
   for (int x = 0; x < nX; ++x)
     p.drawLine(xs * x, 0, xs * x, d->background.height());
   for (int y = 0; y < nY; ++y)
     p.drawLine(0, ys * y, d->background.width(), ys * y);
-  setSizeIncrement(xs, ys);
 }
 
 
@@ -209,6 +233,7 @@ void EasySelectorWidget::setMinLength(int minLength)
 {
   Q_D(EasySelectorWidget);
   d->minLength = minLength;
+  redrawBackground();
   update();
 }
 
@@ -216,5 +241,6 @@ void EasySelectorWidget::setMaxLength(int maxLength)
 {
   Q_D(EasySelectorWidget);
   d->maxLength = maxLength;
+  redrawBackground();
   update();
 }
