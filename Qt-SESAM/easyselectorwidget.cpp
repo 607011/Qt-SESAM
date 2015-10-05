@@ -126,7 +126,6 @@ void EasySelectorWidget::mouseMoveEvent(QMouseEvent *e)
   Q_D(EasySelectorWidget);
   if (d->buttonDown) {
     setMousePos(e->pos());
-    qDebug() << d->length << d->complexity;
     if (d->length != d->oldLength || d->complexity != d->oldComplexity)
       emit valuesChanged(d->length, d->complexity);
   }
@@ -172,7 +171,7 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   p.setPen(Qt::transparent);
   p.drawRect(QRect(QPoint(xs * (d->length - d->minLength),
                           d->background.height() - ys * (d->complexity - d->minComplexity + 1)),
-                   QSize(xs, ys));
+                   QSize(xs, ys)));
 }
 
 
