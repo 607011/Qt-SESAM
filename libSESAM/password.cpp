@@ -73,6 +73,55 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
+QBitArray Password::deconstructedComplexity(int complexity)
+{
+  QBitArray ba(4);
+  if (complexity > 5) {
+    ba[0] = true;
+    ba[1] = true;
+    ba[2] = true;
+    ba[3] = true;
+  }
+  else if (complexity > 4) {
+    ba[0] = true;
+    ba[1] = true;
+    ba[2] = true;
+    ba[3] = false;
+  }
+  else if (complexity > 3) {
+    ba[0] = false;
+    ba[1] = true;
+    ba[2] = true;
+    ba[3] = false;
+  }
+  else if (complexity > 2) {
+    ba[0] = true;
+    ba[1] = true;
+    ba[2] = false;
+    ba[3] = false;
+  }
+  else if (complexity > 1) {
+    ba[0] = false;
+    ba[1] = false;
+    ba[2] = true;
+    ba[3] = false;
+  }
+  else if (complexity > 0) {
+    ba[0] = false;
+    ba[1] = true;
+    ba[2] = false;
+    ba[3] = false;
+  }
+  else {
+    ba[0] = true;
+    ba[1] = false;
+    ba[2] = false;
+    ba[3] = false;
+  }
+  return ba;
+}
+
+
 void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
@@ -109,17 +158,9 @@ const SecureString &Password::remixed(void)
   else { // v3 method
     QByteArray templ;
     const QList<QByteArray> &templateParts = d->domainSettings.passwordTemplate.split(';');
-    switch (templateParts.count()) {
-    case 1:
-      templ = templateParts.at(0);
-      break;
-    case 2:
-      templ = templateParts.at(1);
-      break;
-    default:
-      qWarning() << "Malformed template.";
-      break;
-    }
+    if (templateParts.count() != 2)
+      return SecureString();
+    templ = templateParts.at(1);
     int n = 0;
     while (v > Zero && n < templ.length()) {
       const char m = templ.at(n);
