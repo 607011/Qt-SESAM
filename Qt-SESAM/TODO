@@ -1,0 +1,2 @@
+[ ] Select domain from combobox => to multiple calls to onDomainSelected(domain)
+[ ] Type a new domain into combobox, then select another domain => new domain is not added

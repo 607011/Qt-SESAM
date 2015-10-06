@@ -47,10 +47,12 @@ const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf
 const QString Password::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
 const QString Password::UpperCharsNoAmbiguous = QString("ABCDEFGHJKLMNPQRTUVWXYZ").toUtf8();
 const QString Password::Digits = QString("0123456789").toUtf8();
-// !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
-const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8();
+const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8(); // default: !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 const int Password::DefaultMaxLength = 36;
+const int Password::DefaultLength = 24;
+const int Password::DefaultComplexity = 6;
+
 
 Password::Password(const DomainSettings &ds, QObject *parent)
   : QObject(parent)

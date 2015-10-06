@@ -220,8 +220,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
   resetAllFields();
 
-  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
+  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->installEventFilter(this);
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(onUserChanged(QString)));
   ui->userLineEdit->installEventFilter(this);
@@ -445,19 +445,36 @@ void MainWindow::moveEvent(QMoveEvent *)
 
 void MainWindow::resetAllFieldsExceptDomainComboBox(void)
 {
+  Q_D(MainWindow);
   ui->userLineEdit->setText(QString());
+  ui->urlLineEdit->blockSignals(true);
   ui->urlLineEdit->setText(QString());
+  ui->urlLineEdit->blockSignals(false);
   ui->legacyPasswordLineEdit->setText(QString());
+  ui->saltBase64LineEdit->blockSignals(true);
   renewSalt();
+  ui->saltBase64LineEdit->blockSignals(false);
+  ui->iterationsSpinBox->blockSignals(true);
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->iterationsSpinBox->blockSignals(false);
+  ui->passwordLengthSpinBox->blockSignals(true);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
+  ui->passwordLengthSpinBox->blockSignals(false);
   ui->notesPlainTextEdit->setPlainText(QString());
+  ui->usedCharactersPlainTextEdit->blockSignals(true);
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
+  ui->usedCharactersPlainTextEdit->blockSignals(false);
   ui->createdLabel->setText(QString());
   ui->modifiedLabel->setText(QString());
   ui->deleteCheckBox->setChecked(false);
   // v3
+  ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(Password::ExtraChars);
+  ui->extraLineEdit->blockSignals(false);
+  d->easySelector->blockSignals(true);
+  d->easySelector->setLength(d->optionsDialog->maxPasswordLength() / 2);
+  d->easySelector->setComplexity(Password::DefaultComplexity);
+  d->easySelector->blockSignals(false);
   ui->useLowerCaseCheckBox->setChecked(true);
   ui->useUpperCaseCheckBox->setChecked(true);
   ui->useDigitsCheckBox->setChecked(true);
@@ -1058,7 +1075,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
+  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
   const DomainSettings &p = d->domains.at(domain);
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(p.domainName);
@@ -1106,13 +1123,12 @@ void MainWindow::makeDomainComboBox(void)
   QStringList domainNames;
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->clear();
-  foreach(DomainSettings ds, d->domains) {
-    if (!ds.deleted && ds.domainName != tr("<New domain ...>"))
+  foreach(DomainSettings ds, d->domains)
+    if (!ds.deleted)
       domainNames.append(ds.domainName);
-  }
   domainNames.sort(Qt::CaseInsensitive);
   ui->domainsComboBox->addItems(domainNames);
-  if (d->completer) {
+  if (d->completer != nullptr) {
     QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
     delete d->completer;
   }
@@ -1658,7 +1674,7 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain;
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != nullptr ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   int button = checkSaveOnDirty();
