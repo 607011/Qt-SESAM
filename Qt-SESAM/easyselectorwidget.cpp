@@ -209,6 +209,7 @@ void EasySelectorWidget::setMinLength(int minLength)
 {
   Q_D(EasySelectorWidget);
   d->minLength = minLength;
+  resize(size());
   update();
 }
 
@@ -216,5 +217,6 @@ void EasySelectorWidget::setMaxLength(int maxLength)
 {
   Q_D(EasySelectorWidget);
   d->maxLength = maxLength;
+  resize(size());
   update();
 }
