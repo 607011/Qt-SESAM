@@ -32,8 +32,8 @@ class CountdownWidget : public QWidget
 public:
   explicit CountdownWidget(QWidget *parent = nullptr);
   ~CountdownWidget();
-  QSize sizeHint(void) const { return QSize(16, 16); }
-  QSize minimumSizeHint(void) const { return QSize(16, 16); }
+  QSize sizeHint(void) const { return DefaultSize; }
+  QSize minimumSizeHint(void) const { return DefaultSize; }
 
   void start(int timeout);
   void stop(void);
@@ -46,12 +46,16 @@ protected:
 signals:
   void timeout(void);
 
-public slots:
+private slots:
+  void tick(void);
 
 private:
   QScopedPointer<CountdownWidgetPrivate> d_ptr;
   Q_DECLARE_PRIVATE(CountdownWidget)
   Q_DISABLE_COPY(CountdownWidget)
+
+  static const int UpdateIntervalMs;
+  static const QSize DefaultSize;
 };
 
 #endif // __COUNTDOWNWIDGET_H_

@@ -38,8 +38,8 @@ public:
 };
 
 
-static const int UpdateIntervalMs = 5 * 1000;
-static const QSize DefaultSize = QSize(16, 16);
+const int CountdownWidget::UpdateIntervalMs = 5 * 1000;
+const QSize CountdownWidget::DefaultSize = QSize(16, 16);
 
 CountdownWidget::CountdownWidget(QWidget *parent)
   : QWidget(parent)
@@ -47,8 +47,9 @@ CountdownWidget::CountdownWidget(QWidget *parent)
 {
   Q_D(CountdownWidget);
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  resize(16, 16);
-  QObject::connect(&d->countdown, SIGNAL(timeout()), SLOT(update()));
+  resize(DefaultSize);
+  QObject::connect(&d->countdown, SIGNAL(timeout()), SLOT(tick()));
+  QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SIGNAL(timeout()));
 }
 
 
@@ -65,7 +66,7 @@ void CountdownWidget::start(int timeoutMs)
   d->masterPasswordInvalidationTimer.setSingleShot(true);
   d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
   d->masterPasswordInvalidationTimer.start(timeoutMs);
-  update();
+  tick();
 }
 
 
@@ -84,6 +85,17 @@ int CountdownWidget::remainingTime(void) const
 }
 
 
+void CountdownWidget::tick(void)
+{
+  const int secs = remainingTime() / 1000;
+  const QString &t = (secs <= 60)
+      ? tr("%1 seconds").arg(secs)
+      : tr("<%1 minutes").arg(1 + secs / 60);
+  setToolTip(tr("Application will be locked in %1.").arg(t));
+  update();
+}
+
+
 void CountdownWidget::paintEvent(QPaintEvent *)
 {
   Q_D(CountdownWidget);
@@ -96,9 +108,8 @@ void CountdownWidget::paintEvent(QPaintEvent *)
   p.setBrush(Qt::transparent);
   static const QRect boundingRect(2, 2, 12, 12);
   static const int Twelve = 16 * 90;
-  const qreal pct = qreal(remainingTime()) / d->timeoutMs;
-  p.setPen(QPen(QBrush(pct < 0.2 ? Qt::red : Qt::black), 1.0));
-  const int angle = qRound(16 * 360 * pct);
+  p.setPen(QPen(QBrush(remainingTime() < 60 * 1000 ? Qt::red : Qt::black), 1.0));
+  const int angle = 16 * 360 * remainingTime() / d->timeoutMs;
   if (angle > 16 * (360 - 10))
     p.drawEllipse(boundingRect);
   else

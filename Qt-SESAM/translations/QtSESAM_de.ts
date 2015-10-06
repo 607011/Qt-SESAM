@@ -37,6 +37,21 @@
     </message>
 </context>
 <context>
+    <name>CountdownWidget</name>
+    <message>
+        <source>%1 seconds</source>
+        <translation>%1 Sekunden</translation>
+    </message>
+    <message>
+        <source>&lt;%1 minutes</source>
+        <translation>&lt;%1 Minuten</translation>
+    </message>
+    <message>
+        <source>Application will be locked in %1.</source>
+        <translation>Anwendung wird in %1 gesperrt.</translation>
+    </message>
+</context>
+<context>
     <name>CredentialsDialog</name>
     <message>
         <source>Enter master password</source>
@@ -730,7 +745,7 @@
     </message>
     <message>
         <source>Force</source>
-        <translation>Erzwingen</translation>
+        <translation type="vanished">Erzwingen</translation>
     </message>
     <message>
         <source>Use</source>
