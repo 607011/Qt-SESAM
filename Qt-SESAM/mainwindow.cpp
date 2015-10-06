@@ -514,7 +514,7 @@ void MainWindow::onRenewSalt(void)
 }
 
 
-void MainWindow::checkSaveOnDirty(void)
+int MainWindow::checkSaveOnDirty(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::checkSaveOnDirty()";
@@ -529,6 +529,7 @@ void MainWindow::checkSaveOnDirty(void)
           QMessageBox::Save) == QMessageBox::Save)
       saveCurrentDomainSettings();
   }
+  return rc;
 }
 
 
@@ -656,7 +657,6 @@ void MainWindow::onDeleteChanged(bool)
 {
   setDirty();
   restartInvalidationTimer();
->>>>>>> 0b897314f096be349a9dee9c06d9572b78737436
 }
 
 

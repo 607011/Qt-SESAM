@@ -150,7 +150,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
-  void checkSaveOnDirty(void);
+  int checkSaveOnDirty(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
