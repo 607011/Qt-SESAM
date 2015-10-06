@@ -106,6 +106,7 @@ private slots:
   void onMasterPasswordEntered(void);
   void clearAllSettings(void);
   void lockApplication(void);
+  void drawCountdown(void);
   void invalidatePassword(bool reenter = true);
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);

@@ -53,6 +53,7 @@
 #include <QCompleter>
 #include <QUndoStack>
 #include <QUndoCommand>
+#include <QPainter>
 
 #include "singleinstancedetector.h"
 #include "global.h"
@@ -145,6 +146,7 @@ public:
   EasySelectorWidget *easySelector;
   QAction *actionShow;
   QString lastDomainBeforeLock;
+  QString lastDomain;
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
@@ -173,6 +175,7 @@ public:
   QMutex keyGenerationMutex;
   QString masterPassword;
   QTimer masterPasswordInvalidationTimer;
+  QTimer countdown;
   QSslConfiguration sslConf;
   QNetworkAccessManager deleteNAM;
   QNetworkAccessManager readNAM;
@@ -266,6 +269,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(lockApplication()));
+  QObject::connect(&d->countdown, SIGNAL(timeout()), SLOT(drawCountdown()));
+  d->countdown.setInterval(15 * 1000);
+  d->countdown.start();
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
@@ -440,7 +446,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->userLineEdit->setText(QString());
   ui->urlLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
-  ui->saltBase64LineEdit->setText(QString());
+  renewSalt();
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->notesPlainTextEdit->setPlainText(QString());
@@ -517,9 +523,9 @@ void MainWindow::onRenewSalt(void)
 
 int MainWindow::checkSaveOnDirty(void)
 {
-  // XXX: check all calls of this function
   Q_D(MainWindow);
-  int rc = QMessageBox::Ok;
+  qDebug() << "MainWindow::checkSaveOnDirty()";
+  int rc = QMessageBox::Save;
   if (d->parameterSetDirty) {
     rc = QMessageBox::question(
           this,
@@ -547,6 +553,7 @@ int MainWindow::checkSaveOnDirty(void)
 void MainWindow::onNewDomain(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::onNewDomain()";
   int button = checkSaveOnDirty();
   if (button == QMessageBox::Cancel)
     return;
@@ -593,24 +600,46 @@ void MainWindow::onURLChanged(void)
 }
 
 
+void MainWindow::drawCountdown(void)
+{
+  Q_D(MainWindow);
+  QImage image(QSize(16, 16), QImage::Format_ARGB32_Premultiplied);
+  image.fill(Qt::transparent);
+  QPainter p(&image);
+  p.setOpacity(0.6);
+  p.setRenderHint(QPainter::Antialiasing);
+  p.setCompositionMode(QPainter::CompositionMode_Source);
+  p.setBrush(Qt::transparent);
+  p.setPen(QPen(QBrush(Qt::black), 1.0));
+  static const QRect boundingRect(2, 2, 12, 12);
+  const int angle = 16 * 360 * d->masterPasswordInvalidationTimer.remainingTime()
+      / (d->optionsDialog->masterPasswordInvalidationTimeMins() * 60 * 1000);
+  if (angle > 16 * (360 - 10))
+    p.drawEllipse(boundingRect);
+  else
+    p.drawPie(boundingRect, 0, -angle);
+  p.end();
+  ui->menuTimeout->setIcon(QPixmap::fromImage(image));
+}
+
+
 void MainWindow::restartInvalidationTimer(void)
 {
   Q_D(MainWindow);
   const int timeout = d->optionsDialog->masterPasswordInvalidationTimeMins();
-  if (timeout > 0)
+  if (timeout > 0) {
     d->masterPasswordInvalidationTimer.start(timeout * 60 * 1000);
-  else
+    drawCountdown();
+  }
+  else {
     d->masterPasswordInvalidationTimer.stop();
+  }
 }
 
 
 void MainWindow::onPasswordGenerationStarted(void)
 {
-  Q_D(MainWindow);
-// qDebug() << "MainWindow::onPasswordGenerationStarted()";
-//  ui->copyGeneratedPasswordToClipboardPushButton->hide();
-//  ui->processLabel->show();
-//  d->loaderIcon.start();
+  // do nothing
 }
 
 
@@ -1110,7 +1139,9 @@ void MainWindow::saveCurrentDomainSettings(void)
   d->domains.updateWith(ds);
 
   makeDomainComboBox();
+  ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(currentDomain);
+  ui->domainsComboBox->blockSignals(false);
 
   saveAllDomainDataToSettings();
 
@@ -1604,12 +1635,16 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")";
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain;
   if (!domainComboboxContains(domain))
     return;
   int button = checkSaveOnDirty();
-  if (button == QMessageBox::Cancel)
+  if (button == QMessageBox::Cancel) {
+    ui->domainsComboBox->blockSignals(true);
+    ui->domainsComboBox->setCurrentText(d->lastDomain);
+    ui->domainsComboBox->blockSignals(false);
     return;
+  }
   copyDomainSettingsToGUI(domain);
   d->lastDomainSettings = collectedDomainSettings();
   setDirty(false);
@@ -1644,6 +1679,7 @@ void MainWindow::onDomainTextChanged(const QString &domain)
       setDirty();
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     d->lastDomainSettings.clear();
+    d->lastDomain = domain;
     updatePassword();
   }
   else {
@@ -1739,6 +1775,7 @@ void MainWindow::onMasterPasswordEntered(void)
         show();
         if (d->optionsDialog->syncOnStart())
           sync();
+        restartInvalidationTimer();
       }
     }
   }
