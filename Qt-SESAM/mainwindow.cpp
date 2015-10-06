@@ -265,7 +265,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 #else
-  ui->actionHackLegacyPassword->setEnabled(false);
+  ui->actionHackLegacyPassword->setVisible(false);
 #endif
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
   QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);

@@ -91,7 +91,9 @@ void CountdownWidget::tick(void)
   const QString &t = (secs <= 60)
       ? tr("%1 seconds").arg(secs)
       : tr("<%1 minutes").arg(1 + secs / 60);
-  setToolTip(tr("Application will be locked in %1.").arg(t));
+  const QString &msg = tr("Application will be locked in %1.").arg(t);
+  setToolTip(msg);
+  setWhatsThis(msg);
   update();
 }
 
