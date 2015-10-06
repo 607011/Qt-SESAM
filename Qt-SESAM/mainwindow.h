@@ -24,6 +24,8 @@
 #include <QString>
 #include <QMovie>
 #include <QCloseEvent>
+#include <QResizeEvent>
+#include <QMoveEvent>
 #include <QLineEdit>
 #include <QSettings>
 #include <QCompleter>
@@ -58,10 +60,6 @@ public:
   explicit MainWindow(bool forceStart, QWidget *parent = nullptr);
 
   ~MainWindow();
-
-protected:
-  void closeEvent(QCloseEvent *);
-  void changeEvent(QEvent *);
 
 private:
   typedef enum _Type {
@@ -114,7 +112,6 @@ private slots:
   void onMasterPasswordEntered(void);
   void clearAllSettings(void);
   void lockApplication(void);
-  void drawCountdown(void);
   void invalidatePassword(bool reenter = true);
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
@@ -140,6 +137,10 @@ signals:
   void saltKeyIVGenerated(void);
 
 protected:
+  void closeEvent(QCloseEvent *);
+  void changeEvent(QEvent *);
+  void resizeEvent(QResizeEvent *);
+  void moveEvent(QMoveEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
 private:

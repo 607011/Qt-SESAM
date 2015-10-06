@@ -657,19 +657,10 @@
      <string>Edit</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuTimeout">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Timeout</string>
-    </property>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuExtras"/>
    <addaction name="menuHelp"/>
-   <addaction name="menuTimeout"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionExit">

@@ -56,7 +56,8 @@ SOURCES += main.cpp \
     changemasterpassworddialog.cpp \
     passwordchecker.cpp \
     easyselectorwidget.cpp \
-    commands.cpp
+    commands.cpp \
+    countdownwidget.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -70,7 +71,8 @@ HEADERS  += \
     passwordchecker.h \
     singleinstancedetector.h \
     easyselectorwidget.h \
-    commands.h
+    commands.h \
+    countdownwidget.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

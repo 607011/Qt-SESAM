@@ -64,6 +64,7 @@
 #include "changemasterpassworddialog.h"
 #include "optionsdialog.h"
 #include "easyselectorwidget.h"
+#include "countdownwidget.h"
 #if HACKING_MODE_ENABLED
 #include "hackhelper.h"
 #endif
@@ -101,6 +102,7 @@ public:
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(new ProgressDialog(parent))
     , easySelector(new EasySelectorWidget)
+    , countdownWidget(new CountdownWidget)
     , actionShow(nullptr)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
@@ -144,6 +146,7 @@ public:
   OptionsDialog *optionsDialog;
   ProgressDialog *progressDialog;
   EasySelectorWidget *easySelector;
+  CountdownWidget *countdownWidget;
   QAction *actionShow;
   QString lastDomainBeforeLock;
   QString lastDomain;
@@ -174,8 +177,6 @@ public:
   QFuture<void> keyGenerationFuture;
   QMutex keyGenerationMutex;
   QString masterPassword;
-  QTimer masterPasswordInvalidationTimer;
-  QTimer countdown;
   QSslConfiguration sslConf;
   QNetworkAccessManager deleteNAM;
   QNetworkAccessManager readNAM;
@@ -259,10 +260,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
-  QObject::connect(&d->masterPasswordInvalidationTimer, SIGNAL(timeout()), SLOT(lockApplication()));
-  QObject::connect(&d->countdown, SIGNAL(timeout()), SLOT(drawCountdown()));
-  d->countdown.setInterval(15 * 1000);
-  d->countdown.start();
+  QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
@@ -288,9 +286,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->undoAction->setShortcuts(QKeySequence::Undo);
   ui->menuEdit->addAction(d->undoAction);
 
-  d->masterPasswordInvalidationTimer.setSingleShot(true);
-  d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
-
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
   QMenu *trayMenu = new QMenu(AppName);
   d->actionShow = trayMenu->addAction(tr("Minimize window"));
@@ -315,6 +310,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 #endif
 #endif
 
+  ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidgetVersions->setCurrentIndex(1);
   ui->saltBase64LineEdit->blockSignals(true);
@@ -432,6 +428,18 @@ void MainWindow::changeEvent(QEvent *e)
   default:
     break;
   }
+}
+
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+  restartInvalidationTimer();
+}
+
+
+void MainWindow::moveEvent(QMoveEvent *)
+{
+  restartInvalidationTimer();
 }
 
 
@@ -585,29 +593,6 @@ void MainWindow::onURLChanged(QString)
 }
 
 
-void MainWindow::drawCountdown(void)
-{
-  Q_D(MainWindow);
-  QImage image(QSize(16, 16), QImage::Format_ARGB32_Premultiplied);
-  image.fill(Qt::transparent);
-  QPainter p(&image);
-  p.setOpacity(0.6);
-  p.setRenderHint(QPainter::Antialiasing);
-  p.setCompositionMode(QPainter::CompositionMode_Source);
-  p.setBrush(Qt::transparent);
-  p.setPen(QPen(QBrush(Qt::black), 1.0));
-  static const QRect boundingRect(2, 2, 12, 12);
-  const int angle = 16 * 360 * d->masterPasswordInvalidationTimer.remainingTime()
-      / (d->optionsDialog->masterPasswordInvalidationTimeMins() * 60 * 1000);
-  if (angle > 16 * (360 - 10))
-    p.drawEllipse(boundingRect);
-  else
-    p.drawPie(boundingRect, 0, -angle);
-  p.end();
-  ui->menuTimeout->setIcon(QPixmap::fromImage(image));
-}
-
-
 void MainWindow::onUserChanged(QString)
 {
   setDirty();
@@ -665,11 +650,10 @@ void MainWindow::restartInvalidationTimer(void)
   Q_D(MainWindow);
   const int timeout = d->optionsDialog->masterPasswordInvalidationTimeMins();
   if (timeout > 0) {
-    d->masterPasswordInvalidationTimer.start(timeout * 60 * 1000);
-    drawCountdown();
+    d->countdownWidget->start(timeout * 60 * 1000);
   }
   else {
-    d->masterPasswordInvalidationTimer.stop();
+    d->countdownWidget->stop();
   }
 }
 
