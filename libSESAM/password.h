@@ -24,6 +24,7 @@
 #include <QString>
 #include <QScopedPointer>
 #include <QByteArray>
+#include <QBitArray>
 
 #include "securebytearray.h"
 #include "securestring.h"
@@ -45,6 +46,7 @@ public:
   static const QString Digits;
   static const QString ExtraChars;
   static const QString AllChars;
+  static const int DefaultMaxLength;
 
   SecureString operator()(void) const;
   const SecureString &password(void) const;
@@ -53,6 +55,8 @@ public:
   void waitForFinished(void);
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
+
+  static QBitArray deconstructedComplexity(int complexity);
 
   void generate(const SecureByteArray &masterPassword);
   void generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings = DomainSettings());

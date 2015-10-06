@@ -68,6 +68,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , createdDate(o.createdDate)
   , modifiedDate(o.modifiedDate)
   , deleted(o.deleted)
+  // v3 settings
   , extraCharacters(o.extraCharacters)
   , passwordTemplate(o.passwordTemplate)
 { /* ... */ }

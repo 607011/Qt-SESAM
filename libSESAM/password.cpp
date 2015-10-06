@@ -50,7 +50,7 @@ const QString Password::Digits = QString("0123456789").toUtf8();
 // !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8();
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
-
+const int Password::DefaultMaxLength = 36;
 
 Password::Password(const DomainSettings &ds, QObject *parent)
   : QObject(parent)
@@ -70,6 +70,55 @@ Password::~Password()
 void Password::setDomainSettings(const DomainSettings &ds)
 {
   d_ptr->domainSettings = ds;
+}
+
+
+QBitArray Password::deconstructedComplexity(int complexity)
+{
+  QBitArray ba(4);
+  if (complexity > 5) {
+    ba[0] = true;
+    ba[1] = true;
+    ba[2] = true;
+    ba[3] = true;
+  }
+  else if (complexity > 4) {
+    ba[0] = true;
+    ba[1] = true;
+    ba[2] = true;
+    ba[3] = false;
+  }
+  else if (complexity > 3) {
+    ba[0] = false;
+    ba[1] = true;
+    ba[2] = true;
+    ba[3] = false;
+  }
+  else if (complexity > 2) {
+    ba[0] = true;
+    ba[1] = true;
+    ba[2] = false;
+    ba[3] = false;
+  }
+  else if (complexity > 1) {
+    ba[0] = false;
+    ba[1] = false;
+    ba[2] = true;
+    ba[3] = false;
+  }
+  else if (complexity > 0) {
+    ba[0] = false;
+    ba[1] = true;
+    ba[2] = false;
+    ba[3] = false;
+  }
+  else {
+    ba[0] = true;
+    ba[1] = false;
+    ba[2] = false;
+    ba[3] = false;
+  }
+  return ba;
 }
 
 
@@ -107,7 +156,11 @@ const SecureString &Password::remixed(void)
     }
   }
   else { // v3 method
-    const QByteArray &templ = d->domainSettings.passwordTemplate;
+    QByteArray templ;
+    const QList<QByteArray> &templateParts = d->domainSettings.passwordTemplate.split(';');
+    if (templateParts.count() != 2)
+      return SecureString();
+    templ = templateParts.at(1);
     int n = 0;
     while (v > Zero && n < templ.length()) {
       const char m = templ.at(n);

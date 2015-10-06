@@ -64,12 +64,12 @@ private:
   Q_DECLARE_PRIVATE(EasySelectorWidget)
   Q_DISABLE_COPY(EasySelectorWidget)
 
-  static const int DefaultMinLength = 4;
-  static const int DefaultMaxLength = 40;
-  static const int DefaultMinComplexity = 0;
-  static const int DefaultMaxComplexity = 7;
+  static const int DefaultMinLength;
+  static const int DefaultMaxLength;
+  static const int DefaultMaxComplexity;
 
 private: // methods
+  void redrawBackground(void);
 };
 
 #endif // __EASYSELECTORWIDGET_H_

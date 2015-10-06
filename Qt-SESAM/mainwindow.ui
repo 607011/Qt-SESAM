@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>275</width>
-    <height>827</height>
+    <height>743</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -284,7 +284,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidgetVersions">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabV2">
            <attribute name="title">
@@ -306,7 +306,7 @@
               <item row="0" column="1">
                <widget class="QSpinBox" name="passwordLengthSpinBox">
                 <property name="minimum">
-                 <number>1</number>
+                 <number>4</number>
                 </property>
                 <property name="value">
                  <number>24</number>
@@ -359,16 +359,6 @@
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <item row="5" column="1">
-               <widget class="QCheckBox" name="forceExtraCheckBox">
-                <property name="toolTip">
-                 <string>Force</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="0">
                <widget class="QCheckBox" name="useLowerCaseCheckBox">
                 <property name="toolTip">
@@ -379,34 +369,14 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
-               <widget class="QCheckBox" name="forceUpperCaseCheckBox">
-                <property name="toolTip">
-                 <string>Force</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="1">
-               <widget class="QCheckBox" name="forceLowerCaseCheckBox">
-                <property name="toolTip">
-                 <string>Force</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
                <widget class="QLabel" name="label_4">
                 <property name="text">
                  <string>abc ...</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="3" column="1">
                <widget class="QLabel" name="label_13">
                 <property name="text">
                  <string>ABC ...</string>
@@ -433,14 +403,14 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="2">
+              <item row="5" column="1">
                <widget class="QLineEdit" name="extraLineEdit">
                 <property name="text">
                  <string>#!\/&quot;$%&amp;()[]{}`'=-_+*&lt;&gt;.,;:</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
+              <item row="1" column="1">
                <widget class="QLabel" name="label_14">
                 <property name="text">
                  <string>0123 ...</string>
@@ -457,16 +427,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QCheckBox" name="forceDigitsCheckBox">
-                <property name="toolTip">
-                 <string>Force</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>
@@ -475,19 +435,6 @@
                <bool>false</bool>
               </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -842,16 +789,12 @@
   <tabstop>saltBase64LineEdit</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
-  <tabstop>forceUpperCaseCheckBox</tabstop>
   <tabstop>useLowerCaseCheckBox</tabstop>
-  <tabstop>forceExtraCheckBox</tabstop>
   <tabstop>useUpperCaseCheckBox</tabstop>
   <tabstop>useExtraCheckBox</tabstop>
-  <tabstop>forceLowerCaseCheckBox</tabstop>
   <tabstop>extraLineEdit</tabstop>
   <tabstop>passwordTemplateLineEdit</tabstop>
   <tabstop>useDigitsCheckBox</tabstop>
-  <tabstop>forceDigitsCheckBox</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>
