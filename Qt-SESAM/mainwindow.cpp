@@ -1713,8 +1713,6 @@ void MainWindow::onDomainTextChanged(const QString &domain)
       ui->tabWidgetVersions->setCurrentIndex(1);
       ui->tabWidget->setCurrentIndex(0);
     }
-    if (!ui->userLineEdit->text().isEmpty())
-      setDirty();
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     d->lastDomainSettings.clear();
     d->lastDomain = domain;
