@@ -149,7 +149,7 @@ void EasySelectorWidget::mousePressEvent(QMouseEvent *e)
   if (d->buttonDown) {
     setMousePos(e->pos());
     if (d->length != d->oldLength || d->complexity != d->oldComplexity) {
-      emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
+      emit valuesChanged(d->length, d->complexity);
       d->oldLength = d->length;
       d->oldComplexity = d->complexity;
     }
@@ -163,7 +163,7 @@ void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
   if (e->button() == Qt::LeftButton) {
     d->buttonDown = false;
     if (d->length != d->oldLength || d->complexity != d->oldComplexity) {
-      emit valuesChanged(d->length, d->complexity, d->oldLength, d->oldComplexity);
+      emit valuesChanged(d->length, d->complexity);
       d->oldLength = d->length;
       d->oldComplexity = d->complexity;
     }

@@ -53,7 +53,6 @@ protected:
 
 signals:
   void valuesChanged(int newLength, int newComplexity);
-  void valuesChanged(int newLength, int newComplexity, int oldLength, int oldComplexity);
 
 public slots:
   void setMinLength(int);

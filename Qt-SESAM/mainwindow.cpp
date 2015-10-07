@@ -211,7 +211,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
 
   ui->selectorGridLayout->addWidget(d->easySelector, 0, 1);
-  QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int, int, int)), SLOT(onEasySelectorValuesChanged(int, int, int, int)));
   QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
   resetAllFields();
@@ -1732,13 +1731,6 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   ui->generatedPasswordLineEdit->setText(d->password.remixed());
   setDirty();
   restartInvalidationTimer();
-}
-
-
-void MainWindow::onEasySelectorValuesChanged(int length, int complexity, int oldLength, int oldComplexity)
-{
-  Q_D(MainWindow);
-  onEasySelectorValuesChanged(length, complexity);
 }
 
 
