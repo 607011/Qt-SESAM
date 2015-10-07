@@ -78,7 +78,7 @@ void Password::setDomainSettings(const DomainSettings &ds)
 QBitArray Password::deconstructedComplexity(int complexity)
 {
   QBitArray ba(4);
-  static enum { Digits = 0, Lower = 1, Upper = 2, Extra = 3};
+  enum { Digits = 0, Lower, Upper, Extra }; // TODO: make public for use in functions that call deconstructedComplexity()
   switch (complexity) {
   case 6:
     ba[Digits] = true;
