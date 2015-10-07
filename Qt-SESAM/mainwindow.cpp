@@ -246,7 +246,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
-  QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(onNewDomain()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
   QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
   QObject::connect(ui->actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
@@ -550,18 +549,6 @@ QMessageBox::StandardButton MainWindow::checkSaveOnDirty(void)
     }
   }
   return rc;
-}
-
-
-void MainWindow::onNewDomain(void)
-{
-  Q_D(MainWindow);
-//  qDebug() << "MainWindow::onNewDomain()";
-  QMessageBox::StandardButton button = checkSaveOnDirty();
-  if (button == QMessageBox::Cancel)
-    return;
-  resetAllFields();
-  ui->tabWidgetVersions->setCurrentIndex(1);
 }
 
 

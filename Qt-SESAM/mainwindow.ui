@@ -632,7 +632,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
     <addaction name="separator"/>

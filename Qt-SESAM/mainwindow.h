@@ -97,7 +97,6 @@ private slots:
   void onPasswordTemplateChanged(const QString &);
   void renewSalt(void);
   void onRenewSalt(void);
-  void onNewDomain(void);
   void cancelPasswordGeneration(void);
   void stopPasswordGeneration(void);
   void changeMasterPassword(void);
