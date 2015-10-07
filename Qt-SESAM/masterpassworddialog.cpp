@@ -93,12 +93,7 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 {
   ui->passwordLineEdit->selectAll();
   ui->passwordLineEdit->setFocus();
-}
-
-
-void MasterPasswordDialog::closeEvent(QCloseEvent*)
-{
-  // ...
+  setFocus();
 }
 
 
