@@ -1698,6 +1698,7 @@ void MainWindow::onDomainSelected(QString domain)
   default:
     break;
   }
+  ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   copyDomainSettingsToGUI(domain);
   d->lastDomainSettings = collectedDomainSettings();
   setDirty(false);
