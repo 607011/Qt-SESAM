@@ -587,7 +587,7 @@
     </message>
     <message>
         <source>&lt;New domain ...&gt;</source>
-        <translation>&lt;Neue Domain ...&gt;</translation>
+        <translation type="vanished">&lt;Neue Domain ...&gt;</translation>
     </message>
     <message>
         <source>Generated</source>
@@ -1306,7 +1306,7 @@
     </message>
     <message>
         <source>Only one instance of %1 can run at a time.</source>
-        <translation>Von %1 kann nureine Instanz gleichzeitig laufen.</translation>
+        <translation type="unfinished">Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
     </message>
     <message>
         <source>Cancel</source>
