@@ -78,47 +78,50 @@ void Password::setDomainSettings(const DomainSettings &ds)
 QBitArray Password::deconstructedComplexity(int complexity)
 {
   QBitArray ba(4);
-  if (complexity > 5) {
-    ba[0] = true;
-    ba[1] = true;
-    ba[2] = true;
-    ba[3] = true;
-  }
-  else if (complexity > 4) {
-    ba[0] = true;
-    ba[1] = true;
-    ba[2] = true;
-    ba[3] = false;
-  }
-  else if (complexity > 3) {
-    ba[0] = false;
-    ba[1] = true;
-    ba[2] = true;
-    ba[3] = false;
-  }
-  else if (complexity > 2) {
-    ba[0] = true;
-    ba[1] = true;
-    ba[2] = false;
-    ba[3] = false;
-  }
-  else if (complexity > 1) {
-    ba[0] = false;
-    ba[1] = false;
-    ba[2] = true;
-    ba[3] = false;
-  }
-  else if (complexity > 0) {
-    ba[0] = false;
-    ba[1] = true;
-    ba[2] = false;
-    ba[3] = false;
-  }
-  else {
-    ba[0] = true;
-    ba[1] = false;
-    ba[2] = false;
-    ba[3] = false;
+  static enum { Digits = 0, Lower = 1, Upper = 2, Extra = 3};
+  switch (complexity) {
+  case 6:
+    ba[Digits] = true;
+    ba[Lower] = true;
+    ba[Upper] = true;
+    ba[Extra] = true;
+    break;
+  case 5:
+    ba[Digits] = true;
+    ba[Lower] = true;
+    ba[Upper] = true;
+    ba[Extra] = false;
+    break;
+  case 4:
+    ba[Digits] = false;
+    ba[Lower] = true;
+    ba[Upper] = true;
+    ba[Extra] = false;
+    break;
+  case 3:
+    ba[Digits] = true;
+    ba[Lower] = true;
+    ba[Upper] = false;
+    ba[Extra] = false;
+    break;
+  case 2:
+    ba[Digits] = false;
+    ba[Lower] = false;
+    ba[Upper] = true;
+    ba[Extra] = false;
+    break;
+  case 1:
+    ba[Digits] = false;
+    ba[Lower] = true;
+    ba[Upper] = false;
+    ba[Extra] = false;
+    break;
+  case 0:
+    ba[Digits] = true;
+    ba[Lower] = false;
+    ba[Upper] = false;
+    ba[Extra] = false;
+    break;
   }
   return ba;
 }
