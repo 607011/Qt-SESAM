@@ -94,6 +94,7 @@ private slots:
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
   void onPasswordTemplateChanged(const QString &);
+  void onEscPressed(void);
   void renewSalt(void);
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);
@@ -150,6 +151,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  QMessageBox::StandardButton saveOrDiscard(void);
   QMessageBox::StandardButton checkSaveOnDirty(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);

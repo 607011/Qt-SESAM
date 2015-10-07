@@ -51,7 +51,7 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QCompleter>
-#include <QPainter>
+#include <QShortcut>
 
 #include "singleinstancedetector.h"
 #include "global.h"
@@ -215,6 +215,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
   resetAllFields();
 
+  new QShortcut(QKeySequence("Esc"), this, SLOT(onEscPressed()));
+
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->installEventFilter(this);
@@ -292,6 +294,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
+
+
 
 #ifdef WIN32
   QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
@@ -438,6 +442,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->urlLineEdit->blockSignals(true);
   ui->urlLineEdit->setText(QString());
   ui->urlLineEdit->blockSignals(false);
+  ui->generatedPasswordLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->setText(QString());
   ui->saltBase64LineEdit->blockSignals(true);
   renewSalt();
@@ -527,25 +532,25 @@ void MainWindow::onRenewSalt(void)
 }
 
 
+QMessageBox::StandardButton MainWindow::saveOrDiscard(void)
+{
+  return QMessageBox::question(
+        this,
+        tr("Save changes?"),
+        tr("You have changed the current domain settings. "
+           "Do you want to save or discard the changes before proceeding?"),
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+        QMessageBox::Save);
+}
+
+
 QMessageBox::StandardButton MainWindow::checkSaveOnDirty(void)
 {
   Q_D(MainWindow);
 //  qDebug() << "MainWindow::checkSaveOnDirty()";
   QMessageBox::StandardButton rc = QMessageBox::NoButton;
   if (d->parameterSetDirty) {
-    rc = QMessageBox::question(
-          this,
-          tr("Save changes?"),
-          tr("You have changed the current domain settings. "
-             "Do you want to save or discard the changes before proceeding?"),
-          QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-          QMessageBox::Save);
-    if (rc == QMessageBox::Save) {
-      ui->domainsComboBox->blockSignals(true);
-      ui->domainsComboBox->setCurrentText(d->lastDomain);
-      ui->domainsComboBox->blockSignals(false);
-      saveCurrentDomainSettings();
-    }
+    rc = saveOrDiscard();
   }
   return rc;
 }
@@ -1675,6 +1680,10 @@ void MainWindow::onDomainSelected(QString domain)
   case QMessageBox::Discard:
     break;
   case QMessageBox::Save:
+    ui->domainsComboBox->blockSignals(true);
+    ui->domainsComboBox->setCurrentText(d->lastDomain);
+    ui->domainsComboBox->blockSignals(false);
+    saveCurrentDomainSettings();
     domain = d->lastDomain;
     break;
   default:
@@ -1744,6 +1753,25 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
   Q_D(MainWindow);
 //  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
   analyzeTemplate_v3(templ.toUtf8());
+}
+
+
+void MainWindow::onEscPressed(void)
+{
+  Q_D(MainWindow);
+  if (d->parameterSetDirty) {
+    QMessageBox::StandardButton button = saveOrDiscard();
+    switch (button) {
+    case QMessageBox::Save:
+      saveCurrentDomainSettings();
+      break;
+    default:
+      break;
+    }
+  }
+  else if (!ui->domainsComboBox->currentText().isEmpty()) {
+    resetAllFields();
+  }
 }
 
 
