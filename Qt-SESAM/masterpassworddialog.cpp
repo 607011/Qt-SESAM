@@ -93,7 +93,14 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 {
   ui->passwordLineEdit->selectAll();
   ui->passwordLineEdit->setFocus();
-  setFocus();
+}
+
+
+void MasterPasswordDialog::closeEvent(QCloseEvent*)
+{
+  /* DO NOT REMOVE THIS FUNCTION!
+   * Without overriding closeEvent() the window cannot be closed.
+   */
 }
 
 

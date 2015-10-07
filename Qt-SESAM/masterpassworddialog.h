@@ -44,6 +44,7 @@ public slots:
 
 protected:
   void showEvent(QShowEvent*);
+  void closeEvent(QCloseEvent*);
 
 private slots:
   void okClicked(void);
