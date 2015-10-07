@@ -40,23 +40,28 @@ public:
 
   bool attach(void)
   {
-    if (sharedMem == nullptr)
-      sharedMem = new QSharedMemory(AppName);
-    if (sharedMem->create(1, QSharedMemory::ReadOnly))
-      return false;
-    return true;
+    return (sharedMem != Q_NULLPTR)
+        ? sharedMem->attach(QSharedMemory::ReadOnly)
+        : false;
   }
 
 
   bool alreadyRunning(void)
   {
-    return attach();
+    if (isRunning)
+      return true;
+    if (sharedMem == Q_NULLPTR)
+      sharedMem = new QSharedMemory(AppName);
+    if (sharedMem->create(1, QSharedMemory::ReadOnly))
+      return false;
+    isRunning = true;
+    return isRunning;
   }
 
 
   void detach(void)
   {
-    if (sharedMem != nullptr)
+    if (sharedMem != Q_NULLPTR && sharedMem->isAttached())
       sharedMem->detach();
     SafeDelete(sharedMem);
   }
@@ -64,13 +69,15 @@ public:
 
 private:
   SingleInstanceDetector(void)
-    : sharedMem(nullptr)
+    : sharedMem(Q_NULLPTR)
+    , isRunning(false)
   { /* ... */ }
   ~SingleInstanceDetector()
   {
     detach();
   }
   QSharedMemory *sharedMem;
+  bool isRunning;
 };
 
 #endif // __SINGLEINSTANCEDETECTOR_H_
