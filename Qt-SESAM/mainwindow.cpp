@@ -668,14 +668,19 @@ void MainWindow::updatePassword(void)
   Q_D(MainWindow);
 //  qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
   if (!d->masterPassword.isEmpty()) {
-    stopPasswordGeneration();
+    if (ui->legacyPasswordLineEdit->text().isEmpty()) {
+      stopPasswordGeneration();
 #if HACKING_MODE_ENABLED
-    if (!d->hackingMode) {
-      ui->generatedPasswordLineEdit->setText(QString());
-      ui->statusBar->showMessage(QString());
-    }
+      if (!d->hackingMode) {
+        ui->generatedPasswordLineEdit->setText(QString());
+        ui->statusBar->showMessage(QString());
+      }
 #endif
-    generatePassword();
+      generatePassword();
+    }
+    else {
+      ui->generatedPasswordLineEdit->setText(QString());
+    }
     restartInvalidationTimer();
   }
 }
