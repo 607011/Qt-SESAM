@@ -539,20 +539,25 @@ void MainWindow::onRenewSalt(void)
 }
 
 
-int MainWindow::checkSaveOnDirty(void)
+QMessageBox::StandardButton MainWindow::checkSaveOnDirty(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::checkSaveOnDirty()";
-  int rc = QMessageBox::Save;
+  QMessageBox::StandardButton rc = QMessageBox::NoButton;
   if (d->parameterSetDirty) {
-    if (QMessageBox::question(
+    rc = QMessageBox::question(
           this,
           tr("Save changes?"),
           tr("You have changed the current domain settings. "
              "Do you want to save or discard the changes before proceeding?"),
-          QMessageBox::Save | QMessageBox::Discard,
-          QMessageBox::Save) == QMessageBox::Save)
+          QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+          QMessageBox::Save);
+    if (rc == QMessageBox::Save) {
+      ui->domainsComboBox->blockSignals(true);
+      ui->domainsComboBox->setCurrentText(d->lastDomain);
+      ui->domainsComboBox->blockSignals(false);
       saveCurrentDomainSettings();
+    }
   }
   return rc;
 }
@@ -562,7 +567,7 @@ void MainWindow::onNewDomain(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::onNewDomain()";
-  int button = checkSaveOnDirty();
+  QMessageBox::StandardButton button = checkSaveOnDirty();
   if (button == QMessageBox::Cancel)
     return;
   resetAllFields();
@@ -1671,18 +1676,28 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 }
 
 
-void MainWindow::onDomainSelected(const QString &domain)
+void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != nullptr ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
-  int button = checkSaveOnDirty();
-  if (button == QMessageBox::Cancel) {
+  QMessageBox::StandardButton button = checkSaveOnDirty();
+  switch (button) {
+  case QMessageBox::Cancel:
     ui->domainsComboBox->blockSignals(true);
     ui->domainsComboBox->setCurrentText(d->lastDomain);
     ui->domainsComboBox->blockSignals(false);
     return;
+    break;
+  case QMessageBox::Discard:
+    qDebug() << "Discard" << domain << "d->lastDomain=" << d->lastDomain;
+    break;
+  case QMessageBox::Save:
+    domain = d->lastDomain;
+    break;
+  default:
+    break;
   }
   copyDomainSettingsToGUI(domain);
   d->lastDomainSettings = collectedDomainSettings();

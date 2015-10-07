@@ -40,6 +40,7 @@
 #include <QList>
 #include <QSslError>
 #include <QEvent>
+#include <QMessageBox>
 
 #include "global.h"
 #include "domainsettingslist.h"
@@ -90,7 +91,7 @@ private slots:
   void saveCurrentDomainSettings(void);
   void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
-  void onDomainSelected(const QString &);
+  void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
   void onEasySelectorValuesChanged(int, int, int, int);
   void onPasswordTemplateChanged(const QString &);
@@ -151,7 +152,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
-  int checkSaveOnDirty(void);
+  QMessageBox::StandardButton checkSaveOnDirty(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
