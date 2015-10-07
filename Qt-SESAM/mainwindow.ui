@@ -191,7 +191,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="generatedPasswordTab">
        <attribute name="title">
@@ -284,7 +284,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidgetVersions">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabV2">
            <attribute name="title">
@@ -361,6 +361,9 @@
               </property>
               <item row="2" column="0">
                <widget class="QCheckBox" name="useLowerCaseCheckBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="toolTip">
                  <string>Use</string>
                 </property>
@@ -385,6 +388,9 @@
               </item>
               <item row="5" column="0">
                <widget class="QCheckBox" name="useExtraCheckBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="toolTip">
                  <string>Use</string>
                 </property>
@@ -395,6 +401,9 @@
               </item>
               <item row="3" column="0">
                <widget class="QCheckBox" name="useUpperCaseCheckBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="toolTip">
                  <string>Use</string>
                 </property>
@@ -419,6 +428,9 @@
               </item>
               <item row="1" column="0">
                <widget class="QCheckBox" name="useDigitsCheckBox">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="toolTip">
                  <string>Use</string>
                 </property>
