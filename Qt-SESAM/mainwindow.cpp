@@ -1723,10 +1723,6 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     d->lastDomain = domain;
     updatePassword();
   }
-  else {
-    onDomainSelected(ui->domainsComboBox->itemText(idx));
-    ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-  }
 }
 
 
