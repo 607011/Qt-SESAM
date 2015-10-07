@@ -630,6 +630,7 @@ void MainWindow::onUsedCharactersChanged(void)
 void MainWindow::onExtraCharactersChanged(QString)
 {
   setDirty();
+  createTemplate_v3();
   updatePassword();
 }
 
