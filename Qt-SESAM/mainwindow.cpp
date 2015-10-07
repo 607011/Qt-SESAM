@@ -206,6 +206,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   if (!forceStart && SingleInstanceDetector::instance().alreadyRunning()) {
     QMessageBox::information(Q_NULLPTR, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
+    SingleInstanceDetector::instance().detach();
     close();
     ::exit(1);
   }

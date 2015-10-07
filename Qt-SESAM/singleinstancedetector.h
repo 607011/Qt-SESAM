@@ -40,9 +40,9 @@ public:
 
   bool attach(void)
   {
-    return (sharedMem != Q_NULLPTR)
-        ? sharedMem->attach(QSharedMemory::ReadOnly)
-        : false;
+    if (sharedMem == Q_NULLPTR)
+      sharedMem = new QSharedMemory(AppName);
+    return sharedMem->attach(QSharedMemory::ReadOnly);
   }
 
 
@@ -52,16 +52,18 @@ public:
       return true;
     if (sharedMem == Q_NULLPTR)
       sharedMem = new QSharedMemory(AppName);
-    if (sharedMem->create(1, QSharedMemory::ReadOnly))
+    if (sharedMem->create(1, QSharedMemory::ReadOnly)) {
+      attach();
       return false;
+    }
     isRunning = true;
-    return isRunning;
+    return true;
   }
 
 
   void detach(void)
   {
-    if (sharedMem != Q_NULLPTR && sharedMem->isAttached())
+    if (sharedMem != Q_NULLPTR)
       sharedMem->detach();
     SafeDelete(sharedMem);
   }
@@ -76,6 +78,22 @@ private:
   {
     detach();
   }
+  /* Windows: QSharedMemory does not "own"
+   * the shared memory segment. When all threads or processes that
+   * have an instance of QSharedMemory attached to a particular
+   * shared memory segment have either destroyed their instance of
+   * QSharedMemory or exited, the Windows kernel releases the
+   * shared memory segment automatically.
+   *
+   * Unix: QSharedMemory "owns" the shared memory segment. When
+   * the last thread or process that has an instance of
+   * QSharedMemory attached to a particular shared memory segment
+   * detaches from the segment by destroying its instance of
+   * QSharedMemory, the Unix kernel release the shared memory
+   * segment. But if that last thread or process crashes without
+   * running the QSharedMemory destructor, the shared memory
+   * segment survives the crash.
+   */
   QSharedMemory *sharedMem;
   bool isRunning;
 };
