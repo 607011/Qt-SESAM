@@ -1711,6 +1711,7 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     if (!d->lastDomainSettings.isEmpty()) {
       resetAllFieldsExceptDomainComboBox();
       ui->tabWidgetVersions->setCurrentIndex(1);
+      ui->tabWidget->setCurrentIndex(0);
     }
     if (!ui->userLineEdit->text().isEmpty())
       setDirty();
