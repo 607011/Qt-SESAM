@@ -541,7 +541,7 @@ void MainWindow::onRenewSalt(void)
 QMessageBox::StandardButton MainWindow::checkSaveOnDirty(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::checkSaveOnDirty()";
+//  qDebug() << "MainWindow::checkSaveOnDirty()";
   QMessageBox::StandardButton rc = QMessageBox::NoButton;
   if (d->parameterSetDirty) {
     rc = QMessageBox::question(
@@ -565,7 +565,7 @@ QMessageBox::StandardButton MainWindow::checkSaveOnDirty(void)
 void MainWindow::onNewDomain(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onNewDomain()";
+//  qDebug() << "MainWindow::onNewDomain()";
   QMessageBox::StandardButton button = checkSaveOnDirty();
   if (button == QMessageBox::Cancel)
     return;
@@ -689,7 +689,7 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
+//  qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
   if (!d->masterPassword.isEmpty()) {
     stopPasswordGeneration();
 #if HACKING_MODE_ENABLED
@@ -729,7 +729,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::analyzeTemplate_v3(" << templ << ")";
+//  qDebug() << "MainWindow::analyzeTemplate_v3(" << templ << ")";
   const QList<QByteArray> &templateParts = templ.split(';');
   if (templateParts.count() != 2)
     return;
@@ -1080,7 +1080,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
+//  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
   const DomainSettings &p = d->domains.at(domain);
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(p.domainName);
@@ -1149,7 +1149,7 @@ void MainWindow::makeDomainComboBox(void)
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE");
+//  qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE");
 
   DomainSettings ds = collectedDomainSettings();
 
@@ -1679,7 +1679,7 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+//  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   QMessageBox::StandardButton button = checkSaveOnDirty();
@@ -1724,7 +1724,7 @@ void MainWindow::onDomainSelected(QString domain)
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << d->lastDomainSettings.domainName;
+//  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << d->lastDomainSettings.domainName;
   int idx = findDomainInComboBox(domain);
   if (idx == NotFound) {
     if (!d->lastDomainSettings.isEmpty()) {
@@ -1769,7 +1769,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity, int old
 void MainWindow::onPasswordTemplateChanged(const QString &templ)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
+//  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
   analyzeTemplate_v3(templ.toUtf8());
 }
 
