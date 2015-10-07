@@ -314,9 +314,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidgetVersions->setCurrentIndex(1);
-  ui->saltBase64LineEdit->blockSignals(true);
-  renewSalt();
-  ui->saltBase64LineEdit->blockSignals(false);
   enterMasterPassword();
 }
 
