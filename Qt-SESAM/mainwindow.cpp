@@ -313,6 +313,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
+  ui->tabWidget->setCurrentIndex(0);
   ui->tabWidgetVersions->setCurrentIndex(1);
   enterMasterPassword();
 }
