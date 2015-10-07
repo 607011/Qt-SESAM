@@ -1712,6 +1712,7 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     d->lastDomainSettings.clear();
     d->lastDomain = domain;
+    createTemplate_v3();
     updatePassword();
   }
 }
