@@ -86,7 +86,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation>Speichern</translation>
+        <translation type="vanished">Speichern</translation>
     </message>
     <message>
         <source>Main parameters</source>
@@ -769,7 +769,7 @@
     </message>
     <message>
         <source>Edit</source>
-        <translation>Edit</translation>
+        <translation type="vanished">Edit</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -777,10 +777,6 @@
     </message>
     <message>
         <source>Ctrl+Z</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
         <translation></translation>
     </message>
     <message>
@@ -794,6 +790,10 @@
     <message>
         <source>You have changed the current domain settings. Do you want to save or discard the changes before proceeding?</source>
         <translation>Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor du weiter machts?</translation>
+    </message>
+    <message>
+        <source>Save domain settings</source>
+        <translation>Domain-Einstellungen jetzt speichern</translation>
     </message>
 </context>
 <context>
@@ -1306,7 +1306,7 @@
     </message>
     <message>
         <source>Only one instance of %1 can run at a time.</source>
-        <translation type="unfinished">Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
+        <translation>Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1346,11 +1346,11 @@
     </message>
     <message>
         <source>Change to %1</source>
-        <translation>Ändern auf %1</translation>
+        <translation type="vanished">Ändern auf %1</translation>
     </message>
     <message>
         <source>Change length/complexity to %1/%2</source>
-        <translation>Länge/Komplexität auf %1/%2 ändern</translation>
+        <translation type="vanished">Länge/Komplexität auf %1/%2 ändern</translation>
     </message>
 </context>
 <context>
