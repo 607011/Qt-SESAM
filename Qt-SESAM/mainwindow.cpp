@@ -51,8 +51,6 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QCompleter>
-#include <QUndoStack>
-#include <QUndoCommand>
 #include <QPainter>
 
 #include "singleinstancedetector.h"
@@ -73,7 +71,6 @@
 #include "crypter.h"
 #include "securebytearray.h"
 #include "passwordchecker.h"
-#include "commands.h"
 
 #include "dump.h"
 
@@ -125,7 +122,6 @@ public:
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
-    , undoStack(new QUndoStack(parent))
   #ifdef WIN32
     , smartLoginStep(SmartLoginNotActive)
   #endif
@@ -189,7 +185,6 @@ public:
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
-  QUndoStack *undoStack;
   QAction *undoAction;
 #ifdef WIN32
   int smartLoginStep;
@@ -282,10 +277,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
-
-  d->undoAction = d->undoStack->createUndoAction(this, tr("&Undo"));
-  d->undoAction->setShortcuts(QKeySequence::Undo);
-  ui->menuEdit->addAction(d->undoAction);
 
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
   QMenu *trayMenu = new QMenu(AppName);
@@ -1702,7 +1693,6 @@ void MainWindow::onDomainSelected(QString domain)
   copyDomainSettingsToGUI(domain);
   d->lastDomainSettings = collectedDomainSettings();
   setDirty(false);
-  d->undoStack->clear();
   if (d->domains.at(domain).legacyPassword.isEmpty()) {
     ui->tabWidget->setCurrentIndex(0);
     ui->actionHackLegacyPassword->setEnabled(false);
@@ -1761,7 +1751,6 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 void MainWindow::onEasySelectorValuesChanged(int length, int complexity, int oldLength, int oldComplexity)
 {
   Q_D(MainWindow);
-  d->undoStack->push(new ChangeEasySelectorCommand(d->easySelector, oldLength, oldComplexity));
   onEasySelectorValuesChanged(length, complexity);
 }
 
