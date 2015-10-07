@@ -34,7 +34,7 @@ class EasySelectorWidget : public QWidget
 {
   Q_OBJECT
 public:
-  explicit EasySelectorWidget(QWidget *parent = nullptr);
+  explicit EasySelectorWidget(QWidget *parent = Q_NULLPTR);
   ~EasySelectorWidget();
 
   void setMousePos(const QPoint &);

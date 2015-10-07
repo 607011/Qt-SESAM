@@ -32,7 +32,7 @@ class MasterPasswordDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit MasterPasswordDialog(QWidget *parent = nullptr);
+  explicit MasterPasswordDialog(QWidget *parent = Q_NULLPTR);
   ~MasterPasswordDialog();
 
   void invalidatePassword(void);

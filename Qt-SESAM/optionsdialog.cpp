@@ -47,12 +47,12 @@ class OptionsDialogPrivate
 public:
   OptionsDialogPrivate(void)
     : sslConf(QSslConfiguration::defaultConfiguration())
-    , reply(nullptr)
+    , reply(Q_NULLPTR)
     , secure(false)
     , loaderIcon(":/images/loader.gif")
-    , escShortcut(nullptr)
+    , escShortcut(Q_NULLPTR)
 #ifdef WIN32
-    , smartLoginCheckbox(nullptr)
+    , smartLoginCheckbox(Q_NULLPTR)
 #endif
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());

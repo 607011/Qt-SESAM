@@ -34,7 +34,7 @@ class PasswordChecker : public QObject
 {
   Q_OBJECT
 public:
-  explicit PasswordChecker(const QString &passwordFilename = QString(), QObject *parent = nullptr);
+  explicit PasswordChecker(const QString &passwordFilename = QString(), QObject *parent = Q_NULLPTR);
   ~PasswordChecker();
 
   qint64 findInPasswordFile(const QString &needle);

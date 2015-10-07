@@ -37,7 +37,7 @@ class Password : public QObject
 {
   Q_OBJECT
 public:
-  Password(const DomainSettings &ds = DomainSettings(), QObject *parent = nullptr);
+  Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
 
   static const QString LowerChars;

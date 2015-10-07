@@ -37,7 +37,7 @@ class ServerCertificateWidget : public QDialog
   Q_OBJECT
 
 public:
-  explicit ServerCertificateWidget(QWidget *parent = nullptr);
+  explicit ServerCertificateWidget(QWidget *parent = Q_NULLPTR);
   ~ServerCertificateWidget();
 
   void setServerSslErrors(const QSslConfiguration &, const QList<QSslError> &errorList);

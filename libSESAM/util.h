@@ -32,7 +32,7 @@
 template <class T>
 void SafeRenew(T& a, T obj)
 {
-  if (a != nullptr)
+  if (a != Q_NULLPTR)
     delete a;
   a = obj;
 }
@@ -41,7 +41,7 @@ void SafeRenew(T& a, T obj)
 template <class T>
 void SafeDelete(T& a)
 {
-  SafeRenew<T>(a, nullptr);
+  SafeRenew<T>(a, Q_NULLPTR);
 }
 
 template <class T>

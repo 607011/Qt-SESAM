@@ -32,7 +32,7 @@ class ChangeSpinBoxCommand : public QUndoCommand
 {
 public:
     enum { Id = 0xa4757d6a };
-    ChangeSpinBoxCommand(QSpinBox *spinBox, int oldValue, QUndoCommand *parent = nullptr);
+    ChangeSpinBoxCommand(QSpinBox *spinBox, int oldValue, QUndoCommand *parent = Q_NULLPTR);
     void undo(void) Q_DECL_OVERRIDE;
     void redo(void) Q_DECL_OVERRIDE;
     // bool mergeWith(const QUndoCommand *command) Q_DECL_OVERRIDE;
@@ -49,7 +49,7 @@ class ChangeLineEditCommand : public QUndoCommand
 {
 public:
     enum { Id = 0x540b66f0 };
-    ChangeLineEditCommand(QLineEdit *textEdit, const QString &oldValue, QUndoCommand *parent = nullptr);
+    ChangeLineEditCommand(QLineEdit *textEdit, const QString &oldValue, QUndoCommand *parent = Q_NULLPTR);
     void undo(void) Q_DECL_OVERRIDE;
     void redo(void) Q_DECL_OVERRIDE;
     int id(void) const Q_DECL_OVERRIDE { return Id; }
@@ -65,7 +65,7 @@ class ChangePlainTextEditCommand : public QUndoCommand
 {
 public:
     enum { Id = 0x3d17cf13 };
-    ChangePlainTextEditCommand(QPlainTextEdit *textEdit, const QString &oldValue, QUndoCommand *parent = nullptr);
+    ChangePlainTextEditCommand(QPlainTextEdit *textEdit, const QString &oldValue, QUndoCommand *parent = Q_NULLPTR);
     void undo(void) Q_DECL_OVERRIDE;
     void redo(void) Q_DECL_OVERRIDE;
     int id(void) const Q_DECL_OVERRIDE { return Id; }
@@ -81,7 +81,7 @@ class ChangeCheckboxCommand : public QUndoCommand
 {
 public:
     enum { Id = 0x3d17cf13 };
-    ChangeCheckboxCommand(QCheckBox *checkBox, bool oldValue, QUndoCommand *parent = nullptr);
+    ChangeCheckboxCommand(QCheckBox *checkBox, bool oldValue, QUndoCommand *parent = Q_NULLPTR);
     void undo(void) Q_DECL_OVERRIDE;
     void redo(void) Q_DECL_OVERRIDE;
     int id(void) const Q_DECL_OVERRIDE { return Id; }
@@ -97,7 +97,7 @@ class ChangeEasySelectorCommand : public QUndoCommand
 {
 public:
   enum { Id = 0x249c15ef };
-  ChangeEasySelectorCommand(EasySelectorWidget *easySelector, int oldLength, int oldComplexity, QUndoCommand *parent = nullptr);
+  ChangeEasySelectorCommand(EasySelectorWidget *easySelector, int oldLength, int oldComplexity, QUndoCommand *parent = Q_NULLPTR);
   void undo(void) Q_DECL_OVERRIDE;
   void redo(void) Q_DECL_OVERRIDE;
   int id(void) const Q_DECL_OVERRIDE { return Id; }

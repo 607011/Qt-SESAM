@@ -30,7 +30,7 @@ class CountdownWidget : public QWidget
 {
   Q_OBJECT
 public:
-  explicit CountdownWidget(QWidget *parent = nullptr);
+  explicit CountdownWidget(QWidget *parent = Q_NULLPTR);
   ~CountdownWidget();
   QSize sizeHint(void) const { return DefaultSize; }
   QSize minimumSizeHint(void) const { return DefaultSize; }

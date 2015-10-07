@@ -39,7 +39,7 @@ class OptionsDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit OptionsDialog(QWidget *parent = nullptr);
+  explicit OptionsDialog(QWidget *parent = Q_NULLPTR);
   ~OptionsDialog();
 
   bool syncOnStart(void) const;

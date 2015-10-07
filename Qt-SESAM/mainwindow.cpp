@@ -103,7 +103,7 @@ public:
     , progressDialog(new ProgressDialog(parent))
     , easySelector(new EasySelectorWidget)
     , countdownWidget(new CountdownWidget)
-    , actionShow(nullptr)
+    , actionShow(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , loaderIcon(":/images/loader.gif")
     , customCharacterSetDirty(false)
@@ -118,10 +118,10 @@ public:
     , salt(Crypter::generateSalt())
     , masterKey(Crypter::AESKeySize, '\0')
     , IV(Crypter::AESBlockSize, '\0')
-    , deleteReply(nullptr)
-    , readReply(nullptr)
-    , writeReply(nullptr)
-    , completer(nullptr)
+    , deleteReply(Q_NULLPTR)
+    , readReply(Q_NULLPTR)
+    , writeReply(Q_NULLPTR)
+    , completer(Q_NULLPTR)
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
@@ -205,7 +205,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   Q_D(MainWindow);
 
   if (!forceStart && SingleInstanceDetector::instance().alreadyRunning()) {
-    QMessageBox::information(nullptr, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
+    QMessageBox::information(Q_NULLPTR, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
     close();
     ::exit(1);
   }
@@ -381,7 +381,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
   cancelPasswordGeneration();
 
-  int rc = (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty())
+  QMessageBox::StandardButton rc = (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty())
       ? QMessageBox::question(
           this,
           tr("Save before exit?"),
@@ -1133,7 +1133,7 @@ void MainWindow::makeDomainComboBox(void)
       domainNames.append(ds.domainName);
   domainNames.sort(Qt::CaseInsensitive);
   ui->domainsComboBox->addItems(domainNames);
-  if (d->completer != nullptr) {
+  if (d->completer != Q_NULLPTR) {
     QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
     delete d->completer;
   }
@@ -1437,11 +1437,11 @@ void MainWindow::onWriteFinished(QNetworkReply *reply)
 void MainWindow::cancelServerOperation(void)
 {
   Q_D(MainWindow);
-  if (d->readReply != nullptr && d->readReply->isRunning()) {
+  if (d->readReply != Q_NULLPTR && d->readReply->isRunning()) {
     d->readReply->abort();
     ui->statusBar->showMessage(tr("Server read operation aborted."), 3000);
   }
-  if (d->writeReply != nullptr && d->writeReply->isRunning()) {
+  if (d->writeReply != Q_NULLPTR && d->writeReply->isRunning()) {
     d->writeReply->abort();
     ui->statusBar->showMessage(tr("Sync to server aborted."), 3000);
   }
@@ -1679,7 +1679,7 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != nullptr ? sender()->objectName() : "NONE");
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   QMessageBox::StandardButton button = checkSaveOnDirty();
@@ -1691,7 +1691,6 @@ void MainWindow::onDomainSelected(QString domain)
     return;
     break;
   case QMessageBox::Discard:
-    qDebug() << "Discard" << domain << "d->lastDomain=" << d->lastDomain;
     break;
   case QMessageBox::Save:
     domain = d->lastDomain;
