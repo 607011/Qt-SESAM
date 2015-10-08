@@ -294,8 +294,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
 
-
-
 #ifdef WIN32
   QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
 #ifdef QT_DEBUG
