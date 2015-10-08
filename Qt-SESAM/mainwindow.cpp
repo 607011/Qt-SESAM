@@ -48,6 +48,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QMutexLocker>
+#include <QSemaphore>
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QCompleter>
@@ -121,6 +122,7 @@ public:
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
+    , interactionSemaphore(1)
   #ifdef WIN32
     , smartLoginStep(SmartLoginNotActive)
   #endif
@@ -184,7 +186,8 @@ public:
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
-  QAction *undoAction;
+  QShortcut *escShortcut;
+  QSemaphore interactionSemaphore;
 #ifdef WIN32
   int smartLoginStep;
 #endif
@@ -214,7 +217,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
   resetAllFields();
 
-  new QShortcut(QKeySequence("Esc"), this, SLOT(onEscPressed()));
+  d->escShortcut = new QShortcut(QKeySequence("Esc"), this, SLOT(onEscPressed()));
 
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
   QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
@@ -342,6 +345,7 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 MainWindow::~MainWindow()
 {
+  qDebug() << "MainWindow::~MainWindow()";
   d_ptr->trayIcon.hide();
   d_ptr->optionsDialog->close();
   d_ptr->changeMasterPasswordDialog->close();
@@ -354,48 +358,45 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
 
+  d_ptr->password.waitForFinished();
+
   if (d->masterPasswordDialog->masterPassword().isEmpty()) {
     e->ignore();
     return;
   }
 
   auto prepareExit = [this]() {
-    d_ptr->masterPasswordDialog->close();
-    d_ptr->optionsDialog->close();
-    d_ptr->trayIcon.hide();
     saveSettings();
     invalidatePassword(false);
-    d_ptr->keyGenerationFuture.waitForFinished();
+    SingleInstanceDetector::instance().detach();
   };
 
   cancelPasswordGeneration();
 
-  QMessageBox::StandardButton rc = (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty())
-      ? QMessageBox::question(
-          this,
-          tr("Save before exit?"),
-          tr("Your domain parameters have changed. Do you want to save the changes before exiting?"),
-          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes)
-      : QMessageBox::No;
-  switch (rc) {
-  case QMessageBox::Yes:
-    saveCurrentDomainSettings();
+  if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
+    QMessageBox::StandardButton button = saveYesNoCancel();
+    switch (button) {
+    case QMessageBox::Yes:
+      saveCurrentDomainSettings();
+      // fall-through
+    case QMessageBox::No:
+      prepareExit();
+      e->accept();
+      break;
+    case QMessageBox::Cancel:
+      e->ignore();
+      break;
+    default:
+      qWarning() << "Oops! Should never have come here. button =" << button;
+      break;
+    }
+  }
+  else {
     prepareExit();
     e->accept();
-    break;
-  case QMessageBox::Cancel:
-    e->ignore();
-    break;
-  case QMessageBox::No:
-    prepareExit();
-    e->accept();
-    break;
-  default:
-    qWarning() << "Oops! Should never have come here. rc =" << rc;
-    break;
   }
 
-  SingleInstanceDetector::instance().detach();
+  qDebug() << "MainWindow::closeEvent() exiting ...";
 }
 
 
@@ -530,27 +531,19 @@ void MainWindow::onRenewSalt(void)
 }
 
 
-QMessageBox::StandardButton MainWindow::saveOrDiscard(void)
+QMessageBox::StandardButton MainWindow::saveYesNoCancel(void)
 {
-  return QMessageBox::question(
+  Q_D(MainWindow);
+  d->interactionSemaphore.acquire();
+  QMessageBox::StandardButton button = QMessageBox::question(
         this,
         tr("Save changes?"),
         tr("You have changed the current domain settings. "
-           "Do you want to save or discard the changes before proceeding?"),
-        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-        QMessageBox::Save);
-}
-
-
-QMessageBox::StandardButton MainWindow::checkSaveOnDirty(void)
-{
-  Q_D(MainWindow);
-//  qDebug() << "MainWindow::checkSaveOnDirty()";
-  QMessageBox::StandardButton rc = QMessageBox::NoButton;
-  if (d->parameterSetDirty) {
-    rc = saveOrDiscard();
-  }
-  return rc;
+           "Do you want to save the changes before proceeding?"),
+        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+        QMessageBox::Yes);
+  d->interactionSemaphore.release();
+  return button;
 }
 
 
@@ -816,8 +809,10 @@ void MainWindow::changeMasterPassword(void)
 {
   Q_D(MainWindow);
   d->changeMasterPasswordDialog->setPasswordFilename(d->optionsDialog->passwordFilename());
-  const int rc = d->changeMasterPasswordDialog->exec();
-  if ((rc == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
+  d->interactionSemaphore.acquire();
+  const int button = d->changeMasterPasswordDialog->exec();
+  d->interactionSemaphore.release();
+  if ((button == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
     if (syncToServerEnabled() || syncToFileEnabled()) {
       d->masterPasswordChangeStep = 1;
       nextChangeMasterPasswordStep();
@@ -974,7 +969,9 @@ void MainWindow::onServerCertificatesUpdated(const QList<QSslCertificate> &certs
 void MainWindow::showOptionsDialog(void)
 {
   Q_D(MainWindow);
+  d->interactionSemaphore.acquire();
   int button = d->optionsDialog->exec();
+  d->interactionSemaphore.release();
   if (button == QDialog::Accepted)
     onOptionsAccepted();
 }
@@ -983,6 +980,7 @@ void MainWindow::showOptionsDialog(void)
 QFuture<void> &MainWindow::generateSaltKeyIV(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::generateSaltKeyIV()";
   d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
   return d->keyGenerationFuture;
 }
@@ -1140,7 +1138,11 @@ void MainWindow::makeDomainComboBox(void)
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE");
+
+  qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE");
+
+  if (ui->domainsComboBox->currentText().isEmpty())
+    return;
 
   DomainSettings ds = collectedDomainSettings();
 
@@ -1225,7 +1227,7 @@ void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::saveAllDomainDataToSettings()";
+  qDebug() << "MainWindow::saveAllDomainDataToSettings()";
   d->keyGenerationMutex.lock();
   QByteArray cipher;
   try {
@@ -1241,9 +1243,9 @@ void MainWindow::saveAllDomainDataToSettings(void)
   d->settings.sync();
 
   if (d->masterPasswordChangeStep == 0) {
-    generateSaltKeyIV();
     if (d->optionsDialog->writeBackups())
       writeBackupFile(binaryDomainData);
+    generateSaltKeyIV().waitForFinished();
   }
 }
 
@@ -1286,6 +1288,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::saveSettings()";
 
   QVariantMap syncData;
   syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
@@ -1680,10 +1683,13 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomain =" << d->lastDomain << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
-  QMessageBox::StandardButton button = checkSaveOnDirty();
+  QMessageBox::StandardButton button = QMessageBox::NoButton;
+  if (d->parameterSetDirty) {
+    button = saveYesNoCancel();
+  }
   switch (button) {
   case QMessageBox::Cancel:
     ui->domainsComboBox->blockSignals(true);
@@ -1691,9 +1697,9 @@ void MainWindow::onDomainSelected(QString domain)
     ui->domainsComboBox->blockSignals(false);
     return;
     break;
-  case QMessageBox::Discard:
+  case QMessageBox::No:
     break;
-  case QMessageBox::Save:
+  case QMessageBox::Yes:
     ui->domainsComboBox->blockSignals(true);
     ui->domainsComboBox->setCurrentText(d->lastDomain);
     ui->domainsComboBox->blockSignals(false);
@@ -1728,7 +1734,7 @@ void MainWindow::onDomainSelected(QString domain)
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << d->lastDomainSettings.domainName;
+  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastDomain =" << d->lastDomain << ", d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName;
   int idx = findDomainInComboBox(domain);
   if (idx == NotFound) {
     if (!d->lastDomainSettings.isEmpty()) {
@@ -1769,10 +1775,11 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 void MainWindow::onEscPressed(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::onEscPressed()";
   if (d->parameterSetDirty) {
-    QMessageBox::StandardButton button = saveOrDiscard();
+    QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
-    case QMessageBox::Save:
+    case QMessageBox::Yes:
       saveCurrentDomainSettings();
       break;
     default:
@@ -1907,6 +1914,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 void MainWindow::invalidatePassword(bool reenter)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::invalidatePassword()";
   SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
@@ -1918,6 +1926,10 @@ void MainWindow::invalidatePassword(bool reenter)
 void MainWindow::lockApplication(void)
 {
   Q_D(MainWindow);
+  if (d->interactionSemaphore.available() == 0) {
+    restartInvalidationTimer();
+    return;
+  }
   d->lastDomainBeforeLock = ui->domainsComboBox->currentText();
   saveSettings();
   invalidatePassword(true);
