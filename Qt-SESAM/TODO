@@ -2,3 +2,4 @@
 
  - Check if MainWindow::onEscPressed() is working as expected.
  - Type name of existing domain. Domain shows up in completer. Click behind the last letter of the domain name. Completer disappears. Now you can leave the combobox.
+ - Automatically migrate v2 settings to v3 settings by generating a 'xxxxxxxx...' password template (?)
