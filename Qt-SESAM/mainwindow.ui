@@ -359,19 +359,6 @@
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <item row="2" column="0">
-               <widget class="QCheckBox" name="useLowerCaseCheckBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Use</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="1">
                <widget class="QLabel" name="label_4">
                 <property name="text">
@@ -383,32 +370,6 @@
                <widget class="QLabel" name="label_13">
                 <property name="text">
                  <string>ABC ...</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QCheckBox" name="useExtraCheckBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Use</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QCheckBox" name="useUpperCaseCheckBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Use</string>
-                </property>
-                <property name="text">
-                 <string/>
                 </property>
                </widget>
               </item>
@@ -427,15 +388,66 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QCheckBox" name="useDigitsCheckBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Use</string>
+               <widget class="QLabel" name="useDigitsLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
                 </property>
                 <property name="text">
                  <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="useLowercaseLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="useUppercaseLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="useExtraLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
                 </property>
                </widget>
               </item>
@@ -625,7 +637,7 @@
      <x>0</x>
      <y>0</y>
      <width>275</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -785,12 +797,8 @@
   <tabstop>saltBase64LineEdit</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
-  <tabstop>useLowerCaseCheckBox</tabstop>
-  <tabstop>useUpperCaseCheckBox</tabstop>
-  <tabstop>useExtraCheckBox</tabstop>
   <tabstop>extraLineEdit</tabstop>
   <tabstop>passwordTemplateLineEdit</tabstop>
-  <tabstop>useDigitsCheckBox</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>

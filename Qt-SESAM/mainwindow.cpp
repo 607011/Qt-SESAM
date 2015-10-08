@@ -467,10 +467,10 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   d->easySelector->setLength(d->optionsDialog->maxPasswordLength() / 2);
   d->easySelector->setComplexity(Password::DefaultComplexity);
   d->easySelector->blockSignals(false);
-  ui->useLowerCaseCheckBox->setChecked(true);
-  ui->useUpperCaseCheckBox->setChecked(true);
-  ui->useDigitsCheckBox->setChecked(true);
-  ui->useExtraCheckBox->setChecked(true);
+  ui->useDigitsLabel->setVisible(true);
+  ui->useLowercaseLabel->setVisible(true);
+  ui->useUppercaseLabel->setVisible(true);
+  ui->useExtraLabel->setVisible(true);
 //  setDirty(false);
 }
 
@@ -479,9 +479,9 @@ void MainWindow::resetAllFields(void)
 {
   Q_D(MainWindow);
   resetAllFieldsExceptDomainComboBox();
-  setDirty(false);
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->setFocus();
+  setDirty(false);
 }
 
 
@@ -713,6 +713,16 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 }
 
 
+void MainWindow::applyComplexity(int complexity)
+{
+  const QBitArray &ba = Password::deconstructedComplexity(complexity);
+  ui->useDigitsLabel->setVisible(ba.at(Password::TemplateDigits));
+  ui->useLowercaseLabel->setVisible(ba.at(Password::TemplateLowercase));
+  ui->useUppercaseLabel->setVisible(ba.at(Password::TemplateUppercase));
+  ui->useExtraLabel->setVisible(ba.at(Password::TemplateExtra));
+}
+
+
 void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 {
   Q_D(MainWindow);
@@ -728,11 +738,7 @@ void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
   d->easySelector->setLength(length);
   d->easySelector->blockSignals(false);
 
-  const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  ui->useDigitsCheckBox->setChecked(ba.at(Password::TemplateDigits));
-  ui->useLowerCaseCheckBox->setChecked(ba.at(Password::TemplateLowercase));
-  ui->useUpperCaseCheckBox->setChecked(ba.at(Password::TemplateUppercase));
-  ui->useExtraCheckBox->setChecked(ba.at(Password::TemplateExtra));
+  applyComplexity(complexity);
 
   ui->passwordLengthSpinBox->blockSignals(true);
   ui->passwordLengthSpinBox->setValue(templateParts.at(1).length());
@@ -745,13 +751,13 @@ void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 QString MainWindow::usedCharacters_v3(void)
 {
   QString used;
-  if (ui->useLowerCaseCheckBox->isChecked())
-    used += Password::LowerChars;
-  if (ui->useUpperCaseCheckBox->isChecked())
-    used += Password::UpperChars;
-  if (ui->useDigitsCheckBox->isChecked())
+  if (ui->useDigitsLabel->isVisible())
     used += Password::Digits;
-  if (ui->useExtraCheckBox->isChecked())
+  if (ui->useLowercaseLabel->isVisible())
+    used += Password::LowerChars;
+  if (ui->useUppercaseLabel->isVisible())
+    used += Password::UpperChars;
+  if (ui->useExtraLabel->isVisible())
     used += ui->extraLineEdit->text();
   return used;
 }
@@ -761,13 +767,13 @@ void MainWindow::createTemplate_v3(void)
 {
   Q_D(MainWindow);
   QByteArray used;
-  if (ui->useLowerCaseCheckBox->isChecked())
-    used += 'a';
-  if (ui->useUpperCaseCheckBox->isChecked())
-    used += 'A';
-  if (ui->useDigitsCheckBox->isChecked())
+  if (ui->useDigitsLabel->isVisible())
     used += 'n';
-  if (ui->useExtraCheckBox->isChecked())
+  if (ui->useLowercaseLabel->isVisible())
+    used += 'a';
+  if (ui->useUppercaseLabel->isVisible())
+    used += 'A';
+  if (ui->useExtraLabel->isVisible())
     used += 'o';
   QByteArray pwdTemplate = used + QByteArray(d->easySelector->length() - used.count(), 'x');
   ui->passwordTemplateLineEdit->setText(QString("%1").arg(d->easySelector->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
@@ -1735,11 +1741,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 {
   Q_D(MainWindow);
   Q_UNUSED(length);
-  const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  ui->useDigitsCheckBox->setChecked(ba.at(Password::TemplateDigits));
-  ui->useLowerCaseCheckBox->setChecked(ba.at(Password::TemplateLowercase));
-  ui->useUpperCaseCheckBox->setChecked(ba.at(Password::TemplateUppercase));
-  ui->useExtraCheckBox->setChecked(ba.at(Password::TemplateExtra));
+  applyComplexity(complexity);
   createTemplate_v3();
   d->password.setDomainSettings(collectedDomainSettings());
   ui->generatedPasswordLineEdit->setText(d->password.remixed());

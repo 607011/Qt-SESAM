@@ -62,6 +62,7 @@ public:
 
   ~MainWindow();
 
+  void applyComplexity(int complexity);
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
