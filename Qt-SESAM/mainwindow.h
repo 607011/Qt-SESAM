@@ -152,8 +152,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
-  QMessageBox::StandardButton saveOrDiscard(void);
-  QMessageBox::StandardButton checkSaveOnDirty(void);
+  QMessageBox::StandardButton saveYesNoCancel(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
