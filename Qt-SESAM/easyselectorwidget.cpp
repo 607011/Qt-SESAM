@@ -182,7 +182,7 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   const int ys = d->background.height() / nY;
   QPainter p(this);
   p.drawPixmap(QPoint(0, 0), d->background);
-  p.setBrush(QColor(255, 255, 255, 192));
+  p.setBrush(QColor(255, 255, 255, 208));
   p.setPen(Qt::transparent);
   p.drawRect(QRect(QPoint(xs * (d->length - d->minLength) + 1,
                           d->background.height() - ys * (d->complexity + 1)),
