@@ -90,7 +90,7 @@ void Password::setDomainSettings(const DomainSettings &ds)
 
 QBitArray Password::deconstructedComplexity(int complexity)
 {
-  QBitArray ba(4);
+  QBitArray ba(4, false);
   switch (complexity) {
   case 6:
     ba[TemplateDigits] = true;
