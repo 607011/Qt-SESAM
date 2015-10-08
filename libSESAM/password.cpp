@@ -23,7 +23,6 @@
 
 #include "securebytearray.h"
 #include "securestring.h"
-#include "presets.h"
 #include "password.h"
 #include "pbkdf2.h"
 #include "util.h"
@@ -52,6 +51,20 @@ const QString Password::AllChars = Password::LowerChars + Password::UpperChars +
 const int Password::DefaultMaxLength = 36;
 const int Password::DefaultLength = 24;
 const int Password::DefaultComplexity = 6;
+
+const Password::TemplateCharacterMap Password::TemplateCharacters = {
+  std::pair<char, QString>('V', "AEIOUY"),
+  std::pair<char, QString>('v', "aeiuoy"),
+  std::pair<char, QString>('C', "BCDFGHJKLMNPQRSTVWXZ"),
+  std::pair<char, QString>('c', "bcdfghjklmnpqrstvwxz"),
+  std::pair<char, QString>('A', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+  std::pair<char, QString>('a', "abcdefghijklmnopqrstuvwxyz"),
+  std::pair<char, QString>('n', "0123456789"),
+  std::pair<char, QString>('o', "@&%?,=[]_:-+*$#!'^~;()/."),
+  std::pair<char, QString>('x', "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&%?,=[]_:-+*$#!'^~;()/.")
+};
+
+
 
 
 Password::Password(const DomainSettings &ds, QObject *parent)
@@ -178,9 +191,11 @@ const SecureString &Password::remixed(void)
         charSet = d->domainSettings.extraCharacters;
         break;
       case 'a':
+        // fall-through
       case 'A':
+        // fall-through
       case 'n':
-        charSet = Preset::charSetFor(m);
+        charSet = TemplateCharacters[m];
         break;
       default:
         qWarning() << "Invalid template character:" << m;
@@ -254,4 +269,10 @@ const SecureString &Password::hexKey(void) const
 void Password::waitForFinished(void)
 {
   d_ptr->future.waitForFinished();
+}
+
+
+const QString &Password::charSetFor(char ch)
+{
+  return TemplateCharacters[ch];
 }

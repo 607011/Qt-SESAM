@@ -56,7 +56,6 @@
 #include "singleinstancedetector.h"
 #include "global.h"
 #include "util.h"
-#include "presets.h"
 #include "progressdialog.h"
 #include "masterpassworddialog.h"
 #include "changemasterpassworddialog.h"

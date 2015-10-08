@@ -178,8 +178,7 @@ SOURCES += \
     3rdparty/cryptopp/zdeflate.cpp \
     3rdparty/cryptopp/zinflate.cpp \
     3rdparty/cryptopp/zlib.cpp \
-    securestring.cpp \
-    presets.cpp
+    securestring.cpp
 
 HEADERS +=\
     util.h \
@@ -327,8 +326,7 @@ HEADERS +=\
     3rdparty/cryptopp/zdeflate.h \
     3rdparty/cryptopp/zinflate.h \
     3rdparty/cryptopp/zlib.h \
-    securestring.h \
-    presets.h
+    securestring.h
 
 DISTFILES += \
     3rdparty/cryptopp/Crypto++-License

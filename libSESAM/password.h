@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 #include <QByteArray>
 #include <QBitArray>
+#include <QMap>
 
 #include "securebytearray.h"
 #include "securestring.h"
@@ -37,6 +38,8 @@ class Password : public QObject
 {
   Q_OBJECT
 public:
+  typedef QMap<char, QString> TemplateCharacterMap;
+
   Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
 
@@ -59,6 +62,7 @@ public:
   void setDomainSettings(const DomainSettings &);
 
   static QBitArray deconstructedComplexity(int complexity);
+  static const QString &charSetFor(char);
 
   void generate(const SecureByteArray &masterPassword);
   void generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings = DomainSettings());
@@ -77,6 +81,8 @@ private:
   QScopedPointer<PasswordPrivate> d_ptr;
   Q_DECLARE_PRIVATE(Password)
   Q_DISABLE_COPY(Password)
+
+  static const TemplateCharacterMap TemplateCharacters;
 };
 
 #endif // __PASSWORD_H_
