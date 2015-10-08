@@ -184,9 +184,9 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   p.drawPixmap(QPoint(0, 0), d->background);
   p.setBrush(QColor(255, 255, 255, 192));
   p.setPen(Qt::transparent);
-  p.drawRect(QRect(QPoint(xs * (d->length - d->minLength),
+  p.drawRect(QRect(QPoint(xs * (d->length - d->minLength) + 1,
                           d->background.height() - ys * (d->complexity + 1)),
-                   QSize(xs, ys)));
+                   QSize(xs - 1, ys - 1)));
 }
 
 
@@ -209,7 +209,7 @@ void EasySelectorWidget::redrawBackground(void)
   const int nY = d->maxComplexity + 1;
   const int xs = sz.width() / nX;
   const int ys = sz.height() / nY;
-  sz = QSize(xs * nX, ys * nY);
+  sz = QSize(xs * nX + 1, ys * nY + 1);
   d->background = QPixmap(sz);
   QPainter p(&d->background);
   QLinearGradient gradient(0, sz.height(), sz.width(), 0);
@@ -221,10 +221,10 @@ void EasySelectorWidget::redrawBackground(void)
   gradient.setColorAt(g, QColor(0, 255, 0, 255).darker());
   p.fillRect(QRect(QPoint(0, 0), sz), gradient);
   p.setBrush(Qt::transparent);
-  p.setPen(QPen(QBrush(QColor(255, 255, 255, 160)), 1));
-  for (int x = 0; x < nX; ++x)
+  p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
+  for (int x = 0; x <= nX; ++x)
     p.drawLine(xs * x, 0, xs * x, d->background.height());
-  for (int y = 0; y < nY; ++y)
+  for (int y = 0; y <= nY; ++y)
     p.drawLine(0, ys * y, d->background.width(), ys * y);
 }
 
