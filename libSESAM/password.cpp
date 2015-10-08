@@ -91,49 +91,50 @@ void Password::setDomainSettings(const DomainSettings &ds)
 QBitArray Password::deconstructedComplexity(int complexity)
 {
   QBitArray ba(4);
-  enum { Digits = 0, Lower, Upper, Extra }; // TODO: make public for use in functions that call deconstructedComplexity()
   switch (complexity) {
   case 6:
-    ba[Digits] = true;
-    ba[Lower] = true;
-    ba[Upper] = true;
-    ba[Extra] = true;
+    ba[TemplateDigits] = true;
+    ba[TemplateLowercase] = true;
+    ba[TemplateUppercase] = true;
+    ba[TemplateExtra] = true;
     break;
   case 5:
-    ba[Digits] = true;
-    ba[Lower] = true;
-    ba[Upper] = true;
-    ba[Extra] = false;
+    ba[TemplateDigits] = true;
+    ba[TemplateLowercase] = true;
+    ba[TemplateUppercase] = true;
+    ba[TemplateExtra] = false;
     break;
   case 4:
-    ba[Digits] = false;
-    ba[Lower] = true;
-    ba[Upper] = true;
-    ba[Extra] = false;
+    ba[TemplateDigits] = false;
+    ba[TemplateLowercase] = true;
+    ba[TemplateUppercase] = true;
+    ba[TemplateExtra] = false;
     break;
   case 3:
-    ba[Digits] = true;
-    ba[Lower] = true;
-    ba[Upper] = false;
-    ba[Extra] = false;
+    ba[TemplateDigits] = true;
+    ba[TemplateLowercase] = true;
+    ba[TemplateUppercase] = false;
+    ba[TemplateExtra] = false;
     break;
   case 2:
-    ba[Digits] = false;
-    ba[Lower] = false;
-    ba[Upper] = true;
-    ba[Extra] = false;
+    ba[TemplateDigits] = false;
+    ba[TemplateLowercase] = false;
+    ba[TemplateUppercase] = true;
+    ba[TemplateExtra] = false;
     break;
   case 1:
-    ba[Digits] = false;
-    ba[Lower] = true;
-    ba[Upper] = false;
-    ba[Extra] = false;
+    ba[TemplateDigits] = false;
+    ba[TemplateLowercase] = true;
+    ba[TemplateUppercase] = false;
+    ba[TemplateExtra] = false;
     break;
   case 0:
-    ba[Digits] = true;
-    ba[Lower] = false;
-    ba[Upper] = false;
-    ba[Extra] = false;
+    ba[TemplateDigits] = true;
+    ba[TemplateLowercase] = false;
+    ba[TemplateUppercase] = false;
+    ba[TemplateExtra] = false;
+    break;
+  default:
     break;
   }
   return ba;

@@ -728,10 +728,10 @@ void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
   d->easySelector->blockSignals(false);
 
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  ui->useDigitsCheckBox->setChecked(ba.at(0));
-  ui->useLowerCaseCheckBox->setChecked(ba.at(1));
-  ui->useUpperCaseCheckBox->setChecked(ba.at(2));
-  ui->useExtraCheckBox->setChecked(ba.at(3) && !ui->extraLineEdit->text().isEmpty());
+  ui->useDigitsCheckBox->setChecked(ba.at(Password::TemplateDigits));
+  ui->useLowerCaseCheckBox->setChecked(ba.at(Password::TemplateLowercase));
+  ui->useUpperCaseCheckBox->setChecked(ba.at(Password::TemplateUppercase));
+  ui->useExtraCheckBox->setChecked(ba.at(Password::TemplateExtra) && !ui->extraLineEdit->text().isEmpty());
 
   ui->passwordLengthSpinBox->blockSignals(true);
   ui->passwordLengthSpinBox->setValue(templateParts.at(1).length());
@@ -1735,10 +1735,10 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   Q_D(MainWindow);
   Q_UNUSED(length);
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  ui->useDigitsCheckBox->setChecked(ba.at(0));
-  ui->useLowerCaseCheckBox->setChecked(ba.at(1));
-  ui->useUpperCaseCheckBox->setChecked(ba.at(2));
-  ui->useExtraCheckBox->setChecked(ba.at(3) && !ui->extraLineEdit->text().isEmpty());
+  ui->useDigitsCheckBox->setChecked(ba.at(Password::TemplateDigits));
+  ui->useLowerCaseCheckBox->setChecked(ba.at(Password::TemplateLowercase));
+  ui->useUpperCaseCheckBox->setChecked(ba.at(Password::TemplateUppercase));
+  ui->useExtraCheckBox->setChecked(ba.at(Password::TemplateExtra) && !ui->extraLineEdit->text().isEmpty());
   createTemplate_v3();
   d->password.setDomainSettings(collectedDomainSettings());
   ui->generatedPasswordLineEdit->setText(d->password.remixed());

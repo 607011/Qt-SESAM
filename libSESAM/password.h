@@ -39,6 +39,12 @@ class Password : public QObject
   Q_OBJECT
 public:
   typedef QMap<char, QString> TemplateCharacterMap;
+  enum {
+    TemplateDigits = 0,
+    TemplateLowercase,
+    TemplateUppercase,
+    TemplateExtra }
+  TemplatePlaceholder;
 
   Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
