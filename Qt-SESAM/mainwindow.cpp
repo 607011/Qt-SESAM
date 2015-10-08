@@ -1200,7 +1200,17 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 
 void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
 {
-  const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+  /* From the Qt docs: "QStandardPaths::DataLocation returns the
+   * same value as AppLocalDataLocation. This enumeration value
+   * is deprecated. Using AppDataLocation is preferable since on
+   * Windows, the roaming path is recommended."
+   *
+   * AppLocalDataLocation was introduced in Qt 5.4. To maintain
+   * compatibility to Qt 5.3 (which is found in many reasonably
+   * current Linux distributions this code still uses the
+   * deprecated value DataLocation.
+   */
+  const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   const QString &backupFilename = QString("%1/%2-%3-domaindata-backup.txt")
       .arg(backupFilePath)
       .arg(QDateTime::currentDateTime().toString("yyyyMMddThhmmss"))
