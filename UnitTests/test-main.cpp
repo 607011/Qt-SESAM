@@ -144,6 +144,36 @@ private slots:
     QVERIFY(pwd.remixed() == "wLUwoQvKzBaYXbme");
   }
 
+  void pwdgen_simple_password_3_tpl(void)
+  {
+    DomainSettings ds;
+    ds.domainName = "MyFavoriteDomain";
+    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
+    ds.iterations = 8192;
+    ds.passwordTemplate = "6;xxxxxxxxxxxxxxxx";
+    ds.salt_base64 = QString("pepper").toUtf8().toBase64();
+    Password pwd(ds);
+    pwd.generate("foobar");
+    QVERIFY(pwd.hexKey() == "cb0ae7b2b7fc969770a9bfc1eef3a9afd02d2b28d6d8e9cb324f41a31392a0f800ea7e2e43e847537ceb863a16a869d5e4dd6822cf3be0206440eff97dc2001c");
+    QVERIFY(pwd.password() == "wLUwoQvKzBaYXbme");
+    QVERIFY(pwd.remixed() == "wLUwoQvKzBaYXbme");
+    QVERIFY(pwd() == "wLUwoQvKzBaYXbme");
+  }
+
+  void pwdgen_simple_password_4_tpl(void)
+  {
+    DomainSettings ds;
+    ds.domainName = "WT*?#@!";
+    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ0123456789!\"$%&?!<>()[]{}\\|/~`´#'=-_+*~.,;:^°";
+    ds.iterations = 2048;
+    ds.passwordTemplate = "6;xxAxxxnooxxxxxxxxxxaaAxx";
+    ds.salt_base64 = QByteArray::fromHex("40865647f99e2d8c1ed8").toBase64();
+    Password pwd(ds);
+    pwd.generate("mast3r-PA55WORD");
+    QVERIFY(pwd.hexKey() == "95439766e6653ece428e2b1d76eb28ad4098b50d1c6fb55094cce85b12a941cee34ca00d214cf2b31aa1e2753c08b287223239a2c0b883ff184f71d7cd3c42b3");
+    QVERIFY(pwd.password() == "´uHE7E0#_(J~r#~XCifHq´");
+  }
+
   void pwdgen_pin4(void)
   {
     DomainSettings ds;
