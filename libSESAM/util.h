@@ -70,6 +70,8 @@ T clamp(const T &x, const T &lo, const T &hi)
 extern QString shuffled(const QString&);
 extern QByteArray shuffled(const QByteArray&);
 extern QString fingerprintify(const QByteArray &ba);
+extern bool containsAll(const QString &haystack, const QString &needles);
+extern bool containsAny(const QString &haystack, const QString &needles);
 
 #if defined(Q_CC_GNU)
 extern void SecureErase(QString str);

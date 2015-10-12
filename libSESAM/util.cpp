@@ -85,3 +85,23 @@ QByteArray shuffled(const QByteArray& ba)
   }
   return result;
 }
+
+
+bool containsAll(const QString &haystack, const QString &needles) {
+  bool ok = true;
+  foreach (QChar needle, needles) {
+    if (!haystack.contains(needle)) {
+      ok = false;
+      break;
+    }
+  }
+  return ok;
+}
+
+
+bool containsAny(const QString &haystack, const QString &needles) {
+  foreach (QChar needle, needles)
+    if (haystack.contains(needle))
+      return true;
+  return false;
+}
