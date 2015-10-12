@@ -1820,6 +1820,10 @@ void MainWindow::onEscPressed(void)
     case QMessageBox::Yes:
       saveCurrentDomainSettings();
       break;
+    case QMessageBox::No:
+      setDirty(false);
+      onDomainSelected(ui->domainsComboBox->currentText());
+      break;
     default:
       break;
     }
