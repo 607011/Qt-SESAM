@@ -1780,14 +1780,17 @@ void MainWindow::onDomainSelected(QString domain)
     ui->actionHackLegacyPassword->setEnabled(false);
     if (d->domains.at(domain).passwordTemplate.isEmpty()) {
       ui->tabWidgetVersions->setCurrentIndex(0);
+      ui->actionMigrateDomainToV3->setEnabled(true);
     }
     else {
       ui->tabWidgetVersions->setCurrentIndex(1);
+      ui->actionMigrateDomainToV3->setEnabled(false);
     }
   }
   else {
     ui->tabWidget->setCurrentIndex(1);
     ui->actionHackLegacyPassword->setEnabled(true);
+    ui->actionMigrateDomainToV3->setEnabled(false);
   }
   d->currentDomain = ui->domainsComboBox->currentText();
 }

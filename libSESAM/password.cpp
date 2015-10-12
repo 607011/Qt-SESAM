@@ -67,9 +67,9 @@ const QVector<QBitArray> Password::ComplexityMapping =
 };
 
 
-const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf8();
-const QString Password::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
-const QString Password::Digits = QString("0123456789").toUtf8();
+const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz");
+const QString Password::UpperChars = Password::LowerChars.toUpper();
+const QString Password::Digits = QString("0123456789");
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8(); // default: !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 const int Password::DefaultMaxLength = 36;

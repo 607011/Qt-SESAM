@@ -567,7 +567,7 @@
     </message>
     <message>
         <source>Ctrl+Shift+H</source>
-        <translation>Ctrl+Shift+H</translation>
+        <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
         <source>Starting synchronisation ...</source>
@@ -797,27 +797,55 @@
     </message>
     <message>
         <source>abcdefghijklmnopqrstuvwxyz</source>
-        <translation type="unfinished"></translation>
+        <translation>abcdefghijklmnopqrstuvwxyz</translation>
     </message>
     <message>
         <source>ABCDEFGHIJKLMNOPQRSTUVWXYZ</source>
-        <translation type="unfinished"></translation>
+        <translation>ABCDEFGHIJKLMNOPQRSTUVWXYZ</translation>
     </message>
     <message>
         <source>0123456789</source>
-        <translation type="unfinished">0123... {0123456789?}</translation>
+        <translation>0123456789</translation>
     </message>
     <message>
         <source>Forced push ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzwungenes Senden ...</translation>
     </message>
     <message>
         <source>Send local domain settings to server no matter what</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle lokale Domain-Einstellungen an den Sync-Server senden, egal ob dort neue vorliegen oder nicht</translation>
     </message>
     <message>
         <source>You have changed the current domain settings. Do you want to save the changes before proceeding?</source>
-        <translation type="unfinished"></translation>
+        <translation>Du hast die Domain-Einstellungen verändert. Möchtest du die Änderungen speichern bevor du weiter machst?</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+H</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+C, Ctrl+C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+F, Ctrl+P</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Migrate domain to v3</source>
+        <translation>Domain-Einstellungen nach v3 migrieren</translation>
+    </message>
+    <message>
+        <source>Migrate current domain settings from v2 (simple) to v3 (expert)</source>
+        <translation>Die aktuellen Domain-Einstellungen von v2 (einfach) nach v3 (Expert) wandeln</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+M</source>
+        <translation></translation>
     </message>
 </context>
 <context>
