@@ -1523,7 +1523,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setReadUrl(DefaultSyncServerReadUrl);
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
   d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
-  d->expandableGroupBox->setExpanded(d->settings.value("misc/moreSettingsExpanded", true).toBool());
+  d->expandableGroupBox->setExpanded(d->settings.value("misc/moreSettingsExpanded", false).toBool());
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
     QByteArray baSyncData;
