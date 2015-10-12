@@ -1488,6 +1488,7 @@ void MainWindow::cancelServerOperation(void)
 void MainWindow::sync(void)
 {
   Q_D(MainWindow);
+  restartInvalidationTimer();
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
@@ -1732,11 +1733,11 @@ void MainWindow::onForcedPush(void)
 void MainWindow::onMigrateDomainToV3(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onMigrateDomainToV3()";
   applyComplexity(-1);
   const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
   ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(-1).arg(tmpl));
   ui->tabWidgetVersions->setCurrentIndex(1);
+  ui->actionMigrateDomainToV3->setEnabled(false);
   setDirty();
   updatePassword();
 }
