@@ -42,15 +42,40 @@ public:
 };
 
 
+static QBitArray toQBitArray(const QString &s)
+{
+  QBitArray ba(s.count(), false);
+  int i = 0;
+  foreach (QChar d, s) {
+    if (d == '1')
+      ba.setBit(i);
+    ++i;
+  }
+  return ba;
+}
+
+
+const QVector<QBitArray> Password::ComplexityMapping =
+{
+  toQBitArray("1000"),
+  toQBitArray("0100"),
+  toQBitArray("0010"),
+  toQBitArray("1100"),
+  toQBitArray("0110"),
+  toQBitArray("1110"),
+  toQBitArray("1111")
+};
+
+
 const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz").toUtf8();
 const QString Password::UpperChars = QString("ABCDEFGHIJKLMNOPQRSTUVWXYZ").toUtf8();
-const QString Password::UpperCharsNoAmbiguous = QString("ABCDEFGHJKLMNPQRTUVWXYZ").toUtf8();
 const QString Password::Digits = QString("0123456789").toUtf8();
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8(); // default: !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 const int Password::DefaultMaxLength = 36;
 const int Password::DefaultLength = 24;
-const int Password::DefaultComplexity = 6;
+const int Password::MaxComplexity = 6;
+const int Password::DefaultComplexity = Password::MaxComplexity;
 
 const Password::TemplateCharacterMap Password::TemplateCharacters = {
   std::pair<char, QString>('V', "AEIOUY"),
@@ -138,6 +163,21 @@ QBitArray Password::deconstructedComplexity(int complexity)
     break;
   }
   return ba;
+}
+
+
+int Password::constructedComplexity(const QBitArray &ba)
+{
+  int complexity = -1;
+  int i = 0;
+  foreach (QBitArray testBa, Password::ComplexityMapping) {
+    if (ba == testBa) {
+      complexity = i;
+      break;
+    }
+    ++i;
+  }
+  return complexity;
 }
 
 

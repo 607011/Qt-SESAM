@@ -41,6 +41,7 @@
 #include <QSslError>
 #include <QEvent>
 #include <QMessageBox>
+#include <QLabel>
 
 #include "global.h"
 #include "domainsettingslist.h"
@@ -104,7 +105,7 @@ private slots:
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
   void openURL(void);
-  void forcedPush(void);
+  void onForcedPush(void);
   void onMigrateDomainToV3(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
@@ -182,6 +183,7 @@ private: // methods
   void createTemplate_v3(void);
   QString usedCharacters_v3(void);
   void analyzeTemplate_v3(const QByteArray &);
+  void checkLabel(QLabel *, bool checked);
 };
 
 #endif // __MAINWINDOW_H_

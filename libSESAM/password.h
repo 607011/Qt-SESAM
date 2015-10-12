@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 #include <QByteArray>
 #include <QBitArray>
+#include <QVector>
 #include <QMap>
 
 #include "securebytearray.h"
@@ -49,15 +50,16 @@ public:
   Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
 
+  static const QVector<QBitArray> ComplexityMapping;
   static const QString LowerChars;
   static const QString UpperChars;
-  static const QString UpperCharsNoAmbiguous;
   static const QString Digits;
   static const QString ExtraChars;
   static const QString AllChars;
   static const int DefaultMaxLength;
   static const int DefaultLength;
   static const int DefaultComplexity;
+  static const int MaxComplexity;
 
   SecureString operator()(void) const;
   const SecureString &password(void) const;
@@ -68,6 +70,7 @@ public:
   void setDomainSettings(const DomainSettings &);
 
   static QBitArray deconstructedComplexity(int complexity);
+  static int constructedComplexity(const QBitArray &);
   static const QString &charSetFor(char);
 
   void generate(const SecureByteArray &masterPassword);

@@ -728,17 +728,17 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 void MainWindow::applyComplexity(int complexity)
 {
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  ui->useDigitsLabel->setVisible(ba.at(Password::TemplateDigits));
-  ui->useLowercaseLabel->setVisible(ba.at(Password::TemplateLowercase));
-  ui->useUppercaseLabel->setVisible(ba.at(Password::TemplateUppercase));
-  ui->useExtraLabel->setVisible(ba.at(Password::TemplateExtra));
+  checkLabel(ui->useDigitsLabel, ba.at(Password::TemplateDigits));
+  checkLabel(ui->useLowercaseLabel, ba.at(Password::TemplateLowercase));
+  checkLabel(ui->useUppercaseLabel, ba.at(Password::TemplateUppercase));
+  checkLabel(ui->useExtraLabel, ba.at(Password::TemplateExtra));
 }
 
 
 void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::analyzeTemplate_v3(" << templ << ")";
+  qDebug() << "MainWindow::analyzeTemplate_v3(" << templ << ")";
   const QList<QByteArray> &templateParts = templ.split(';');
   if (templateParts.count() != 2)
     return;
@@ -760,16 +760,24 @@ void MainWindow::analyzeTemplate_v3(const QByteArray &templ)
 }
 
 
+void MainWindow::checkLabel(QLabel *label, bool checked)
+{
+  static QPixmap CheckedPixmap(":/images/check.png");
+  static QPixmap UncheckedPixmap(":/images/uncheck.png");
+  label->setPixmap(checked ? CheckedPixmap : UncheckedPixmap);
+}
+
+
 QString MainWindow::usedCharacters_v3(void)
 {
   QString used;
-  if (ui->useDigitsLabel->isVisible())
+  if (!ui->useDigitsLabel->pixmap()->isNull())
     used += Password::Digits;
-  if (ui->useLowercaseLabel->isVisible())
+  if (!ui->useLowercaseLabel->pixmap()->isNull())
     used += Password::LowerChars;
-  if (ui->useUppercaseLabel->isVisible())
+  if (!ui->useUppercaseLabel->pixmap()->isNull())
     used += Password::UpperChars;
-  if (ui->useExtraLabel->isVisible())
+  if (!ui->useExtraLabel->pixmap()->isNull())
     used += ui->extraLineEdit->text();
   return used;
 }
@@ -779,13 +787,13 @@ void MainWindow::createTemplate_v3(void)
 {
   Q_D(MainWindow);
   QByteArray used;
-  if (ui->useDigitsLabel->isVisible())
+  if (ui->useDigitsLabel->pixmap()->isNull())
     used += 'n';
-  if (ui->useLowercaseLabel->isVisible())
+  if (ui->useLowercaseLabel->pixmap()->isNull())
     used += 'a';
-  if (ui->useUppercaseLabel->isVisible())
+  if (ui->useUppercaseLabel->pixmap()->isNull())
     used += 'A';
-  if (ui->useExtraLabel->isVisible())
+  if (ui->useExtraLabel->pixmap()->isNull())
     used += 'o';
   QByteArray pwdTemplate = used + QByteArray(d->easySelector->length() - used.count(), 'x');
   ui->passwordTemplateLineEdit->setText(QString("%1").arg(d->easySelector->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
@@ -798,7 +806,7 @@ void MainWindow::createTemplate_v3(void)
 void MainWindow::generatePassword(void)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::generatePassword()";
+  qDebug() << "MainWindow::generatePassword()";
   if (ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
     ui->generatedPasswordLineEdit->setText(QString());
   }
@@ -909,7 +917,7 @@ auto makeHMS = [](qint64 ms) {
 void MainWindow::onPasswordGenerated(void)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::onPasswordGenerated()";
+  qDebug() << "MainWindow::onPasswordGenerated()";
 #if HACKING_MODE_ENABLED
   if (!d->hackingMode) {
 #endif
@@ -1159,6 +1167,8 @@ void MainWindow::makeDomainComboBox(void)
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
+
+  restartInvalidationTimer();
 
   qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE");
 
@@ -1703,7 +1713,7 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 }
 
 
-void MainWindow::forcedPush(void)
+void MainWindow::onForcedPush(void)
 {
   Q_D(MainWindow);
   d->keyGenerationMutex.lock();
@@ -1819,7 +1829,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 void MainWindow::onPasswordTemplateChanged(const QString &templ)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
+  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
   analyzeTemplate_v3(templ.toUtf8());
 }
 
