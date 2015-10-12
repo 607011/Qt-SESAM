@@ -102,7 +102,6 @@ public:
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(new ProgressDialog(parent))
-    , easySelector(new EasySelectorWidget)
     , countdownWidget(new CountdownWidget)
     , actionShow(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
@@ -150,7 +149,6 @@ public:
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
   ProgressDialog *progressDialog;
-  EasySelectorWidget *easySelector;
   CountdownWidget *countdownWidget;
   QAction *actionShow;
   QString lastDomainBeforeLock;
@@ -217,9 +215,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
 
-  ui->selectorGridLayout->addWidget(d->easySelector, 0, 1);
-  QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
-  QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
+  ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
+  QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
+  QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), ui->easySelectorWidget, SLOT(setMaxLength(int)));
   QObject::connect(d->optionsDialog, SIGNAL(masterPasswordInvalidationTimeMinsChanged(int)), SLOT(masterPasswordInvalidationTimeMinsChanged(int)));
   resetAllFields();
 
@@ -518,13 +516,13 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->extraLineEdit->setText(Password::ExtraChars);
   ui->extraLineEdit->blockSignals(false);
 
-  d->easySelector->blockSignals(true);
-  d->easySelector->setLength(d->optionsDialog->maxPasswordLength() / 2);
-  d->easySelector->setComplexity(Password::DefaultComplexity);
-  d->easySelector->setExtraCharacterCount(ui->extraLineEdit->text().count());
-  d->easySelector->blockSignals(false);
+  ui->easySelectorWidget->blockSignals(true);
+  ui->easySelectorWidget->setLength(d->optionsDialog->maxPasswordLength() / 2);
+  ui->easySelectorWidget->setComplexity(Password::DefaultComplexity);
+  ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
+  ui->easySelectorWidget->blockSignals(false);
 
-  applyComplexity(d->easySelector->complexity());
+  applyComplexity(ui->easySelectorWidget->complexity());
 }
 
 
@@ -677,7 +675,7 @@ void MainWindow::onPasswordLengthChanged(int len)
 {
   Q_D(MainWindow);
   setDirty();
-  d->easySelector->setLength(len);
+  ui->easySelectorWidget->setLength(len);
   updatePassword();
 }
 
@@ -788,10 +786,10 @@ void MainWindow::applyTemplate(const QByteArray &templ)
   int complexity = templateParts.at(0).toInt();
   int length = templateParts.at(1).length();
 
-  d->easySelector->blockSignals(true);
-  d->easySelector->setComplexity(complexity);
-  d->easySelector->setLength(length);
-  d->easySelector->blockSignals(false);
+  ui->easySelectorWidget->blockSignals(true);
+  ui->easySelectorWidget->setComplexity(complexity);
+  ui->easySelectorWidget->setLength(length);
+  ui->easySelectorWidget->blockSignals(false);
 
   applyComplexity(complexity);
 
@@ -843,12 +841,12 @@ void MainWindow::updateTemplate(void)
     used += 'A';
   if (ui->useExtraLabel->isEnabled())
     used += 'o';
-  QByteArray pwdTemplate = used + QByteArray(d->easySelector->length() - used.count(), 'x');
-  ui->passwordTemplateLineEdit->setText(QString("%1").arg(d->easySelector->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
+  QByteArray pwdTemplate = used + QByteArray(ui->easySelectorWidget->length() - used.count(), 'x');
+  ui->passwordTemplateLineEdit->setText(QString("%1").arg(ui->easySelectorWidget->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
   ui->usedCharactersPlainTextEdit->blockSignals(true);
   ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters());
   ui->usedCharactersPlainTextEdit->blockSignals(false);
-  d->easySelector->setExtraCharacterCount(ui->extraLineEdit->text().count());
+  ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
 }
 
 
