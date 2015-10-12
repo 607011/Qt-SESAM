@@ -38,8 +38,8 @@ public:
   { /* ... */ }
   QVBoxLayout *layout;
   QFrame *contents;
-  QLabel *button;
   QLabel *title;
+  QLabel *button;
   bool expanded;
 };
 
