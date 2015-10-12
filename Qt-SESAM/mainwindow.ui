@@ -691,6 +691,8 @@
      <addaction name="actionHackLegacyPassword"/>
      <addaction name="actionRegenerateSaltKeyIV"/>
      <addaction name="actionClearAllSettings"/>
+     <addaction name="separator"/>
+     <addaction name="actionForcedPush"/>
     </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
@@ -798,6 +800,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionForcedPush">
+   <property name="text">
+    <string>Forced push ...</string>
+   </property>
+   <property name="toolTip">
+    <string>Send local domain settings to server no matter what</string>
    </property>
   </action>
  </widget>

@@ -306,11 +306,11 @@
     </message>
     <message>
         <source>Save before exit?</source>
-        <translation>Speichern vor dem Beenden?</translation>
+        <translation type="vanished">Speichern vor dem Beenden?</translation>
     </message>
     <message>
         <source>Your domain parameters have changed. Do you want to save the changes before exiting?</source>
-        <translation>Deine Domain-Parameter wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
+        <translation type="vanished">Deine Domain-Parameter wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
     </message>
     <message>
         <source>Really renew salt?</source>
@@ -749,23 +749,23 @@
     </message>
     <message>
         <source>Use</source>
-        <translation>Verwenden</translation>
+        <translation type="vanished">Verwenden</translation>
     </message>
     <message>
         <source>abc ...</source>
-        <translation>abc ...</translation>
+        <translation type="vanished">abc ...</translation>
     </message>
     <message>
         <source>ABC ...</source>
-        <translation>ABC ...</translation>
+        <translation type="vanished">ABC ...</translation>
     </message>
     <message>
         <source>#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</source>
-        <translation>#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</translation>
+        <translation type="vanished">#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</translation>
     </message>
     <message>
         <source>0123 ...</source>
-        <translation>0123 ...</translation>
+        <translation type="vanished">0123 ...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -789,11 +789,35 @@
     </message>
     <message>
         <source>You have changed the current domain settings. Do you want to save or discard the changes before proceeding?</source>
-        <translation>Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor du weiter machts?</translation>
+        <translation type="vanished">Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor du weiter machts?</translation>
     </message>
     <message>
         <source>Save domain settings</source>
         <translation>Domain-Einstellungen jetzt speichern</translation>
+    </message>
+    <message>
+        <source>abcdefghijklmnopqrstuvwxyz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ABCDEFGHIJKLMNOPQRSTUVWXYZ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0123456789</source>
+        <translation type="unfinished">0123... {0123456789?}</translation>
+    </message>
+    <message>
+        <source>Forced push ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send local domain settings to server no matter what</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save the changes before proceeding?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -104,6 +104,7 @@ private slots:
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
   void openURL(void);
+  void forcedPush(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);

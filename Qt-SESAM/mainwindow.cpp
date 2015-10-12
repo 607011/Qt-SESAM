@@ -113,8 +113,8 @@ public:
 #endif
     , trayIcon(QIcon(":/images/ctSESAM.ico"))
     , salt(Crypter::generateSalt())
-    , masterKey(Crypter::AESKeySize, '\0')
-    , IV(Crypter::AESBlockSize, '\0')
+    , masterKey(Crypter::AESKeySize, static_cast<char>(0))
+    , IV(Crypter::AESBlockSize, static_cast<char>(0))
     , deleteReply(Q_NULLPTR)
     , readReply(Q_NULLPTR)
     , writeReply(Q_NULLPTR)
@@ -250,6 +250,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
+  QObject::connect(ui->actionForcedPush, SIGNAL(triggered(bool)), SLOT(forcedPush()));
   QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
   QObject::connect(ui->actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
@@ -436,41 +437,60 @@ void MainWindow::moveEvent(QMoveEvent *)
 void MainWindow::resetAllFieldsExceptDomainComboBox(void)
 {
   Q_D(MainWindow);
+
+  ui->userLineEdit->blockSignals(true);
   ui->userLineEdit->setText(QString());
+  ui->userLineEdit->blockSignals(false);
+
   ui->urlLineEdit->blockSignals(true);
   ui->urlLineEdit->setText(QString());
   ui->urlLineEdit->blockSignals(false);
-  ui->generatedPasswordLineEdit->setText(QString());
+
+  ui->legacyPasswordLineEdit->blockSignals(true);
   ui->legacyPasswordLineEdit->setText(QString());
+  ui->legacyPasswordLineEdit->blockSignals(false);
+
   ui->saltBase64LineEdit->blockSignals(true);
   renewSalt();
   ui->saltBase64LineEdit->blockSignals(false);
+
   ui->iterationsSpinBox->blockSignals(true);
   ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
   ui->iterationsSpinBox->blockSignals(false);
+
   ui->passwordLengthSpinBox->blockSignals(true);
   ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
   ui->passwordLengthSpinBox->blockSignals(false);
+
+  ui->notesPlainTextEdit->blockSignals(true);
   ui->notesPlainTextEdit->setPlainText(QString());
+  ui->notesPlainTextEdit->blockSignals(false);
+
   ui->usedCharactersPlainTextEdit->blockSignals(true);
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->usedCharactersPlainTextEdit->blockSignals(false);
-  ui->createdLabel->setText(QString());
-  ui->modifiedLabel->setText(QString());
+
+  ui->deleteCheckBox->blockSignals(true);
   ui->deleteCheckBox->setChecked(false);
+  ui->deleteCheckBox->blockSignals(false);
+
+  ui->generatedPasswordLineEdit->setText(QString());
+
+  ui->createdLabel->setText(QString());
+
+  ui->modifiedLabel->setText(QString());
+
   // v3
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(Password::ExtraChars);
   ui->extraLineEdit->blockSignals(false);
+
   d->easySelector->blockSignals(true);
   d->easySelector->setLength(d->optionsDialog->maxPasswordLength() / 2);
   d->easySelector->setComplexity(Password::DefaultComplexity);
   d->easySelector->blockSignals(false);
-  ui->useDigitsLabel->setVisible(true);
-  ui->useLowercaseLabel->setVisible(true);
-  ui->useUppercaseLabel->setVisible(true);
-  ui->useExtraLabel->setVisible(true);
-//  setDirty(false);
+
+  applyComplexity(d->easySelector->complexity());
 }
 
 
@@ -662,7 +682,7 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
+  qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
   if (!d->masterPassword.isEmpty()) {
     if (ui->legacyPasswordLineEdit->text().isEmpty()) {
       stopPasswordGeneration();
@@ -1195,6 +1215,8 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 {
   setDirty();
   ui->actionHackLegacyPassword->setEnabled(!legacyPassword.isEmpty());
+  if (!legacyPassword.isEmpty())
+    ui->generatedPasswordLineEdit->setText(QString());
 }
 
 
@@ -1677,6 +1699,22 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
   req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
   req.setSslConfiguration(d->sslConf);
   d->writeReply = d->writeNAM.post(req, data);
+}
+
+
+void MainWindow::forcedPush(void)
+{
+  Q_D(MainWindow);
+  d->keyGenerationMutex.lock();
+  QByteArray cipher;
+  try {
+    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled);
+  }
+  catch (CryptoPP::Exception &e) {
+    wrongPasswordWarning((int)e.GetErrorType(), e.what());
+  }
+  d->keyGenerationMutex.unlock();
+  sendToSyncServer(cipher);
 }
 
 
