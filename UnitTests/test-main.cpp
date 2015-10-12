@@ -204,6 +204,15 @@ private slots:
     QVERIFY(pwd.password() == "XQCjlTFKFWBAsmgYgzTwJdbFPjCyykCl");
   }
 
+  void complexity(void)
+  {
+    for (int complexity = 0; complexity < Password::MaxComplexity; ++complexity) {
+      const QBitArray &ba = Password::deconstructedComplexity(complexity);
+      const int reComplexity = Password::constructedComplexity(ba);
+      QVERIFY(complexity == reComplexity);
+    }
+  }
+
   void crypter_encrypt_decrypt_no_padding(void)
   {
     SecureByteArray key = Crypter::randomBytes(Crypter::AESKeySize);
