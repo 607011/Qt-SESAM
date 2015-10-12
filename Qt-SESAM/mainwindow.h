@@ -105,6 +105,7 @@ private slots:
   void setDirty(bool dirty = true);
   void openURL(void);
   void forcedPush(void);
+  void onMigrateDomainToV3(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);

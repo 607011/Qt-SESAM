@@ -691,8 +691,8 @@
      <addaction name="actionHackLegacyPassword"/>
      <addaction name="actionRegenerateSaltKeyIV"/>
      <addaction name="actionClearAllSettings"/>
-     <addaction name="separator"/>
      <addaction name="actionForcedPush"/>
+     <addaction name="actionMigrateDomainToV3"/>
     </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
@@ -808,6 +808,20 @@
    </property>
    <property name="toolTip">
     <string>Send local domain settings to server no matter what</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K, Ctrl+F, Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionMigrateDomainToV3">
+   <property name="text">
+    <string>Migrate domain to v3</string>
+   </property>
+   <property name="toolTip">
+    <string>Migrate current domain settings from v2 (simple) to v3 (expert)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K, Ctrl+M</string>
    </property>
   </action>
  </widget>

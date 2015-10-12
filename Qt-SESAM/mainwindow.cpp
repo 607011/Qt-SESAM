@@ -250,7 +250,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
-  QObject::connect(ui->actionForcedPush, SIGNAL(triggered(bool)), SLOT(forcedPush()));
+  QObject::connect(ui->actionForcedPush, SIGNAL(triggered(bool)), SLOT(onForcedPush()));
+  QObject::connect(ui->actionMigrateDomainToV3, SIGNAL(triggered(bool)), SLOT(onMigrateDomainToV3()));
   QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
   QObject::connect(ui->actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
@@ -1715,6 +1716,19 @@ void MainWindow::forcedPush(void)
   }
   d->keyGenerationMutex.unlock();
   sendToSyncServer(cipher);
+}
+
+
+void MainWindow::onMigrateDomainToV3(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::onMigrateDomainToV3()";
+  applyComplexity(-1);
+  const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
+  ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(-1).arg(tmpl));
+  ui->tabWidgetVersions->setCurrentIndex(1);
+  setDirty();
+  updatePassword();
 }
 
 
