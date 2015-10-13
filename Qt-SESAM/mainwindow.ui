@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>743</height>
+    <width>332</width>
+    <height>752</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -140,8 +140,8 @@
        <widget class="QLineEdit" name="generatedPasswordLineEdit">
         <property name="font">
          <font>
-          <family>MS Shell Dlg 2</family>
-          <pointsize>8</pointsize>
+          <family>Cantarell</family>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -216,8 +216,8 @@
               </property>
               <property name="font">
                <font>
-                <family>Courier</family>
-                <pointsize>9</pointsize>
+                <family>Cantarell</family>
+                <pointsize>11</pointsize>
                </font>
               </property>
               <property name="cursor">
@@ -660,8 +660,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>275</width>
-     <height>21</height>
+     <width>332</width>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -106,7 +106,7 @@ private slots:
   void setDirty(bool dirty = true);
   void openURL(void);
   void onForcedPush(void);
-  void onMigrateDomainToV3(void);
+  void onMigrateDomainSettingsToExpert(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
@@ -128,7 +128,6 @@ private slots:
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
-  void hideActivityIcons(void);
   void createFullDump(void);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
@@ -159,8 +158,10 @@ private: // methods
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
+  void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
+  void copyDomainSettingsToGUI(const DomainSettings &ds);
   void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
@@ -180,10 +181,10 @@ private: // methods
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
-  void createTemplate_v3(void);
-  QString usedCharacters_v3(void);
-  void analyzeTemplate_v3(const QByteArray &);
-  void checkLabel(QLabel *, bool checked);
+  void updateTemplate(void);
+  QString usedCharacters(void);
+  void applyTemplate(const QByteArray &);
+  void updateCheckableLabel(QLabel *, bool checked);
 };
 
 #endif // __MAINWINDOW_H_
