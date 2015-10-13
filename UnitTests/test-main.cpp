@@ -204,7 +204,18 @@ private slots:
     QVERIFY(pwd.password() == "XQCjlTFKFWBAsmgYgzTwJdbFPjCyykCl");
   }
 
-  void complexity(void)
+  void complexity_0a(void)
+  {
+    QVERIFY(Password::NoComplexity == Password::constructedComplexity(QBitArray(4, false)));
+  }
+
+  void complexity_0b(void)
+  {
+    const QBitArray &ba = Password::deconstructedComplexity(Password::NoComplexity);
+    QVERIFY(ba == QBitArray(4, false));
+  }
+
+  void complexity_1(void)
   {
     for (int complexity = 0; complexity < Password::MaxComplexity; ++complexity) {
       const QBitArray &ba = Password::deconstructedComplexity(complexity);
