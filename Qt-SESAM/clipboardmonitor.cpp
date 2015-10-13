@@ -21,7 +21,7 @@
 #include <QDebug>
 #include "clipboardmonitor.h"
 
-ClipboardMonitor *ClipboardMonitor::singleInstance = nullptr;
+ClipboardMonitor *ClipboardMonitor::singleInstance = Q_NULLPTR;
 
 ClipboardMonitor::ClipboardMonitor(void)
   : QObject()
@@ -38,7 +38,7 @@ ClipboardMonitor::~ClipboardMonitor()
 
 ClipboardMonitor *ClipboardMonitor::instance(void)
 {
-  if (singleInstance == nullptr) {
+  if (singleInstance == Q_NULLPTR) {
     singleInstance = new ClipboardMonitor;
     singleInstance->hook();
   }
@@ -56,7 +56,7 @@ bool ClipboardMonitor::hook(void)
 }
 
 
-bool ClipboardMonitor::hookIntoClipboard(HWND hWnd)
+void ClipboardMonitor::hookIntoClipboard(HWND hWnd)
 {
   SetClipboardViewer(hWnd);
 }

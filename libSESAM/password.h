@@ -23,6 +23,10 @@
 #include <QObject>
 #include <QString>
 #include <QScopedPointer>
+#include <QByteArray>
+#include <QBitArray>
+#include <QVector>
+#include <QMap>
 
 #include "securebytearray.h"
 #include "securestring.h"
@@ -35,22 +39,40 @@ class Password : public QObject
 {
   Q_OBJECT
 public:
-  Password(const DomainSettings &ds = DomainSettings(), QObject *parent = nullptr);
+  typedef QMap<char, QString> TemplateCharacterMap;
+  enum {
+    TemplateDigits = 0,
+    TemplateLowercase,
+    TemplateUppercase,
+    TemplateExtra }
+  TemplatePlaceholder;
+
+  Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
 
+  static const QVector<QBitArray> ComplexityMapping;
   static const QString LowerChars;
   static const QString UpperChars;
-  static const QString UpperCharsNoAmbiguous;
   static const QString Digits;
   static const QString ExtraChars;
   static const QString AllChars;
+  static const int DefaultMaxLength;
+  static const int DefaultLength;
+  static const int DefaultComplexity;
+  static const int MaxComplexity;
+  static const int NoComplexity;
 
   SecureString operator()(void) const;
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
+  const SecureString &remixed(void);
   void waitForFinished(void);
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
+
+  static QBitArray deconstructedComplexity(int complexity);
+  static int constructedComplexity(const QBitArray &);
+  static const QString &charSetFor(char);
 
   void generate(const SecureByteArray &masterPassword);
   void generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings = DomainSettings());
@@ -59,7 +81,6 @@ public:
   bool isAborted(void) const;
   qreal elapsedSeconds(void) const;
   void abortGeneration(void);
-
 
 signals:
   void generated(void);
@@ -70,6 +91,8 @@ private:
   QScopedPointer<PasswordPrivate> d_ptr;
   Q_DECLARE_PRIVATE(Password)
   Q_DISABLE_COPY(Password)
+
+  static const TemplateCharacterMap TemplateCharacters;
 };
 
 #endif // __PASSWORD_H_

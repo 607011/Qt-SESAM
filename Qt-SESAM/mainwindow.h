@@ -24,6 +24,8 @@
 #include <QString>
 #include <QMovie>
 #include <QCloseEvent>
+#include <QResizeEvent>
+#include <QMoveEvent>
 #include <QLineEdit>
 #include <QSettings>
 #include <QCompleter>
@@ -38,6 +40,8 @@
 #include <QList>
 #include <QSslError>
 #include <QEvent>
+#include <QMessageBox>
+#include <QLabel>
 
 #include "global.h"
 #include "domainsettingslist.h"
@@ -55,14 +59,11 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(bool forceStart, QWidget *parent = nullptr);
+  explicit MainWindow(bool forceStart, QWidget *parent = Q_NULLPTR);
 
   ~MainWindow();
 
-protected:
-  void closeEvent(QCloseEvent *);
-  void changeEvent(QEvent *);
-
+  void applyComplexity(int complexity);
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
@@ -71,6 +72,14 @@ private:
   } SyncPeer;
 
 private slots:
+  void onUserChanged(QString);
+  void onURLChanged(QString);
+  void onUsedCharactersChanged(void);
+  void onExtraCharactersChanged(QString);
+  void onPasswordLengthChanged(int);
+  void onIterationsChanged(int);
+  void onSaltChanged(QString);
+  void onDeleteChanged(bool);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
@@ -84,8 +93,10 @@ private slots:
   void saveCurrentDomainSettings(void);
   void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
-  void onDomainSelected(const QString &);
-  void newDomain(const QString &domainName = QString());
+  void onDomainSelected(QString);
+  void onEasySelectorValuesChanged(int, int);
+  void onPasswordTemplateChanged(const QString &);
+  void onEscPressed(void);
   void renewSalt(void);
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);
@@ -93,8 +104,9 @@ private slots:
   void changeMasterPassword(void);
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
-  void onURLChanged(void);
   void openURL(void);
+  void onForcedPush(void);
+  void onMigrateDomainToV3(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
@@ -109,12 +121,13 @@ private slots:
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
   void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
-  void updateSaveButtonIcon(int frame = 0);
   void onDeleteFinished(QNetworkReply*);
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+#if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
+#endif
   void hideActivityIcons(void);
   void createFullDump(void);
   QFuture<void> &generateSaltKeyIV(void);
@@ -130,6 +143,10 @@ signals:
   void saltKeyIVGenerated(void);
 
 protected:
+  void closeEvent(QCloseEvent *);
+  void changeEvent(QEvent *);
+  void resizeEvent(QResizeEvent *);
+  void moveEvent(QMoveEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
 private:
@@ -140,6 +157,7 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  QMessageBox::StandardButton saveYesNoCancel(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
@@ -151,8 +169,6 @@ private: // methods
   void makeDomainComboBox(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
-  void unblockUpdatePassword(void);
-  void blockUpdatePassword(void);
   void generateSaltKeyIVThread(void);
   DomainSettings collectedDomainSettings(void) const;
   QByteArray cryptedRemoteDomains(void);
@@ -163,10 +179,13 @@ private: // methods
   void writeBackupFile(const QByteArray &binaryDomainData);
   bool syncToServerEnabled(void) const;
   bool syncToFileEnabled(void) const;
-  bool checkOpenNewDomainWizard(void);
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
+  void createTemplate_v3(void);
+  QString usedCharacters_v3(void);
+  void analyzeTemplate_v3(const QByteArray &);
+  void checkLabel(QLabel *, bool checked);
 };
 
 #endif // __MAINWINDOW_H_

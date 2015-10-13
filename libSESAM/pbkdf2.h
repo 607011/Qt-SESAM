@@ -40,8 +40,8 @@ class PBKDF2 : public QObject
 {
   Q_OBJECT
 public:
-  explicit PBKDF2(QObject *parent = nullptr);
-  PBKDF2(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm, QObject *parent = nullptr);
+  explicit PBKDF2(QObject *parent = Q_NULLPTR);
+  PBKDF2(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm, QObject *parent = Q_NULLPTR);
   ~PBKDF2();
 
   void abortGeneration(void);

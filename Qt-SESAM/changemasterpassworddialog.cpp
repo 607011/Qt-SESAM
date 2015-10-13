@@ -29,7 +29,7 @@ class ChangeMasterPasswordDialogPrivate
 {
 public:
   ChangeMasterPasswordDialogPrivate(void)
-    : passwordChecker(nullptr)
+    : passwordChecker(Q_NULLPTR)
   { /* ... */ }
   ~ChangeMasterPasswordDialogPrivate()
   {
@@ -122,7 +122,7 @@ void ChangeMasterPasswordDialog::comparePasswords(void)
     bool found = false;
     QString grade;
     QColor color;
-    if (d->passwordChecker != nullptr) {
+    if (d->passwordChecker != Q_NULLPTR) {
       qint64 pos = d->passwordChecker->findInPasswordFile(password);
       found = (pos >= 0);
       if (found) {
@@ -131,7 +131,7 @@ void ChangeMasterPasswordDialog::comparePasswords(void)
       }
     }
     if (!found) {
-      PasswordChecker::evaluatePasswordStrength(ui->newPasswordLineEdit1->text(), color, grade, nullptr);
+      PasswordChecker::evaluatePasswordStrength(ui->newPasswordLineEdit1->text(), color, grade, Q_NULLPTR);
     }
     ui->strengthLabel->setText(tr("%1").arg(grade));
     ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));

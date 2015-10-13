@@ -37,7 +37,7 @@ private:
   ClipboardMonitor(void);
   ~ClipboardMonitor();
   bool hook(void);
-  bool hookIntoClipboard(HWND);
+  void hookIntoClipboard(HWND);
   HHOOK keyboardHook;
   static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   static ClipboardMonitor *singleInstance;

@@ -47,12 +47,12 @@ class OptionsDialogPrivate
 public:
   OptionsDialogPrivate(void)
     : sslConf(QSslConfiguration::defaultConfiguration())
-    , reply(nullptr)
+    , reply(Q_NULLPTR)
     , secure(false)
     , loaderIcon(":/images/loader.gif")
-    , escShortcut(nullptr)
+    , escShortcut(Q_NULLPTR)
 #ifdef WIN32
-    , smartLoginCheckbox(nullptr)
+    , smartLoginCheckbox(Q_NULLPTR)
 #endif
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());
@@ -91,6 +91,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->selectPasswordFilePushButton, SIGNAL(pressed()), SLOT(choosePasswordFile()));
   QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(onServerRootUrlChanged(QString)));
   QObject::connect(ui->saltLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(saltLengthChanged(int)));
+  QObject::connect(ui->maxPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(maxPasswordLengthChanged(int)));
   QObject::connect(&d->NAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
@@ -364,6 +365,18 @@ QString OptionsDialog::passwordFilename(void) const
 void OptionsDialog::setPasswordFilename(const QString &filename)
 {
   ui->passwordFileLineEdit->setText(filename);
+}
+
+
+int OptionsDialog::maxPasswordLength(void) const
+{
+  return ui->maxPasswordLengthSpinBox->value();
+}
+
+
+void OptionsDialog::setMaxPasswordLength(int len)
+{
+  ui->maxPasswordLengthSpinBox->setValue(len);
 }
 
 

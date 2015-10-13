@@ -32,7 +32,7 @@ class ProgressDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit ProgressDialog(QWidget *parent = nullptr);
+  explicit ProgressDialog(QWidget *parent = Q_NULLPTR);
   ~ProgressDialog();
 
 protected:

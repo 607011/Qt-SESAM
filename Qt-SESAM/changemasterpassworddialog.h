@@ -39,7 +39,7 @@ class ChangeMasterPasswordDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit ChangeMasterPasswordDialog(QWidget *parent = nullptr);
+  explicit ChangeMasterPasswordDialog(QWidget *parent = Q_NULLPTR);
   ~ChangeMasterPasswordDialog();
   void invalidate(void);
   QString oldPassword(void) const;

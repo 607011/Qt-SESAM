@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 include(../Qt-SESAM.pri)
-DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
+DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\" HACKING_MODE_ENABLED=0
 
 VERSION = -$${QTSESAM_VERSION}
 
@@ -51,30 +51,31 @@ SOURCES += main.cpp \
     optionsdialog.cpp \
     progressdialog.cpp \
     global.cpp \
-    newdomainwizard.cpp \
     masterpassworddialog.cpp \
     servercertificatewidget.cpp \
     changemasterpassworddialog.cpp \
-    passwordchecker.cpp
+    passwordchecker.cpp \
+    easyselectorwidget.cpp \
+    countdownwidget.cpp
 
 HEADERS  += \
     mainwindow.h \
     optionsdialog.h \
     progressdialog.h \
     global.h \
-    newdomainwizard.h \
     masterpassworddialog.h \
     hackhelper.h \
     servercertificatewidget.h \
     changemasterpassworddialog.h \
     passwordchecker.h \
-    singleinstancedetector.h
+    singleinstancedetector.h \
+    easyselectorwidget.h \
+    countdownwidget.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \
     progressdialog.ui \
     newcredentialsdialog.ui \
-    newdomainwizard.ui \
     masterpassworddialog.ui \
     servercertificatewidget.ui \
     changemasterpassworddialog.ui
@@ -89,7 +90,8 @@ DISTFILES += \
     ../README.md \
     ../LIESMICH.txt \
     QtSESAM.rc \
-    deploy/Qt-SESAM.nsi
+    deploy/Qt-SESAM.nsi \
+    TODO
 
 OTHER_FILES += \
     $$TRANSLATIONS \

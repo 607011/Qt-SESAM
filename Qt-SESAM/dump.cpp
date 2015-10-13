@@ -22,10 +22,10 @@
 void make_minidump(void)
 {
   auto hDbgHelp = LoadLibraryA("dbghelp");
-  if (hDbgHelp == nullptr)
+  if (hDbgHelp == NULL)
     return;
   auto pMiniDumpWriteDump = (decltype(&MiniDumpWriteDump))GetProcAddress(hDbgHelp, "MiniDumpWriteDump");
-  if (pMiniDumpWriteDump == nullptr)
+  if (pMiniDumpWriteDump == NULL)
     return;
 
   char name[MAX_PATH];
@@ -47,9 +47,9 @@ void make_minidump(void)
         GetCurrentProcessId(),
         hFile,
         MINIDUMP_TYPE(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory | MiniDumpWithFullMemory | MiniDumpWithPrivateWriteCopyMemory),
-        nullptr,
-        nullptr,
-        nullptr);
+        NULL,
+        NULL,
+        NULL);
 
   CloseHandle(hFile);
   return;
