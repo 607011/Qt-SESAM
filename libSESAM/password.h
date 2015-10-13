@@ -60,6 +60,7 @@ public:
   static const int DefaultLength;
   static const int DefaultComplexity;
   static const int MaxComplexity;
+  static const int NoComplexity;
 
   SecureString operator()(void) const;
   const SecureString &password(void) const;

@@ -1735,7 +1735,7 @@ void MainWindow::onMigrateDomainToV3(void)
   Q_D(MainWindow);
   applyComplexity(-1);
   const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
-  ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(-1).arg(tmpl));
+  ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(Password::NoComplexity).arg(tmpl));
   ui->tabWidgetVersions->setCurrentIndex(1);
   ui->actionMigrateDomainToV3->setEnabled(false);
   setDirty();

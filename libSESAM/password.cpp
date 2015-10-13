@@ -76,6 +76,8 @@ const int Password::DefaultMaxLength = 36;
 const int Password::DefaultLength = 24;
 const int Password::MaxComplexity = 6;
 const int Password::DefaultComplexity = Password::MaxComplexity;
+const int Password::NoComplexity = -1;
+
 
 const Password::TemplateCharacterMap Password::TemplateCharacters = {
   std::pair<char, QString>('V', "AEIOUY"),
