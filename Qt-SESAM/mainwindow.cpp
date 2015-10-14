@@ -434,7 +434,7 @@ void MainWindow::moveEvent(QMoveEvent *)
 void MainWindow::resetAllFieldsExceptDomainComboBox(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::resetAllFieldsExceptDomainComboBox()";
+  // qDebug() << "MainWindow::resetAllFieldsExceptDomainComboBox()";
 
   ui->userLineEdit->blockSignals(true);
   ui->userLineEdit->setText(QString());
@@ -584,9 +584,9 @@ void MainWindow::cancelPasswordGeneration(void)
 void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::setDirty(" << dirty << ") triggered by" << (sender() ? sender()->objectName() : "NONE");
+  // qDebug() << "MainWindow::setDirty(" << dirty << ") triggered by" << (sender() ? sender()->objectName() : "NONE");
   d->parameterSetDirty = dirty;
-  qDebug() << "  domainComboboxContains(" << ui->domainsComboBox->currentText() << ") ->" << domainComboboxContains(ui->domainsComboBox->currentText());
+  // qDebug() << "  domainComboboxContains(" << ui->domainsComboBox->currentText() << ") ->" << domainComboboxContains(ui->domainsComboBox->currentText());
   if (domainComboboxContains(ui->domainsComboBox->currentText())) {
     ui->domainsComboBox->setEditable(!dirty);
     ui->domainsComboBox->setCompleter(dirty ? Q_NULLPTR : d->completer);
@@ -690,7 +690,7 @@ void MainWindow::onPasswordGenerationStarted(void)
 void MainWindow::updatePassword(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
+  // qDebug() << "MainWindow::updatePassword() triggered by" << (sender() ? sender()->objectName() : "NONE");
   if (!d->masterPassword.isEmpty()) {
     if (ui->legacyPasswordLineEdit->text().isEmpty()) {
       stopPasswordGeneration();
@@ -745,7 +745,7 @@ void MainWindow::applyComplexity(int complexity)
 void MainWindow::applyTemplate(const QByteArray &templ)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::applyTemplate(" << templ << ")";
+//  qDebug() << "MainWindow::applyTemplate(" << templ << ")";
   const QList<QByteArray> &templateParts = templ.split(';');
   if (templateParts.count() != 2)
     return;
@@ -763,9 +763,11 @@ void MainWindow::applyTemplate(const QByteArray &templ)
   ui->passwordLengthSpinBox->setValue(templateParts.at(1).length());
   ui->passwordLengthSpinBox->blockSignals(false);
 
-  ui->usedCharactersPlainTextEdit->blockSignals(true);
-  ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters());
-  ui->usedCharactersPlainTextEdit->blockSignals(false);
+  if (complexity != Password::NoComplexity) {
+    ui->usedCharactersPlainTextEdit->blockSignals(true);
+    ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters());
+    ui->usedCharactersPlainTextEdit->blockSignals(false);
+  }
 }
 
 
@@ -797,13 +799,13 @@ void MainWindow::updateTemplate(void)
 {
   Q_D(MainWindow);
   QByteArray used;
-  if (ui->useDigitsLabel->pixmap()->isNull())
+  if (ui->useDigitsLabel->isEnabled())
     used += 'n';
-  if (ui->useLowercaseLabel->pixmap()->isNull())
+  if (ui->useLowercaseLabel->isEnabled())
     used += 'a';
-  if (ui->useUppercaseLabel->pixmap()->isNull())
+  if (ui->useUppercaseLabel->isEnabled())
     used += 'A';
-  if (ui->useExtraLabel->pixmap()->isNull())
+  if (ui->useExtraLabel->isEnabled())
     used += 'o';
   QByteArray pwdTemplate = used + QByteArray(d->easySelector->length() - used.count(), 'x');
   ui->passwordTemplateLineEdit->setText(QString("%1").arg(d->easySelector->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
@@ -816,7 +818,7 @@ void MainWindow::updateTemplate(void)
 void MainWindow::generatePassword(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::generatePassword()";
+  // qDebug() << "MainWindow::generatePassword()";
   if (ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
     ui->generatedPasswordLineEdit->setText(QString());
   }
@@ -919,7 +921,7 @@ auto makeHMS = [](qint64 ms) {
 void MainWindow::onPasswordGenerated(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onPasswordGenerated()";
+  // qDebug() << "MainWindow::onPasswordGenerated()";
 #if HACKING_MODE_ENABLED
   if (!d->hackingMode) {
 #endif
@@ -1011,7 +1013,7 @@ void MainWindow::showOptionsDialog(void)
 QFuture<void> &MainWindow::generateSaltKeyIV(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::generateSaltKeyIV()";
+  // qDebug() << "MainWindow::generateSaltKeyIV()";
   d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
   return d->keyGenerationFuture;
 }
@@ -1100,7 +1102,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
+  // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(ds.domainName);
   ui->domainsComboBox->blockSignals(false);
@@ -1133,7 +1135,8 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
   ui->extraLineEdit->blockSignals(false);
-  applyTemplate(ds.passwordTemplate);
+  if (!ds.passwordTemplate.isEmpty())
+    applyTemplate(ds.passwordTemplate);
   ui->passwordTemplateLineEdit->blockSignals(true);
   ui->passwordTemplateLineEdit->setText(ds.passwordTemplate);
   ui->passwordTemplateLineEdit->blockSignals(false);
@@ -1169,7 +1172,7 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
+  // qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
   const DomainSettings &ds = d->domains.at(domain);
   copyDomainSettingsToGUI(ds);
 }
@@ -1178,7 +1181,7 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 void MainWindow::makeDomainComboBox(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::makeDomainComboBox()";
+  // qDebug() << "MainWindow::makeDomainComboBox()";
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->clear();
   QStringList domainNames;
@@ -1203,7 +1206,7 @@ void MainWindow::makeDomainComboBox(void)
 void MainWindow::saveDomainSettings(DomainSettings ds)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveDomainSettings(...) for domain" << ds.domainName;
+  // qDebug() << "MainWindow::saveDomainSettings(...) for domain" << ds.domainName;
   ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
   const QString currentDomain = ui->domainsComboBox->currentText();
@@ -1237,7 +1240,7 @@ void MainWindow::saveDomainSettings(DomainSettings ds)
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
+  // qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
   if (!ui->domainsComboBox->currentText().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
@@ -1292,7 +1295,7 @@ void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveAllDomainDataToSettings()";
+  // qDebug() << "MainWindow::saveAllDomainDataToSettings()";
   d->keyGenerationMutex.lock();
   QByteArray cipher;
   try {
@@ -1350,7 +1353,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::saveSettings()";
+  // qDebug() << "MainWindow::saveSettings()";
   QVariantMap syncData;
   syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
   syncData["sync/server/username"] = d->optionsDialog->serverUsername();
@@ -1752,20 +1755,27 @@ void MainWindow::onForcedPush(void)
 void MainWindow::onMigrateDomainSettingsToExpert(void)
 {
   Q_D(MainWindow);
-  applyComplexity(Password::NoComplexity);
+  static const int Complexity = Password::NoComplexity;
+  applyComplexity(Complexity);
   const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
-  ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(Password::NoComplexity).arg(tmpl));
+  ui->passwordTemplateLineEdit->blockSignals(true);
+  ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(Complexity).arg(tmpl));
+  ui->passwordTemplateLineEdit->blockSignals(false);
   ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   ui->actionMigrateDomainToV3->setEnabled(false);
+  ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
+  ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   setDirty();
   updatePassword();
+  ui->statusBar->showMessage(tr("Domain settings converted."), 3000);
+  saveCurrentDomainSettings();
 }
 
 
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  // qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   if (sender() == Q_NULLPTR)
@@ -1798,17 +1808,17 @@ void MainWindow::onDomainSelected(QString domain)
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   copyDomainSettingsToGUI(domain);
   setDirty(false);
-  qDebug() << "MainWindow::onDomainSelected() exiting ...";
+  // qDebug() << "MainWindow::onDomainSelected() exiting ...";
 }
 
 
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName;
+  // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName;
   int idx = findDomainInComboBox(domain);
   if (idx == NotFound) {
-    qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "NOT FOUND";
+    // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "NOT FOUND";
     if (!d->lastDomainSettings.isEmpty()) {
       ui->tabWidgetVersions->setCurrentIndex(TabExpert);
       ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
@@ -1823,7 +1833,7 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
     ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   }
-  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "exiting ...";
+  // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "exiting ...";
 }
 
 
@@ -1843,7 +1853,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 void MainWindow::onPasswordTemplateChanged(const QString &templ)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
+  // qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
   applyTemplate(templ.toUtf8());
 }
 
@@ -1851,7 +1861,7 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onRevert()";
+  // qDebug() << "MainWindow::onRevert()";
   if (d->parameterSetDirty) {
     QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
@@ -1993,7 +2003,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 void MainWindow::invalidatePassword(bool reenter)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::invalidatePassword()";
+  // qDebug() << "MainWindow::invalidatePassword()";
   SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
@@ -2125,10 +2135,10 @@ void MainWindow::createFullDump(void)
 #if defined(Q_CC_MSVC)
   make_minidump();
   ui->statusBar->showMessage(tr("Dump created."), 4000);
-  qDebug() << "Mini dump created.";
+  // qDebug() << "Mini dump created.";
 #else
   ui->statusBar->showMessage(tr("Dump not implemented."), 4000);
-  qDebug() << "Dump not implemented.";
+  // qDebug() << "Dump not implemented.";
 #endif
 #endif
 }
