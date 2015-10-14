@@ -86,7 +86,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation type="vanished">Speichern</translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <source>Main parameters</source>
@@ -591,7 +591,7 @@
     </message>
     <message>
         <source>Generated</source>
-        <translation type="vanished">Generiert</translation>
+        <translation>Generiert</translation>
     </message>
     <message>
         <source>Legacy</source>
@@ -733,7 +733,7 @@
     </message>
     <message>
         <source>Parameters</source>
-        <translation>Parameter</translation>
+        <translation type="vanished">Parameter</translation>
     </message>
     <message>
         <source>Simple</source>
@@ -846,6 +846,18 @@
     <message>
         <source>Ctrl+E, Ctrl+M</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Revert</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>Domain settings converted.</source>
+        <translation>Domain-Einstellungen wurden konvertiert.</translation>
     </message>
 </context>
 <context>
