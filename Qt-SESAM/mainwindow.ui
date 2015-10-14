@@ -234,7 +234,7 @@
       </property>
       <widget class="QWidget" name="generatedPasswordTab">
        <attribute name="title">
-        <string>Parameters</string>
+        <string>Generated</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
