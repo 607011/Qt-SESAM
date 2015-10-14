@@ -96,7 +96,7 @@ private slots:
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
   void onPasswordTemplateChanged(const QString &);
-  void onEscPressed(void);
+  void onRevert(void);
   void renewSalt(void);
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);

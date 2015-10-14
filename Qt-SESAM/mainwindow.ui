@@ -128,6 +128,53 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="deleteCheckBox">
+        <property name="text">
+         <string>delete</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="savePushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="revertPushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Revert</string>
+        </property>
+        <property name="shortcut">
+         <string>Esc</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QLabel" name="label_11">
       <property name="text">
        <string>Generated password</string>
@@ -273,6 +320,9 @@
            <number>1</number>
           </property>
           <widget class="QWidget" name="tabV2">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <attribute name="title">
             <string>Simple</string>
            </attribute>
@@ -616,17 +666,6 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QCheckBox" name="deleteCheckBox">
-        <property name="text">
-         <string>delete</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -828,7 +867,7 @@
   <tabstop>domainsComboBox</tabstop>
   <tabstop>urlLineEdit</tabstop>
   <tabstop>userLineEdit</tabstop>
-  <tabstop>renewSaltPushButton</tabstop>
+  <tabstop>savePushButton</tabstop>
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>
   <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
@@ -845,6 +884,8 @@
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>extraLineEdit</tabstop>
   <tabstop>passwordTemplateLineEdit</tabstop>
+  <tabstop>renewSaltPushButton</tabstop>
+  <tabstop>revertPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>
