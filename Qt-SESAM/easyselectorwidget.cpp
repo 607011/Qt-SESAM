@@ -192,7 +192,6 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
 
 void EasySelectorWidget::resizeEvent(QResizeEvent *)
 {
-  Q_D(EasySelectorWidget);
   redrawBackground();
 }
 
