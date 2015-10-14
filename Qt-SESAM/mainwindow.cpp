@@ -585,8 +585,13 @@ void MainWindow::cancelPasswordGeneration(void)
 void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
-  d->parameterSetDirty = dirty;
-  updateWindowTitle();
+  if (d->parameterSetDirty != dirty) {
+    d->parameterSetDirty = dirty;
+    ui->domainsComboBox->setEditable(!dirty);
+    if (!dirty)
+      ui->domainsComboBox->setCompleter(d->completer);
+    updateWindowTitle();
+  }
 }
 
 
