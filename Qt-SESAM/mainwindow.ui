@@ -138,14 +138,6 @@
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLineEdit" name="generatedPasswordLineEdit">
-        <property name="font">
-         <font>
-          <family>Cantarell</family>
-          <pointsize>11</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
         <property name="echoMode">
          <enum>QLineEdit::Password</enum>
         </property>
@@ -213,12 +205,6 @@
              <widget class="QLineEdit" name="saltBase64LineEdit">
               <property name="enabled">
                <bool>false</bool>
-              </property>
-              <property name="font">
-               <font>
-                <family>Cantarell</family>
-                <pointsize>11</pointsize>
-               </font>
               </property>
               <property name="cursor">
                <cursorShape>ForbiddenCursor</cursorShape>
@@ -661,7 +647,7 @@
      <x>0</x>
      <y>0</y>
      <width>332</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
