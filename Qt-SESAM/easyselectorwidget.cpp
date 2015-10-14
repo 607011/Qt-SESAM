@@ -36,6 +36,25 @@ const int EasySelectorWidget::DefaultMinLength = 4;
 const int EasySelectorWidget::DefaultMaxLength = 36;
 const int EasySelectorWidget::DefaultMaxComplexity = 6;
 
+
+QColor ryg(qreal x)
+{
+  QColor color;
+  if (x <= 0.5) {
+    x *= 2;
+    color.setRed(255);
+    color.setGreen(255 * x);
+  }
+  else {
+    x = 2 * x - 1;
+    color.setRed(255 - 255 * x);
+    color.setGreen(255);
+  }
+  return color;
+}
+
+
+
 class EasySelectorWidgetPrivate {
 public:
   EasySelectorWidgetPrivate(void)
@@ -211,14 +230,25 @@ void EasySelectorWidget::redrawBackground(void)
   sz = QSize(xs * nX + 1, ys * nY + 1);
   d->background = QPixmap(sz);
   QPainter p(&d->background);
-  QLinearGradient gradient(0, sz.height(), sz.width(), 0);
-  gradient.setColorAt(0.0, QColor(255, 0, 0, 255).darker());
-  const qreal stretch = qreal(Password::DefaultMaxLength) / d->maxLength;
-  const qreal y = clamp(0.5 * stretch, 0.0, 0.999);
-  const qreal g = clamp(1.0 * stretch, 0.0, 1.000);
-  gradient.setColorAt(y, QColor(255, 255, 0, 255).darker());
-  gradient.setColorAt(g, QColor(0, 255, 0, 255).darker());
-  p.fillRect(QRect(QPoint(0, 0), sz), gradient);
+  p.fillRect(QRect(QPoint(0, 0), sz), Qt::white);
+  for (int y = 0; y < nY; ++y) {
+    const QBitArray &ba = Password::deconstructedComplexity(y);
+    int n = 0;
+    if (ba.at(Password::TemplateDigits))
+      n += Password::Digits.count();
+    if (ba.at(Password::TemplateLowercase))
+      n += Password::LowerChars.count();
+    if (ba.at(Password::TemplateUppercase))
+      n += Password::UpperChars.count();
+    if (ba.at(Password::TemplateExtra))
+      n += Password::ExtraChars.count();
+    static const int MaxN = Password::Digits.count() + Password::LowerChars.count() + Password::UpperChars.count() + Password::ExtraChars.count();
+    static const qreal MaxStrength = Password::DefaultMaxLength * MaxN;
+    for (int x = 0; x < nX; ++x) {
+      qreal strength = (x + d->minLength) * n / MaxStrength;
+      p.fillRect(QRect(x * xs, sz.height() - y * ys - ys, xs, ys), ryg(strength));
+    }
+  }
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
   for (int x = 0; x <= nX; ++x)
