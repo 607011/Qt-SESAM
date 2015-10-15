@@ -250,7 +250,7 @@ void EasySelectorWidget::redrawBackground(void)
   for (int y = 0; y < nY; ++y)
     for (int x = 0; x < nX; ++x)
       p.fillRect(QRect(x * xs, d->background.height() - y * ys - ys, xs, ys),
-                 red2yellow2green(passwordStrength(x, y)).darker(168));
+                 red2yellow2green(qLn(passwordStrength(x + d->minLength, y)) / 40).darker(168));
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
   for (int x = 0; x <= nX; ++x)
@@ -265,30 +265,67 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
   if (d_ptr->background.isNull())
     return false;
   const int xs = d_ptr->background.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
+  const int ys = d_ptr->background.height() / (d_ptr->maxComplexity + 1);
   const int length = pos.x() / xs + d_ptr->minLength;
-  helpText = tr("%1 characters").arg(length);
+  const int complexity = Password::MaxComplexity - pos.y() / ys;
+  qreal secs = tianhe2Secs(length, complexity);
+  QString crackDuration;
+  if (secs < 1e-9) {
+      crackDuration = QObject::tr("< 1 nanosecond");
+  }
+  else if (secs < 1e-6) {
+      crackDuration = QObject::tr("< 1 microsecond");
+  }
+  else if (secs < 1e-3) {
+      crackDuration = QObject::tr("< 1 millisecond");
+  }
+  else if (secs < 1) {
+    crackDuration = QObject::tr("~ %1 milliseconds").arg(qRound(1e3 * secs));
+  }
+  else if (secs < 60) {
+    crackDuration = QObject::tr("~ %1 seconds").arg(qRound(secs));
+  }
+  else if (secs < 60 * 60) {
+    crackDuration = QObject::tr("~ %1 minutes").arg(qRound(secs / 60));
+  }
+  else if (secs < 60 * 60 * 24) {
+    crackDuration = QObject::tr("~ %1 hours").arg(qRound(secs / 60 / 60));
+  }
+  else if (secs < 60 * 60 * 24 * 365.24) {
+    crackDuration = QObject::tr("~ %1 days").arg(qRound(secs / 60 / 60 / 24));
+  }
+  else {
+    crackDuration = QObject::tr("~ %1 years").arg(secs / 60 / 60 / 24 / 365.24);
+  }
+  helpText = tr("%1 characters,\nest. crack time w/ Tianhe-2: %2").arg(length).arg(crackDuration);
   return (d_ptr->minLength <= length) && (length <= d_ptr->maxLength);
 }
 
 
-qreal EasySelectorWidget::passwordStrength(int length, int complexity) const
+qreal EasySelectorWidget::tianhe2Secs(int length, int complexity)
 {
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  int n = 0;
+  int charCount = 0;
   if (ba.at(Password::TemplateDigits))
-    n += Password::Digits.count();
+    charCount += Password::Digits.count();
   if (ba.at(Password::TemplateLowercase))
-    n += Password::LowerChars.count();
+    charCount += Password::LowerChars.count();
   if (ba.at(Password::TemplateUppercase))
-    n += Password::UpperChars.count();
+    charCount += Password::UpperChars.count();
   if (ba.at(Password::TemplateExtra))
-    n += Password::ExtraChars.count();
-  static const qreal MaxN =
-      Password::Digits.count() + Password::LowerChars.count() +
-      Password::UpperChars.count() + Password::ExtraChars.count();
-  // static const qreal Tianhe2Flops = 33.86e15;
-  static const qreal MaxStrength = qPow(MaxN, Password::DefaultLength);
-  return qLn(qPow(n, length + d_ptr->minLength) / MaxStrength * 1e5);
+    charCount += Password::ExtraChars.count();
+  static const qreal Tianhe2Sha1PerSec = 767896613647;
+  static const int Iterations = 1;
+  const qreal perms = qPow(charCount, length);
+  const qreal t2secs = perms * Iterations / Tianhe2Sha1PerSec;
+  return t2secs;
+}
+
+
+qreal EasySelectorWidget::passwordStrength(int length, int complexity)
+{
+  const qreal t2y = tianhe2Secs(length, complexity) / 60 / 60 / 24 / 365.25;
+  return t2y * 1e8;
 }
 
 
