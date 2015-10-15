@@ -419,15 +419,22 @@ void MainWindow::changeEvent(QEvent *e)
 }
 
 
-void MainWindow::resizeEvent(QResizeEvent *)
+bool MainWindow::event(QEvent *e)
 {
-  restartInvalidationTimer();
-}
-
-
-void MainWindow::moveEvent(QMoveEvent *)
-{
-  restartInvalidationTimer();
+  switch (e->type()) {
+  case QEvent::Move:
+    // fall-through
+  case QEvent::Resize:
+    // fall-through
+  case QEvent::MouseButtonPress:
+    // fall-through
+  case QEvent::KeyPress:
+    restartInvalidationTimer();
+    break;
+  default:
+    break;
+  }
+  return QMainWindow::event(e);
 }
 
 
@@ -610,7 +617,6 @@ void MainWindow::openURL(void)
 void MainWindow::onURLChanged(QString)
 {
   setDirty();
-  restartInvalidationTimer();
   ui->openURLPushButton->setEnabled(!ui->urlLineEdit->text().isEmpty());
 }
 
@@ -982,7 +988,6 @@ void MainWindow::onPasswordGenerationAborted(void)
 void MainWindow::onOptionsAccepted(void)
 {
   Q_D(MainWindow);
-  restartInvalidationTimer();
   saveSettings();
 }
 

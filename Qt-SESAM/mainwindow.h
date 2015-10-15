@@ -142,8 +142,7 @@ signals:
 protected:
   void closeEvent(QCloseEvent *);
   void changeEvent(QEvent *);
-  void resizeEvent(QResizeEvent *);
-  void moveEvent(QMoveEvent *);
+  bool event(QEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
 private:
