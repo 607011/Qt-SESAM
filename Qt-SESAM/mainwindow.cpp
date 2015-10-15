@@ -1757,12 +1757,24 @@ void MainWindow::onForcedPush(void)
 }
 
 
+
+
+
 void MainWindow::onMigrateDomainSettingsToExpert(void)
 {
   Q_D(MainWindow);
   static const int Complexity = Password::NoComplexity;
   applyComplexity(Complexity);
   const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
+  QString extra;
+  foreach (QChar ch, ui->usedCharactersPlainTextEdit->toPlainText()) {
+    if (Password::Digits.contains(ch) || Password::LowerChars.contains(ch) || Password::UpperChars.contains(ch))
+      continue;
+    extra += ch;
+  }
+  ui->extraLineEdit->blockSignals(true);
+  ui->extraLineEdit->setText(extra);
+  ui->extraLineEdit->blockSignals(false);
   ui->passwordTemplateLineEdit->blockSignals(true);
   ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(Complexity).arg(tmpl));
   ui->passwordTemplateLineEdit->blockSignals(false);
@@ -1772,7 +1784,6 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
   ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   setDirty();
   updatePassword();
-  ui->statusBar->showMessage(tr("Domain settings converted."), 3000);
   saveCurrentDomainSettings();
 }
 
