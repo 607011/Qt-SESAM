@@ -37,24 +37,6 @@ const int EasySelectorWidget::DefaultMaxLength = 36;
 const int EasySelectorWidget::DefaultMaxComplexity = 6;
 
 
-QColor ryg(qreal x)
-{
-  QColor color;
-  if (x <= 0.5) {
-    x *= 2;
-    color.setRed(255);
-    color.setGreen(255 * x);
-  }
-  else {
-    x = 2 * x - 1;
-    color.setRed(255 - 255 * x);
-    color.setGreen(255);
-  }
-  return color;
-}
-
-
-
 class EasySelectorWidgetPrivate {
 public:
   EasySelectorWidgetPrivate(void)
@@ -123,6 +105,8 @@ void EasySelectorWidget::setLength(int length)
     emit valuesChanged(d->length, d->complexity);
     d->oldLength = d->length;
   }
+  if (d->length > d->maxLength)
+    setMaxLength(d->length);
   update();
 }
 
@@ -215,6 +199,23 @@ void EasySelectorWidget::resizeEvent(QResizeEvent *)
 }
 
 
+static QColor ryg(qreal x)
+{
+  QColor color;
+  if (x <= 0.5) {
+    x *= 2;
+    color.setRed(255);
+    color.setGreen(255 * x);
+  }
+  else {
+    x = 2 * x - 1;
+    color.setRed(255 - 255 * x);
+    color.setGreen(255);
+  }
+  return color;
+}
+
+
 void EasySelectorWidget::redrawBackground(void)
 {
   Q_D(EasySelectorWidget);
@@ -246,7 +247,7 @@ void EasySelectorWidget::redrawBackground(void)
     static const qreal MaxStrength = Password::DefaultMaxLength * MaxN;
     for (int x = 0; x < nX; ++x) {
       qreal strength = (x + d->minLength) * n / MaxStrength;
-      p.fillRect(QRect(x * xs, sz.height() - y * ys - ys, xs, ys), ryg(strength));
+      p.fillRect(QRect(x * xs, sz.height() - y * ys - ys, xs, ys), ryg(strength).darker());
     }
   }
   p.setBrush(Qt::transparent);
@@ -262,8 +263,13 @@ void EasySelectorWidget::setMinLength(int minLength)
 {
   Q_D(EasySelectorWidget);
   d->minLength = minLength;
-  redrawBackground();
-  update();
+  if (d->maxLength < d->minLength) {
+    setMaxLength(d->minLength);
+  }
+  else {
+    redrawBackground();
+    update();
+  }
 }
 
 void EasySelectorWidget::setMaxLength(int maxLength)
