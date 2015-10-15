@@ -247,13 +247,10 @@ void EasySelectorWidget::redrawBackground(void)
   const int ys = height() / nY;
   d->background = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
   QPainter p(&d->background);
-  p.fillRect(QRect(QPoint(0, 0), d->background.size()), Qt::white);
-  for (int y = 0; y < nY; ++y) {
-    for (int x = 0; x < nX; ++x) {
-      qreal strength = passwordStrength(x, y);
-      p.fillRect(QRect(x * xs, d->background.height() - y * ys - ys, xs, ys), red2yellow2green(strength).darker(165));
-    }
-  }
+  for (int y = 0; y < nY; ++y)
+    for (int x = 0; x < nX; ++x)
+      p.fillRect(QRect(x * xs, d->background.height() - y * ys - ys, xs, ys),
+                 red2yellow2green(passwordStrength(x, y)).darker(168));
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
   for (int x = 0; x <= nX; ++x)

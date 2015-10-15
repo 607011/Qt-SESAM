@@ -71,7 +71,7 @@ private:
 private: // methods
   void redrawBackground(void);
   bool tooltipTextAt(const QPoint &pos, QString &helpText) const;
-  qreal tianhe2Years(int length, int complexity) const;
+  qreal passwordStrength(int length, int complexity) const;
 };
 
 #endif // __EASYSELECTORWIDGET_H_
