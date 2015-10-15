@@ -1824,7 +1824,6 @@ void MainWindow::onDomainSelected(QString domain)
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   copyDomainSettingsToGUI(domain);
   setDirty(false);
-  // qDebug() << "MainWindow::onDomainSelected() exiting ...";
 }
 
 
@@ -1834,7 +1833,6 @@ void MainWindow::onDomainTextChanged(const QString &domain)
   // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName;
   int idx = findDomainInComboBox(domain);
   if (idx == NotFound) {
-    // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "NOT FOUND";
     if (!d->lastDomainSettings.isEmpty()) {
       ui->tabWidgetVersions->setCurrentIndex(TabExpert);
       ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
@@ -1849,7 +1847,6 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
     ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   }
-  // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "exiting ...";
 }
 
 
