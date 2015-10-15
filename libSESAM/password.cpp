@@ -72,8 +72,8 @@ const QString Password::UpperChars = Password::LowerChars.toUpper();
 const QString Password::Digits = QString("0123456789");
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8(); // default: !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
-const int Password::DefaultMaxLength = 36;
-const int Password::DefaultLength = 24;
+const int Password::DefaultLength = 18;
+const int Password::DefaultMaxLength = 2 * Password::DefaultLength;
 const int Password::MaxComplexity = 6;
 const int Password::DefaultComplexity = Password::MaxComplexity;
 const int Password::NoComplexity = -1;
