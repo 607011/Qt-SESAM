@@ -78,7 +78,13 @@
     <name>EasySelectorWidget</name>
     <message>
         <source>%1 characters</source>
-        <translation>%1 Zeichen</translation>
+        <translation type="vanished">%1 Zeichen</translation>
+    </message>
+    <message>
+        <source>%1 characters,
+est. crack time w/ Tianhe-2: %2</source>
+        <translation>%1 Zeichen,
+geschätzte Crack-Dauer mit Tianhe-2: %2</translation>
     </message>
 </context>
 <context>
@@ -864,7 +870,7 @@
     </message>
     <message>
         <source>Domain settings converted.</source>
-        <translation>Domain-Einstellungen wurden konvertiert.</translation>
+        <translation type="vanished">Domain-Einstellungen wurden konvertiert.</translation>
     </message>
 </context>
 <context>
@@ -1422,6 +1428,45 @@
     <message>
         <source>Change length/complexity to %1/%2</source>
         <translation type="vanished">Länge/Komplexität auf %1/%2 ändern</translation>
+    </message>
+    <message>
+        <source>&lt; 1 nanosecond</source>
+        <translation>&lt; 1 ns</translation>
+    </message>
+    <message>
+        <source>&lt; 1 microsecond</source>
+        <translation variants="yes">
+            <lengthvariant>&lt; 1 µs</lengthvariant>
+            <lengthvariant></lengthvariant>
+        </translation>
+    </message>
+    <message>
+        <source>&lt; 1 millisecond</source>
+        <translation>&lt; 1 ms</translation>
+    </message>
+    <message>
+        <source>~ %1 milliseconds</source>
+        <translation>~ %1 ms</translation>
+    </message>
+    <message>
+        <source>~ %1 seconds</source>
+        <translation>~ %1 Sekunden</translation>
+    </message>
+    <message>
+        <source>~ %1 minutes</source>
+        <translation>~ %1 Minuten</translation>
+    </message>
+    <message>
+        <source>~ %1 hours</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>~ %1 days</source>
+        <translation>~ %1 Tage</translation>
+    </message>
+    <message>
+        <source>~ %1 years</source>
+        <translation>~ %1 Jahre</translation>
     </message>
 </context>
 <context>
