@@ -75,6 +75,13 @@
     </message>
 </context>
 <context>
+    <name>EasySelectorWidget</name>
+    <message>
+        <source>%1 characters</source>
+        <translation>%1 Zeichen</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>ctpwdgen</source>
