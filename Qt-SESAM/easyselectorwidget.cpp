@@ -295,7 +295,7 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
     crackDuration = QObject::tr("~ %1 days").arg(qRound(secs / 60 / 60 / 24));
   }
   else {
-    crackDuration = QObject::tr("~ %1 years").arg(secs / 60 / 60 / 24 / 365.24);
+    crackDuration = QObject::tr("~ %1 years").arg(secs / 60 / 60 / 24 / 365.24, 0, 'g', 2);
   }
   helpText = tr("%1 characters,\nest. crack time w/ Tianhe-2: %2").arg(length).arg(crackDuration);
   return (d_ptr->minLength <= length) && (length <= d_ptr->maxLength);

@@ -1458,7 +1458,7 @@ geschätzte Crack-Dauer mit Tianhe-2: %2</translation>
     </message>
     <message>
         <source>~ %1 hours</source>
-        <translation></translation>
+        <translation>~ %1 Stunden</translation>
     </message>
     <message>
         <source>~ %1 days</source>
