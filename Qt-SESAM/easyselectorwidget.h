@@ -45,11 +45,12 @@ public:
   int complexity(void) const;
 
 protected:
-  void mouseMoveEvent(QMouseEvent*);
-  void mousePressEvent(QMouseEvent*);
-  void mouseReleaseEvent(QMouseEvent*);
-  void paintEvent(QPaintEvent*);
-  void resizeEvent(QResizeEvent*);
+  void mouseMoveEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+  void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+  void mouseReleaseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+  void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
+  void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+  bool event(QEvent*) Q_DECL_OVERRIDE;
 
 signals:
   void valuesChanged(int newLength, int newComplexity);
@@ -69,6 +70,8 @@ private:
 
 private: // methods
   void redrawBackground(void);
+  bool tooltipTextAt(const QPoint &pos, QString &helpText) const;
+  qreal tianhe2Years(int length, int complexity) const;
 };
 
 #endif // __EASYSELECTORWIDGET_H_

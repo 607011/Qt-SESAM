@@ -31,6 +31,7 @@
 #include <QGradientStop>
 #include <QPoint>
 #include <QPixmap>
+#include <QToolTip>
 
 const int EasySelectorWidget::DefaultMinLength = 4;
 const int EasySelectorWidget::DefaultMaxLength = 36;
@@ -199,9 +200,26 @@ void EasySelectorWidget::resizeEvent(QResizeEvent *)
 }
 
 
-static QColor ryg(qreal x)
+bool EasySelectorWidget::event(QEvent *e)
+{
+  Q_D(EasySelectorWidget);
+  if (e->type() == QEvent::ToolTip) {
+    QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
+    QString helpText;
+    if (tooltipTextAt(helpEvent->pos(), helpText))
+      QToolTip::showText(helpEvent->globalPos(), helpText);
+    else
+      QToolTip::hideText();
+    return true;
+  }
+  return QWidget::event(e);;
+}
+
+
+static QColor red2yellow2green(qreal x)
 {
   QColor color;
+  x = clamp(x, 0.0, 1.0);
   if (x <= 0.5) {
     x *= 2;
     color.setRed(255);
@@ -223,31 +241,17 @@ void EasySelectorWidget::redrawBackground(void)
     d->background = QPixmap();
     return;
   }
-  QSize sz = size();
   const int nX = d->maxLength - d->minLength + 1;
   const int nY = d->maxComplexity + 1;
-  const int xs = sz.width() / nX;
-  const int ys = sz.height() / nY;
-  sz = QSize(xs * nX + 1, ys * nY + 1);
-  d->background = QPixmap(sz);
+  const int xs = width() / nX;
+  const int ys = height() / nY;
+  d->background = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
   QPainter p(&d->background);
-  p.fillRect(QRect(QPoint(0, 0), sz), Qt::white);
+  p.fillRect(QRect(QPoint(0, 0), d->background.size()), Qt::white);
   for (int y = 0; y < nY; ++y) {
-    const QBitArray &ba = Password::deconstructedComplexity(y);
-    int n = 0;
-    if (ba.at(Password::TemplateDigits))
-      n += Password::Digits.count();
-    if (ba.at(Password::TemplateLowercase))
-      n += Password::LowerChars.count();
-    if (ba.at(Password::TemplateUppercase))
-      n += Password::UpperChars.count();
-    if (ba.at(Password::TemplateExtra))
-      n += Password::ExtraChars.count();
-    static const int MaxN = Password::Digits.count() + Password::LowerChars.count() + Password::UpperChars.count() + Password::ExtraChars.count();
-    static const qreal MaxStrength = Password::DefaultMaxLength * MaxN;
     for (int x = 0; x < nX; ++x) {
-      qreal strength = (x + d->minLength) * n / MaxStrength;
-      p.fillRect(QRect(x * xs, sz.height() - y * ys - ys, xs, ys), ryg(strength).darker());
+      qreal strength = passwordStrength(x, y);
+      p.fillRect(QRect(x * xs, d->background.height() - y * ys - ys, xs, ys), red2yellow2green(strength).darker(165));
     }
   }
   p.setBrush(Qt::transparent);
@@ -256,6 +260,38 @@ void EasySelectorWidget::redrawBackground(void)
     p.drawLine(xs * x, 0, xs * x, d->background.height());
   for (int y = 0; y <= nY; ++y)
     p.drawLine(0, ys * y, d->background.width(), ys * y);
+}
+
+
+bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) const
+{
+  if (d_ptr->background.isNull())
+    return false;
+  const int xs = d_ptr->background.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
+  const int length = pos.x() / xs + d_ptr->minLength;
+  helpText = tr("%1 characters").arg(length);
+  return (d_ptr->minLength <= length) && (length <= d_ptr->maxLength);
+}
+
+
+qreal EasySelectorWidget::passwordStrength(int length, int complexity) const
+{
+  const QBitArray &ba = Password::deconstructedComplexity(complexity);
+  int n = 0;
+  if (ba.at(Password::TemplateDigits))
+    n += Password::Digits.count();
+  if (ba.at(Password::TemplateLowercase))
+    n += Password::LowerChars.count();
+  if (ba.at(Password::TemplateUppercase))
+    n += Password::UpperChars.count();
+  if (ba.at(Password::TemplateExtra))
+    n += Password::ExtraChars.count();
+  static const qreal MaxN =
+      Password::Digits.count() + Password::LowerChars.count() +
+      Password::UpperChars.count() + Password::ExtraChars.count();
+  // static const qreal Tianhe2Flops = 33.86e15;
+  static const qreal MaxStrength = qPow(MaxN, Password::DefaultLength);
+  return qLn(qPow(n, length + d_ptr->minLength) / MaxStrength * 1e5);
 }
 
 
