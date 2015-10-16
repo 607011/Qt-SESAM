@@ -270,10 +270,7 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
   const int complexity = Password::MaxComplexity - pos.y() / ys;
   qreal secs = tianhe2Secs(length, complexity);
   QString crackDuration;
-  if (secs < 1e-9) {
-      crackDuration = QObject::tr("< 1 nanosecond");
-  }
-  else if (secs < 1e-6) {
+  if (secs < 1e-6) {
       crackDuration = QObject::tr("< 1 microsecond");
   }
   else if (secs < 1e-3) {
