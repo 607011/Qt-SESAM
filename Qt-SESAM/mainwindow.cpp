@@ -1874,17 +1874,23 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onRevert()";
+  qDebug() << "MainWindow::onRevert()" << d->lastDomainSettings.domainName;
   if (d->parameterSetDirty) {
-    QMessageBox::StandardButton button = saveYesNoCancel();
+    d->interactionSemaphore.acquire();
+    QMessageBox::StandardButton button = QMessageBox::question(
+          this,
+          tr("Revert settings?"),
+          tr("Do you really want to revert the settings?"),
+          QMessageBox::Yes | QMessageBox::No,
+          QMessageBox::Yes);
+    d->interactionSemaphore.release();
     switch (button) {
     case QMessageBox::Yes:
-      saveCurrentDomainSettings();
+      setDirty(false);
+      copyDomainSettingsToGUI(d->lastDomainSettings);
       break;
     case QMessageBox::No:
-      setDirty(false);
-      onDomainSelected(ui->domainsComboBox->currentText());
-      break;
+      // fall-through
     default:
       break;
     }
