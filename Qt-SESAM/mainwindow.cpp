@@ -18,6 +18,10 @@
 */
 
 
+#include <iostream>
+#include <io.h>
+#include <fcntl.h>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -53,6 +57,7 @@
 #include <QDesktopServices>
 #include <QCompleter>
 #include <QShortcut>
+
 
 #include "singleinstancedetector.h"
 #include "global.h"
@@ -126,6 +131,7 @@ public:
     , maxCounter(0)
     , masterPasswordChangeStep(0)
     , interactionSemaphore(1)
+    , doAbortMessaging(false)
   #ifdef WIN32
     , smartLoginStep(SmartLoginNotActive)
   #endif
@@ -187,6 +193,8 @@ public:
   int maxCounter;
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
+  QFuture<void> messagingFuture;
+  bool doAbortMessaging;
 #ifdef WIN32
   int smartLoginStep;
 #endif
@@ -310,6 +318,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   enterMasterPassword();
+
+  d->messagingFuture = QtConcurrent::run(this, &MainWindow::messagingThread);
 }
 
 
@@ -366,6 +376,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 
   auto prepareExit = [this]() {
+    d_ptr->doAbortMessaging = true;
+    d_ptr->messagingFuture.cancel();
+    d_ptr->messagingFuture.waitForFinished();
     saveSettings();
     invalidatePassword(false);
     SingleInstanceDetector::instance().detach();
@@ -783,6 +796,31 @@ void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
   static const QPixmap UncheckedPixmap(":/images/uncheck.png");
   label->setPixmap(checked ? CheckedPixmap : UncheckedPixmap);
   label->setEnabled(checked);
+}
+
+
+void MainWindow::messagingThread(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::messagingThread() started ...";
+  // std::cout.setf(std::ios_base::unitbuf);
+  _setmode(_fileno(stdin), _O_BINARY);
+  std::string inMsg;
+  while (!d->doAbortMessaging) {
+    quint32 inLen;
+    std::cin.read(reinterpret_cast<char*>(&inLen), 4);
+    char ch;
+    for (quint32 i = 0; i < inLen; ++i) {
+      std::cin.read(&ch, 1);
+      inMsg += ch;
+    }
+    qDebug() << "Got " << QString::fromStdString(inMsg);
+    std::string message = "{\"text\":\"This is a response message\"}";
+    quint32 outLen = message.length();
+    std::cout.write(reinterpret_cast<char*>(&outLen), 4);
+    std::cout << message;
+  }
+  qDebug() << "MainWindow::messagingThread() about to end ...";
 }
 
 
@@ -1874,7 +1912,6 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onRevert()" << d->lastDomainSettings.domainName;
   if (d->parameterSetDirty) {
     d->interactionSemaphore.acquire();
     QMessageBox::StandardButton button = QMessageBox::question(

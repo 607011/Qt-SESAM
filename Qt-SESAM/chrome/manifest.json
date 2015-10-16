@@ -1,7 +1,7 @@
 {
   "name": "de.ct.qtsesam",
   "description": "Qt-SESAM",
-  "path": "D:\\Workspace\\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\\Qt-SESAM\\release\\Qt-SESAM.exe",
+  "path": "D:\\Workspace\\Qt-SESAM\\Qt-SESAM\\chrome\\de.ct.qtsesam.py",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://gfdadgcgbbmbjknnndepfkaingkmacle/"

@@ -20,9 +20,22 @@
     });
   }
   
+  function sendMessage() {
+    var msg = { text: document.getElementById("msg").value };
+    console.log('Sending ', msg);
+    chrome.runtime.sendNativeMessage(
+      host,
+      msg,
+      function(response) {
+        console.log("Received: " + response);
+        document.getElementById('output').value += response + "\n";
+      }
+    );
+  }
+  
   function main() {
     getCurrentTabUrl(function(url) {
-        document.getElementById('status').innerHTML = "current tab url: " + url;
+      document.getElementById('status').innerHTML = "current tab url: " + url;
     });
     port = chrome.runtime.connectNative(host);
     console.log(port);
@@ -33,12 +46,7 @@
       console.log('Disconnected. ' + chrome.runtime.lastError.message);
       port = null;
     });
-    port.postMessage({ text: "Hallo, Qt-SESAM!" });
-    chrome.runtime.sendNativeMessage(host,
-     { text: "Hello" },
-     function(response) {
-       console.log("Received: " + response);
-     });
+    document.getElementById('send-button').addEventListener('click', sendMessage);
   }
 
   document.addEventListener('DOMContentLoaded', main);
