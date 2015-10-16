@@ -32,6 +32,10 @@
 #include <QPoint>
 #include <QPixmap>
 #include <QToolTip>
+#include <QCryptographicHash>
+#include <QThread>
+#include <QtConcurrent>
+#include <QElapsedTimer>
 
 const int EasySelectorWidget::DefaultMinLength = 4;
 const int EasySelectorWidget::DefaultMaxLength = 36;
@@ -49,6 +53,8 @@ public:
     , minLength(EasySelectorWidget::DefaultMinLength)
     , maxLength(EasySelectorWidget::DefaultMaxLength)
     , maxComplexity(EasySelectorWidget::DefaultMaxComplexity)
+    , doAbortSpeedTest(false)
+    , hashesPerSec(-1)
   { /* ... */ }
   ~EasySelectorWidgetPrivate()
   { /* ... */ }
@@ -61,6 +67,11 @@ public:
   int maxLength;
   int maxComplexity;
   QPixmap background;
+  bool doAbortSpeedTest;
+  QFuture<void> speedTestFuture;
+  QTimer speedTestTimer;
+  QTimer speedTestAbortionTimer;
+  qreal hashesPerSec;
 };
 
 
@@ -68,10 +79,16 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
   : QWidget(parent)
   , d_ptr(new EasySelectorWidgetPrivate)
 {
+  Q_D(EasySelectorWidget);
   setMinimumSize(100, 100);
   setMaximumHeight(250);
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setCursor(Qt::PointingHandCursor);
+  QObject::connect(this, SIGNAL(speedTestFinished(qreal)), SLOT(onSpeedTestEnd(qreal)), Qt::QueuedConnection);
+  QObject::connect(&d->speedTestAbortionTimer, SIGNAL(timeout()), SLOT(onSpeedTestAbort()));
+  QObject::connect(&d->speedTestTimer, SIGNAL(timeout()), SLOT(onSpeedTestBegin()));
+  d->speedTestTimer.setSingleShot(true);
+  d->speedTestTimer.start(500);
 }
 
 
@@ -260,21 +277,14 @@ void EasySelectorWidget::redrawBackground(void)
 }
 
 
-bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) const
+static QString makeCrackDuration(qreal secs)
 {
-  if (d_ptr->background.isNull())
-    return false;
-  const int xs = d_ptr->background.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
-  const int ys = d_ptr->background.height() / (d_ptr->maxComplexity + 1);
-  const int length = pos.x() / xs + d_ptr->minLength;
-  const int complexity = Password::MaxComplexity - pos.y() / ys;
-  qreal secs = tianhe2Secs(length, complexity);
   QString crackDuration;
   if (secs < 1e-6) {
-      crackDuration = QObject::tr("< 1 microsecond");
+    crackDuration = QObject::tr("< 1 microsecond");
   }
   else if (secs < 1e-3) {
-      crackDuration = QObject::tr("< 1 millisecond");
+    crackDuration = QObject::tr("< 1 millisecond");
   }
   else if (secs < 1) {
     crackDuration = QObject::tr("~ %1 milliseconds").arg(qRound(1e3 * secs));
@@ -294,12 +304,31 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
   else {
     crackDuration = QObject::tr("~ %1 years").arg(secs / 60 / 60 / 24 / 365.24, 0, 'g', 2);
   }
-  helpText = tr("%1 characters,\nest. crack time w/ Tianhe-2: %2").arg(length).arg(crackDuration);
+  return crackDuration;
+}
+
+
+bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) const
+{
+  if (d_ptr->background.isNull())
+    return false;
+  const int xs = d_ptr->background.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
+  const int ys = d_ptr->background.height() / (d_ptr->maxComplexity + 1);
+  const int length = pos.x() / xs + d_ptr->minLength;
+  const int complexity = Password::MaxComplexity - pos.y() / ys;
+  QString crackDuration = makeCrackDuration(tianhe2Secs(length, complexity));
+  QString myCrackDuration = makeCrackDuration(mySecs(length, complexity));
+  helpText = tr("%1 characters,\n"
+                "est. crack time w/ Tianhe-2: %2,\n"
+                "on your computer: %3")
+      .arg(length)
+      .arg(crackDuration)
+      .arg(d_ptr->hashesPerSec < 0 ? tr("calculating ...") : myCrackDuration);
   return (d_ptr->minLength <= length) && (length <= d_ptr->maxLength);
 }
 
 
-qreal EasySelectorWidget::tianhe2Secs(int length, int complexity)
+qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
 {
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
   int charCount = 0;
@@ -311,11 +340,23 @@ qreal EasySelectorWidget::tianhe2Secs(int length, int complexity)
     charCount += Password::UpperChars.count();
   if (ba.at(Password::TemplateExtra))
     charCount += Password::ExtraChars.count();
-  static const qreal Tianhe2Sha1PerSec = 767896613647;
   static const int Iterations = 1;
   const qreal perms = qPow(charCount, length);
-  const qreal t2secs = perms * Iterations / Tianhe2Sha1PerSec;
+  const qreal t2secs = perms * Iterations / sha1PerSec;
   return t2secs;
+
+}
+
+
+qreal EasySelectorWidget::tianhe2Secs(int length, int complexity)
+{
+  return sha1Secs(length, complexity, 767896613647.0);
+}
+
+
+qreal EasySelectorWidget::mySecs(int length, int complexity) const
+{
+  return sha1Secs(length, complexity, d_ptr->hashesPerSec);
 }
 
 
@@ -345,4 +386,49 @@ void EasySelectorWidget::setMaxLength(int maxLength)
   d->maxLength = maxLength;
   redrawBackground();
   update();
+}
+
+
+void EasySelectorWidget::onSpeedTestBegin(void)
+{
+  Q_D(EasySelectorWidget);
+  d->speedTestAbortionTimer.setSingleShot(true);
+  d->speedTestAbortionTimer.start(3000);
+  d->speedTestFuture = QtConcurrent::run(this, &EasySelectorWidget::speedTest);
+}
+
+
+void EasySelectorWidget::onSpeedTestEnd(qreal hashesPerSec)
+{
+  Q_D(EasySelectorWidget);
+  d->hashesPerSec = hashesPerSec;
+}
+
+
+void EasySelectorWidget::onSpeedTestAbort(void)
+{
+  Q_D(EasySelectorWidget);
+  d->doAbortSpeedTest = true;
+}
+
+
+void EasySelectorWidget::speedTest(void)
+{
+  Q_D(EasySelectorWidget);
+  QCryptographicHash hash(QCryptographicHash::Sha1);
+  int Sz = 512 / 8;
+  QByteArray data(Sz, static_cast<char>(0));
+  qint64 n = 0;
+  QElapsedTimer elapsed;
+  elapsed.start();
+  while (!d->doAbortSpeedTest) {
+    hash.reset();
+    for (int i = 0; i < Sz; ++i)
+      data[i] = qrand() & 0xff;
+    hash.addData(data);
+    hash.result();
+    ++n;
+  }
+  qreal hashesPerSec = 1e9 / (qreal(elapsed.nsecsElapsed()) / n / QThread::idealThreadCount());
+  emit speedTestFinished(hashesPerSec);
 }

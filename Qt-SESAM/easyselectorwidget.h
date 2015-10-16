@@ -54,10 +54,14 @@ protected:
 
 signals:
   void valuesChanged(int newLength, int newComplexity);
+  void speedTestFinished(qreal);
 
 public slots:
   void setMinLength(int);
   void setMaxLength(int);
+  void onSpeedTestBegin(void);
+  void onSpeedTestEnd(qreal hashesPerSec);
+  void onSpeedTestAbort(void);
 
 private:
   QScopedPointer<EasySelectorWidgetPrivate> d_ptr;
@@ -69,10 +73,13 @@ private:
   static const int DefaultMaxComplexity;
 
 private: // methods
+  void speedTest(void);
   void redrawBackground(void);
   bool tooltipTextAt(const QPoint &pos, QString &helpText) const;
   static qreal tianhe2Secs(int length, int complexity);
   static qreal passwordStrength(int length, int complexity);
+  static qreal sha1Secs(int length, int complexity, qreal sha1PerSec);
+  qreal mySecs(int length, int complexity) const;
 };
 
 #endif // __EASYSELECTORWIDGET_H_

@@ -83,8 +83,20 @@
     <message>
         <source>%1 characters,
 est. crack time w/ Tianhe-2: %2</source>
-        <translation>%1 Zeichen,
+        <translation type="vanished">%1 Zeichen,
 geschätzte Crack-Dauer mit Tianhe-2: %2</translation>
+    </message>
+    <message>
+        <source>%1 characters,
+est. crack time w/ Tianhe-2: %2,
+on your computer: %3</source>
+        <translation>%1 Zeichen,
+geschätzte Crack-Dauer mit Tianhe-2: %2,
+auf deinem Computer: %3</translation>
+    </message>
+    <message>
+        <source>calculating ...</source>
+        <translation>Berechnung läuft ...</translation>
     </message>
 </context>
 <context>
@@ -1431,7 +1443,7 @@ geschätzte Crack-Dauer mit Tianhe-2: %2</translation>
     </message>
     <message>
         <source>&lt; 1 nanosecond</source>
-        <translation>&lt; 1 ns</translation>
+        <translation type="vanished">&lt; 1 ns</translation>
     </message>
     <message>
         <source>&lt; 1 microsecond</source>
