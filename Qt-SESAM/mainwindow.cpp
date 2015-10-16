@@ -1437,7 +1437,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
-  d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength", Password::DefaultMaxLength).toInt());
+  d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength", 28).toInt());
 #ifdef WIN32
   d->optionsDialog->setSmartLogin(d->settings.value("misc/smartLogin").toBool());
 #endif
