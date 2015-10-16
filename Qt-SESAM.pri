@@ -25,6 +25,8 @@ contains(QT_ARCH, i386) {
 
 unix:QMAKE_CXXFLAGS += -std=c++11
 
+macx:QMAKE_CXXFLAGS += -Wmacro-redefined
+
 CONFIG += c++11
 
 win32-msvc* {
