@@ -884,6 +884,14 @@ auf deinem Computer: %3</translation>
         <source>Domain settings converted.</source>
         <translation type="vanished">Domain-Einstellungen wurden konvertiert.</translation>
     </message>
+    <message>
+        <source>Revert settings?</source>
+        <translation>Einstellungen zurücksetzen?</translation>
+    </message>
+    <message>
+        <source>Do you really want to revert the settings?</source>
+        <translation>Willst du die Änderungen an den Domain-Einstellungen wirklich rückgängig machen?</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
