@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "c't SESAM",
+  "description": "This extension gets remote controlled by Qt-SESAM",
+  "version": "0.1.0",
+  "icons": {
+    "128": "icon-128x128.png",
+    "32":  "icon-32x32.png"
+  },
+  "browser_action": {
+    "default_title": "c't SESAM",
+    "default_icon": "icon-32x32.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "nativeMessaging",
+    "https://syncserver.name/ctSESAM/*"
+  ]
+}
