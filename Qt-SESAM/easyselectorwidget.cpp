@@ -343,7 +343,7 @@ qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
   static const int Iterations = 1;
   const qreal perms = qPow(charCount, length);
   const qreal t2secs = perms * Iterations / sha1PerSec;
-  return t2secs;
+  return 0.5 * t2secs;
 
 }
 
@@ -415,20 +415,21 @@ void EasySelectorWidget::onSpeedTestAbort(void)
 void EasySelectorWidget::speedTest(void)
 {
   Q_D(EasySelectorWidget);
+  static const int BufSize = 512 / 8;
+  QByteArray data(BufSize, static_cast<char>(0));
   QCryptographicHash hash(QCryptographicHash::Sha1);
-  int Sz = 512 / 8;
-  QByteArray data(Sz, static_cast<char>(0));
+  QElapsedTimer t;
+  t.start();
   qint64 n = 0;
-  QElapsedTimer elapsed;
-  elapsed.start();
-  while (!d->doAbortSpeedTest) {
-    hash.reset();
-    for (int i = 0; i < Sz; ++i)
-      data[i] = qrand() & 0xff;
+  while (!d->doAbortSpeedTest && t.elapsed() < 5000) {
+    for (QByteArray::iterator d = data.begin(); d != data.end(); ++d)
+      *d = qrand() & 0xff;
     hash.addData(data);
     hash.result();
+    hash.reset();
     ++n;
   }
-  qreal hashesPerSec = 1e9 / (qreal(elapsed.nsecsElapsed()) / n / QThread::idealThreadCount());
+  int coreCount = QThread::idealThreadCount() > 0 ? QThread::idealThreadCount() : 1;
+  qreal hashesPerSec = n * coreCount * 1e9 / t.nsecsElapsed();
   emit speedTestFinished(hashesPerSec);
 }
