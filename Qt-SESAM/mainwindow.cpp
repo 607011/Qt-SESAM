@@ -595,7 +595,7 @@ void MainWindow::setDirty(bool dirty)
   // qDebug() << "MainWindow::setDirty(" << dirty << ") triggered by" << (sender() ? sender()->objectName() : "NONE");
   d->parameterSetDirty = dirty;
   // qDebug() << "  domainComboboxContains(" << ui->domainsComboBox->currentText() << ") ->" << domainComboboxContains(ui->domainsComboBox->currentText());
-  if (domainComboboxContains(ui->domainsComboBox->currentText())) {
+  if (!ui->domainsComboBox->currentText().isEmpty() && domainComboboxContains(ui->domainsComboBox->currentText())) {
     ui->domainsComboBox->setEditable(!dirty);
     ui->domainsComboBox->setCompleter(dirty ? Q_NULLPTR : d->completer);
   }
