@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     QVariantMap inbound = jsonIn.toVariant().toMap();
     inbound["bytes_in"] = inLen;
     inbound["timestamp"] = QDateTime::currentDateTime().toString();
-    if (jsonError != QJsonParseError::NoError)
+    if (jsonError.error != QJsonParseError::NoError)
       inbound["errors"] = jsonError.errorString();
     std::string msg = QJsonDocument::fromVariant(inbound).toJson(QJsonDocument::Compact).toStdString();
     quint32 outLen = msg.length();

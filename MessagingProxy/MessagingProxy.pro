@@ -18,13 +18,17 @@ TEMPLATE = app
 include(../Qt-SESAM.pri)
 DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
-QT += core
+QT += core network
 QT -= gui
 
 TARGET = MessagingProxy
 CONFIG += console
 CONFIG -= app_bundle
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    tcpserver.cpp
 
 win32:DEFINES -= UNICODE
+
+HEADERS += \
+    tcpserver.h
