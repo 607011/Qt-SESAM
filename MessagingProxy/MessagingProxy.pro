@@ -13,15 +13,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include(Qt-SESAM.pri)
-VERSION = -$${QTSESAM_VERSION}
+TEMPLATE = app
 
-TEMPLATE = subdirs
-CONFIG += ordered
-SUBDIRS += \
-    libSESAM \
-    UnitTests \
-    Qt-SESAM \
-    MessagingProxy
+include(../Qt-SESAM.pri)
+DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
-win32:SUBDIRS += HashMaster
+QT += core
+QT -= gui
+
+TARGET = MessagingProxy
+CONFIG += console
+CONFIG -= app_bundle
+
+SOURCES += main.cpp
+
+win32:DEFINES -= UNICODE

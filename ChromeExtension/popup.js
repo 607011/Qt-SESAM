@@ -22,15 +22,8 @@
   
   function sendMessage() {
     var msg = { text: document.getElementById("msg").value };
-    console.log('Sending ', msg);
-    chrome.runtime.sendNativeMessage(
-      host,
-      msg,
-      function(response) {
-        console.log("Received: " + response);
-        document.getElementById('output').value += response + "\n";
-      }
-    );
+    console.log('Sending : ""' + msg.text + '"');
+    port.postMessage(msg);
   }
   
   function main() {
@@ -40,7 +33,7 @@
     port = chrome.runtime.connectNative(host);
     console.log(port);
     port.onMessage.addListener(function(msg) {
-      console.log('Received: ' + msg);
+      document.getElementById('output').value += JSON.stringify(msg) + "\n";
     });
     port.onDisconnect.addListener(function() {
       console.log('Disconnected. ' + chrome.runtime.lastError.message);

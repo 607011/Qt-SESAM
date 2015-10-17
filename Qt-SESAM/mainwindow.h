@@ -184,7 +184,6 @@ private: // methods
   QString usedCharacters(void);
   void applyTemplate(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
-  void messagingThread(void);
 };
 
 #endif // __MAINWINDOW_H_
