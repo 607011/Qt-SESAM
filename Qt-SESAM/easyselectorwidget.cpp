@@ -36,6 +36,7 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <QElapsedTimer>
+#include <QTime>
 
 const int EasySelectorWidget::DefaultMinLength = 4;
 const int EasySelectorWidget::DefaultMaxLength = 36;
@@ -89,6 +90,7 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
   QObject::connect(&d->speedTestTimer, SIGNAL(timeout()), SLOT(onSpeedTestBegin()));
   d->speedTestTimer.setSingleShot(true);
   d->speedTestTimer.start(500);
+  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 }
 
 
