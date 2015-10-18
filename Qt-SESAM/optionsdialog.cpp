@@ -161,7 +161,8 @@ void OptionsDialog::onReadFinished(QNetworkReply *reply)
   Q_D(OptionsDialog);
   QString warning;
   QJsonParseError parseError;
-  QJsonDocument jDoc = QJsonDocument::fromJson(reply->readAll(), &parseError);
+  QByteArray data = reply->readAll();
+  QJsonDocument jDoc = QJsonDocument::fromJson(data, &parseError);
   if (parseError.error == QJsonParseError::NoError) {
     if (jDoc.isObject()) {
       QVariantMap map = jDoc.toVariant().toMap();
@@ -179,7 +180,7 @@ void OptionsDialog::onReadFinished(QNetworkReply *reply)
     }
   }
   else {
-    warning = tr("reply cannot be parsed as JSON data");
+    warning = tr("reply cannot be parsed as JSON data: %1 (data: %2)").arg(parseError.errorString()).arg(QString::fromUtf8(data));
   }
   if (!warning.isEmpty()) {
     ui->accessibleLabel->setPixmap(QPixmap(":/images/warning.png"));
