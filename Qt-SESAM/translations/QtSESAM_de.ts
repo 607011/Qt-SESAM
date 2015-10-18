@@ -1274,7 +1274,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>reply cannot be parsed as JSON data</source>
-        <translation>Antwort vom Server enthält keine JSON-formatierten Daten</translation>
+        <translation type="vanished">Antwort vom Server enthält keine JSON-formatierten Daten</translation>
     </message>
     <message>
         <source>Encrypted</source>
@@ -1283,6 +1283,10 @@ auf deinem Computer: %3</translation>
     <message>
         <source>Max. password length</source>
         <translation>Max. Passwortlänge</translation>
+    </message>
+    <message>
+        <source>reply cannot be parsed as JSON data: %1 (data: %2)</source>
+        <translation>Antwort vom Server enthält keine JSON-formatierten Daten: %1 (Daten: %2)</translation>
     </message>
 </context>
 <context>
