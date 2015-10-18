@@ -18,6 +18,7 @@
 */
 
 #include "tcpserver.h"
+#include "tcpserverthread.h"
 #include <QTcpServer>
 #include <QNetworkConfigurationManager>
 #include <QNetworkConfiguration>
@@ -38,8 +39,7 @@ TcpServer::TcpServer(QTcpServer *parent)
   : QTcpServer(parent)
   , d_ptr(new TcpServerPrivate)
 {
-  listen(QHostAddress::Any, Port);
-  QObject::connect(this, SIGNAL(newConnection()), SLOT(communicate()));
+  listen(QHostAddress::LocalHost, Port);
 }
 
 
@@ -49,8 +49,11 @@ TcpServer::~TcpServer()
 }
 
 
-void TcpServer::communicate(void)
+void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
-  QTcpSocket *clientConnection = nextPendingConnection();
-  QObject::connect(clientConnection, SIGNAL(disconnected()), clientConnection, SLOT(deleteLater()));
+  TcpServerThread *thread = new TcpServerThread(socketDescriptor, this);
+  QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  QObject::connect(thread, SIGNAL(started()), SIGNAL(connectionEstablished()));
+  QObject::connect(thread, SIGNAL(gotCommand(QJsonObject)), SIGNAL(commandReceived(QJsonObject)));
+  thread->start();
 }

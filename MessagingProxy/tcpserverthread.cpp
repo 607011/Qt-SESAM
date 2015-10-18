@@ -17,30 +17,34 @@
 
 */
 
-#include "tcpserver.h"
-#include "messenger.h"
+#include "tcpserverthread.h"
 
-#include <QEventLoop>
 
-int main(int argc, char *argv[])
+TcpServerThread::TcpServerThread(int socketDescriptor, QObject *parent)
+  : QThread(parent)
+  , mSocketDescriptor(socketDescriptor)
 {
-  Q_UNUSED(argc);
-  Q_UNUSED(argv);
-  TcpServer *server = new TcpServer;
-  Messenger *messenger = new Messenger;
-
-  QEventLoop eventLoop;
-
-  QObject::connect(server, SIGNAL(commandReceived(QJsonObject)), messenger, SLOT(forwardCommand(QJsonObject)));
-  QObject::connect(messenger, SIGNAL(finish()), &eventLoop, SLOT(quit()));
-
-  eventLoop.exec();
-
-  QObject::disconnect(server, SIGNAL(commandReceived(QJsonObject)), messenger, SLOT(forwardCommand(QJsonObject)));
-  QObject::disconnect(messenger, SIGNAL(finish()), &eventLoop, SLOT(quit()));
-
-  delete messenger;
-  delete server;
-
-  return 0;
+  /* ... */
 }
+
+void TcpServerThread::run(void)
+{
+  QTcpSocket tcpSocket;
+  if (!tcpSocket.setSocketDescriptor(mSocketDescriptor)) {
+    emit error(tcpSocket.error());
+    return;
+  }
+
+  emit started();
+  //  QByteArray block;
+  //  QDataStream out(&block, QIODevice::WriteOnly);
+  //  out.setVersion(QDataStream::Qt_4_0);
+  //  out << (quint16)0;
+  //  out << text;
+  //  out.device()->seek(0);
+  //  out << (quint16)(block.size() - sizeof(quint16));
+  //  tcpSocket.write(block);
+  tcpSocket.disconnectFromHost();
+  tcpSocket.waitForDisconnected();
+}
+

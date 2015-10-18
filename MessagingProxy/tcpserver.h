@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QScopedPointer>
 #include <QTcpServer>
+#include <QJsonObject>
 
 class TcpServerPrivate;
 
@@ -33,12 +34,14 @@ public:
   explicit TcpServer(QTcpServer *parent = Q_NULLPTR);
   ~TcpServer();
 
+protected:
+  void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
+
 signals:
+  void connectionEstablished(void);
+  void commandReceived(QJsonObject);
 
 private slots:
-
-public slots:
-  void communicate(void);
 
 private:
   QScopedPointer<TcpServerPrivate> d_ptr;

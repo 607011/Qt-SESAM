@@ -17,30 +17,30 @@
 
 */
 
-#include "tcpserver.h"
-#include "messenger.h"
+#ifndef __TCPSERVERTHREAD_H_
+#define __TCPSERVERTHREAD_H_
 
-#include <QEventLoop>
+#include <QThread>
+#include <QTcpSocket>
+#include <QJsonObject>
 
-int main(int argc, char *argv[])
+class TcpServerThread : public QThread
 {
-  Q_UNUSED(argc);
-  Q_UNUSED(argv);
-  TcpServer *server = new TcpServer;
-  Messenger *messenger = new Messenger;
+  Q_OBJECT
 
-  QEventLoop eventLoop;
+public:
+  TcpServerThread(int socketDescriptor, QObject *parent);
+  void run(void) Q_DECL_OVERRIDE;
 
-  QObject::connect(server, SIGNAL(commandReceived(QJsonObject)), messenger, SLOT(forwardCommand(QJsonObject)));
-  QObject::connect(messenger, SIGNAL(finish()), &eventLoop, SLOT(quit()));
+signals:
+  void error(QTcpSocket::SocketError socketError);
+  void started(void);
+  void gotCommand(const QJsonObject &);
 
-  eventLoop.exec();
+public slots:
 
-  QObject::disconnect(server, SIGNAL(commandReceived(QJsonObject)), messenger, SLOT(forwardCommand(QJsonObject)));
-  QObject::disconnect(messenger, SIGNAL(finish()), &eventLoop, SLOT(quit()));
+private:
+  int mSocketDescriptor;
+};
 
-  delete messenger;
-  delete server;
-
-  return 0;
-}
+#endif // __TCPSERVERTHREAD_H_

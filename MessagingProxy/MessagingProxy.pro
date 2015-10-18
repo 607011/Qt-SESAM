@@ -26,9 +26,13 @@ CONFIG += console
 CONFIG -= app_bundle
 
 SOURCES += main.cpp \
-    tcpserver.cpp
+    tcpserver.cpp \
+    tcpserverthread.cpp \
+    messenger.cpp
 
 win32:DEFINES -= UNICODE
 
 HEADERS += \
-    tcpserver.h
+    tcpserver.h \
+    tcpserverthread.h \
+    messenger.h

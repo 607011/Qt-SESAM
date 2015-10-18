@@ -16,31 +16,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef __MESSENGER_H_
+#define __MESSENGER_H_
 
-#include "tcpserver.h"
-#include "messenger.h"
+#include <QObject>
+#include <QJsonObject>
+#include <QScopedPointer>
 
-#include <QEventLoop>
+class MessengerPrivate;
 
-int main(int argc, char *argv[])
+class Messenger : public QObject
 {
-  Q_UNUSED(argc);
-  Q_UNUSED(argv);
-  TcpServer *server = new TcpServer;
-  Messenger *messenger = new Messenger;
+  Q_OBJECT
+public:
+  Messenger(void);
+  ~Messenger();
 
-  QEventLoop eventLoop;
+public slots:
+  void forwardCommand(QJsonObject msg);
+  void receiveCommand(void);
 
-  QObject::connect(server, SIGNAL(commandReceived(QJsonObject)), messenger, SLOT(forwardCommand(QJsonObject)));
-  QObject::connect(messenger, SIGNAL(finish()), &eventLoop, SLOT(quit()));
+signals:
+  void quit(void);
 
-  eventLoop.exec();
+private:
+  QScopedPointer<MessengerPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Messenger)
+  Q_DISABLE_COPY(Messenger)
 
-  QObject::disconnect(server, SIGNAL(commandReceived(QJsonObject)), messenger, SLOT(forwardCommand(QJsonObject)));
-  QObject::disconnect(messenger, SIGNAL(finish()), &eventLoop, SLOT(quit()));
+};
 
-  delete messenger;
-  delete server;
 
-  return 0;
-}
+
+#endif // __MESSENGER_H_
