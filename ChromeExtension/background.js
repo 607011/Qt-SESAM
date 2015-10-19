@@ -5,19 +5,20 @@
 
 (function(window) {
   var host = 'de.ct.qtsesam';
-  var port = null;
-  var currentTabUrl = null;
+  var port;
+  var currentTabUrl;
+  var user = { id: null, pwd: null };
 
   function getCurrentTabUrl(callback) {
     var queryInfo = {
       active: true,
       currentWindow: true
     };
+    currentTabUrl = null;
     chrome.tabs.query(queryInfo, function(tabs) {
       var tab = tabs[0];
-      var url = tab.url;
-      console.assert(typeof url == 'string', 'tab.url must be a string');
-      callback(url);
+      if (typeof tab.url == 'string')
+        callback(tab.url);
     });
   }
 
@@ -34,9 +35,8 @@
     }
     else if (msg.cmd === "set-url") {
       chrome.tabs.update(window.WINDOW_ID_CURRENT, { url: msg.url });
-    }
-    else if (msg.cmd === "login") {
-      // TODO: implement login automagic
+      user.id = msg.userid;
+      user.pwd = msg.password;
     }
     else {
       // XXX: simple echo for debugging purposes
@@ -49,12 +49,18 @@
     port = null;
   }
 
+  function onCompleted(details)
+  {
+    // TODO: implement login automagic with credentials in `user` object
+  }
+
+
   function main() {
     getCurrentTabUrl(function(url) { currentTabUrl = url; });
     port = chrome.runtime.connectNative(host);
     port.onMessage.addListener(onMessage);
     port.onDisconnect.addListener(onDisconnect);
-    document.getElementById('send-button').addEventListener('click', sendMessage);
+    chrome.webNavigation.onCompleted.addListener(onCompleted);
   }
 
   document.addEventListener('DOMContentLoaded', main);
