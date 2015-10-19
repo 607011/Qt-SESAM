@@ -18,21 +18,19 @@
 */
 
 #include "tcpserver.h"
-#include "tcpserverthread.h"
 #include <QTcpServer>
-#include <QNetworkConfigurationManager>
-#include <QNetworkConfiguration>
+#include <QTcpSocket>
+#include <QDataStream>
 
 class TcpServerPrivate
 {
 public:
   TcpServerPrivate(void)
-  {
-    /* ... */
-  }
+    : conn(Q_NULLPTR)
+  { /* ... */ }
   ~TcpServerPrivate()
-  {
-  }
+  { /* ... */ }
+  QTcpSocket *conn;
 };
 
 TcpServer::TcpServer(QTcpServer *parent)
@@ -40,6 +38,7 @@ TcpServer::TcpServer(QTcpServer *parent)
   , d_ptr(new TcpServerPrivate)
 {
   listen(QHostAddress::LocalHost, Port);
+  QObject::connect(this, SIGNAL(newConnection()), this, SLOT(gotConnection()));
 }
 
 
@@ -49,11 +48,25 @@ TcpServer::~TcpServer()
 }
 
 
-void TcpServer::incomingConnection(qintptr socketDescriptor)
+void TcpServer::gotConnection(void)
 {
-  TcpServerThread *thread = new TcpServerThread(socketDescriptor, this);
-  QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  QObject::connect(thread, SIGNAL(started()), SIGNAL(connectionEstablished()));
-  QObject::connect(thread, SIGNAL(gotCommand(QJsonObject)), SIGNAL(commandReceived(QJsonObject)));
-  thread->start();
+  Q_D(TcpServer);
+  d->conn = nextPendingConnection();
+  connect(d->conn, SIGNAL(readyRead()), this, SLOT(forwardCommand()));
+  connect(d->conn, SIGNAL(disconnected()), d->conn, SLOT(deleteLater()));
+}
+
+
+void TcpServer::forwardCommand(void)
+{
+  Q_D(TcpServer);
+  QByteArray msg = d->conn->readAll();
+  emit commandReceived(msg);
+}
+
+
+void TcpServer::sendCommand(QByteArray msg)
+{
+  Q_D(TcpServer);
+  d->conn->write(msg);
 }

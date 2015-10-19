@@ -17,11 +17,8 @@
 
 */
 
-#include <QVariantMap>
-#include <QDateTime>
-#include <QJsonParseError>
-#include <QSocketNotifier>
-
+#include <QDebug>
+#include <QtConcurrent>
 #include <iostream>
 
 #ifdef Q_OS_WIN
@@ -35,86 +32,55 @@
 
 class MessengerPrivate {
 public:
-  static const int BufSize = 4096;
-  MessengerPrivate(QObject *parent)
-    : buf(new char[BufSize])
-    , inNotifier(new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, parent))
-    , outNotifier(new QSocketNotifier(fileno(stdout), QSocketNotifier::Write, parent))
+  MessengerPrivate(void)
   { /* ... */ }
   ~MessengerPrivate()
-  {
-    delete[] buf;
-  }
-  char *buf;
-  QSocketNotifier *inNotifier;
-  QSocketNotifier *outNotifier;
+  { /* ... */ }
+  QFuture<void> inFuture;
 };
 
 
 
 Messenger::Messenger(void)
-  : d_ptr(new MessengerPrivate(this))
+  : d_ptr(new MessengerPrivate)
 {
   Q_D(Messenger);
   std::cout.setf(std::ios_base::unitbuf);
 #ifdef Q_OS_WIN
   _setmode(_fileno(stdin), _O_BINARY);
 #endif
-  QObject::connect(d->inNotifier, SIGNAL(activated(int)), this, SLOT(receiveCommand()));
-}
-
-
-void Messenger::receiveCommand(void)
-{
-  Q_D(Messenger);
-  forever {
-    int inLen = 0;
-    std::cin.read(reinterpret_cast<char*>(&inLen), 4);
-    if (inLen == 0)
-      break;
-    inLen = qMin(inLen, MessengerPrivate::BufSize);
-    std::cin.read(d->buf, inLen);
-    QJsonParseError jsonError;
-    QJsonDocument jsonIn = QJsonDocument::fromJson(QByteArray(d->buf, inLen), &jsonError);
-    QVariantMap inbound = jsonIn.toVariant().toMap();
-    inbound["bytes_in"] = inLen;
-    inbound["timestamp"] = QDateTime::currentDateTime().toString();
-    if (jsonError.error != QJsonParseError::NoError)
-      inbound["errors"] = jsonError.errorString();
-    std::string msg = QJsonDocument::fromVariant(inbound).toJson(QJsonDocument::Compact).toStdString();
-    quint32 outLen = msg.length();
-    std::cout.write(reinterpret_cast<char*>(&outLen), 4);
-    std::cout << msg;
-  }
-}
-
-
-void Messenger::forwardCommand(QJsonObject msg)
-{
-  Q_D(Messenger);
-  forever {
-    int inLen = 0;
-    std::cin.read(reinterpret_cast<char*>(&inLen), 4);
-    if (inLen == 0)
-      break;
-    inLen = qMin(inLen, MessengerPrivate::BufSize);
-    std::cin.read(d->buf, inLen);
-    QJsonParseError jsonError;
-    QJsonDocument jsonIn = QJsonDocument::fromJson(QByteArray(d->buf, inLen), &jsonError);
-    QVariantMap inbound = jsonIn.toVariant().toMap();
-    inbound["bytes_in"] = inLen;
-    inbound["timestamp"] = QDateTime::currentDateTime().toString();
-    if (jsonError.error != QJsonParseError::NoError)
-      inbound["errors"] = jsonError.errorString();
-    std::string msg = QJsonDocument::fromVariant(inbound).toJson(QJsonDocument::Compact).toStdString();
-    quint32 outLen = msg.length();
-    std::cout.write(reinterpret_cast<char*>(&outLen), 4);
-    std::cout << msg;
-  }
+  d->inFuture = QtConcurrent::run(this, &Messenger::receiveMessage);
 }
 
 
 Messenger::~Messenger()
 {
-  // ...
+  Q_D(Messenger);
+  d->inFuture.waitForFinished();
+}
+
+
+void Messenger::receiveMessage(void)
+{
+  static const int BufSize = 4096;
+  char buf[BufSize];
+  forever {
+    int inLen = 0;
+    std::cin.read(reinterpret_cast<char*>(&inLen), sizeof(inLen));
+    if (inLen == 0)
+      break;
+    inLen = qMin(inLen, BufSize);
+    std::cin.read(buf, inLen);
+    const QByteArray &msg = QByteArray(buf, inLen);
+    emit messageReceived(msg);
+  }
+  emit quit();
+}
+
+
+void Messenger::sendMessage(const QByteArray &msg)
+{
+  quint32 outLen = static_cast<quint32>(msg.length());
+  std::cout.write(reinterpret_cast<char*>(&outLen), sizeof(outLen));
+  std::cout.write(msg.data(), msg.length());
 }

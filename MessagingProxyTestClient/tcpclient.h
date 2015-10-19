@@ -17,30 +17,28 @@
 
 */
 
-#ifndef __TCPSERVERTHREAD_H_
-#define __TCPSERVERTHREAD_H_
+#ifndef __TCPCLIENT_H_
+#define __TCPCLIENT_H_
 
-#include <QThread>
+#include <QObject>
 #include <QTcpSocket>
-#include <QJsonObject>
+#include <QDataStream>
 
-class TcpServerThread : public QThread
+class TcpClient : public QObject
 {
   Q_OBJECT
-
 public:
-  TcpServerThread(int socketDescriptor, QObject *parent);
-  void run(void) Q_DECL_OVERRIDE;
+  explicit TcpClient(QObject *parent = Q_NULLPTR);
+
+private slots:
+  void displayIncoming(void);
 
 signals:
-  void error(QTcpSocket::SocketError socketError);
-  void started(void);
-  void gotCommand(const QJsonObject &);
 
 public slots:
 
 private:
-  int mSocketDescriptor;
+  QTcpSocket *mTcpSocket;
 };
 
-#endif // __TCPSERVERTHREAD_H_
+#endif // __TCPCLIENT_H_

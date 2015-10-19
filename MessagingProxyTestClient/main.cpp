@@ -17,20 +17,16 @@
 
 */
 
-#include "tcpserver.h"
-#include "messenger.h"
-
+#include <QDebug>
 #include <QCoreApplication>
+#include "tcpclient.h"
 
 int main(int argc, char *argv[])
 {
-  QCoreApplication app(argc, argv);
-  TcpServer server;
-  Messenger messenger;
-
-  QObject::connect(&server, SIGNAL(commandReceived(QByteArray)), &messenger, SLOT(sendMessage(QByteArray)));
-  QObject::connect(&messenger, SIGNAL(messageReceived(QByteArray)), &server, SLOT(sendCommand(QByteArray)));
-  QObject::connect(&messenger, SIGNAL(quit()), &app, SLOT(quit()));
-
-  return app.exec();
+  QCoreApplication a(argc, argv);
+  TcpClient tcpClient;
+  Q_UNUSED(tcpClient);
+  qDebug() << "MessagingProxyTestClient about to exit ...";
+  return a.exec();
 }
+

@@ -16,11 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+
+
 #ifndef __MESSENGER_H_
 #define __MESSENGER_H_
 
 #include <QObject>
-#include <QJsonObject>
+#include <QByteArray>
 #include <QScopedPointer>
 
 class MessengerPrivate;
@@ -33,10 +35,12 @@ public:
   ~Messenger();
 
 public slots:
-  void forwardCommand(QJsonObject msg);
-  void receiveCommand(void);
+  void receiveMessage(void);
+  void sendMessage(const QByteArray &msg);
 
 signals:
+  void messageReceived(QByteArray);
+  void commandReceived(QByteArray);
   void quit(void);
 
 private:

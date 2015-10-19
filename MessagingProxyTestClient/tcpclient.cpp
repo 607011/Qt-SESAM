@@ -17,34 +17,29 @@
 
 */
 
-#include "tcpserverthread.h"
+#include "tcpclient.h"
+
+#include <QDebug>
+#include <QTextStream>
+#include <QHostAddress>
 
 
-TcpServerThread::TcpServerThread(int socketDescriptor, QObject *parent)
-  : QThread(parent)
-  , mSocketDescriptor(socketDescriptor)
+TcpClient::TcpClient(QObject *parent)
+  : QObject(parent)
 {
-  /* ... */
+  mTcpSocket = new QTcpSocket(this);
+  QObject::connect(mTcpSocket, SIGNAL(readyRead()), this, SLOT(displayIncoming()));
+  mTcpSocket->abort();
+  mTcpSocket->connectToHost(QHostAddress::LocalHost, 53548);
+  if (mTcpSocket->waitForConnected()) {
+    QByteArray msg = "{ \"text\": \"message from MessagingProxyTestClient\" }";
+    mTcpSocket->write(msg);
+  }
 }
 
-void TcpServerThread::run(void)
+void TcpClient::displayIncoming(void)
 {
-  QTcpSocket tcpSocket;
-  if (!tcpSocket.setSocketDescriptor(mSocketDescriptor)) {
-    emit error(tcpSocket.error());
-    return;
-  }
-
-  emit started();
-  //  QByteArray block;
-  //  QDataStream out(&block, QIODevice::WriteOnly);
-  //  out.setVersion(QDataStream::Qt_4_0);
-  //  out << (quint16)0;
-  //  out << text;
-  //  out.device()->seek(0);
-  //  out << (quint16)(block.size() - sizeof(quint16));
-  //  tcpSocket.write(block);
-  tcpSocket.disconnectFromHost();
-  tcpSocket.waitForDisconnected();
+  QByteArray msg = mTcpSocket->readAll();
+  qDebug() << "message from proxy:" << QString::fromUtf8(msg);
 }
 

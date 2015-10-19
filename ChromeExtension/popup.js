@@ -21,8 +21,8 @@
   }
   
   function sendMessage() {
-    var msg = { text: document.getElementById("msg").value };
-    console.log('Sending : ""' + msg.text + '"');
+    var msg = document.getElementById('msg').value;
+    console.log('Sending: ' + JSON.stringify(msg));
     port.postMessage(msg);
   }
   
@@ -31,9 +31,9 @@
       document.getElementById('status').innerHTML = "current tab url: " + url;
     });
     port = chrome.runtime.connectNative(host);
-    console.log(port);
     port.onMessage.addListener(function(msg) {
       document.getElementById('output').value += JSON.stringify(msg) + "\n";
+      port.postMessage(msg);
     });
     port.onDisconnect.addListener(function() {
       console.log('Disconnected. ' + chrome.runtime.lastError.message);

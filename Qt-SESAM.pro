@@ -22,6 +22,7 @@ SUBDIRS += \
     libSESAM \
     UnitTests \
     Qt-SESAM \
-    MessagingProxy
+    MessagingProxy \
+    MessagingProxyTestClient
 
 win32:SUBDIRS += HashMaster
