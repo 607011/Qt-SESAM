@@ -18,6 +18,6 @@
   "permissions": [
     "activeTab",
     "nativeMessaging",
-    "https://syncserver.name/ctSESAM/*"
+    "webNavigation"
   ]
 }
