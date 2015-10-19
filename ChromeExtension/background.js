@@ -20,7 +20,7 @@
       callback(url);
     });
   }
-  
+
   function sendMessage() {
     var msg = document.getElementById('msg').value;
     console.log('Sending: ' + JSON.stringify(msg));
@@ -44,16 +44,16 @@
     }
   }
 
-  function onDisconnected() {
+  function onDisconnect() {
     console.log('Disconnected. ' + chrome.runtime.lastError.message);
     port = null;
   }
-  
+
   function main() {
     getCurrentTabUrl(function(url) { currentTabUrl = url; });
     port = chrome.runtime.connectNative(host);
     port.onMessage.addListener(onMessage);
-    port.onDisconnect.addListener(onDisconnected);
+    port.onDisconnect.addListener(onDisconnect);
     document.getElementById('send-button').addEventListener('click', sendMessage);
   }
 

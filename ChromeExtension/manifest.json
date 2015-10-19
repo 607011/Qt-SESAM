@@ -12,6 +12,9 @@
     "default_icon": "icon-32x32.png",
     "default_popup": "popup.html"
   },
+  "background": {
+    "scripts": ["background.js"]
+  },
   "permissions": [
     "activeTab",
     "nativeMessaging",
