@@ -32,7 +32,8 @@ TcpClient::TcpClient(QObject *parent)
   mTcpSocket->abort();
   mTcpSocket->connectToHost(QHostAddress::LocalHost, 53548);
   if (mTcpSocket->waitForConnected()) {
-    QByteArray msg = "{ \"text\": \"message from MessagingProxyTestClient\" }";
+    // QByteArray msg = "{ \"cmd\": \"get-current-tab-url\" }";
+    QByteArray msg = "{ \"cmd\": \"set-url\", \"url\": \"http://www.ct.de/\" }";
     mTcpSocket->write(msg);
   }
 }

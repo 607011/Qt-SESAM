@@ -6,6 +6,7 @@
 (function(window) {
   var host = 'de.ct.qtsesam';
   var port = null;
+  var currentTabUrl = null;
 
   function getCurrentTabUrl(callback) {
     var queryInfo = {
@@ -15,7 +16,7 @@
     chrome.tabs.query(queryInfo, function(tabs) {
       var tab = tabs[0];
       var url = tab.url;
-      console.assert(typeof url == 'string', 'tab.url should be a string');
+      console.assert(typeof url == 'string', 'tab.url must be a string');
       callback(url);
     });
   }
@@ -25,20 +26,34 @@
     console.log('Sending: ' + JSON.stringify(msg));
     port.postMessage(msg);
   }
+
+  function onMessage(msg) {
+    if (msg.cmd === "get-current-tab-url") {
+      var reply = { "current-tab-url": currentTabUrl };
+      port.postMessage(reply);
+    }
+    else if (msg.cmd === "set-url") {
+      chrome.tabs.update(window.WINDOW_ID_CURRENT, { url: msg.url });
+    }
+    else if (msg.cmd === "login") {
+      // TODO: implement login automagic
+    }
+    else {
+      // XXX: simple echo for debugging purposes
+      port.postMessage(msg);
+    }
+  }
+
+  function onDisconnected() {
+    console.log('Disconnected. ' + chrome.runtime.lastError.message);
+    port = null;
+  }
   
   function main() {
-    getCurrentTabUrl(function(url) {
-      document.getElementById('status').innerHTML = "current tab url: " + url;
-    });
+    getCurrentTabUrl(function(url) { currentTabUrl = url; });
     port = chrome.runtime.connectNative(host);
-    port.onMessage.addListener(function(msg) {
-      document.getElementById('output').value += JSON.stringify(msg) + "\n";
-      port.postMessage(msg);
-    });
-    port.onDisconnect.addListener(function() {
-      console.log('Disconnected. ' + chrome.runtime.lastError.message);
-      port = null;
-    });
+    port.onMessage.addListener(onMessage);
+    port.onDisconnect.addListener(onDisconnected);
     document.getElementById('send-button').addEventListener('click', sendMessage);
   }
 
