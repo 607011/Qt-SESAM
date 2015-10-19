@@ -18,6 +18,7 @@
 */
 
 #include "util.h"
+#include "global.h"
 #include "servercertificatewidget.h"
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
@@ -26,11 +27,18 @@
 #include <QObject>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QSslConfiguration>
 #include <QSslCertificate>
 #include <QSslSocket>
+#include <QSslCipher>
 #include <QSslError>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QNetworkAccessManager>
+#include <QJsonParseError>
+#include <QJsonDocument>
+#include <QMovie>
+#include <QShortcut>
 
 static const QString HTTPS = "https";
 
@@ -38,14 +46,30 @@ class OptionsDialogPrivate
 {
 public:
   OptionsDialogPrivate(void)
+    : sslConf(QSslConfiguration::defaultConfiguration())
+    , reply(Q_NULLPTR)
+    , secure(false)
+    , loaderIcon(":/images/loader.gif")
+    , escShortcut(Q_NULLPTR)
 #ifdef WIN32
-    : smartLoginCheckbox(nullptr)
+    , smartLoginCheckbox(Q_NULLPTR)
 #endif
-  { /* ... */ }
-  QSslSocket sslSocket;
+  {
+    sslConf.setCiphers(QSslSocket::supportedCiphers());
+  }
+  ~OptionsDialogPrivate()
+  {
+      SafeDelete(escShortcut);
+  }
+  QNetworkAccessManager NAM;
+  QSslConfiguration sslConf;
+  QNetworkReply *reply;
   QList<QSslError> sslErrors;
   QList<QSslCertificate> serverCertificates;
   ServerCertificateWidget serverCertificateWidget;
+  bool secure;
+  QMovie loaderIcon;
+  QShortcut *escShortcut;
 #ifdef WIN32
   QCheckBox *smartLoginCheckbox;
 #endif
@@ -63,10 +87,16 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->cancelPushButton, SIGNAL(pressed()), SLOT(reject()));
   QObject::connect(ui->chooseSyncFilePushButton, SIGNAL(pressed()), SLOT(chooseSyncFile()));
-  QObject::connect(&d->sslSocket, SIGNAL(encrypted()), SLOT(onEncrypted()));
-  QObject::connect(&d->sslSocket, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrorsOccured(QList<QSslError>)));
   QObject::connect(ui->checkConnectivityPushButton, SIGNAL(pressed()), SLOT(checkConnectivity()));
   QObject::connect(ui->selectPasswordFilePushButton, SIGNAL(pressed()), SLOT(choosePasswordFile()));
+  QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(onServerRootUrlChanged(QString)));
+  QObject::connect(ui->saltLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(saltLengthChanged(int)));
+  QObject::connect(ui->maxPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(maxPasswordLengthChanged(int)));
+  QObject::connect(&d->NAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
+  QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
+  QObject::connect(&d->NAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+  d->escShortcut = new QShortcut(Qt::Key_Escape, this, SLOT(reject()));
+
 #ifdef WIN32
   d->smartLoginCheckbox = new QCheckBox(tr("Smart login"));
   d->smartLoginCheckbox->setChecked(true);
@@ -84,18 +114,20 @@ OptionsDialog::~OptionsDialog()
 void OptionsDialog::checkConnectivity(void)
 {
   Q_D(OptionsDialog);
-  d->sslSocket.close();
-  d->sslErrors.clear();
-  d->serverCertificates.clear();
   QUrl serverUrl(ui->serverRootURLLineEdit->text());
   if (serverUrl.scheme() == HTTPS) {
-    static const int HttpsPort = 443;
-    d->sslSocket.connectToHostEncrypted(serverUrl.host(), HttpsPort);
-    bool connected = d->sslSocket.waitForConnected(10*1000);
-    if (!connected) {
-      QMessageBox::information(this, tr("Network timeout"), tr("Cannot connect to %1. Please check the URL above.").arg(serverUrl.host()));
-      d->sslSocket.close();
-    }
+    setSecure(false);
+    ui->accessibleLabel->setMovie(&d->loaderIcon);
+    d->loaderIcon.start();
+    d->sslErrors.clear();
+    d->NAM.clearAccessCache();
+    d->serverCertificates.clear();
+    QNetworkRequest req(QUrl(ui->serverRootURLLineEdit->text() + ui->readUrlLineEdit->text()));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
+    req.setRawHeader("Authorization", httpBasicAuthenticationString());
+    req.setSslConfiguration(d->sslConf);
+    d->reply = d->NAM.post(req, QByteArray());
   }
   else {
     QMessageBox::information(this, tr("Wrong protocol"), tr("The given protocol \"%1\" is not valid. Please enter a URL beginning with \"https://\".").arg(serverUrl.scheme()));
@@ -103,46 +135,118 @@ void OptionsDialog::checkConnectivity(void)
 }
 
 
-void OptionsDialog::sslErrorsOccured(const QList<QSslError> &errors)
-{
-  Q_D(OptionsDialog);
-  d->sslErrors = errors;
-  d->sslSocket.ignoreSslErrors();
-}
-
-
 void OptionsDialog::validateHostCertificateChain(void)
 {
   Q_D(OptionsDialog);
-  QUrl serverUrl(ui->serverRootURLLineEdit->text());
-  if (serverUrl.scheme() == HTTPS) {
-    QSslError sslError;
-    int errorIndex = -1;
-    foreach (QSslError err, d->sslErrors) {
-      ++errorIndex;
-      if (int(err.error()) == QSslError::SelfSignedCertificateInChain) {
-        sslError = err;
-        break;
-      }
-    }
-    if (errorIndex >= 0) {
-      d->serverCertificateWidget.setServerSocket(d->sslSocket);
-      int button = d->serverCertificateWidget.exec();
-      if (button == QDialog::Accepted) {
-        setServerCertificates(d->sslSocket.peerCertificateChain());
-      }
-    }
-    else {
-      ui->encryptedLabel->setPixmap(QPixmap());
-    }
+  bool ok = (d->sslErrors.count() == 0) || d->sslErrors.at(0) == QSslError::NoError;
+  if (!ok) {
+    d->serverCertificateWidget.setServerSslErrors(d->reply->sslConfiguration(), d->sslErrors);
+    if (d->serverCertificateWidget.exec() == QDialog::Accepted)
+      setServerCertificates(d->reply->sslConfiguration().peerCertificateChain());
   }
-  d->sslSocket.close();
+  else {
+    setServerCertificates(QList<QSslCertificate>());
+  }
 }
 
 
-void OptionsDialog::onEncrypted(void)
+void OptionsDialog::onEncrypted(QNetworkReply*)
 {
   validateHostCertificateChain();
+}
+
+
+void OptionsDialog::onReadFinished(QNetworkReply *reply)
+{
+  Q_D(OptionsDialog);
+  QString warning;
+  QJsonParseError parseError;
+  QByteArray data = reply->readAll();
+  QJsonDocument jDoc = QJsonDocument::fromJson(data, &parseError);
+  if (parseError.error == QJsonParseError::NoError) {
+    if (jDoc.isObject()) {
+      QVariantMap map = jDoc.toVariant().toMap();
+      if (map["status"].toString() == "ok") {
+        setSecure(true);
+        ui->accessibleLabel->setPixmap(QPixmap(":/images/check.png"));
+        ui->accessibleLabel->setToolTip(tr("Connection succeeded."));
+      }
+      else {
+        warning = tr("JSON data contains bad status: %1").arg(map["status"].toString());
+      }
+    }
+    else {
+      warning = tr("reply is not a JSON object");
+    }
+  }
+  else {
+    warning = tr("reply cannot be parsed as JSON data: %1 (data: %2)").arg(parseError.errorString()).arg(QString::fromUtf8(data));
+  }
+  if (!warning.isEmpty()) {
+    ui->accessibleLabel->setPixmap(QPixmap(":/images/warning.png"));
+    ui->accessibleLabel->setToolTip(warning);
+  }
+  d->loaderIcon.stop();
+}
+
+
+const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
+{
+  return d_ptr->serverCertificates;
+}
+
+
+void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChain)
+{
+  Q_D(OptionsDialog);
+  d->serverCertificates = certChain;
+  setSecure(!serverRootCertificate().isNull());
+  emit serverCertificatesUpdated(certChain);
+}
+
+
+QSslCertificate OptionsDialog::serverRootCertificate(void) const
+{
+  return d_ptr->serverCertificates.isEmpty()
+      ? QSslCertificate()
+      : d_ptr->serverCertificates.last(); // XXX
+}
+
+
+void OptionsDialog::sslErrorsOccured(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+  Q_D(OptionsDialog);
+  d->sslErrors = errors;
+  reply->ignoreSslErrors();
+}
+
+
+void OptionsDialog::setSecure(bool secure)
+{
+  Q_D(OptionsDialog);
+  d->secure = secure;
+  if (secure) {
+    ui->encryptedLabel->setPixmap(QPixmap(":/images/encrypted.png"));
+    ui->encryptedLabel->setToolTip(tr("Encrypted"));
+  }
+  else {
+    ui->encryptedLabel->setPixmap(QPixmap());
+    ui->encryptedLabel->setToolTip(QString());
+  }
+}
+
+
+bool OptionsDialog::secure(void) const
+{
+  return d_ptr->secure;
+}
+
+
+void OptionsDialog::onServerRootUrlChanged(QString)
+{
+  ui->accessibleLabel->setPixmap(QPixmap());
+  ui->accessibleLabel->setToolTip(QString());
+  setSecure(false);
 }
 
 
@@ -265,6 +369,18 @@ void OptionsDialog::setPasswordFilename(const QString &filename)
 }
 
 
+int OptionsDialog::maxPasswordLength(void) const
+{
+  return ui->maxPasswordLengthSpinBox->value();
+}
+
+
+void OptionsDialog::setMaxPasswordLength(int len)
+{
+  ui->maxPasswordLengthSpinBox->setValue(len);
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);
@@ -306,31 +422,6 @@ void OptionsDialog::setServerUsername(QString username)
 void OptionsDialog::setServerPassword(QString password)
 {
   ui->passwordLineEdit->setText(password);
-}
-
-
-const QList<QSslCertificate> &OptionsDialog::serverCertificates(void) const
-{
-  return d_ptr->serverCertificates;
-}
-
-
-void OptionsDialog::setServerCertificates(const QList<QSslCertificate> &certChain)
-{
-  d_ptr->serverCertificates = certChain;
-  if (!serverRootCertificate().isNull()) {
-    ui->fingerprintLabel->setText(fingerprintify(serverRootCertificate().digest(QCryptographicHash::Sha1)));
-    ui->encryptedLabel->setPixmap(QPixmap(":/images/encrypted.png"));
-  }
-  emit updatedServerCertificates();
-}
-
-
-QSslCertificate OptionsDialog::serverRootCertificate(void) const
-{
-  return d_ptr->serverCertificates.isEmpty()
-      ? QSslCertificate()
-      : d_ptr->serverCertificates.last(); // XXX
 }
 
 

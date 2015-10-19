@@ -26,6 +26,7 @@
 #include <QCryptographicHash>
 
 #include "securebytearray.h"
+#include "securestring.h"
 
 class PBKDF2Private;
 
@@ -39,16 +40,16 @@ class PBKDF2 : public QObject
 {
   Q_OBJECT
 public:
-  explicit PBKDF2(QObject *parent = nullptr);
-  PBKDF2(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm, QObject *parent = nullptr);
+  explicit PBKDF2(QObject *parent = Q_NULLPTR);
+  PBKDF2(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm, QObject *parent = Q_NULLPTR);
   ~PBKDF2();
 
   void abortGeneration(void);
   void generate(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm);
   void generateAsync(const SecureByteArray &pwd, const QByteArray &salt, int iterations, QCryptographicHash::Algorithm algorithm);
 
-  const QString &hexKey(void) const;
-  QByteArray derivedKey(int size = -1) const;
+  const SecureString &hexKey(void) const;
+  SecureByteArray derivedKey(int size = -1) const;
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
   bool isAborted(void) const;

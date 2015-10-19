@@ -22,7 +22,6 @@
 #include "pbkdf2.h"
 #include "util.h"
 
-
 #include <QElapsedTimer>
 #include <QMessageAuthenticationCode>
 #include <QMutexLocker>
@@ -38,13 +37,10 @@ public:
     , abort(false)
   { /* ... */ }
   ~PBKDF2Private()
-  {
-    SecureErase(derivedKey);
-    SecureErase(hexKey);
-  }
+  { /* ... */ }
   QByteArray salt;
-  QByteArray derivedKey;
-  QString hexKey;
+  SecureByteArray derivedKey;
+  SecureString hexKey;
   qreal elapsed;
   bool abort;
   QMutex abortMutex;
@@ -110,7 +106,7 @@ void PBKDF2::generate(const SecureByteArray &pwd, const QByteArray &salt, int it
     xorbuf(d->derivedKey, buffer);
   }
 
-  d->hexKey = QString::fromLatin1(d->derivedKey.toHex());
+  d->hexKey = d->derivedKey.toHex();
   d->elapsed = 1e-9 * elapsedTimer.nsecsElapsed();
 }
 
@@ -132,19 +128,19 @@ void PBKDF2::abortGeneration(void)
 }
 
 
-const QString &PBKDF2::hexKey(void) const
+const SecureString &PBKDF2::hexKey(void) const
 {
   return d_ptr->hexKey;
 }
 
 
-QByteArray PBKDF2::derivedKey(int size) const
+SecureByteArray PBKDF2::derivedKey(int size) const
 {
   Q_ASSERT_X(size <= d_ptr->derivedKey.size(), "Password::derivedKey()", "size must be <= key size");
   if (size < 0)
     return d_ptr->derivedKey;
   else
-    return QByteArray(d_ptr->derivedKey.constData(), size);
+    return SecureByteArray(d_ptr->derivedKey.constData(), size);
 }
 
 

@@ -17,41 +17,45 @@
 
 */
 
-#ifndef __MASTERPASSWORDDIALOG_H_
-#define __MASTERPASSWORDDIALOG_H_
+#ifndef __COUNTDOWNWIDGET_H_
+#define __COUNTDOWNWIDGET_H_
 
-#include <QDialog>
-#include <QShowEvent>
-#include <QCloseEvent>
+#include <QWidget>
+#include <QScopedPointer>
+#include <QPaintEvent>
 
-namespace Ui {
-class MasterPasswordDialog;
-}
+class CountdownWidgetPrivate;
 
-class MasterPasswordDialog : public QDialog
+class CountdownWidget : public QWidget
 {
   Q_OBJECT
 public:
-  explicit MasterPasswordDialog(QWidget *parent = Q_NULLPTR);
-  ~MasterPasswordDialog();
+  explicit CountdownWidget(QWidget *parent = Q_NULLPTR);
+  ~CountdownWidget();
+  QSize sizeHint(void) const { return DefaultSize; }
+  QSize minimumSizeHint(void) const { return DefaultSize; }
 
-  void invalidatePassword(void);
-  void setRepeatPassword(bool);
-  QString masterPassword(void) const;
+  void start(int timeout);
+  void stop(void);
 
-public slots:
-  virtual void reject(void);
+  int remainingTime(void) const;
 
 protected:
-  void showEvent(QShowEvent*);
-  void closeEvent(QCloseEvent*);
+  void paintEvent(QPaintEvent *);
+
+signals:
+  void timeout(void);
 
 private slots:
-  void okClicked(void);
-  void comparePasswords(void);
+  void tick(void);
 
 private:
-  Ui::MasterPasswordDialog *ui;
+  QScopedPointer<CountdownWidgetPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(CountdownWidget)
+  Q_DISABLE_COPY(CountdownWidget)
+
+  static const int UpdateIntervalMs;
+  static const QSize DefaultSize;
 };
 
-#endif // __MASTERPASSWORDDIALOG_H_
+#endif // __COUNTDOWNWIDGET_H_

@@ -32,7 +32,7 @@
 template <class T>
 void SafeRenew(T& a, T obj)
 {
-  if (a != nullptr)
+  if (a != Q_NULLPTR)
     delete a;
   a = obj;
 }
@@ -41,7 +41,7 @@ void SafeRenew(T& a, T obj)
 template <class T>
 void SafeDelete(T& a)
 {
-  SafeRenew<T>(a, nullptr);
+  SafeRenew<T>(a, Q_NULLPTR);
 }
 
 template <class T>
@@ -60,12 +60,21 @@ void SecureErase(T &obj)
 }
 
 
+template<typename T>
+T clamp(const T &x, const T &lo, const T &hi)
+{
+  return qMax(lo, qMin(hi, x));
+}
+
+
+extern QString shuffled(const QString&);
+extern QByteArray shuffled(const QByteArray&);
 extern QString fingerprintify(const QByteArray &ba);
+extern bool containsAll(const QString &haystack, const QString &needles);
+extern bool containsAny(const QString &haystack, const QString &needles);
 
 #if defined(Q_CC_GNU)
 extern void SecureErase(QString str);
 #endif
-
-
 
 #endif // __UTIL_H_

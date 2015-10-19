@@ -19,7 +19,6 @@
 
 #include <QDebug>
 #include <random>
-#include <string>
 #include "sha.h"
 #include "ccm.h"
 #include "misc.h"
@@ -84,14 +83,14 @@ QByteArray Crypter::encode(const SecureByteArray &key,
                            const QByteArray &data,
                            bool compress)
 {
-  const QByteArray &salt2 = randomBytes(SaltSize);
-  const QByteArray &IV2 = randomBytes(AESBlockSize);
+  const QByteArray &salt2 = generateSalt();
+  const SecureByteArray &IV2 = generateIV();
   const SecureByteArray &KGK2 = salt2 + IV2 + KGK;
   const QByteArray &encryptedKGK = encrypt(key, IV, KGK2, CryptoPP::StreamTransformationFilter::NO_PADDING);
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
-  const QByteArray &baPlain = compress ? qCompress(data, 9) : data;
+  const SecureByteArray &baPlain = compress ? qCompress(data, 9) : data;
   const QByteArray &baCipher = encrypt(blobKey, IV2, baPlain, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
-  const QByteArray &formatFlag = QByteArray(int(1), static_cast<char>(AES256EncryptedMasterkeyFormat));
+  const QByteArray formatFlag(int(1), static_cast<char>(AES256EncryptedMasterkeyFormat));
   return formatFlag + salt + encryptedKGK + baCipher;
 }
 
@@ -117,7 +116,7 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
   Crypter::makeKeyAndIVFromPassword(masterPassword, salt, key, IV);
   QByteArray baKGK = decrypt(key, IV, encryptedKGK, CryptoPP::StreamTransformationFilter::NO_PADDING);
   const QByteArray salt2(baKGK.constData(), SaltSize);
-  const QByteArray IV2(baKGK.constData() + SaltSize, AESBlockSize);
+  const SecureByteArray IV2(baKGK.constData() + SaltSize, AESBlockSize);
   KGK = SecureByteArray(baKGK.constData() + SaltSize + AESBlockSize, KGKSize);
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
   const QByteArray &plain = decrypt(blobKey, IV2, cipher.mid(+ sizeof(char) + SaltSize + CryptDataSize), CryptoPP::StreamTransformationFilter::PKCS_PADDING);
@@ -133,26 +132,28 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
  * \param key The key to be used for encryption.
  * \param IV The initialization vector used to initialize AES.
  * \param plain The block of data to be encrypted.
- * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if `plain` length is a multiple of `Crypter::AESBlockSize`.
+ * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if `plain` length is a multiple of `Crypter::AESBlockSize`. Currently no other padding is supported by this function.
  * \return Encrypted block of data.
  */
 QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
 {
-  const std::string sPlain(plain.constData(), plain.size());
-  std::string sCipher;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
   enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
+  const int cipherSize = (padding == CryptoPP::StreamTransformationFilter::NO_PADDING)
+      ? plain.size()
+      : plain.size() + AESBlockSize - plain.size() % AESBlockSize;
+  QByteArray cipher(cipherSize, static_cast<char>(0));
   CryptoPP::ArraySource s(
-        sPlain,
+        reinterpret_cast<const byte*>(plain.constData()), plain.size(),
         true,
         new CryptoPP::StreamTransformationFilter(
           enc,
-          new CryptoPP::StringSink(sCipher),
+          new CryptoPP::ArraySink(reinterpret_cast<byte*>(cipher.data()), cipher.size()),
           padding
           )
         );
   Q_UNUSED(s); // just to please the compiler
-  return QByteArray(sCipher.c_str(), sCipher.length());
+  return cipher;
 }
 
 
@@ -164,26 +165,27 @@ QByteArray Crypter::encrypt(const SecureByteArray &key, const SecureByteArray &I
  * \param key The key to be used for decryption.
  * \param IV The initialization vector used to initialize AES.
  * \param cipher The block of data to be decrypted.
- * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if the length of the resulting plaintext data is a multiple of `Crypter::AESBlockSize`.
+ * \param padding A flag telling what kind of padding should be used. `CryptoPP::StreamTransformationFilter::PKCS_PADDING` means that PKCS#7 padding should be used (see RFC 5652). `CryptoPP::StreamTransformationFilter::NO_PADDING` means that no padding should be used (only applicable if the length of the resulting plaintext data is a multiple of `Crypter::AESBlockSize`). Currently no other padding is supported by this function.
  * \return Decrypted block of data.
  */
 SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding)
 {
-  const std::string sCipher(cipher.constData(), cipher.size());
-  std::string sPlain;
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
   dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(IV.constData()));
+  SecureByteArray plain(cipher.size(), static_cast<char>(0));
   CryptoPP::ArraySource s(
-        sCipher,
+        reinterpret_cast<const byte*>(cipher.constData()), cipher.size(),
         true,
         new CryptoPP::StreamTransformationFilter(
           dec,
-          new CryptoPP::StringSink(sPlain),
+          new CryptoPP::ArraySink(reinterpret_cast<byte*>(plain.data()), plain.size()),
           padding
           )
         );
   Q_UNUSED(s); // just to please the compiler
-  return SecureByteArray(sPlain.c_str(), sPlain.length());
+  if (padding == CryptoPP::StreamTransformationFilter::PKCS_PADDING)
+    plain.resize(plain.size() - plain.at(plain.size() - 1));
+  return plain;
 }
 
 
@@ -222,6 +224,17 @@ SecureByteArray Crypter::generateKGK(void)
 QByteArray Crypter::generateSalt(void)
 {
   return randomBytes(SaltSize);
+}
+
+
+/*!
+ * \brief Crypter::generateIV
+ *
+ * \return `Crypter::AESBlockSize` random bytes.
+ */
+SecureByteArray Crypter::generateIV(void)
+{
+  return randomBytes(AESBlockSize);
 }
 
 

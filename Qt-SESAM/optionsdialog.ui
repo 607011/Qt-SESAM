@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>524</height>
+    <width>343</width>
+    <height>465</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,6 +26,9 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QCheckBox" name="syncOnStartCheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string>Sync on start</string>
          </property>
@@ -69,6 +72,9 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox">
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These settings are necessary to connect Qt-SESAM to a &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;c't SESAM sync server&lt;/span&gt;&lt;/a&gt;. &lt;/p&gt;&lt;p&gt;The field &amp;quot;Root URL&amp;quot; sets the URL to the server. It's mandatory to supply a URL beginning with &amp;quot;https://&amp;quot;. After that you have to press &amp;quot;Check connectivity&amp;quot; to import the server's SSL certificate. Make sure the downloaded certificate fingerprint matches the actual one.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;User name&amp;quot; and &amp;quot;Password&amp;quot; must contain the credentials used to connect to the server via &lt;a href=&quot;https://en.wikipedia.org/wiki/Basic_access_authentication&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;HTTP Basic Authentication&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;Read URL&amp;quot;, &amp;quot;Write URL&amp;quot; and &amp;quot;Delete URL&amp;quot; contain the paths to scripts to read, write and delete data on the server.&lt;/p&gt;&lt;p&gt;For more information see the &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Wiki&lt;/span&gt;&lt;/a&gt; (work in progress).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="title">
           <string>Sync server</string>
          </property>
@@ -88,6 +94,9 @@
             <property name="fieldGrowthPolicy">
              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
             </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_2">
               <property name="text">
@@ -98,7 +107,80 @@
             <item row="0" column="1">
              <widget class="QLineEdit" name="serverRootURLLineEdit"/>
             </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>User name</string>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="1">
+             <widget class="QLineEdit" name="usernameLineEdit">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Password</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="passwordLineEdit">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Read URL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="readUrlLineEdit">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Write URL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="writeUrlLineEdit">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Delete URL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QLineEdit" name="deleteUrlLineEdit">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <property name="topMargin">
                <number>0</number>
@@ -110,6 +192,31 @@
                <widget class="QPushButton" name="checkConnectivityPushButton">
                 <property name="text">
                  <string>Check connectivity</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="accessibleLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>16</horstretch>
+                  <verstretch>16</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -152,118 +259,6 @@
                </spacer>
               </item>
              </layout>
-            </item>
-            <item row="2" column="1">
-             <layout class="QVBoxLayout" name="verticalLayout_6">
-              <property name="topMargin">
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>CA certificate fingerprint (SHA1):</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="fingerprintLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>&lt;none imported yet&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>User name</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="usernameLineEdit">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Password</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="passwordLineEdit">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="echoMode">
-               <enum>QLineEdit::Password</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Read URL</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QLineEdit" name="readUrlLineEdit">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Write URL</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QLineEdit" name="writeUrlLineEdit">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Delete URL</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QLineEdit" name="deleteUrlLineEdit">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-             </widget>
             </item>
            </layout>
           </item>
@@ -327,31 +322,44 @@
            <property name="buttonSymbols">
             <enum>QAbstractSpinBox::PlusMinus</enum>
            </property>
+           <property name="minimum">
+            <number>6</number>
+           </property>
            <property name="maximum">
-            <number>99999</number>
+            <number>255</number>
            </property>
            <property name="singleStep">
-            <number>3</number>
+            <number>1</number>
            </property>
            <property name="value">
             <number>16</number>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_9">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Password dictionary file</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QLineEdit" name="passwordFileLineEdit"/>
+            <widget class="QLineEdit" name="passwordFileLineEdit">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="selectPasswordFilePushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Select ...</string>
              </property>
@@ -359,10 +367,30 @@
            </item>
           </layout>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="QCheckBox" name="writeBackupsCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Write backup files</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Max. password length</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="maxPasswordLengthSpinBox">
+           <property name="minimum">
+            <number>4</number>
+           </property>
+           <property name="value">
+            <number>36</number>
            </property>
           </widget>
          </item>
@@ -421,15 +449,24 @@
  <tabstops>
   <tabstop>syncOnStartCheckBox</tabstop>
   <tabstop>useSyncFileCheckBox</tabstop>
+  <tabstop>syncFileLineEdit</tabstop>
   <tabstop>chooseSyncFilePushButton</tabstop>
   <tabstop>useSyncServerCheckBox</tabstop>
   <tabstop>serverRootURLLineEdit</tabstop>
+  <tabstop>usernameLineEdit</tabstop>
+  <tabstop>passwordLineEdit</tabstop>
+  <tabstop>readUrlLineEdit</tabstop>
+  <tabstop>writeUrlLineEdit</tabstop>
+  <tabstop>deleteUrlLineEdit</tabstop>
+  <tabstop>checkConnectivityPushButton</tabstop>
   <tabstop>okPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>syncFileLineEdit</tabstop>
   <tabstop>cancelPushButton</tabstop>
   <tabstop>masterPasswordInvalidationTimeMinsSpinBox</tabstop>
   <tabstop>saltLengthSpinBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>passwordFileLineEdit</tabstop>
+  <tabstop>selectPasswordFilePushButton</tabstop>
+  <tabstop>writeBackupsCheckBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>

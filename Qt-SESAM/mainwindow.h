@@ -24,6 +24,8 @@
 #include <QString>
 #include <QMovie>
 #include <QCloseEvent>
+#include <QResizeEvent>
+#include <QMoveEvent>
 #include <QLineEdit>
 #include <QSettings>
 #include <QCompleter>
@@ -38,6 +40,8 @@
 #include <QList>
 #include <QSslError>
 #include <QEvent>
+#include <QMessageBox>
+#include <QLabel>
 
 #include "global.h"
 #include "domainsettingslist.h"
@@ -58,13 +62,11 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(bool forceStart, QWidget *parent = Q_NULLPTR);
+
   ~MainWindow();
 
-protected:
-  void closeEvent(QCloseEvent *);
-  void changeEvent(QEvent *);
-
+  void applyComplexity(int complexity);
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
@@ -73,19 +75,31 @@ private:
   } SyncPeer;
 
 private slots:
+  void onUserChanged(QString);
+  void onURLChanged(QString);
+  void onUsedCharactersChanged(void);
+  void onExtraCharactersChanged(QString);
+  void onPasswordLengthChanged(int);
+  void onIterationsChanged(int);
+  void onSaltChanged(QString);
+  void onDeleteChanged(bool);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
   void onOptionsAccepted(void);
-  void onServerCertificatesUpdated(void);
+  void onServerCertificatesUpdated(const QList<QSslCertificate> &certs);
   void showOptionsDialog(void);
   void onPasswordGenerated(void);
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
-  void onDomainSelected(const QString &);
-  void newDomain(const QString &domainName = QString());
+  void onLegacyPasswordChanged(QString legacyPassword);
+  void onDomainTextChanged(const QString &);
+  void onDomainSelected(QString);
+  void onEasySelectorValuesChanged(int, int);
+  void onPasswordTemplateChanged(const QString &);
+  void onRevert(void);
   void renewSalt(void);
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);
@@ -93,8 +107,9 @@ private slots:
   void changeMasterPassword(void);
   void nextChangeMasterPasswordStep(void);
   void setDirty(bool dirty = true);
-  void onURLChanged(void);
   void openURL(void);
+  void onForcedPush(void);
+  void onMigrateDomainSettingsToExpert(void);
   void sync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
@@ -109,15 +124,14 @@ private slots:
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
   void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
-  void updateSaveButtonIcon(int frame = 0);
   void onDeleteFinished(QNetworkReply*);
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+#if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
-  void hideActivityIcons(void);
+#endif
   void createFullDump(void);
-  void onExpertModeChanged(bool);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
 #ifdef WIN32
@@ -132,6 +146,9 @@ signals:
   void saltKeyIVGenerated(void);
 
 protected:
+  void closeEvent(QCloseEvent *);
+  void changeEvent(QEvent *);
+  bool event(QEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
 private:
@@ -142,21 +159,20 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  QMessageBox::StandardButton saveYesNoCancel(void);
+  void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
+  void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
+  void copyDomainSettingsToGUI(const DomainSettings &ds);
   void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
   void makeDomainComboBox(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
-  void unblockUpdatePassword(void);
-  void blockUpdatePassword(void);
-  bool keyContainsAnyOf(const QString &forcedCharacters);
-  bool generatedPasswordIsValid(void);
-  void analyzeGeneratedPassword(void);
   void generateSaltKeyIVThread(void);
   DomainSettings collectedDomainSettings(void) const;
   QByteArray cryptedRemoteDomains(void);
@@ -167,6 +183,13 @@ private: // methods
   void writeBackupFile(const QByteArray &binaryDomainData);
   bool syncToServerEnabled(void) const;
   bool syncToFileEnabled(void) const;
+  int findDomainInComboBox(const QString &domain) const;
+  int findDomainInComboBox(const QString &domain, int lo, int hi) const;
+  bool domainComboboxContains(const QString &domain) const;
+  void updateTemplate(void);
+  QString usedCharacters(void);
+  void applyTemplate(const QByteArray &);
+  void updateCheckableLabel(QLabel *, bool checked);
 };
 
 #endif // __MAINWINDOW_H_

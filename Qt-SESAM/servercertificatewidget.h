@@ -21,7 +21,9 @@
 #define __SERVERCERTIFICATEWIDGET_H_
 
 #include <QDialog>
-#include <QSslSocket>
+#include <QSslError>
+#include <QSslConfiguration>
+#include <QList>
 #include <QScopedPointer>
 
 
@@ -35,10 +37,10 @@ class ServerCertificateWidget : public QDialog
   Q_OBJECT
 
 public:
-  explicit ServerCertificateWidget(QWidget *parent = nullptr);
+  explicit ServerCertificateWidget(QWidget *parent = Q_NULLPTR);
   ~ServerCertificateWidget();
 
-  void setServerSocket(const QSslSocket &);
+  void setServerSslErrors(const QSslConfiguration &, const QList<QSslError> &errorList);
 
 private:
   Ui::ServerCertificateWidget *ui;

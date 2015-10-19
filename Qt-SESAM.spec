@@ -1,5 +1,5 @@
 Name:           Qt-SESAM
-Version:        2.0.5
+Version:        2.0.6
 Release:        1%{?dist}
 Summary:        Super Easy & Secure Authentication Management
 
@@ -53,6 +53,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Sep 28 2015 Oliver Lau <ola@ct.de> - 2.0.6-1
+- update to 2.0.6
+
 * Fri Sep 18 2015 Stefan Becker <chemobejk@gmail.com> - 2.0.5-1
 - update to 2.0.5
 

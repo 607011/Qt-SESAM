@@ -37,6 +37,21 @@
     </message>
 </context>
 <context>
+    <name>CountdownWidget</name>
+    <message>
+        <source>%1 seconds</source>
+        <translation>%1 Sekunden</translation>
+    </message>
+    <message>
+        <source>&lt;%1 minutes</source>
+        <translation>&lt;%1 Minuten</translation>
+    </message>
+    <message>
+        <source>Application will be locked in %1.</source>
+        <translation>Anwendung wird in %1 gesperrt.</translation>
+    </message>
+</context>
+<context>
     <name>CredentialsDialog</name>
     <message>
         <source>Enter master password</source>
@@ -57,6 +72,31 @@
     <message>
         <source>New master password</source>
         <translation type="vanished">Neues Master-Passwort</translation>
+    </message>
+</context>
+<context>
+    <name>EasySelectorWidget</name>
+    <message>
+        <source>%1 characters</source>
+        <translation type="vanished">%1 Zeichen</translation>
+    </message>
+    <message>
+        <source>%1 characters,
+est. crack time w/ Tianhe-2: %2</source>
+        <translation type="vanished">%1 Zeichen,
+geschätzte Crack-Dauer mit Tianhe-2: %2</translation>
+    </message>
+    <message>
+        <source>%1 characters,
+est. crack time w/ Tianhe-2: %2,
+on your computer: %3</source>
+        <translation>%1 Zeichen,
+geschätzte Crack-Dauer mit Tianhe-2: %2,
+auf deinem Computer: %3</translation>
+    </message>
+    <message>
+        <source>calculating ...</source>
+        <translation>Berechnung läuft ...</translation>
     </message>
 </context>
 <context>
@@ -179,7 +219,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
@@ -263,7 +303,7 @@
     </message>
     <message>
         <source>Expert mode</source>
-        <translation>Experten-Modus</translation>
+        <translation type="vanished">Experten-Modus</translation>
     </message>
     <message>
         <source>Restore window</source>
@@ -291,11 +331,11 @@
     </message>
     <message>
         <source>Save before exit?</source>
-        <translation>Speichern vor dem Beenden?</translation>
+        <translation type="vanished">Speichern vor dem Beenden?</translation>
     </message>
     <message>
         <source>Your domain parameters have changed. Do you want to save the changes before exiting?</source>
-        <translation>Deine Domain-Parameters wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
+        <translation type="vanished">Deine Domain-Parameter wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
     </message>
     <message>
         <source>Really renew salt?</source>
@@ -379,7 +419,7 @@
     </message>
     <message>
         <source>Password does not follow the required rules. Increasing iteration count.</source>
-        <translation>Passwort entspricht nicht den gewünschten Regeln. Erhöhen des Iterationszählers.</translation>
+        <translation type="vanished">Passwort entspricht nicht den gewünschten Regeln. Erhöhen des Iterationszählers.</translation>
     </message>
     <message>
         <source>Username copied to clipboard.</source>
@@ -552,7 +592,7 @@
     </message>
     <message>
         <source>Ctrl+Shift+H</source>
-        <translation>Ctrl+Shift+H</translation>
+        <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
         <source>Starting synchronisation ...</source>
@@ -564,7 +604,7 @@
     </message>
     <message>
         <source>Click to show password</source>
-        <translation>Klicken um Passwort anzuzeigen</translation>
+        <translation type="vanished">Klicken um Passwort anzuzeigen</translation>
     </message>
     <message>
         <source>Password changed.</source>
@@ -572,7 +612,7 @@
     </message>
     <message>
         <source>&lt;New domain ...&gt;</source>
-        <translation>&lt;Neue Domain ...&gt;</translation>
+        <translation type="vanished">&lt;Neue Domain ...&gt;</translation>
     </message>
     <message>
         <source>Generated</source>
@@ -672,6 +712,186 @@
         <source>%1 - Really clear all settings?</source>
         <translation>%1 - Wirklich alle Einstellungen löschen?</translation>
     </message>
+    <message>
+        <source>Expert actions</source>
+        <translation>Aktionen für Experten</translation>
+    </message>
+    <message>
+        <source>Password does not follow the rules. Increasing iteration count.</source>
+        <translation type="vanished">Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
+    </message>
+    <message>
+        <source>Cannot hack</source>
+        <translation>Kann Passwort nicht hacken</translation>
+    </message>
+    <message>
+        <source>Export KGK ...</source>
+        <translation type="vanished">KGK exportieren ...</translation>
+    </message>
+    <message>
+        <source>Security hint</source>
+        <translation type="vanished">Sicherheitshinweis</translation>
+    </message>
+    <message>
+        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. It is recommended to protect the KGK with a really strong passphrase. Are you prepared for this?</source>
+        <translation type="vanished">Du stehst kurz davor deinen Key Generation Key (KGK) zu exportieren. Der KGK wird zum Generieren deiner Passwörter und der Schlüssel zum Chiffrieren der Domain-Einstellungen verwendet. Wenn du nicht unbedingt ein Backup davon benötigst, solltest du ihn nicht exportieren. Wenn doch, dann schütze ihn mit einer schwer zu erratenden Passphrase. Bist du dazu bereit?</translation>
+    </message>
+    <message>
+        <source>Import KGK ...</source>
+        <translation type="vanished">KGK importieren ...</translation>
+    </message>
+    <message>
+        <source>Export KGK to ...</source>
+        <translation type="vanished">KGK exportieren nach ...</translation>
+    </message>
+    <message>
+        <source>Not implemented yet</source>
+        <translation type="vanished">Noch nicht implementiert</translation>
+    </message>
+    <message>
+        <source>Not implemented yet.</source>
+        <translation type="vanished">Noch nicht implementiert.</translation>
+    </message>
+    <message>
+        <source>Import KGK from ...</source>
+        <translation type="vanished">KGK importieren von ...</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation type="vanished">Parameter</translation>
+    </message>
+    <message>
+        <source>Simple</source>
+        <translation>Einfach</translation>
+    </message>
+    <message>
+        <source>Expert</source>
+        <translation>Experten</translation>
+    </message>
+    <message>
+        <source>Force</source>
+        <translation type="vanished">Erzwingen</translation>
+    </message>
+    <message>
+        <source>Use</source>
+        <translation type="vanished">Verwenden</translation>
+    </message>
+    <message>
+        <source>abc ...</source>
+        <translation type="vanished">abc ...</translation>
+    </message>
+    <message>
+        <source>ABC ...</source>
+        <translation type="vanished">ABC ...</translation>
+    </message>
+    <message>
+        <source>#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</source>
+        <translation type="vanished">#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</translation>
+    </message>
+    <message>
+        <source>0123 ...</source>
+        <translation type="vanished">0123 ...</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="vanished">Edit</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+Z</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Save changes?</source>
+        <translation>Änderungen speichern?</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save or discard the changes before selecting a new domain?</source>
+        <translation type="vanished">Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor die gewählte Domain angezeigt wird?</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save or discard the changes before proceeding?</source>
+        <translation type="vanished">Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor du weiter machts?</translation>
+    </message>
+    <message>
+        <source>Save domain settings</source>
+        <translation>Domain-Einstellungen jetzt speichern</translation>
+    </message>
+    <message>
+        <source>abcdefghijklmnopqrstuvwxyz</source>
+        <translation>abcdefghijklmnopqrstuvwxyz</translation>
+    </message>
+    <message>
+        <source>ABCDEFGHIJKLMNOPQRSTUVWXYZ</source>
+        <translation>ABCDEFGHIJKLMNOPQRSTUVWXYZ</translation>
+    </message>
+    <message>
+        <source>0123456789</source>
+        <translation>0123456789</translation>
+    </message>
+    <message>
+        <source>Forced push ...</source>
+        <translation>Erzwungenes Senden ...</translation>
+    </message>
+    <message>
+        <source>Send local domain settings to server no matter what</source>
+        <translation>Aktuelle lokale Domain-Einstellungen an den Sync-Server senden, egal ob dort neue vorliegen oder nicht</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save the changes before proceeding?</source>
+        <translation>Du hast die Domain-Einstellungen verändert. Möchtest du die Änderungen speichern bevor du weiter machst?</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+H</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+C, Ctrl+C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+F, Ctrl+P</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Migrate domain to v3</source>
+        <translation>Domain-Einstellungen nach v3 migrieren</translation>
+    </message>
+    <message>
+        <source>Migrate current domain settings from v2 (simple) to v3 (expert)</source>
+        <translation>Die aktuellen Domain-Einstellungen von v2 (einfach) nach v3 (Expert) wandeln</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+M</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Revert</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>Domain settings converted.</source>
+        <translation type="vanished">Domain-Einstellungen wurden konvertiert.</translation>
+    </message>
+    <message>
+        <source>Revert settings?</source>
+        <translation>Einstellungen zurücksetzen?</translation>
+    </message>
+    <message>
+        <source>Do you really want to revert the settings?</source>
+        <translation>Willst du die Änderungen an den Domain-Einstellungen wirklich rückgängig machen?</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -711,123 +931,175 @@
     <name>NewDomainWizard</name>
     <message>
         <source>Create new domain</source>
-        <translation>Neue Domain anlegen</translation>
+        <translation type="vanished">Neue Domain anlegen</translation>
     </message>
     <message>
         <source>Base64 encoded salt</source>
-        <translation>Base64-kodiertes Salt</translation>
+        <translation type="vanished">Base64-kodiertes Salt</translation>
     </message>
     <message>
         <source>Password length</source>
-        <translation>Passwortlänge</translation>
+        <translation type="vanished">Passwortlänge</translation>
     </message>
     <message>
         <source>optional</source>
-        <translation>optional</translation>
+        <translation type="vanished">optional</translation>
     </message>
     <message>
         <source>Domain</source>
-        <translation>Domain</translation>
+        <translation type="vanished">Domain</translation>
     </message>
     <message>
         <source>mandatory</source>
-        <translation>erforderlich</translation>
+        <translation type="vanished">erforderlich</translation>
     </message>
     <message>
         <source>Salt (Base64)</source>
-        <translation>Salt (Base64)</translation>
+        <translation type="vanished">Salt (Base64)</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Benutzername</translation>
+        <translation type="vanished">Benutzername</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation>Notizen</translation>
+        <translation type="vanished">Notizen</translation>
     </message>
     <message>
         <source>may be empty</source>
-        <translation>kann leer bleiben</translation>
+        <translation type="vanished">kann leer bleiben</translation>
     </message>
     <message>
         <source>Min. iterations</source>
-        <translation>Min. Iterationen</translation>
+        <translation type="vanished">Min. Iterationen</translation>
     </message>
     <message>
         <source>don&apos;t fill unless you really need to</source>
-        <translation>nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
+        <translation type="vanished">nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
     </message>
     <message>
         <source>Legacy password</source>
-        <translation>Klassisches Passwort</translation>
+        <translation type="vanished">Klassisches Passwort</translation>
     </message>
     <message>
         <source>Used characters</source>
-        <translation>Verwendete Zeichen</translation>
+        <translation type="vanished">Verwendete Zeichen</translation>
     </message>
     <message>
         <source>add lower case characters to character set</source>
-        <translation>Kleinbuchstaben hinzufügen</translation>
+        <translation type="vanished">Kleinbuchstaben hinzufügen</translation>
     </message>
     <message>
         <source>abc…</source>
-        <translation>abc...</translation>
+        <translation type="vanished">abc...</translation>
     </message>
     <message>
         <source>add upper case characters to character set</source>
-        <translation>Großbuchstaben hinzufügen</translation>
+        <translation type="vanished">Großbuchstaben hinzufügen</translation>
     </message>
     <message>
         <source>ABC…</source>
-        <translation>ABC...</translation>
+        <translation type="vanished">ABC...</translation>
     </message>
     <message>
         <source>add digits to character set</source>
-        <translation>Ziffern hinzufügen</translation>
+        <translation type="vanished">Ziffern hinzufügen</translation>
     </message>
     <message>
         <source>0123…</source>
-        <translation>0123...</translation>
+        <translation type="vanished">0123...</translation>
     </message>
     <message>
         <source>add some special characters to character set</source>
-        <translation>Sonderzeichen hinzufügen</translation>
+        <translation type="vanished">Sonderzeichen hinzufügen</translation>
     </message>
     <message>
         <source>#!&quot;.…</source>
-        <translation>#!&quot;.…</translation>
+        <translation type="vanished">#!&quot;.…</translation>
     </message>
     <message>
         <source>Forced characters</source>
-        <translation>Erzwungene Zeichen</translation>
+        <translation type="vanished">Erzwungene Zeichen</translation>
     </message>
     <message>
         <source>upper case</source>
-        <translation>Großbuchstaben</translation>
+        <translation type="vanished">Großbuchstaben</translation>
     </message>
     <message>
         <source>lower case</source>
-        <translation>Kleinbuchstaben</translation>
+        <translation type="vanished">Kleinbuchstaben</translation>
     </message>
     <message>
         <source>digits</source>
-        <translation>Ziffern</translation>
+        <translation type="vanished">Ziffern</translation>
     </message>
     <message>
         <source>extra</source>
-        <translation>Sonderzeichen</translation>
+        <translation type="vanished">Sonderzeichen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation>Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation type="vanished">URL</translation>
+    </message>
+    <message>
+        <source>Force the use of any of %1</source>
+        <translation type="vanished">Die Benutzung von einem der Zeichen %1 erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any lower case character</source>
+        <translation type="vanished">Die Verwendung von Kleinbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any upper case character</source>
+        <translation type="vanished">Die Verwendung von Großbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any digit</source>
+        <translation type="vanished">Die Verwendung von Ziffern erzwingen</translation>
+    </message>
+    <message>
+        <source>Lowercase characters missing</source>
+        <translation type="vanished">Kleinbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce lowercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Kleinbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Uppercase characters missing</source>
+        <translation type="vanished">Großbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce uppercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Großbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Digits missing</source>
+        <translation type="vanished">Ziffern fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce digits but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Ziffern in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Extra characters missing</source>
+        <translation type="vanished">Sonderzeichen fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce extra characters but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Interrupt</source>
+        <translation type="vanished">Unterbrechen</translation>
     </message>
 </context>
 <context>
@@ -870,11 +1142,11 @@
     </message>
     <message>
         <source>CA certificate fingerprint (SHA1):</source>
-        <translation>Fingerabdruck des Wurzelzertifikats (SHA1):</translation>
+        <translation type="vanished">Fingerabdruck des Wurzelzertifikats (SHA1):</translation>
     </message>
     <message>
         <source>&lt;none imported yet&gt;</source>
-        <translation>&lt;noch keines imporiert&gt;</translation>
+        <translation type="vanished">&lt;noch keines imporiert&gt;</translation>
     </message>
     <message>
         <source>User name</source>
@@ -942,11 +1214,11 @@
     </message>
     <message>
         <source>Network timeout</source>
-        <translation>Zeitüberschreitung beim Netzwerkzugriff</translation>
+        <translation type="vanished">Zeitüberschreitung beim Netzwerkzugriff</translation>
     </message>
     <message>
         <source>Cannot connect to %1. Please check the URL above.</source>
-        <translation>Verbindung zu %1 fehlgeschlagen. Bitte prüfen Sie die obige URL auf Korrektheit.</translation>
+        <translation type="vanished">Verbindung zu %1 fehlgeschlagen. Bitte prüfen Sie die obige URL auf Korrektheit.</translation>
     </message>
     <message>
         <source>Wrong protocol</source>
@@ -983,6 +1255,38 @@
     <message>
         <source>Delete URL</source>
         <translation>Lösch-URL</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These settings are necessary to connect Qt-SESAM to a &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;c&apos;t SESAM sync server&lt;/span&gt;&lt;/a&gt;. &lt;/p&gt;&lt;p&gt;The field &amp;quot;Root URL&amp;quot; sets the URL to the server. It&apos;s mandatory to supply a URL beginning with &amp;quot;https://&amp;quot;. After that you have to press &amp;quot;Check connectivity&amp;quot; to import the server&apos;s SSL certificate. Make sure the downloaded certificate fingerprint matches the actual one.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;User name&amp;quot; and &amp;quot;Password&amp;quot; must contain the credentials used to connect to the server via &lt;a href=&quot;https://en.wikipedia.org/wiki/Basic_access_authentication&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;HTTP Basic Authentication&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;The fields &amp;quot;Read URL&amp;quot;, &amp;quot;Write URL&amp;quot; and &amp;quot;Delete URL&amp;quot; contain the paths to scripts to read, write and delete data on the server.&lt;/p&gt;&lt;p&gt;For more information see the &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Wiki&lt;/span&gt;&lt;/a&gt; (work in progress).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Diese Einstellungen sind erforderlich, wenn Qt-SESAM die Domain-Einstellungen über einen &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;c&apos;t-SESAM-Server&lt;/span&gt;&lt;/a&gt; synchronisieren soll. &lt;/p&gt;&lt;p&gt;Das Feld &amp;quot;Root-URL&amp;quot; bestimmt die URL, unter der der Server erreichbar ist. Die URL muss mit &amp;quot;https://&amp;quot; beginnen. Drück auf &amp;quot;Verbindung prüfen&amp;quot;, um das Server-Zertifikat zu importieren und auf Korrektheit zu überprüfen.&lt;/p&gt;&lt;p&gt;Die Felder &amp;quot;Benutzername&amp;quot; und &amp;quot;Passwort&amp;quot; müssen die Zugangsdaten für die &lt;a href=&quot;https://en.wikipedia.org/wiki/Basic_access_authentication&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;HTTP-Basic-Authentifizierung&lt;/span&gt;&lt;/a&gt; am Server enthalten.&lt;/p&gt;&lt;p&gt;Die Felder &amp;quot;Lese-URL&amp;quot;, &amp;quot;Schreib-URL&amp;quot; und &amp;quot;Lösch-URL&amp;quot; enthalten Pfade zu Skripten zum Lesen, Schreiben und Löschen von Datensätzen auf dem Server.&lt;/p&gt;&lt;p&gt;Zu Details siehe das &lt;a href=&quot;https://github.com/ola-ct/ctSESAM-server/wiki&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Wiki&lt;/span&gt;&lt;/a&gt; (in Arbeit).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Connection succeeded.</source>
+        <translation>Erfolgreich verbunden.</translation>
+    </message>
+    <message>
+        <source>JSON data contains bad status: %1</source>
+        <translation>Antwort vom Server enthält Fehler (Status: %1)</translation>
+    </message>
+    <message>
+        <source>reply is not a JSON object</source>
+        <translation>Antwort vom Server enthält kein JSON-Objekt</translation>
+    </message>
+    <message>
+        <source>reply cannot be parsed as JSON data</source>
+        <translation type="vanished">Antwort vom Server enthält keine JSON-formatierten Daten</translation>
+    </message>
+    <message>
+        <source>Encrypted</source>
+        <translation>Verschlüsselt</translation>
+    </message>
+    <message>
+        <source>Max. password length</source>
+        <translation>Max. Passwortlänge</translation>
+    </message>
+    <message>
+        <source>reply cannot be parsed as JSON data: %1 (data: %2)</source>
+        <translation>Antwort vom Server enthält keine JSON-formatierten Daten: %1 (Daten: %2)</translation>
     </message>
 </context>
 <context>
@@ -1093,6 +1397,101 @@
         <source>Deleting this directory with all its contents will erase all your application and domain settings. So be careful!</source>
         <translation>Mit dem Löschen dieses Verzeichnis werden alle Anwendungs- und Passworteinstellungen gelöscht. Vorsicht, bitte!</translation>
     </message>
+    <message>
+        <source>Only one instance of this program can run at a time.</source>
+        <translation type="vanished">Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
+    </message>
+    <message>
+        <source>%1 can run only once</source>
+        <translation>%1 - Kein Mehrfachstart möglich</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time.</source>
+        <translation>Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="vanished">Abbrechen</translation>
+    </message>
+    <message>
+        <source>Accept</source>
+        <translation type="vanished">Übernehmen</translation>
+    </message>
+    <message>
+        <source>Extreme security (32 chars)</source>
+        <translation type="vanished">Extreme Sicherheit (32 Zeichen)</translation>
+    </message>
+    <message>
+        <source>Very high security (24 chars)</source>
+        <translation type="vanished">Sehr hohe Sicherheit (24 Zeichen)</translation>
+    </message>
+    <message>
+        <source>High security (18 chars)</source>
+        <translation type="vanished">Hohe Sicherheit (18 Zeichen)</translation>
+    </message>
+    <message>
+        <source>Medium security (12 chars)</source>
+        <translation type="vanished">Mittlere Sicherheit (12 Zeichen)</translation>
+    </message>
+    <message>
+        <source>High security (18 chars, easy to type)</source>
+        <translation type="vanished">Hohe Sicherheit (18 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Medium security (12 chars, easy to type)</source>
+        <translation type="vanished">Mittlere Sicherheit (12 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Basic security (8 chars, easy to type)</source>
+        <translation type="vanished">Niedrige Sicherheit (18 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Change to %1</source>
+        <translation type="vanished">Ändern auf %1</translation>
+    </message>
+    <message>
+        <source>Change length/complexity to %1/%2</source>
+        <translation type="vanished">Länge/Komplexität auf %1/%2 ändern</translation>
+    </message>
+    <message>
+        <source>&lt; 1 nanosecond</source>
+        <translation type="vanished">&lt; 1 ns</translation>
+    </message>
+    <message>
+        <source>&lt; 1 microsecond</source>
+        <translation variants="yes">
+            <lengthvariant>&lt; 1 µs</lengthvariant>
+            <lengthvariant></lengthvariant>
+        </translation>
+    </message>
+    <message>
+        <source>&lt; 1 millisecond</source>
+        <translation>&lt; 1 ms</translation>
+    </message>
+    <message>
+        <source>~ %1 milliseconds</source>
+        <translation>~ %1 ms</translation>
+    </message>
+    <message>
+        <source>~ %1 seconds</source>
+        <translation>~ %1 Sekunden</translation>
+    </message>
+    <message>
+        <source>~ %1 minutes</source>
+        <translation>~ %1 Minuten</translation>
+    </message>
+    <message>
+        <source>~ %1 hours</source>
+        <translation>~ %1 Stunden</translation>
+    </message>
+    <message>
+        <source>~ %1 days</source>
+        <translation>~ %1 Tage</translation>
+    </message>
+    <message>
+        <source>~ %1 years</source>
+        <translation>~ %1 Jahre</translation>
+    </message>
 </context>
 <context>
     <name>ServerCertificateWidget</name>
@@ -1106,7 +1505,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Only accept the root certificate (last in list) if you&apos;re 100% sure that the fingerprint matches the original one. Same is true for the server&apos;s certificate (first in list).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Akzeptieren Sie das Wurzelzertifikat (s. Listenende) nur dann, wenn Sie 100%ig sicher sind, dass der Fingerabdruck mit dem Original übereinstimmt. Das Gleiche gilt für das Server-Zertifikat (s. Listenanfang).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#cc3333;&quot;&gt;Du solltest das Stammzertifikat (s. Listenende) nur dann akzeptieren, wenn du 100%ig sicher bist, dass der Fingerabdruck mit dem Original übereinstimmt. Das Gleiche gilt für das Server-Zertifikat (s. Listenanfang).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Accept</source>
@@ -1166,7 +1565,7 @@
     </message>
     <message>
         <source>The certificate chain of host &quot;%1&quot; contains an officially untrusted certificate with the SHA1 fingerprint %2. Do you trust it? If yes, click &quot;Accept&quot; to import it.</source>
-        <translation>Die Zertifikatskette des Hosts &quot;%1&quot; enthält ein offiziell nicht vertrauenswürdiges Zertifikat mit dem SHA1-Fingerabdruck %2. Vertrauen Sie dem Zertifikat? Wenn ja, können Sie es mit &quot;Akzeptieren&quot; importieren.</translation>
+        <translation type="vanished">Die Zertifikatskette des Hosts &quot;%1&quot; enthält ein offiziell nicht vertrauenswürdiges Zertifikat mit dem SHA1-Fingerabdruck %2. Vertrauen Sie dem Zertifikat? Wenn ja, können Sie es mit &quot;Akzeptieren&quot; importieren.</translation>
     </message>
     <message>
         <source>SSL parameters</source>
@@ -1215,6 +1614,18 @@
     <message>
         <source>DN</source>
         <translation type="vanished">DN</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;strong&gt;Attention!&lt;/strong&gt; The certificate chain of host &quot;%1&quot; with the SHA1 fingerprint %2 can not be fully trusted:&lt;p&gt;</source>
+        <translation type="vanished">&lt;p&gt;&lt;strong&gt;Achtung!&lt;/strong&gt; Der Zertifikatskette von %1 mit dem SHA-Fingerabdruck %2 kann nicht voll vertraut werden:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Do you still want to trust it? If yes, click &quot;Accept&quot; to import it.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Möchtest du dem Stammzertifikat trotzdem vertrauen? Wenn ja, klick auf &quot;Annehmen&quot;, um es zu importieren.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;strong&gt;Attention!&lt;/strong&gt; The certificate chain of the host with the SHA1 fingerprint %2 can not be fully trusted:&lt;p&gt;</source>
+        <translation>&lt;p&gt;&lt;strong&gt;Achtung!&lt;/strong&gt; Der Zertifikatskette mit dem SHA1-Fingerabdruck %2 kann nicht voll vertraut werden:&lt;/p&gt;</translation>
     </message>
 </context>
 </TS>

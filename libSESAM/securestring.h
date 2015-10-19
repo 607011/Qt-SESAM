@@ -18,27 +18,34 @@
 */
 
 
-#ifndef __SECUREBYTEARRAY_H_
-#define __SECUREBYTEARRAY_H_
+#ifndef __SECURESTRING_H_
+#define __SECURESTRING_H_
 
-#include <QByteArray>
+#include <QString>
 
 /*!
- * \brief The SecureByteArray class
+ * \brief The SecureString class
  *
- * `SecureByteArray` augments `QByteArray` with an invalidation function that overwrites
+ * `SecureString` augments `QString` with an invalidation function that overwrites
  * the allocated memory of the object with 0, then clears the object.
  *
  */
-class SecureByteArray : public QByteArray
+class SecureString : public QString
 {
 public:
-  SecureByteArray(void);
-  SecureByteArray(const char *data, int size = -1);
-  SecureByteArray(int size, char ch);
-  SecureByteArray(const QByteArray &other);
-  ~SecureByteArray();
+  SecureString(void);
+  SecureString(const QChar *unicode, int size = -1);
+  SecureString(QChar ch);
+  SecureString(int size, QChar ch);
+  SecureString(QLatin1String str);
+  SecureString(const QString &other);
+  SecureString(QString &&other);
+  SecureString(const char *str);
+  SecureString(const QByteArray &ba);
+  ~SecureString();
+
+protected:
   void invalidate(void);
 };
 
-#endif // __SECUREBYTEARRAY_H_
+#endif // __SECURESTRING_H_

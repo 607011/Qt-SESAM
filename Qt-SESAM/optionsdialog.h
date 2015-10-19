@@ -24,7 +24,9 @@
 #include <QSslCertificate>
 #include <QSslSocket>
 #include <QSslError>
+#include <QNetworkReply>
 #include <QList>
+#include <QString>
 
 namespace Ui {
 class OptionsDialog;
@@ -37,7 +39,7 @@ class OptionsDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit OptionsDialog(QWidget *parent = nullptr);
+  explicit OptionsDialog(QWidget *parent = Q_NULLPTR);
   ~OptionsDialog();
 
   bool syncOnStart(void) const;
@@ -64,6 +66,9 @@ public:
   const QList<QSslCertificate> &serverCertificates(void) const;
   void setServerCertificates(const QList<QSslCertificate> &);
   QSslCertificate serverRootCertificate(void) const;
+
+  void setSecure(bool);
+  bool secure(void) const;
 
   QString writeUrl(void) const;
   void setWriteUrl(QString);
@@ -93,17 +98,24 @@ public:
   QString passwordFilename(void) const;
   void setPasswordFilename(const QString &filename);
 
+  int maxPasswordLength(void) const;
+  void setMaxPasswordLength(int);
+
 signals:
-  void updatedServerCertificates(void);
+  void serverCertificatesUpdated(QList<QSslCertificate>);
+  void saltLengthChanged(int);
+  void maxPasswordLengthChanged(int);
 
 private slots:
   void chooseSyncFile(void);
   void choosePasswordFile(void);
   void okClicked(void);
-  void onEncrypted(void);
+  void onEncrypted(QNetworkReply *);
   void checkConnectivity(void);
   void validateHostCertificateChain(void);
-  void sslErrorsOccured(const QList<QSslError> &errors);
+  void onReadFinished(QNetworkReply*);
+  void sslErrorsOccured(QNetworkReply *, const QList<QSslError> &);
+  void onServerRootUrlChanged(QString);
 
 private:
   Ui::OptionsDialog *ui;

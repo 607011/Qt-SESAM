@@ -51,10 +51,10 @@ ServerCertificateWidget::~ServerCertificateWidget()
 }
 
 
-void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
+void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslConf, const QList<QSslError> &errorList)
 {
-  const QSslCipher &cipher = sslSocket.sessionCipher();
-  const QString &fingerprint = fingerprintify(sslSocket.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
+  const QSslCipher &cipher = sslConf.sessionCipher();
+  const QString &fingerprint = fingerprintify(sslConf.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow(tr("Encryption"), new QLabel(cipher.name()));
@@ -62,11 +62,15 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   formLayout->addRow(tr("Supported bits"), new QLabel(QString("%1").arg(cipher.supportedBits())));
   formLayout->addRow(tr("Used bits"), new QLabel(QString("%1").arg(cipher.usedBits())));
 
-  ui->warningLabel->setText(
-        tr("The certificate chain of host \"%1\" contains an officially untrusted certificate with the SHA1 fingerprint %2. "
-           "Do you trust it? If yes, click \"Accept\" to import it.")
-        .arg(sslSocket.peerName())
-        .arg(fingerprint));
+  QString warning = tr("<p><strong>Attention!</strong> "
+                       "The certificate chain of the host with the SHA1 fingerprint %2 can not be fully trusted:<p>")
+      .arg(fingerprint);
+  warning += "<ul>";
+  foreach(QSslError err, errorList)
+    warning += "<li>" + err.errorString() + "</li>";
+  warning += "</ul>";
+  warning += tr("<p>Do you still want to trust it? If yes, click \"Accept\" to import it.</p>");
+  ui->warningLabel->setText(warning);
 
   QGroupBox *groupBox = new QGroupBox(tr("SSL parameters"));
   groupBox->setLayout(formLayout);
@@ -74,12 +78,12 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   QTreeWidget *treeWidget = new QTreeWidget;
   treeWidget->setColumnCount(2);
   treeWidget->setHeaderHidden(true);
-  QTreeWidgetItem *firstItem = nullptr;
-  QTreeWidgetItem *lastItem = nullptr;
-  foreach (QSslCertificate cert, sslSocket.peerCertificateChain()) {
+  QTreeWidgetItem *firstItem = Q_NULLPTR;
+  QTreeWidgetItem *lastItem = Q_NULLPTR;
+  foreach (QSslCertificate cert, sslConf.peerCertificateChain()) {
     QTreeWidgetItem *rootItem = new QTreeWidgetItem;
     const QString &fp = fingerprintify(cert.digest(QCryptographicHash::Sha1));
-    if (firstItem == nullptr)
+    if (firstItem == Q_NULLPTR)
       firstItem = rootItem;
     treeWidget->addTopLevelItem(rootItem);
     QString shortFp = fp.mid(0, 21);
@@ -87,19 +91,19 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
     rootItem->setText(1, QString());
     QList<QTreeWidgetItem*> items;
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Fingerprint (SHA1)"),
                                 fp})));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Effective date"),
                                 cert.effectiveDate().toString()})));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Expiry date"),
                                 cert.expiryDate().toString()})));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({
                                  tr("Issuer"),
                                  QString("/C=%1/ST=%2/L=%3/O=%4/OU=%5/CN=%6/emailAddress=%7")
@@ -113,7 +117,7 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                                }
                                )));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({
                                  tr("Subject"),
                                  QString("/C=%1/ST=%2/L=%3/O=%4/OU=%5/CN=%6/emailAddress=%7")
@@ -127,19 +131,19 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
                                }
                                )));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Fingerprint (MD5)"),
                                 fingerprintify(cert.digest(QCryptographicHash::Md5))})));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Fingerprint (SHA256)"),
                                 fingerprintify(cert.digest(QCryptographicHash::Sha256))})));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Serial Number"),
                                 QString(cert.serialNumber())})));
     items.append(new QTreeWidgetItem(
-                   (QTreeWidget*)nullptr,
+                   (QTreeWidget*)Q_NULLPTR,
                    QStringList({tr("Version"), QString(cert.version())})));
     rootItem->addChildren(items);
     lastItem = rootItem;
@@ -147,11 +151,11 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
       rootItem->setSelected(true);
   }
 
-  if (firstItem != nullptr) {
+  if (firstItem != Q_NULLPTR) {
     treeWidget->expandItem(firstItem);
   }
 
-  if (lastItem != nullptr) {
+  if (lastItem != Q_NULLPTR) {
     treeWidget->expandItem(lastItem);
   }
 
@@ -162,7 +166,7 @@ void ServerCertificateWidget::setServerSocket(const QSslSocket &sslSocket)
   vLayout->addWidget(groupBox);
   vLayout->addWidget(treeWidget);
 
-  if (ui->scrollArea->layout() != nullptr)
+  if (ui->scrollArea->layout() != Q_NULLPTR)
     delete ui->scrollArea->layout();
   ui->scrollArea->setLayout(vLayout);
 }

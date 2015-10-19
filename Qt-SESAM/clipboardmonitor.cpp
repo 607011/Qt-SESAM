@@ -19,36 +19,34 @@
 
 
 #include <QDebug>
-#include "keyboardhook.h"
+#include "clipboardmonitor.h"
 
-KeyboardHook *KeyboardHook::singleInstance = nullptr;
+ClipboardMonitor *ClipboardMonitor::singleInstance = Q_NULLPTR;
 
-KeyboardHook::KeyboardHook(void)
+ClipboardMonitor::ClipboardMonitor(void)
   : QObject()
   , keyboardHook(NULL)
-{
-  // do nothing ...
-}
+{ /* ... */ }
 
 
-KeyboardHook::~KeyboardHook()
+ClipboardMonitor::~ClipboardMonitor()
 {
   if (keyboardHook != NULL)
     UnhookWindowsHookEx(keyboardHook);
 }
 
 
-KeyboardHook *KeyboardHook::instance(void)
+ClipboardMonitor *ClipboardMonitor::instance(void)
 {
-  if (singleInstance == nullptr) {
-    singleInstance = new KeyboardHook;
+  if (singleInstance == Q_NULLPTR) {
+    singleInstance = new ClipboardMonitor;
     singleInstance->hook();
   }
   return singleInstance;
 }
 
 
-bool KeyboardHook::hook(void)
+bool ClipboardMonitor::hook(void)
 {
   HINSTANCE hApp = GetModuleHandle(NULL);
   keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, hApp, 0);
@@ -58,14 +56,20 @@ bool KeyboardHook::hook(void)
 }
 
 
-LRESULT CALLBACK KeyboardHook::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+void ClipboardMonitor::hookIntoClipboard(HWND hWnd)
+{
+  SetClipboardViewer(hWnd);
+}
+
+
+LRESULT CALLBACK ClipboardMonitor::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
   KBDLLHOOKSTRUCT *pKeyBoard = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
   switch (wParam) {
   case WM_KEYUP:
   {
     if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && pKeyBoard->vkCode == 86) {
-      emit KeyboardHook::instance()->pasted();
+      emit ClipboardMonitor::instance()->pasted();
     }
     break;
   }
