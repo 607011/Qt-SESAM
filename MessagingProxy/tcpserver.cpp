@@ -20,7 +20,7 @@
 #include "tcpserver.h"
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QDataStream>
+#include <QPointer>
 
 class TcpServerPrivate
 {
@@ -30,7 +30,7 @@ public:
   { /* ... */ }
   ~TcpServerPrivate()
   { /* ... */ }
-  QTcpSocket *conn;
+  QPointer<QTcpSocket> conn;
 };
 
 TcpServer::TcpServer(QTcpServer *parent)
@@ -52,21 +52,26 @@ void TcpServer::gotConnection(void)
 {
   Q_D(TcpServer);
   d->conn = nextPendingConnection();
-  connect(d->conn, SIGNAL(readyRead()), this, SLOT(forwardCommand()));
-  connect(d->conn, SIGNAL(disconnected()), d->conn, SLOT(deleteLater()));
+  if (d->conn != Q_NULLPTR) {
+    connect(d->conn, SIGNAL(readyRead()), this, SLOT(forwardCommand()));
+    connect(d->conn, SIGNAL(disconnected()), d->conn, SLOT(deleteLater()));
+  }
 }
 
 
 void TcpServer::forwardCommand(void)
 {
   Q_D(TcpServer);
-  QByteArray msg = d->conn->readAll();
-  emit commandReceived(msg);
+  if (d->conn != Q_NULLPTR) {
+    QByteArray msg = d->conn->readAll();
+    emit commandReceived(msg);
+  }
 }
 
 
 void TcpServer::sendCommand(QByteArray msg)
 {
   Q_D(TcpServer);
-  d->conn->write(msg);
+  if (d->conn != Q_NULLPTR)
+    d->conn->write(msg);
 }
