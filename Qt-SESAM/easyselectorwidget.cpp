@@ -311,7 +311,7 @@ static QString makeCrackDuration(qreal secs)
     crackDuration = QObject::tr("~ %1 days").arg(qRound(secs / 60 / 60 / 24));
   }
   else {
-    crackDuration = QObject::tr("~ %1 years").arg(secs / 60 / 60 / 24 / 365.24, 0, 'g', 2);
+    crackDuration = QObject::tr("~ %1 years").arg(secs / 60 / 60 / 24 / 365.2425, 0, 'g', 2);
   }
   return crackDuration;
 }
