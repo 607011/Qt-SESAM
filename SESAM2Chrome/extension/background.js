@@ -26,7 +26,15 @@ var LoginManager = (function(window) {
             usr: [ "#Email", "#Email-hidden" ],
             pwd: [ "#Passwd-hidden", "#Passwd" ],
             frm: "#gaia_loginform"
+          },
+          {
+            id: /facebook\.com/,
+            url: "https://www.facebook.com/login.php",
+            usr: "#email",
+            pwd: "#pass",
+            frm: "#login_form"
           }
+
         ];
     return function(url) {
       var hostname = parseURI(url).hostname;
