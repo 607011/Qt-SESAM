@@ -1,10 +1,29 @@
+/*
+
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 var LoginManager = (function(window) {
 
   var port = null;
   var user = {};
   var domain = {};
 
-  var findURL = (function() {
+  var findURL = (function DomainManager() {
     var Domains = [
           {
             id: /amazon\.de/,
@@ -25,7 +44,8 @@ var LoginManager = (function(window) {
             url: [ "https://accounts.google.com/ServiceLogin#identifier", "https://accounts.google.com/ServiceLogin#password" ],
             usr: [ "#Email", "#Email-hidden" ],
             pwd: [ "#Passwd-hidden", "#Passwd" ],
-            frm: "#gaia_loginform"
+            frm: "#gaia_loginform",
+            unsupported: true
           },
           {
             id: /facebook\.com/,
@@ -33,9 +53,17 @@ var LoginManager = (function(window) {
             usr: "#email",
             pwd: "#pass",
             frm: "#login_form"
+          },
+          {
+            id: /paypal\.com/,
+            url: "https://www.paypal.com/signin/",
+            usr: "#email",
+            pwd: "#password",
+            frm: "[name=login]",
+            unsupported: true
           }
-
         ];
+
     return function(url) {
       var hostname = parseURI(url).hostname;
       var result = { url: url, id: new RegExp(hostname) };
@@ -67,7 +95,16 @@ var LoginManager = (function(window) {
     var tab = port.sender.tab;
     port.onMessage.addListener(function(info) {
       console.log("Received from content script: %c%s", "color:green", JSON.stringify(info));
-      chrome.tabs.sendMessage(tab.id, { domain: domain, user: user });
+      chrome.tabs.sendMessage(tab.id, { domain: domain, user: user },
+                              function responseCallback(msg) {
+                                console.log("responseCallback() -> ", msg);
+                                if (msg.status === "ok") {
+                                  // TODO
+                                }
+                                else {
+                                  // TODO
+                                }
+                              });
       if (info.status === "ok") {
         sendMessageToProxy({ status: "ok", message: info.url + " loaded." })
       }
@@ -82,11 +119,11 @@ var LoginManager = (function(window) {
     login: function(url, usr, pwd) {
       user = { id: usr, pwd: pwd };
       domain = findURL(url);
-      if (domain.url instanceof Array) {
+      if (domain.url instanceof Array || domain.unsupported) {
         sendMessageToProxy({ "status": "error", "message": url + " not supported" });
         return;
       }
-      chrome.tabs.query({}, function(tabs) {
+      chrome.tabs.query({}, function tabSelector(tabs) {
         var tabId = null;
         for (var idx in tabs) {
           var tab = tabs[idx];
@@ -103,7 +140,7 @@ var LoginManager = (function(window) {
         }
       });
     },
-    init: function(msg_port) {
+    init: function initialize(msg_port) {
       console.log("LoginManager started.");
       port = msg_port;
     }
