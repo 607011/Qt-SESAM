@@ -276,6 +276,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->password, SIGNAL(generationAborted()), SLOT(onPasswordGenerationAborted()));
   QObject::connect(&d->password, SIGNAL(generationStarted()), SLOT(onPasswordGenerationStarted()));
 
+  QObject::connect(&d->tcpClient, SIGNAL(receivedMessage(QJsonDocument)), SLOT(onMessageFromTcpClient(QJsonDocument)));
+
   QObject::connect(&d->deleteNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onDeleteFinished(QNetworkReply*)));
   QObject::connect(&d->deleteNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&d->readNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
@@ -755,11 +757,24 @@ void MainWindow::applyComplexity(int complexity)
   updateCheckableLabel(ui->useExtraLabel, ba.at(Password::TemplateExtra));
 }
 
+
 void MainWindow::onLogin(void)
 {
   Q_D(MainWindow);
   d->tcpClient.connect(ui->urlLineEdit->text(), ui->userLineEdit->text(), ui->generatedPasswordLineEdit->text());
   restartInvalidationTimer();
+}
+
+
+void MainWindow::onMessageFromTcpClient(QJsonDocument json)
+{
+  QVariantMap msg = json.toVariant().toMap();
+  if (msg["status"].toString() != "ok") {
+    ui->statusBar->showMessage(tr("ERROR: %1").arg(msg["message"].toString()), 2000);
+  }
+  else {
+    ui->statusBar->showMessage(msg["message"].toString(), 2000);
+  }
 }
 
 

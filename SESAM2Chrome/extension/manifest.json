@@ -13,14 +13,14 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": [ "loginmanager.js", "background.js" ],
+    "scripts": [ "background.js" ],
     "persistent": false
   },
   "content_scripts": [
     {
       "run_at": "document_end",
       "matches": [ "*://*/*" ],
-      "js": [ "content.js" ]
+      "js": [ "jquery-2.1.4.min.js", "content.js" ]
     }
   ],
   "permissions": [

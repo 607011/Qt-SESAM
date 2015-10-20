@@ -23,7 +23,8 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QScopedPointer>
-
+#include <QJsonDocument>
+#include <QString>
 #include "securestring.h"
 
 class TcpClientPrivate;
@@ -34,12 +35,13 @@ class TcpClient : public QObject
 public:
   explicit TcpClient(QObject *parent = Q_NULLPTR);
   ~TcpClient();
-  void connect(const SecureString &url, const SecureString &userId, const SecureString &userPwd);
+  void connect(const QString &url, const SecureString &userId, const SecureString &userPwd);
 
 private slots:
-  void displayIncoming(void);
+  void forwardIncomingMessage(void);
 
 signals:
+  void receivedMessage(QJsonDocument);
 
 public slots:
 

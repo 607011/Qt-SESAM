@@ -41,7 +41,7 @@ TcpClient::TcpClient(QObject *parent)
 {
   Q_D(TcpClient);
   d->tcpSocket = new QTcpSocket(this);
-  QObject::connect(d->tcpSocket, SIGNAL(readyRead()), this, SLOT(displayIncoming()));
+  QObject::connect(d->tcpSocket, SIGNAL(readyRead()), this, SLOT(forwardIncomingMessage()));
 }
 
 
@@ -51,7 +51,7 @@ TcpClient::~TcpClient()
 }
 
 
-void TcpClient::connect(const SecureString &url, const SecureString &userId, const SecureString &userPwd)
+void TcpClient::connect(const QString &url, const SecureString &userId, const SecureString &userPwd)
 {
   Q_D(TcpClient);
   d->tcpSocket->abort();
@@ -70,9 +70,17 @@ void TcpClient::connect(const SecureString &url, const SecureString &userId, con
 }
 
 
-void TcpClient::displayIncoming(void)
+void TcpClient::forwardIncomingMessage(void)
 {
   Q_D(TcpClient);
   QByteArray msg = d->tcpSocket->readAll();
-  qDebug() << "message from proxy:" << QString::fromUtf8(msg);
+  QJsonParseError parseError;
+  QJsonDocument json = QJsonDocument::fromJson(msg, &parseError);
+  if (parseError.error != QJsonParseError::NoError) {
+    QVariantMap map;
+    map["status"] = "error";
+    map["message"] = parseError.errorString();
+    json = QJsonDocument::fromVariant(map);
+  }
+  emit receivedMessage(json);
 }

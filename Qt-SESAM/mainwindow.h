@@ -42,6 +42,7 @@
 #include <QEvent>
 #include <QMessageBox>
 #include <QLabel>
+#include <QJsonDocument>
 
 #include "global.h"
 #include "domainsettingslist.h"
@@ -73,6 +74,7 @@ private:
 
 private slots:
   void onLogin(void);
+  void onMessageFromTcpClient(QJsonDocument);
   void onUserChanged(QString);
   void onURLChanged(QString);
   void onUsedCharactersChanged(void);

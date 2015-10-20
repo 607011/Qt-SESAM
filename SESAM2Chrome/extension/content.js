@@ -1,32 +1,30 @@
-(function(window) {
-  function doLogin(domain, user) {
-    console.log("domain: %c%s", "color:green", JSON.stringify(domain));
-    console.log("user: %c%s", "color:green", JSON.stringify(user));
-
-    var usrEl = document.getElementById(domain.usr);
+(function($, window) {
+  function doLogin(domain, user, sendResponse) {
+    var usrEl = $(domain.usr);
     if (usrEl === null) {
       sendResponse({ status: "error", message: "user input element not found" });
       return;
     }
-    usrEl.value = user.id;
+    usrEl.val(user.id);
 
-    var pwdEl = document.getElementById(domain.pwd);
+    var pwdEl = $(domain.pwd);
     if (pwdEl === null) {
       sendResponse({ status: "error", message: "password input element not found" });
       return;
     }
-    pwdEl.value = user.pwd;
+    pwdEl.val(user.pwd);
 
-    var frmEl =  document.getElementById(domain.frm);
+    var frmEl =  $(domain.frm);
     frmEl.submit();
-    sendResponse({ status: "ok" })
 
+    sendResponse({ status: "ok" })
   }
 
   chrome.runtime.onMessage.addListener(function(msg, _, sendResponse) {
-    doLogin(msg.domain, msg.user);
+    if (typeof msg.domain.url !== "object")
+      doLogin(msg.domain, msg.user, sendResponse);
   });
 
   chrome.runtime.connect().postMessage({ title: document.title, url: document.location.href, status: "ok" });
 
-})(window);
+})($, window);
