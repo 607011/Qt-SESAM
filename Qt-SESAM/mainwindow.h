@@ -72,6 +72,7 @@ private:
   } SyncPeer;
 
 private slots:
+  void onLogin(void);
   void onUserChanged(QString);
   void onURLChanged(QString);
   void onUsedCharactersChanged(void);

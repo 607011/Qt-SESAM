@@ -72,6 +72,7 @@
 #include "crypter.h"
 #include "securebytearray.h"
 #include "passwordchecker.h"
+#include "tcpclient.h"
 
 #include "dump.h"
 
@@ -188,6 +189,7 @@ public:
   int maxCounter;
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
+  TcpClient tcpClient;
 #ifdef WIN32
   int smartLoginStep;
 #endif
@@ -245,6 +247,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->revertPushButton, SIGNAL(clicked(bool)), SLOT(onRevert()));
   QObject::connect(ui->savePushButton, SIGNAL(clicked(bool)), SLOT(saveCurrentDomainSettings()));
+  QObject::connect(ui->loginPushButton, SIGNAL(clicked(bool)), SLOT(onLogin()));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
@@ -618,7 +621,9 @@ void MainWindow::openURL(void)
 void MainWindow::onURLChanged(QString)
 {
   setDirty();
-  ui->openURLPushButton->setEnabled(!ui->urlLineEdit->text().isEmpty());
+  bool urlFieldFilled = !ui->urlLineEdit->text().isEmpty();
+  ui->openURLPushButton->setEnabled(urlFieldFilled);
+  ui->loginPushButton->setEnabled(urlFieldFilled);
 }
 
 
@@ -746,6 +751,13 @@ void MainWindow::applyComplexity(int complexity)
   updateCheckableLabel(ui->useLowercaseLabel, ba.at(Password::TemplateLowercase));
   updateCheckableLabel(ui->useUppercaseLabel, ba.at(Password::TemplateUppercase));
   updateCheckableLabel(ui->useExtraLabel, ba.at(Password::TemplateExtra));
+}
+
+void MainWindow::onLogin(void)
+{
+  Q_D(MainWindow);
+  d->tcpClient.connect(ui->urlLineEdit->text(), ui->userLineEdit->text(), ui->generatedPasswordLineEdit->text());
+  restartInvalidationTimer();
 }
 
 
@@ -1822,6 +1834,8 @@ void MainWindow::onDomainSelected(QString domain)
     }
   }
   d->lastDomainSettings = collectedDomainSettings();
+  bool autoLoginPossible = !ui->urlLineEdit->text().isEmpty();
+  ui->loginPushButton->setEnabled(autoLoginPossible);
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   copyDomainSettingsToGUI(domain);
   setDirty(false);

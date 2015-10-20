@@ -172,6 +172,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="loginPushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Login</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
