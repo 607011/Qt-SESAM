@@ -13,10 +13,11 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["background.js"]
+    "page": "background.html"
   },
   "permissions": [
     "activeTab",
+    "background",
     "tabs",
     "nativeMessaging",
     "webNavigation"

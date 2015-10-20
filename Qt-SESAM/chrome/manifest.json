@@ -1,9 +1,0 @@
-{
-  "name": "de.ct.qtsesam",
-  "description": "Qt-SESAM",
-  "path": "D:\\Workspace\\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\\MessagingProxy\\release\\MessagingProxy.exe",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://gfdadgcgbbmbjknnndepfkaingkmacle/"
-  ]
-}

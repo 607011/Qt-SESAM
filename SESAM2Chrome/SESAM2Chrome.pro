@@ -21,16 +21,23 @@ DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 QT += core network concurrent
 QT -= gui
 
-TARGET = MessagingProxy
+TARGET = SESAM2Chrome
 CONFIG += console
 CONFIG -= app_bundle
+
+win32:DEFINES -= UNICODE
 
 SOURCES += main.cpp \
     tcpserver.cpp \
     messenger.cpp
 
-win32:DEFINES -= UNICODE
-
 HEADERS += \
     tcpserver.h \
     messenger.h
+
+DISTFILES += \
+    extension/background.js \
+    extension/manifest.json \
+    extension/popup.html \
+    extension/background.html \
+    extension/loginmanager.js

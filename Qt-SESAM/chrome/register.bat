@@ -1,2 +1,0 @@
-REG ADD "HKCU\Software\Google\Chrome\NativeMessagingHosts\de.ct.qtsesam" /ve /t REG_SZ /d "D:\Workspace\Qt-SESAM\Qt-SESAM\chrome\manifest.json" /f
-REG ADD "HKLM\Software\Google\Chrome\NativeMessagingHosts\de.ct.qtsesam" /ve /t REG_SZ /d "D:\Workspace\Qt-SESAM\Qt-SESAM\chrome\manifest.json" /f

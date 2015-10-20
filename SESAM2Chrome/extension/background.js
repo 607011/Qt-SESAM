@@ -63,6 +63,12 @@
 
 
   function main() {
+    console.log("%c c't SESAM %c - This Chrome extensions gets remotely controlled by Qt-SESAM et al.",
+                "background: #0061AF; color: white",
+                "background: transparent; color: #0061AF");
+    console.log("%cCopyright (c) 2015 Oliver Lau, Heise Medien GmbH & Co. KG. All rights reserved.",
+                "background: transparent; color: #aaa");
+    LoginManager.init();
     port = chrome.runtime.connectNative(host);
     port.onMessage.addListener(onMessage);
     port.onDisconnect.addListener(onDisconnect);
