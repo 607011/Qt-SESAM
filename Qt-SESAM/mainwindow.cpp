@@ -497,6 +497,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   d->easySelector->blockSignals(true);
   d->easySelector->setLength(d->optionsDialog->maxPasswordLength() / 2);
   d->easySelector->setComplexity(Password::DefaultComplexity);
+  d->easySelector->setExtraCharacterCount(ui->extraLineEdit->text().count());
   d->easySelector->blockSignals(false);
 
   applyComplexity(d->easySelector->complexity());
@@ -643,6 +644,7 @@ void MainWindow::onUsedCharactersChanged(void)
 
 void MainWindow::onExtraCharactersChanged(QString)
 {
+  Q_D(MainWindow);
   setDirty();
   updateTemplate();
   updatePassword();
@@ -831,6 +833,7 @@ void MainWindow::updateTemplate(void)
   ui->usedCharactersPlainTextEdit->blockSignals(true);
   ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters());
   ui->usedCharactersPlainTextEdit->blockSignals(false);
+  d->easySelector->setExtraCharacterCount(ui->extraLineEdit->text().count());
 }
 
 

@@ -43,6 +43,7 @@ public:
   int length(void) const;
   void setComplexity(int);
   int complexity(void) const;
+  void setExtraCharacterCount(int);
 
 protected:
   void mouseMoveEvent(QMouseEvent*) Q_DECL_OVERRIDE;
@@ -70,15 +71,14 @@ private:
 
   static const int DefaultMinLength;
   static const int DefaultMaxLength;
-  static const int DefaultMaxComplexity;
 
 private: // methods
   void speedTest(void);
   void redrawBackground(void);
   bool tooltipTextAt(const QPoint &pos, QString &helpText) const;
-  static qreal tianhe2Secs(int length, int complexity);
-  static qreal passwordStrength(int length, int complexity);
-  static qreal sha1Secs(int length, int complexity, qreal sha1PerSec);
+  qreal tianhe2Secs(int length, int complexity) const;
+  qreal passwordStrength(int length, int complexity) const;
+  qreal sha1Secs(int length, int complexity, qreal sha1PerSec) const;
   qreal mySecs(int length, int complexity) const;
 };
 

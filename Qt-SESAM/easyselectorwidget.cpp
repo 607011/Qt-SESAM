@@ -40,7 +40,6 @@
 
 const int EasySelectorWidget::DefaultMinLength = 4;
 const int EasySelectorWidget::DefaultMaxLength = 36;
-const int EasySelectorWidget::DefaultMaxComplexity = 6;
 
 
 class EasySelectorWidgetPrivate {
@@ -48,12 +47,12 @@ public:
   EasySelectorWidgetPrivate(void)
     : buttonDown(false)
     , length((EasySelectorWidget::DefaultMaxLength - EasySelectorWidget::DefaultMinLength) / 2)
-    , complexity(EasySelectorWidget::DefaultMaxComplexity / 2)
+    , complexity(Password::MaxComplexity / 2)
     , oldLength(length)
     , oldComplexity(complexity)
     , minLength(EasySelectorWidget::DefaultMinLength)
     , maxLength(EasySelectorWidget::DefaultMaxLength)
-    , maxComplexity(EasySelectorWidget::DefaultMaxComplexity)
+    , extraCharCount(Password::ExtraChars.count())
     , doAbortSpeedTest(false)
     , hashesPerSec(-1)
   { /* ... */ }
@@ -66,7 +65,7 @@ public:
   int oldComplexity;
   int minLength;
   int maxLength;
-  int maxComplexity;
+  int extraCharCount;
   QPixmap background;
   bool doAbortSpeedTest;
   QFuture<void> speedTestFuture;
@@ -106,13 +105,13 @@ void EasySelectorWidget::setMousePos(const QPoint &pos)
   if (d->background.isNull())
     return;
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = d->maxComplexity + 1;
+  const int nY = Password::MaxComplexity + 1;
   const int xs = d->background.width() / nX;
   const int ys = d->background.height() / nY;
   const int clampedX = clamp(pos.x(), 0, d->background.width() - xs);
   const int clampedY = clamp(pos.y(), 0, d->background.height() - ys);
   d->length = d->minLength + clampedX / xs;
-  d->complexity = d->maxComplexity - clampedY / ys;
+  d->complexity = Password::MaxComplexity - clampedY / ys;
   update();
 }
 
@@ -148,6 +147,14 @@ void EasySelectorWidget::setComplexity(int complexity)
 int EasySelectorWidget::complexity(void) const
 {
   return d_ptr->complexity;
+}
+
+
+void EasySelectorWidget::setExtraCharacterCount(int n)
+{
+  d_ptr->extraCharCount = n;
+  redrawBackground();
+  update();
 }
 
 
@@ -200,7 +207,7 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   if (d->background.isNull())
     return;
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = d->maxComplexity + 1;
+  const int nY = Password::MaxComplexity + 1;
   const int xs = d->background.width() / nX;
   const int ys = d->background.height() / nY;
   QPainter p(this);
@@ -261,7 +268,7 @@ void EasySelectorWidget::redrawBackground(void)
     return;
   }
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = d->maxComplexity + 1;
+  const int nY = Password::MaxComplexity + 1;
   const int xs = width() / nX;
   const int ys = height() / nY;
   d->background = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
@@ -315,7 +322,7 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
   if (d_ptr->background.isNull())
     return false;
   const int xs = d_ptr->background.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
-  const int ys = d_ptr->background.height() / (d_ptr->maxComplexity + 1);
+  const int ys = d_ptr->background.height() / (Password::MaxComplexity + 1);
   const int length = pos.x() / xs + d_ptr->minLength;
   const int complexity = Password::MaxComplexity - pos.y() / ys;
   QString crackDuration = makeCrackDuration(tianhe2Secs(length, complexity));
@@ -330,7 +337,7 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
 }
 
 
-qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
+qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec) const
 {
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
   int charCount = 0;
@@ -341,7 +348,7 @@ qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
   if (ba.at(Password::TemplateUppercase))
     charCount += Password::UpperChars.count();
   if (ba.at(Password::TemplateExtra))
-    charCount += Password::ExtraChars.count();
+    charCount += d_ptr->extraCharCount;
   static const int Iterations = 1;
   const qreal perms = qPow(charCount, length);
   const qreal t2secs = perms * Iterations / sha1PerSec;
@@ -350,7 +357,7 @@ qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
 }
 
 
-qreal EasySelectorWidget::tianhe2Secs(int length, int complexity)
+qreal EasySelectorWidget::tianhe2Secs(int length, int complexity) const
 {
   return sha1Secs(length, complexity, 767896613647.0);
 }
@@ -362,7 +369,7 @@ qreal EasySelectorWidget::mySecs(int length, int complexity) const
 }
 
 
-qreal EasySelectorWidget::passwordStrength(int length, int complexity)
+qreal EasySelectorWidget::passwordStrength(int length, int complexity) const
 {
   const qreal t2y = tianhe2Secs(length, complexity) / 60 / 60 / 24 / 365.25;
   return t2y * 1e8;
