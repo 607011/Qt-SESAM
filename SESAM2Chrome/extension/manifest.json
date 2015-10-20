@@ -13,8 +13,16 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "page": "background.html"
+    "scripts": [ "loginmanager.js", "background.js" ],
+    "persistent": false
   },
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": [ "*://*/*" ],
+      "js": [ "content.js" ]
+    }
+  ],
   "permissions": [
     "activeTab",
     "background",

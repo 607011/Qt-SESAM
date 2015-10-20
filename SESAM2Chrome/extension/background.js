@@ -4,10 +4,8 @@
  */
 
 (function(window) {
-  var host = 'de.ct.qtsesam';
-  var port;
-  var currentTabUrl;
-  var user = { id: null, pwd: null };
+  var MessagingHost = 'de.ct.qtsesam';
+  var port = null;
 
   function sendMessage() {
     var msg = document.getElementById('msg').value;
@@ -15,35 +13,10 @@
     port.postMessage(msg);
   }
 
-  function tabReady(tab) {
-    tabId = tab.id;
-    var reply = { status: "ok", url: tab.url };
-    port.postMessage(reply);
-  }
-
   function onMessage(msg) {
     if (msg.cmd === "login") {
-      var openTabs = [];
-      user.id = msg.userid;
-      user.pwd = msg.password;
-      chrome.tabs.query({}, function(tabs) {
-        var tabId = window.WINDOW_ID_CURRENT;
-        var tabUrl = msg.url;
-        for (var i in tabs) {
-          var tab = tabs[i];
-          if (typeof tab.url === "string" && tab.url.indexOf(msg.url) === 0) {
-            tabUrl = tab.url;
-            tabId = tab.id;
-            break;
-          }
-        }
-        if (tabUrl === null) {
-          chrome.tabs.create({ url: tabUrl, active: true }, tabReady);
-        }
-        else {
-          chrome.tabs.update(tabId, { active: true, url: tabUrl }, tabReady);
-        }
-      });
+      console.log("%c%s", "color:red", JSON.stringify(msg));
+      LoginManager.login(msg.url, msg.userId, msg.userPwd);
     }
     else {
       // XXX: simple echo for debugging purposes
@@ -56,23 +29,17 @@
     port = null;
   }
 
-  function onCompleted(details)
-  {
-    // TODO: implement login automagic with credentials in `user` object
-  }
-
-
   function main() {
-    console.log("%c c't SESAM %c - This Chrome extensions gets remotely controlled by Qt-SESAM et al.",
-                "background: #0061AF; color: white",
-                "background: transparent; color: #0061AF");
+    console.log("%c c't SESAM %c - This Chrome extensions gets remotely controlled by Qt-SESAM & Co.",
+                "background-color: #0061af; color: white; font-weight: bold;",
+                "color: #0061af; font-weight: bold;");
     console.log("%cCopyright (c) 2015 Oliver Lau, Heise Medien GmbH & Co. KG. All rights reserved.",
-                "background: transparent; color: #aaa");
-    LoginManager.init();
-    port = chrome.runtime.connectNative(host);
+                "color: #aaa");
+    port = chrome.runtime.connectNative(MessagingHost);
     port.onMessage.addListener(onMessage);
     port.onDisconnect.addListener(onDisconnect);
-    chrome.webNavigation.onCompleted.addListener(onCompleted);
+
+    LoginManager.init(port);
   }
 
   document.addEventListener('DOMContentLoaded', main);

@@ -39,5 +39,5 @@ DISTFILES += \
     extension/background.js \
     extension/manifest.json \
     extension/popup.html \
-    extension/background.html \
-    extension/loginmanager.js
+    extension/loginmanager.js \
+    extension/content.js
