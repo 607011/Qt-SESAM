@@ -19,48 +19,45 @@
 
 var LoginManager = (function(window) {
 
-  var port = null;
-  var user = {};
-  var domain = {};
+  var port, user, domain, loginStep;
 
   var findURL = (function DomainManager() {
     var Domains = [
           {
             id: /amazon\.de/,
-            url: "https://www.amazon.de/ap/signin?_encoding=UTF8&openid.assoc_handle=deflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.de%2F%3Fref_%3Dnav_signin",
-            usr: "#ap_email",
-            pwd: "#ap_password",
-            frm: "#ap_signin_form"
+            url: [ "https://www.amazon.de/ap/signin?_encoding=UTF8&openid.assoc_handle=deflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.de%2F%3Fref_%3Dnav_signin" ],
+            usr: [ "#ap_email" ],
+            pwd: [ "#ap_password" ],
+            frm: [ "#ap_signin_form" ]
           },
           {
             id: /(bit\.ly|bitly\.com)/,
-            url: "https://bitly.com/a/sign_in",
-            usr: "[name=username]",
-            pwd: "[name=password]",
-            frm: "#sign-in"
+            url: [ "https://bitly.com/a/sign_in" ],
+            usr: [ "[name=username]" ],
+            pwd: [ "[name=password]" ],
+            frm: [ "#sign-in" ]
           },
           {
             id: /google\.com/,
             url: [ "https://accounts.google.com/ServiceLogin#identifier", "https://accounts.google.com/ServiceLogin#password" ],
-            usr: [ "#Email", "#Email-hidden" ],
-            pwd: [ "#Passwd-hidden", "#Passwd" ],
-            frm: "#gaia_loginform",
-            unsupported: true
+            usr: [ "#Email", null ],
+            pwd: [ null, "#Passwd" ],
+            btn: [ "#next", "#signIn" ]
           },
           {
             id: /facebook\.com/,
-            url: "https://www.facebook.com/login.php",
-            usr: "#email",
-            pwd: "#pass",
-            frm: "#login_form"
+            url: [ "https://www.facebook.com/login.php" ],
+            usr: [ "#email" ],
+            pwd: [ "#pass" ],
+            frm: [ "#login_form" ]
           },
           {
             id: /paypal\.com/,
-            url: "https://www.paypal.com/signin/",
-            usr: "#email",
-            pwd: "#password",
-            frm: "[name=login]",
-            unsupported: true
+            url: [ "https://www.paypal.com/signin" ],
+            usr: [ "#email" ],
+            pwd: [ "#password" ],
+            frm: [ "[name=login]" ],
+            btn: [ "#btnLogin" ]
           }
         ];
 
@@ -87,24 +84,35 @@ var LoginManager = (function(window) {
 
 
   function sendMessageToProxy(msg) {
-    port.postMessage(msg);
+    if (port !== null)
+      port.postMessage(msg);
+    else
+      console.warn("port is null");
   }
 
 
-  chrome.runtime.onConnect.addListener(function tabListener(port) {
+  function sendToTab(tabId, msg) {
+    console.log("sendToTab() loginStep = %d", loginStep, msg);
+    chrome.tabs.sendMessage(tabId, msg,
+                            function responseCallback(response) {
+                              ++loginStep;
+                              console.log(response);
+                              msg.loginStep = loginStep;
+                              if (response.status === "ok") {
+                                if (loginStep < domain.url.length)
+                                  sendToTab(tabId, msg);
+                              }
+                              else {
+                                // TODO
+                              }
+                            });
+  }
+
+
+  chrome.runtime.onConnect.addListener(function tabConnectListener(port) {
     var tab = port.sender.tab;
-    port.onMessage.addListener(function(info) {
-      console.log("Received from content script: %c%s", "color:green", JSON.stringify(info));
-      chrome.tabs.sendMessage(tab.id, { domain: domain, user: user },
-                              function responseCallback(msg) {
-                                console.log("responseCallback() -> ", msg);
-                                if (msg.status === "ok") {
-                                  // TODO
-                                }
-                                else {
-                                  // TODO
-                                }
-                              });
+    port.onMessage.addListener(function tabListener(info) {
+      console.log("tabListener() loginStep = %d", loginStep);
       if (info.status === "ok") {
         sendMessageToProxy({ status: "ok", message: info.url + " loaded." })
       }
@@ -112,14 +120,19 @@ var LoginManager = (function(window) {
         sendMessageToProxy({ status: "error", message: info.url + " could not be loaded." })
       }
     });
+    console.log("tabConnectListener() loginStep = %d", loginStep);
+    if (loginStep < domain.url.length) {
+      sendToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
+    }
   });
 
 
   return {
     login: function(url, usr, pwd) {
+      loginStep = 0;
       user = { id: usr, pwd: pwd };
       domain = findURL(url);
-      if (domain.url instanceof Array || domain.unsupported) {
+      if (domain.unsupported) {
         sendMessageToProxy({ "status": "error", "message": url + " not supported" });
         return;
       }
@@ -132,17 +145,21 @@ var LoginManager = (function(window) {
             break;
           }
         }
+        var url = domain.url[0];
         if (tabId !== null) {
-          chrome.tabs.update(tabId, { active: true, url: domain.url });
+          chrome.tabs.update(tabId, { active: true, url: url });
         }
         else {
-          chrome.tabs.create({ url: domain.url, active: true });
+          chrome.tabs.create({ url: url, active: true });
         }
       });
     },
     init: function initialize(msg_port) {
       console.log("LoginManager started.");
       port = msg_port;
+      user = {};
+      domain = {}
+      loginStep = 0;
     }
   }
 })(window);
@@ -170,8 +187,8 @@ var LoginManager = (function(window) {
   }
 
   function main() {
-    console.log("%c c't SESAM %c - This Chrome extensions gets remotely controlled by Qt-SESAM & Co.",
-                "background-color: #0061af; color: white; font-weight: bold;",
+    console.log("%c c't SESAM %c - This Chrome extension gets remotely controlled by Qt-SESAM & Co.",
+                "background-color: #0061af; color: white; font-weight: bold; letter-spacing: 5px",
                 "color: #0061af; font-weight: bold;");
     console.log("%cCopyright (c) 2015 Oliver Lau, Heise Medien GmbH & Co. KG. All rights reserved.",
                 "color: #aaa");

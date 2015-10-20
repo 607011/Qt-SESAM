@@ -18,32 +18,64 @@
 */
 
 (function($, window) {
-  function doLogin(domain, user, sendResponse) {
-    var usrEl = $(domain.usr);
-    if (usrEl === null) {
-      sendResponse({ status: "error", message: "user input element not found" });
-      return;
+  var response = { title: document.title, url: document.location.href, status: "ok", actions: [] };
+
+  function doLogin(msg, _, sendResponse) {
+    var domain = msg.domain;
+    var user = msg.user;
+    var loginStep = msg.loginStep;
+
+    if (domain.usr[loginStep]) {
+      var usrEl = $(domain.usr[loginStep]);
+      if (usrEl === null) {
+        sendResponse({ status: "error", message: "user input element not found" });
+        return;
+      }
+      usrEl.val(user.id);
+      response.actions.push("user set");
     }
-    usrEl.val(user.id);
 
-    var pwdEl = $(domain.pwd);
-    if (pwdEl === null) {
-      sendResponse({ status: "error", message: "password input element not found" });
-      return;
+    if (domain.pwd[loginStep]) {
+      var pwdEl = $(domain.pwd[loginStep]);
+      if (pwdEl === null) {
+        sendResponse({ status: "error", message: "password input element not found" });
+        return;
+      }
+      pwdEl.val(user.pwd);
+      response.actions.push("password set");
     }
-    pwdEl.val(user.pwd);
 
-    var frmEl =  $(domain.frm);
-    frmEl.submit();
+    // document.location.href = domain.url[loginStep];
+    response.url = document.location.href;
 
-    sendResponse({ status: "ok", openedByExtension: true })
+    if (domain.btn && domain.btn[loginStep]) {
+      var btnEl = $(domain.btn[loginStep]);
+      if (btnEl === null) {
+        sendResponse({ status: "error", message: "submit button not found" });
+        return;
+      }
+      btnEl.trigger("click");
+      response.actions.push("clicked button " + domain.btn[loginStep]);
+    }
+    else if (domain.frm && domain.frm[loginStep]) {
+      var frmEl = $(domain.frm[loginStep]);
+      if (frmEl === null) {
+        sendResponse({ status: "error", message: "form element not found" });
+        return;
+      }
+      frmEl.submit();
+      response.actions.push("submitted");
+    }
+
+    response.domain = domain;
+    response.user = user;
+    response.loginStep = loginStep;
+    sendResponse(response);
   }
 
-  chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-    doLogin(msg.domain, msg.user, sendResponse);
-  });
+  chrome.runtime.onMessage.addListener(doLogin);
 
   var portToExtension = chrome.runtime.connect();
-  portToExtension.postMessage({ title: document.title, url: document.location.href, status: "ok", openedByExtension: false });
+  portToExtension.postMessage(response);
 
 })($, window);
