@@ -770,7 +770,7 @@ void MainWindow::onMessageFromTcpClient(QJsonDocument json)
 {
   QVariantMap msg = json.toVariant().toMap();
   if (msg["status"].toString() != "ok") {
-    ui->statusBar->showMessage(tr("ERROR: %1").arg(msg["message"].toString()), 2000);
+    ui->statusBar->showMessage(tr("Error: %1").arg(msg["message"].toString()), 2000);
   }
   else {
     ui->statusBar->showMessage(msg["message"].toString(), 2000);

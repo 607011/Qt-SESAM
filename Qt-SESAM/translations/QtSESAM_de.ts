@@ -892,6 +892,14 @@ auf deinem Computer: %3</translation>
         <source>Do you really want to revert the settings?</source>
         <translation>Willst du die Änderungen an den Domain-Einstellungen wirklich rückgängig machen?</translation>
     </message>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Fehler: %1</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
