@@ -29,8 +29,8 @@ var LoginManager = (function(window) {
           }
         ];
     return function(url) {
-      var result = null;
       var hostname = parseURI(url).hostname;
+      var result = { url: url, id: new RegExp(hostname) };
       for (var idx in Domains) {
         var d = Domains[idx];
         if (d.id.test(hostname)) {
@@ -74,7 +74,7 @@ var LoginManager = (function(window) {
     login: function(url, usr, pwd) {
       user = { id: usr, pwd: pwd };
       domain = findURL(url);
-      if (domain === null || domain.url instanceof Array) {
+      if (domain.url instanceof Array) {
         sendMessageToProxy({ "status": "error", "message": url + " not supported" });
         return;
       }
