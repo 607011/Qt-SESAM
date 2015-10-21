@@ -38,18 +38,34 @@ var LoginManager = (function(window) {
             frm: [ "#sign-in" ]
           },
           {
-            id: /google\.com/,
-            url: [ "https://accounts.google.com/ServiceLogin#identifier", "https://accounts.google.com/ServiceLogin#password" ],
-            usr: [ "#Email", null ],
-            pwd: [ null, "#Passwd" ],
-            btn: [ "#next", "#signIn" ]
-          },
-          {
             id: /facebook\.com/,
             url: [ "https://www.facebook.com/login.php" ],
             usr: [ "#email" ],
             pwd: [ "#pass" ],
             frm: [ "#login_form" ]
+          },
+          {
+            id: /github\.com/,
+            url: [ "https://github.com/login" ],
+            usr: [ "#login_field" ],
+            pwd: [ "#password" ],
+            btn: [ "input[type=submit]" ]
+          },
+          {
+            id: /gmx\.net/,
+            url: [ "https://www.gmx.net/" ],
+            usr: [ "#inpLoginFreemailUsername" ],
+            pwd: [ "#inpLoginFreemailPassword" ],
+            // frm: [ "[name=loginForm]" ],
+            btn: [ "input[type=submit]" ],
+            unsupported: true
+          },
+          {
+            id: /google\.com/,
+            url: [ "https://accounts.google.com/ServiceLogin#identifier", "https://accounts.google.com/ServiceLogin#password" ],
+            usr: [ "#Email", null ],
+            pwd: [ null, "#Passwd" ],
+            btn: [ "#next", "#signIn" ]
           },
           {
             id: /paypal\.com/,
