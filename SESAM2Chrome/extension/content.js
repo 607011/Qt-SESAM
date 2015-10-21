@@ -18,15 +18,19 @@
 */
 
 (function($, window) {
-  var response = { title: document.title, url: document.location.href, status: "ok", actions: [] };
+  var response = { title: document.title, url: document.location.href, status: "ok" };
+  var portToExtension = chrome.runtime.connect();
+  portToExtension.postMessage(response);
+
+  // TODO: send response when onHashChange event is fired to allow multi-page logins à la Google
+  window.addEventListener("hashchange", function() {
+    portToExtension.postMessage({ event: "hashchange", url: document.location });
+  });
 
   function doLogin(msg, _, sendResponse) {
     var domain = msg.domain;
     var user = msg.user;
     var loginStep = msg.loginStep;
-
-    document.location.href = domain.url[loginStep];
-    response.url = document.location.href;
 
     if (domain.usr[loginStep]) {
       var usrEl = $(domain.usr[loginStep]);
@@ -35,7 +39,6 @@
         return;
       }
       usrEl.val(user.id);
-      response.actions.push("user set in " + domain.usr[loginStep]);
     }
 
     if (domain.pwd[loginStep]) {
@@ -45,7 +48,6 @@
         return;
       }
       pwdEl.val(user.pwd);
-      response.actions.push("password set in " + domain.pwd[loginStep]);
     }
 
     if (domain.btn && domain.btn[loginStep]) {
@@ -55,7 +57,6 @@
         return;
       }
       btnEl.trigger("click");
-      response.actions.push("clicked button " + domain.btn[loginStep]);
     }
     else if (domain.frm && domain.frm[loginStep]) {
       var frmEl = $(domain.frm[loginStep]);
@@ -64,7 +65,6 @@
         return;
       }
       frmEl.submit();
-      response.actions.push("submitted " + domain.frm[loginStep]);
     }
 
     response.domain = domain;
@@ -75,7 +75,5 @@
 
   chrome.runtime.onMessage.addListener(doLogin);
 
-  var portToExtension = chrome.runtime.connect();
-  portToExtension.postMessage(response);
 
 })($, window);

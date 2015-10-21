@@ -161,6 +161,7 @@ var LoginManager = (function(window) {
       msg.loginStep = loginStep;
       if (response.status === "ok") {
         if (loginStep < domain.url.length) {
+          // dirty hack to enable multi-page logins à la Google where only document.location.hash changes
           execDeferred(function() { sendToTab(tabId, msg); });
         }
       }
@@ -177,6 +178,7 @@ var LoginManager = (function(window) {
   chrome.runtime.onConnect.addListener(function tabConnectListener(port) {
     var tab = port.sender.tab;
     port.onMessage.addListener(function tabListener(info) {
+      console.log(info);
       if (info.status === "ok") {
         sendMessageToProxy({ status: "ok", message: info.url + " loaded." })
       }
