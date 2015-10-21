@@ -22,7 +22,6 @@
   var portToExtension = chrome.runtime.connect();
   portToExtension.postMessage(response);
 
-  // TODO: send response when onHashChange event is fired to allow multi-page logins à la Google
   window.addEventListener("hashchange", function() {
     portToExtension.postMessage({ event: "hashchange", url: document.location });
   });

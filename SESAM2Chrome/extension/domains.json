@@ -1,0 +1,94 @@
+[
+{
+  "id": "amazon\\.de",
+      "url": [ "https://www.amazon.de/ap/signin?_encoding=UTF8&openid.assoc_handle=deflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.de%2F%3Fref_%3Dnav_signin" ],
+      "usr": [ "#ap_email" ],
+      "pwd": [ "#ap_password" ],
+      "frm": [ "#ap_signin_form" ]
+},
+{
+  "id": "(bit\\.ly|bitly\\.com)",
+      "url": [ "https://bitly.com/a/sign_in" ],
+      "usr": [ "[name=username]" ],
+      "pwd": [ "[name=password]" ],
+      "frm": [ "#sign-in" ]
+},
+{
+  "id": "facebook\\.com",
+      "url": [ "https://www.facebook.com/login.php" ],
+      "usr": [ "#email" ],
+      "pwd": [ "#pass" ],
+      "frm": [ "#login_form" ]
+},
+{
+  "id": "github\\.com",
+      "url": [ "https://github.com/login" ],
+      "usr": [ "#login_field" ],
+      "pwd": [ "#password" ],
+      "btn": [ "input[type=submit]" ]
+},
+{
+  "id": "gmx\\.net",
+      "url": [ "https://www.gmx.net/" ],
+      "usr": [ "#inpLoginFreemailUsername" ],
+      "pwd": [ "#inpLoginFreemailPassword" ],
+      "frm": [ "#formLoginFreemail" ]
+},
+{
+  "id": "google\\.com",
+      "url": [ "https://accounts.google.com/ServiceLogin#identifier", "https://accounts.google.com/ServiceLogin#password" ],
+      "usr": [ "#Email", null ],
+      "pwd": [ null, "#Passwd" ],
+      "btn": [ "#next", "#signIn" ]
+},
+{
+  "id": "hacker\\.org",
+      "url": [ "http://www.hacker.org/forum/login.php" ],
+      "usr": [ "[name=username]" ],
+      "pwd": [ "[name=password]" ],
+      "btn": [ "[name=login]" ]
+},
+{
+  "id": "heise\\.de",
+      "url": [ "https://www.heise.de/sso/login/" ],
+      "usr": [ "#login_user" ],
+      "pwd": [ "#login_pwd" ],
+      "btn": [ "input[name=rm_login]" ]
+},
+{
+  "id": "live\\.com",
+      "url": [ "https://login.live.com/" ],
+      "usr": [ "input[name=loginfmt]" ],
+      "pwd": [ "input[name=passwd]" ],
+      "btn": [ "input[type=submit]" ]
+},
+{
+  "id": "paypal\\.com",
+      "url": [ "https://www.paypal.com/signin" ],
+      "usr": [ "#email" ],
+      "pwd": [ "#password" ],
+      "frm": [ "[name=login]" ],
+      "btn": [ "#btnLogin" ]
+},
+{
+  "id": "pinterest\\.com",
+      "url": [ "https://www.pinterest.com/login/" ],
+      "usr": [ "input[name=username_or_email]" ],
+      "pwd": [ "input[name=password]" ],
+      "btn": [ "button[type=submit]" ]
+},
+{
+  "id": "stackoverflow\\.com",
+      "url": [ "https://stackoverflow.com/users/login?" ],
+      "usr": [ "#email" ],
+      "pwd": [ "#password" ],
+      "btn": [ "#submit-button" ]
+},
+{
+  "id": "steampowered\\.com",
+      "url": [ "https://store.steampowered.com//login/?redir=0" ],
+      "usr": [ "#input_username" ],
+      "pwd": [ "#input_password" ],
+      "btn": [ "button[type=submit]" ]
+}
+]

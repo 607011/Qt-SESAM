@@ -18,106 +18,21 @@
 */
 
 var LoginManager = (function(window) {
-
   var port, user, domain, loginStep;
 
   var findURL = (function DomainManager() {
-    var Domains = [
-          {
-            id: /amazon\.de/,
-            url: [ "https://www.amazon.de/ap/signin?_encoding=UTF8&openid.assoc_handle=deflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.de%2F%3Fref_%3Dnav_signin" ],
-            usr: [ "#ap_email" ],
-            pwd: [ "#ap_password" ],
-            frm: [ "#ap_signin_form" ]
-          },
-          {
-            id: /(bit\.ly|bitly\.com)/,
-            url: [ "https://bitly.com/a/sign_in" ],
-            usr: [ "[name=username]" ],
-            pwd: [ "[name=password]" ],
-            frm: [ "#sign-in" ]
-          },
-          {
-            id: /facebook\.com/,
-            url: [ "https://www.facebook.com/login.php" ],
-            usr: [ "#email" ],
-            pwd: [ "#pass" ],
-            frm: [ "#login_form" ]
-          },
-          {
-            id: /github\.com/,
-            url: [ "https://github.com/login" ],
-            usr: [ "#login_field" ],
-            pwd: [ "#password" ],
-            btn: [ "input[type=submit]" ]
-          },
-          {
-            id: /gmx\.net/,
-            url: [ "https://www.gmx.net/" ],
-            usr: [ "#inpLoginFreemailUsername" ],
-            pwd: [ "#inpLoginFreemailPassword" ],
-            frm: [ "#formLoginFreemail" ]
-          },
-          {
-            id: /google\.com/,
-            url: [ "https://accounts.google.com/ServiceLogin#identifier", "https://accounts.google.com/ServiceLogin#password" ],
-            usr: [ "#Email", null ],
-            pwd: [ null, "#Passwd" ],
-            btn: [ "#next", "#signIn" ]
-          },
-          {
-            id: /hacker\.org/,
-            url: [ "http://www.hacker.org/forum/login.php" ],
-            usr: [ "[name=username]" ],
-            pwd: [ "[name=password]" ],
-            btn: [ "[name=login]" ]
-          },
-          {
-            id: /heise\.de/,
-            url: [ "https://www.heise.de/sso/login/" ],
-            usr: [ "#login_user" ],
-            pwd: [ "#login_pwd" ],
-            btn: [ "input[name=rm_login]" ]
-          },
-          {
-            id: /live\.com/,
-            url: [ "https://login.live.com/" ],
-            usr: [ "input[name=loginfmt]" ],
-            pwd: [ "input[name=passwd]" ],
-            btn: [ "input[type=submit]" ]
-          },
-          {
-            id: /paypal\.com/,
-            url: [ "https://www.paypal.com/signin" ],
-            usr: [ "#email" ],
-            pwd: [ "#password" ],
-            frm: [ "[name=login]" ],
-            btn: [ "#btnLogin" ]
-          },
-          {
-            id: /pinterest\.com/,
-            url: [ "https://www.pinterest.com/login/" ],
-            usr: [ "input[name=username_or_email]" ],
-            pwd: [ "input[name=password]" ],
-            btn: [ "button[type=submit]" ]
-          },
-          {
-            id: /stackoverflow\.com/,
-            url: [ "https://stackoverflow.com/users/login?" ],
-            usr: [ "#email" ],
-            pwd: [ "#password" ],
-            btn: [ "#submit-button" ]
-          },
-          {
-            id: /steampowered\.com/,
-            url: [ "https://store.steampowered.com//login/?redir=0" ],
-            usr: [ "#input_username" ],
-            pwd: [ "#input_password" ],
-            btn: [ "button[type=submit]" ]
-          }
-        ];
-
-    window.SupportedDomains = Domains.map(function(d) { return d.id; }).sort();
+    var Domains = [];
+    var xhr = new XMLHttpRequest;
+    xhr.onreadystatechange = function(event) {
+      if (xhr.readyState !== XMLHttpRequest.DONE)
+        return;
+      if (xhr.status !== 200)
+        return;
+      Domains = JSON.parse(xhr.responseText);
+      Domains.forEach(function(d) { d.id = new RegExp(d.id); });
+    };
+    xhr.open("GET", chrome.extension.getURL("/domains.json"));
+    xhr.send();
 
     function parseURI(uri) {
       var parser = document.createElement('a');
@@ -127,7 +42,7 @@ var LoginManager = (function(window) {
 
     return function(url) {
       var hostname = parseURI(url).hostname;
-      var result = { url: [ url ], id: new RegExp(hostname), notfound: true };
+      var result = { "url": [ url ], "id": new RegExp(hostname), notfound: true };
       for (var idx in Domains) {
         var d = Domains[idx];
         if (d.id.test(hostname)) {
@@ -150,27 +65,9 @@ var LoginManager = (function(window) {
   }
 
 
-  function execDeferred(f) {
-    setTimeout(f, 500);
-  }
-
-
   function sendToTab(tabId, msg) {
-    var responseCallback = function(response) {
-      ++loginStep;
-      msg.loginStep = loginStep;
-      if (response.status === "ok") {
-        if (loginStep < domain.url.length) {
-          // dirty hack to enable multi-page logins à la Google where only document.location.hash changes
-          execDeferred(function() { sendToTab(tabId, msg); });
-        }
-      }
-      else {
-        console.warn("an error occurred in the content script:" + response.message);
-      }
-    };
     if (msg && msg.domain && msg.user) {
-      chrome.tabs.sendMessage(tabId, msg, responseCallback);
+      chrome.tabs.sendMessage(tabId, msg);
     }
   }
 
@@ -178,17 +75,20 @@ var LoginManager = (function(window) {
   chrome.runtime.onConnect.addListener(function tabConnectListener(port) {
     var tab = port.sender.tab;
     port.onMessage.addListener(function tabListener(info) {
-      console.log(info);
+      if (domain === null)
+        return;
+      if (domain.url instanceof Array && loginStep < domain.url.length) {
+        sendToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
+      }
       if (info.status === "ok") {
-        sendMessageToProxy({ status: "ok", message: info.url + " loaded." })
+        if (domain.id.test(info.url))
+          sendMessageToProxy({ status: "ok", message: info.url + " loaded." })
       }
       else {
         sendMessageToProxy({ status: "error", message: info.url + " could not be loaded." })
       }
+      ++loginStep;
     });
-    if (domain === null || loginStep < domain.url.length) {
-      sendToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
-    }
   });
 
 
