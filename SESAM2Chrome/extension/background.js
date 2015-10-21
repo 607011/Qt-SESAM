@@ -99,8 +99,10 @@ var LoginManager = (function(window) {
                               console.log(response);
                               msg.loginStep = loginStep;
                               if (response.status === "ok") {
-                                if (loginStep < domain.url.length)
-                                  sendToTab(tabId, msg);
+                                if (loginStep < domain.url.length) {
+                                  // dirty hack to allow multi-step logins à la Google
+                                  setTimeout(function() { sendToTab(tabId, msg); }, 500);
+                                }
                               }
                               else {
                                 // TODO
