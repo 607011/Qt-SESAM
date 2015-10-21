@@ -121,7 +121,7 @@ var LoginManager = (function(window) {
       }
     });
     console.log("tabConnectListener() loginStep = %d", loginStep);
-    if (loginStep < domain.url.length) {
+    if (domain === null || loginStep < domain.url.length) {
       sendToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
     }
   });
@@ -157,8 +157,8 @@ var LoginManager = (function(window) {
     init: function initialize(msg_port) {
       console.log("LoginManager started.");
       port = msg_port;
-      user = {};
-      domain = {}
+      user = null;
+      domain = null;
       loginStep = 0;
     }
   }
@@ -168,7 +168,7 @@ var LoginManager = (function(window) {
 
 
 (function(window) {
-  var MessagingHost = 'de.ct.qtsesam';
+  var MessagingHost = 'de.ct.dev.qtsesam';
   var port = null;
 
   function onMessage(msg) {

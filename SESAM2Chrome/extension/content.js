@@ -25,6 +25,9 @@
     var user = msg.user;
     var loginStep = msg.loginStep;
 
+    document.location.href = domain.url[loginStep];
+    response.url = document.location.href;
+
     if (domain.usr[loginStep]) {
       var usrEl = $(domain.usr[loginStep]);
       if (usrEl === null) {
@@ -45,9 +48,6 @@
       response.actions.push("password set");
     }
 
-    // document.location.href = domain.url[loginStep];
-    response.url = document.location.href;
-
     if (domain.btn && domain.btn[loginStep]) {
       var btnEl = $(domain.btn[loginStep]);
       if (btnEl === null) {
@@ -64,7 +64,7 @@
         return;
       }
       frmEl.submit();
-      response.actions.push("submitted");
+      response.actions.push("submitted " + domain.frm[loginStep]);
     }
 
     response.domain = domain;
