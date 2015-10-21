@@ -99,7 +99,8 @@ var LoginManager = (function(window) {
             url: [ "https://www.pinterest.com/login/" ],
             usr: [ "input[name=username_or_email]" ],
             pwd: [ "input[name=password]" ],
-            frm: [ "form.standardForm--login" ]
+            frm: [ "form.standardForm--login" ],
+            unsupported: true
           },
           {
             id: /stackoverflow\.com/,
@@ -107,6 +108,13 @@ var LoginManager = (function(window) {
             usr: [ "#email" ],
             pwd: [ "#password" ],
             btn: [ "#submit-button" ]
+          },
+          {
+            id: /steampowered\.com/,
+            url: [ "https://store.steampowered.com//login/?redir=0" ],
+            usr: [ "#input_username" ],
+            pwd: [ "#input_password" ],
+            btn: [ "button[type=submit]" ]
           }
         ];
 
