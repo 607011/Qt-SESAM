@@ -23,23 +23,36 @@
     <script src="popup.js"></script>
     <style>
       body {
+        margin: 0;
+        padding: 0;
         font-family: sans-serif;
         min-width: 256px;
+        background-color: #c8d4de;
       }
       .title {
         font-weight: bold;
+        font-size: 130%;
       }
       #proxy-connection-status {
         font-weight: bold;
       }
+      a {
+        text-decoration: none;
+        color: #222;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
-  <div style="text-align:center">
-    <img src="icon-128x128.png">
-    <p class="title">c't SESAM for Chrome</p>
-    <p>SESAM2Chrome proxy: <span id="proxy-connection-status"></span></p>
-    <p>&copy; 2015 <a href="mailto:ola@ct.de">Oliver Lau</a>, Heise Medien GmbH&nbsp;&amp;&nbsp;Co.&nbsp;KG. All rights reserved.</p>
+  <div style="text-align:center;">
+    <div style="background-color: #e8ebed; margin: 0; padding: 0; line-height: 0"><img src="icon-128x128.png"></div>
+    <div style="padding: 1ex 1em;">
+      <p class="title">c't SESAM for Chrome</p>
+      <p>SESAM2Chrome proxy: <span id="proxy-connection-status"></span></p>
+      <p>&copy; 2015 <a href="mailto:ola@ct.de">Oliver Lau</a>, <a href="http://heise-gruppe.de/-1356407" target="_blank">Heise Medien GmbH&nbsp;&amp;&nbsp;Co.&nbsp;KG</a>. All rights reserved.</p>
+    </div>
   </div>
   </body>
 </html>
