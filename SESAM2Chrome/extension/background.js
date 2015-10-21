@@ -71,7 +71,6 @@ var LoginManager = (function(window) {
     }
   }
 
-
   chrome.runtime.onConnect.addListener(function tabConnectListener(port) {
     var tab = port.sender.tab;
     port.onMessage.addListener(function tabListener(info) {
@@ -162,6 +161,13 @@ var LoginManager = (function(window) {
     port.onDisconnect.addListener(onDisconnect);
 
     LoginManager.init(port);
+
+    chrome.extension.onConnect.addListener(function popupListener(popupPort) {
+      popupPort.onMessage.addListener(function(msg) {
+        popupPort.postMessage({ "proxy-connection-status": port !== null ? "connected" : "disconnected" });
+      });
+    });
+
   }
 
   document.addEventListener('DOMContentLoaded', main);

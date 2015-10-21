@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "c't SESAM",
   "description": "This extension gets remote controlled by Qt-SESAM",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "icons": {
     "128": "icon-128x128.png",
     "32":  "icon-32x32.png"
