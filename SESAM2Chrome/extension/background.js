@@ -77,6 +77,12 @@ var LoginManager = (function(window) {
           }
         ];
 
+    function parseURI(uri) {
+      var parser = document.createElement('a');
+      parser.href = uri;
+      return parser;
+    }
+
     return function(url) {
       var hostname = parseURI(url).hostname;
       var result = { url: url, id: new RegExp(hostname) };
@@ -92,18 +98,13 @@ var LoginManager = (function(window) {
   })();
 
 
-  function parseURI(uri) {
-    var parser = document.createElement('a');
-    parser.href = uri;
-    return parser;
-  }
-
-
   function sendMessageToProxy(msg) {
-    if (port !== null)
+    if (port !== null) {
       port.postMessage(msg);
-    else
+    }
+    else {
       console.warn("port is null");
+    }
   }
 
 
