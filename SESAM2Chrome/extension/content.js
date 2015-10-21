@@ -35,7 +35,7 @@
         return;
       }
       usrEl.val(user.id);
-      response.actions.push("user set");
+      response.actions.push("user set in " + domain.usr[loginStep]);
     }
 
     if (domain.pwd[loginStep]) {
@@ -45,7 +45,7 @@
         return;
       }
       pwdEl.val(user.pwd);
-      response.actions.push("password set");
+      response.actions.push("password set in " + domain.pwd[loginStep]);
     }
 
     if (domain.btn && domain.btn[loginStep]) {
