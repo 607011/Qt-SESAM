@@ -99,8 +99,7 @@ var LoginManager = (function(window) {
             url: [ "https://www.pinterest.com/login/" ],
             usr: [ "input[name=username_or_email]" ],
             pwd: [ "input[name=password]" ],
-            frm: [ "form.standardForm--login" ],
-            unsupported: true
+            btn: [ "button[type=submit]" ]
           },
           {
             id: /stackoverflow\.com/,
