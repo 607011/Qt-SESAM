@@ -761,7 +761,8 @@ void MainWindow::applyComplexity(int complexity)
 void MainWindow::onLogin(void)
 {
   Q_D(MainWindow);
-  d->tcpClient.connect(ui->urlLineEdit->text(), ui->userLineEdit->text(), ui->generatedPasswordLineEdit->text());
+  const SecureString &pwd = ui->generatedPasswordLineEdit->text().isEmpty() ? ui->legacyPasswordLineEdit->text() : ui->generatedPasswordLineEdit->text();
+  d->tcpClient.connect(ui->urlLineEdit->text(), ui->userLineEdit->text(), pwd);
   restartInvalidationTimer();
 }
 
