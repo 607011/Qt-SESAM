@@ -80,12 +80,33 @@ var LoginManager = (function(window) {
             btn: [ "input[name=rm_login]" ]
           },
           {
+            id: /live\.com/,
+            url: [ "https://login.live.com/" ],
+            usr: [ "input[name=loginfmt]" ],
+            pwd: [ "input[name=passwd]" ],
+            btn: [ "input[type=submit]" ]
+          },
+          {
             id: /paypal\.com/,
             url: [ "https://www.paypal.com/signin" ],
             usr: [ "#email" ],
             pwd: [ "#password" ],
             frm: [ "[name=login]" ],
             btn: [ "#btnLogin" ]
+          },
+          {
+            id: /pinterest\.com/,
+            url: [ "https://www.pinterest.com/login/" ],
+            usr: [ "input[name=username_or_email]" ],
+            pwd: [ "input[name=password]" ],
+            frm: [ "form.standardForm--login" ]
+          },
+          {
+            id: /stackoverflow\.com/,
+            url: [ "https://stackoverflow.com/users/login?" ],
+            usr: [ "#email" ],
+            pwd: [ "#password" ],
+            btn: [ "#submit-button" ]
           }
         ];
 
