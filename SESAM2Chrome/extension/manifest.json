@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "run_at": "document_end",
-      "matches": [ "https://*/*" ],
+      "matches": [ "https://*/*", "http://*/*" ],
       "js": [ "jquery-2.1.4.min.js", "content.js" ]
     }
   ],

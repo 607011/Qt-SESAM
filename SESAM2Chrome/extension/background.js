@@ -56,9 +56,7 @@ var LoginManager = (function(window) {
             url: [ "https://www.gmx.net/" ],
             usr: [ "#inpLoginFreemailUsername" ],
             pwd: [ "#inpLoginFreemailPassword" ],
-            // frm: [ "[name=loginForm]" ],
-            btn: [ "input[type=submit]" ],
-            unsupported: true
+            frm: [ "#formLoginFreemail" ]
           },
           {
             id: /google\.com/,
@@ -66,6 +64,20 @@ var LoginManager = (function(window) {
             usr: [ "#Email", null ],
             pwd: [ null, "#Passwd" ],
             btn: [ "#next", "#signIn" ]
+          },
+          {
+            id: /hacker\.org/,
+            url: [ "http://www.hacker.org/forum/login.php" ],
+            usr: [ "[name=username]" ],
+            pwd: [ "[name=password]" ],
+            btn: [ "[name=login]" ]
+          },
+          {
+            id: /heise\.de/,
+            url: [ "https://www.heise.de/sso/login/" ],
+            usr: [ "#login_user" ],
+            pwd: [ "#login_pwd" ],
+            btn: [ "input[name=rm_login]" ]
           },
           {
             id: /paypal\.com/,
@@ -77,6 +89,8 @@ var LoginManager = (function(window) {
           }
         ];
 
+    window.SupportedDomains = Domains.map(function(d) { return d.id; }).sort();
+
     function parseURI(uri) {
       var parser = document.createElement('a');
       parser.href = uri;
@@ -85,7 +99,7 @@ var LoginManager = (function(window) {
 
     return function(url) {
       var hostname = parseURI(url).hostname;
-      var result = { url: url, id: new RegExp(hostname) };
+      var result = { url: [ url ], id: new RegExp(hostname), notfound: true };
       for (var idx in Domains) {
         var d = Domains[idx];
         if (d.id.test(hostname)) {
@@ -94,7 +108,7 @@ var LoginManager = (function(window) {
         }
       }
       return result;
-    }
+    };
   })();
 
 
@@ -108,30 +122,33 @@ var LoginManager = (function(window) {
   }
 
 
+  function execDeferred(f) {
+    setTimeout(f, 500);
+  }
+
+
   function sendToTab(tabId, msg) {
-    console.log("sendToTab() loginStep = %d", loginStep, msg);
-    chrome.tabs.sendMessage(tabId, msg,
-                            function responseCallback(response) {
-                              ++loginStep;
-                              console.log(response);
-                              msg.loginStep = loginStep;
-                              if (response.status === "ok") {
-                                if (loginStep < domain.url.length) {
-                                  // dirty hack to allow multi-step logins à la Google
-                                  setTimeout(function() { sendToTab(tabId, msg); }, 500);
-                                }
-                              }
-                              else {
-                                // TODO
-                              }
-                            });
+    var responseCallback = function(response) {
+      ++loginStep;
+      msg.loginStep = loginStep;
+      if (response.status === "ok") {
+        if (loginStep < domain.url.length) {
+          execDeferred(function() { sendToTab(tabId, msg); });
+        }
+      }
+      else {
+        console.warn("an error occurred in the content script:" + response.message);
+      }
+    };
+    if (msg && msg.domain && msg.user) {
+      chrome.tabs.sendMessage(tabId, msg, responseCallback);
+    }
   }
 
 
   chrome.runtime.onConnect.addListener(function tabConnectListener(port) {
     var tab = port.sender.tab;
     port.onMessage.addListener(function tabListener(info) {
-      console.log("tabListener() loginStep = %d", loginStep);
       if (info.status === "ok") {
         sendMessageToProxy({ status: "ok", message: info.url + " loaded." })
       }
@@ -139,7 +156,6 @@ var LoginManager = (function(window) {
         sendMessageToProxy({ status: "error", message: info.url + " could not be loaded." })
       }
     });
-    console.log("tabConnectListener() loginStep = %d", loginStep);
     if (domain === null || loginStep < domain.url.length) {
       sendToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
     }
@@ -152,9 +168,10 @@ var LoginManager = (function(window) {
       user = { id: usr, pwd: pwd };
       domain = findURL(url);
       if (domain.unsupported) {
-        sendMessageToProxy({ "status": "error", "message": url + " not supported" });
+        sendMessageToProxy({ status: "error", message: url + " not supported" });
         return;
       }
+      sendMessageToProxy({ status: "ok", message: "Found match to " + url + ". Now trying to login to " + domain.url[0] });
       chrome.tabs.query({}, function tabSelector(tabs) {
         var tabId = null;
         for (var idx in tabs) {
@@ -185,7 +202,6 @@ var LoginManager = (function(window) {
 
 
 
-
 (function(window) {
   var MessagingHost = 'de.ct.dev.qtsesam';
   var port = null;
@@ -201,7 +217,7 @@ var LoginManager = (function(window) {
   }
 
   function onDisconnect() {
-    console.log('Disconnected. ' + chrome.runtime.lastError.message);
+    console.warn('Disconnected. ' + chrome.runtime.lastError.message);
     port = null;
   }
 
