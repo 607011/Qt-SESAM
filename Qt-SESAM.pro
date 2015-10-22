@@ -23,5 +23,3 @@ SUBDIRS += \
     UnitTests \
     Qt-SESAM \
     SESAM2Chrome
-
-win32:SUBDIRS += HashMaster

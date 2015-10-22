@@ -1,9 +1,0 @@
-{
-  "name": "de.ct.qtsesam",
-  "description": "Qt-SESAM",
-  "path": "{{{REPLACE WITH ACTUAL PATH TO SESAM2Chrome.exe}}}",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://lanalodgfojhbdieabchpalhhnfaiami/"
-  ]
-}
