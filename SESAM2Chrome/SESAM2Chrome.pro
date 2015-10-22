@@ -41,4 +41,5 @@ DISTFILES += \
     extension/popup.html \
     extension/content.js \
     extension/domains.json \
-    extension/popup.js
+    extension/popup.js \
+    manifest-dev.json
