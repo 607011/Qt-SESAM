@@ -1,6 +1,7 @@
 {
   "manifest_version": 2,
   "name": "c't SESAM Login",
+  "short_name": "c't SESAM",
   "author": "Oliver Lau",
   "homepage_url": "https://github.com/ola-ct/Qt-SESAM",
   "description": "1-click login provider for Qt-SESAM",
