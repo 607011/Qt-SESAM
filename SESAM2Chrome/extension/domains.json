@@ -90,5 +90,12 @@
       "usr": [ "#input_username" ],
       "pwd": [ "#input_password" ],
       "btn": [ "button[type=submit]" ]
+},
+{
+  "id": "twitter\\.com",
+      "url": [ "https://twitter.com/" ],
+      "usr": [ "#signin-email" ],
+      "pwd": [ "#signin-password" ],
+      "btn": [ "button[type=submit]" ]
 }
 ]
