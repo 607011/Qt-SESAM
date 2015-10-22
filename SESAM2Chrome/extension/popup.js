@@ -20,11 +20,11 @@
 (function(window) {
 
   function main() {
-    var statEl = document.getElementById('proxy-connection-status');
+    var statEl = $('#proxy-connection-status');
     var port = chrome.extension.connect({ name: "c't SESAM" });
     port.postMessage({ status: "ok" });
     port.onMessage.addListener(function(msg) {
-      statEl.innerHTML = msg['proxy-connection-status'];
+      statEl.html(msg['proxy-connection-status']);
     });
   }
 
