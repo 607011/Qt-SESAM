@@ -311,6 +311,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
 #ifndef WIN32
   ui->topButtonsHorizontalLayout->removeWidget(ui->loginPushButton);
+  ui->loginPushButton->hide();
 #endif
 
   ui->statusBar->addPermanentWidget(d->countdownWidget);
