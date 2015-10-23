@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
-    <height>752</height>
+    <width>369</width>
+    <height>791</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,7 +128,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
       <item>
        <widget class="QCheckBox" name="deleteCheckBox">
         <property name="text">
@@ -695,8 +695,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>332</width>
-     <height>21</height>
+     <width>369</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

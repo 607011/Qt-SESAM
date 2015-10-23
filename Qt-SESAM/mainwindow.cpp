@@ -309,6 +309,10 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 #endif
 #endif
 
+#ifndef WIN32
+  ui->topButtonsHorizontalLayout->removeWidget(ui->loginPushButton);
+#endif
+
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
