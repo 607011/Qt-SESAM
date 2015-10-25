@@ -303,6 +303,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 #endif
 #endif
 
+  ui->passwordTemplateLineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
