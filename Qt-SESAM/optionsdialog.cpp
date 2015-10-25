@@ -381,6 +381,18 @@ void OptionsDialog::setMaxPasswordLength(int len)
 }
 
 
+bool OptionsDialog::syncToFileEnabled(void) const
+{
+  return useSyncFile() && !syncFilename().isEmpty();
+}
+
+
+bool OptionsDialog::syncToServerEnabled(void) const
+{
+  return useSyncServer();
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);

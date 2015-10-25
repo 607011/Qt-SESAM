@@ -101,6 +101,9 @@ public:
   int maxPasswordLength(void) const;
   void setMaxPasswordLength(int);
 
+  bool syncToFileEnabled(void) const;
+  bool syncToServerEnabled(void) const;
+
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
   void saltLengthChanged(int);
