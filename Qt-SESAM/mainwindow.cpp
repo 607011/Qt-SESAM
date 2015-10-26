@@ -1261,6 +1261,7 @@ void MainWindow::saveCurrentDomainSettings(void)
       if (ds.deleted)
         resetAllFields();
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
+      d->lastDomainSettings = ds;
     }
   }
 }
