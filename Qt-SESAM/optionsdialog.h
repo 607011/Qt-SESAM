@@ -108,6 +108,7 @@ signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
   void saltLengthChanged(int);
   void maxPasswordLengthChanged(int);
+  void masterPasswordInvalidationTimeMinsChanged(int);
 
 private slots:
   void chooseSyncFile(void);
