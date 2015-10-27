@@ -214,6 +214,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->selectorGridLayout->addWidget(d->easySelector, 0, 1);
   QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
+  QObject::connect(d->optionsDialog, SIGNAL(masterPasswordInvalidationTimeMinsChanged(int)), SLOT(masterPasswordInvalidationTimeMinsChanged(int)));
   resetAllFields();
 
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
@@ -682,7 +683,7 @@ void MainWindow::restartInvalidationTimer(void)
   Q_D(MainWindow);
   const int timeout = d->optionsDialog->masterPasswordInvalidationTimeMins();
   if (timeout > 0) {
-    d->countdownWidget->start(timeout * 60 * 1000);
+    d->countdownWidget->start(1000 * timeout * 60);
   }
   else {
     d->countdownWidget->stop();
@@ -1881,6 +1882,13 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
   Q_D(MainWindow);
   // qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
   applyTemplate(templ.toUtf8());
+}
+
+
+void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
+{
+  Q_D(MainWindow);
+  d->countdownWidget->start(1000 * timeoutMins * 60);
 }
 
 

@@ -35,19 +35,25 @@ public:
   QSize sizeHint(void) const { return DefaultSize; }
   QSize minimumSizeHint(void) const { return DefaultSize; }
 
-  void start(int timeout);
   void stop(void);
 
   int remainingTime(void) const;
 
+public slots:
+  void start(int timeout);
+
 protected:
   void paintEvent(QPaintEvent *);
+  void resizeEvent(QResizeEvent *);
 
 signals:
   void timeout(void);
 
 private slots:
   void tick(void);
+
+private: // methods
+  void redrawImage(const QSize &);
 
 private:
   QScopedPointer<CountdownWidgetPrivate> d_ptr;
