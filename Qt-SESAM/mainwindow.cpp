@@ -217,6 +217,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->selectorGridLayout->addWidget(d->easySelector, 0, 1);
   QObject::connect(d->easySelector, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), d->easySelector, SLOT(setMaxLength(int)));
+  QObject::connect(d->optionsDialog, SIGNAL(masterPasswordInvalidationTimeMinsChanged(int)), SLOT(masterPasswordInvalidationTimeMinsChanged(int)));
   resetAllFields();
 
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
@@ -250,7 +251,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->loginPushButton, SIGNAL(clicked(bool)), SLOT(onLogin()));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
-  QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(sync()));
+  QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(onSync()));
   QObject::connect(ui->actionForcedPush, SIGNAL(triggered(bool)), SLOT(onForcedPush()));
   QObject::connect(ui->actionMigrateDomainToV3, SIGNAL(triggered(bool)), SLOT(onMigrateDomainSettingsToExpert()));
   QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
@@ -290,7 +291,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->actionShow = trayMenu->addAction(tr("Minimize window"));
   QObject::connect(d->actionShow, SIGNAL(triggered(bool)), SLOT(showHide()));
   QAction *actionSync = trayMenu->addAction(tr("Sync"));
-  QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(sync()));
+  QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(onSync()));
   QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
   QObject::connect(actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
   QAction *actionLockApplication = trayMenu->addAction(tr("Lock application ..."));
@@ -314,6 +315,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->loginPushButton->hide();
 #endif
 
+  ui->passwordTemplateLineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
@@ -694,7 +696,7 @@ void MainWindow::restartInvalidationTimer(void)
   Q_D(MainWindow);
   const int timeout = d->optionsDialog->masterPasswordInvalidationTimeMins();
   if (timeout > 0) {
-    d->countdownWidget->start(timeout * 60 * 1000);
+    d->countdownWidget->start(1000 * timeout * 60);
   }
   else {
     d->countdownWidget->stop();
@@ -889,7 +891,7 @@ void MainWindow::changeMasterPassword(void)
   const int button = d->changeMasterPasswordDialog->exec();
   d->interactionSemaphore.release();
   if ((button == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
-    if (syncToServerEnabled() || syncToFileEnabled()) {
+    if (d->optionsDialog->syncToServerEnabled() || d->optionsDialog->syncToFileEnabled()) {
       d->masterPasswordChangeStep = 1;
       nextChangeMasterPasswordStep();
     }
@@ -914,8 +916,8 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->progressDialog->setRange(1, 3);
     d->progressDialog->setValue(1);
     saveAllDomainDataToSettings();
-    sync();
-    if (!syncToServerEnabled())
+    onSync();
+    if (!d->optionsDialog->syncToServerEnabled())
       nextChangeMasterPasswordStep();
     break;
   case 2:
@@ -925,10 +927,10 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->progressDialog->setText(tr("Writing to sync peers ..."));
     if (d->optionsDialog->useSyncFile()) {
       writeToRemote(SyncPeerFile);
-      if (!syncToServerEnabled())
+      if (!d->optionsDialog->syncToServerEnabled())
         nextChangeMasterPasswordStep();
     }
-    if (syncToServerEnabled()) {
+    if (d->optionsDialog->syncToServerEnabled()) {
       writeToRemote(SyncPeerServer);
     }
     break;
@@ -1294,6 +1296,7 @@ void MainWindow::saveCurrentDomainSettings(void)
       if (ds.deleted)
         resetAllFields();
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
+      d->lastDomainSettings = ds;
     }
   }
 }
@@ -1550,7 +1553,55 @@ void MainWindow::cancelServerOperation(void)
 }
 
 
-void MainWindow::sync(void)
+void MainWindow::createEmptySyncFile(void)
+{
+  Q_D(MainWindow);
+  QFile syncFile(d->optionsDialog->syncFilename());
+  bool ok = syncFile.open(QIODevice::WriteOnly);
+  if (!ok) {
+    QMessageBox::warning(this, tr("Sync file creation error"),
+                         tr("The sync file %1 cannot be created. Reason: %2")
+                         .arg(d->optionsDialog->syncFilename())
+                         .arg(syncFile.errorString()), QMessageBox::Ok);
+  }
+  d->keyGenerationMutex.lock();
+  const QByteArray &domains = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, QByteArray("{}"), CompressionEnabled);
+  d->keyGenerationMutex.unlock();
+  syncFile.write(domains);
+  syncFile.close();
+}
+
+
+void MainWindow::syncWithFile(void)
+{
+  Q_D(MainWindow);
+  QFile syncFile(d->optionsDialog->syncFilename());
+  bool ok = syncFile.open(QIODevice::ReadOnly);
+  if (!ok) {
+    QMessageBox::warning(this, tr("Sync file read error"),
+                         tr("The sync file %1 cannot be opened for reading. Reason: %2")
+                         .arg(d->optionsDialog->syncFilename()).arg(syncFile.errorString()), QMessageBox::Ok);
+  }
+  QByteArray domains = syncFile.readAll();
+  syncFile.close();
+  syncWith(SyncPeerFile, domains);
+}
+
+
+void MainWindow::beginSyncWithServer(void)
+{
+  Q_D(MainWindow);
+  d->progressDialog->setText(tr("Reading from server ..."));
+  QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+  req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
+  req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
+  req.setSslConfiguration(d->sslConf);
+  d->readReply = d->readNAM.post(req, QByteArray());
+}
+
+
+void MainWindow::onSync(void)
 {
   Q_D(MainWindow);
   restartInvalidationTimer();
@@ -1559,31 +1610,10 @@ void MainWindow::sync(void)
     ui->statusBar->showMessage(tr("Syncing with file ..."));
     QFileInfo fi(d->optionsDialog->syncFilename());
     if (!fi.isFile()) {
-      QFile syncFile(d->optionsDialog->syncFilename());
-      bool ok = syncFile.open(QIODevice::WriteOnly);
-      if (!ok) {
-        QMessageBox::warning(this, tr("Sync file creation error"),
-                             tr("The sync file %1 cannot be created. Reason: %2")
-                             .arg(d->optionsDialog->syncFilename())
-                             .arg(syncFile.errorString()), QMessageBox::Ok);
-      }
-      d->keyGenerationMutex.lock();
-      const QByteArray &domains = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, QByteArray("{}"), CompressionEnabled);
-      d->keyGenerationMutex.unlock();
-      syncFile.write(domains);
-      syncFile.close();
+      createEmptySyncFile();
     }
     if (fi.isFile() && fi.isReadable()) {
-      QFile syncFile(d->optionsDialog->syncFilename());
-      bool ok = syncFile.open(QIODevice::ReadOnly);
-      if (!ok) {
-        QMessageBox::warning(this, tr("Sync file read error"),
-                             tr("The sync file %1 cannot be opened for reading. Reason: %2")
-                             .arg(d->optionsDialog->syncFilename()).arg(syncFile.errorString()), QMessageBox::Ok);
-      }
-      QByteArray domains = syncFile.readAll();
-      syncFile.close();
-      syncWith(SyncPeerFile, domains);
+      syncWithFile();
     }
     else {
       QMessageBox::warning(this, tr("Sync file read error"),
@@ -1591,7 +1621,7 @@ void MainWindow::sync(void)
                            .arg(d->optionsDialog->syncFilename()), QMessageBox::Ok);
     }
   }
-  if (syncToServerEnabled()) {
+  if (d->optionsDialog->useSyncServer()) {
     if (d->masterPasswordChangeStep == 0) {
       d->progressDialog->show();
       d->progressDialog->raise();
@@ -1600,13 +1630,7 @@ void MainWindow::sync(void)
       d->progressDialog->setRange(0, d->maxCounter);
       d->progressDialog->setValue(d->counter);
     }
-    d->progressDialog->setText(tr("Reading from server ..."));
-    QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
-    req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
-    req.setSslConfiguration(d->sslConf);
-    d->readReply = d->readNAM.post(req, QByteArray());
+    beginSyncWithServer();
   }
 }
 
@@ -1713,10 +1737,10 @@ void MainWindow::writeToRemote(SyncPeer syncPeer)
   Q_D(MainWindow);
   const QByteArray &cipher = cryptedRemoteDomains();
   if (!cipher.isEmpty()) {
-    if ((syncPeer & SyncPeerFile) == SyncPeerFile && syncToFileEnabled()) {
+    if ((syncPeer & SyncPeerFile) == SyncPeerFile && d->optionsDialog->syncToFileEnabled()) {
       writeToSyncFile(cipher);
     }
-    if ((syncPeer & SyncPeerServer) == SyncPeerServer && syncToServerEnabled()) {
+    if ((syncPeer & SyncPeerServer) == SyncPeerServer && d->optionsDialog->syncToServerEnabled()) {
       sendToSyncServer(cipher);
     }
   }
@@ -1726,20 +1750,10 @@ void MainWindow::writeToRemote(SyncPeer syncPeer)
 }
 
 
-bool MainWindow::syncToServerEnabled(void) const {
-  return d_ptr->optionsDialog->useSyncServer();
-}
-
-
-bool MainWindow::syncToFileEnabled(void) const {
-  return d_ptr->optionsDialog->useSyncFile() && !d_ptr->optionsDialog->syncFilename().isEmpty();
-}
-
-
 void MainWindow::writeToSyncFile(const QByteArray &cipher)
 {
   Q_D(MainWindow);
-  if (syncToFileEnabled()) {
+  if (d->optionsDialog->syncToFileEnabled()) {
     QFile syncFile(d->optionsDialog->syncFilename());
     syncFile.open(QIODevice::WriteOnly);
     const qint64 bytesWritten = syncFile.write(cipher);
@@ -1792,9 +1806,6 @@ void MainWindow::onForcedPush(void)
   d->keyGenerationMutex.unlock();
   sendToSyncServer(cipher);
 }
-
-
-
 
 
 void MainWindow::onMigrateDomainSettingsToExpert(void)
@@ -1910,6 +1921,13 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 }
 
 
+void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
+{
+  Q_D(MainWindow);
+  d->countdownWidget->start(1000 * timeoutMins * 60);
+}
+
+
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
@@ -1997,7 +2015,7 @@ void MainWindow::onMasterPasswordEntered(void)
         d->masterPasswordDialog->hide();
         show();
         if (d->optionsDialog->syncOnStart())
-          sync();
+          onSync();
         restartInvalidationTimer();
       }
     }

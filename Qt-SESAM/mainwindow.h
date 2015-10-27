@@ -99,6 +99,7 @@ private slots:
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
   void onPasswordTemplateChanged(const QString &);
+  void masterPasswordInvalidationTimeMinsChanged(int);
   void onRevert(void);
   void renewSalt(void);
   void onRenewSalt(void);
@@ -110,7 +111,7 @@ private slots:
   void openURL(void);
   void onForcedPush(void);
   void onMigrateDomainSettingsToExpert(void);
-  void sync(void);
+  void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void clearClipboard(void);
   void about(void);
@@ -178,8 +179,9 @@ private: // methods
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
   void writeBackupFile(const QByteArray &binaryDomainData);
-  bool syncToServerEnabled(void) const;
-  bool syncToFileEnabled(void) const;
+  void createEmptySyncFile(void);
+  void syncWithFile(void);
+  void beginSyncWithServer(void);
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
