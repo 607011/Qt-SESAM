@@ -72,8 +72,6 @@
 #include "securebytearray.h"
 #include "passwordchecker.h"
 
-#include "dump.h"
-
 #ifdef WIN32
 #include "clipboardmonitor.h"
 static const int SmartLoginNotActive = -1;
@@ -299,9 +297,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
 #ifdef WIN32
   QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
-#ifdef QT_DEBUG
-  ui->menuExtras->addAction(tr("[DEBUG] Create Mini Dump"), this, SLOT(createFullDump()), QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_D));
-#endif
 #endif
 
   ui->passwordTemplateLineEdit->hide();
@@ -2166,21 +2161,6 @@ void MainWindow::about(void)
 void MainWindow::aboutQt(void)
 {
   QMessageBox::aboutQt(this);
-}
-
-
-void MainWindow::createFullDump(void)
-{
-#if defined(QT_DEBUG)
-#if defined(Q_CC_MSVC)
-  make_minidump();
-  ui->statusBar->showMessage(tr("Dump created."), 4000);
-  // qDebug() << "Mini dump created.";
-#else
-  ui->statusBar->showMessage(tr("Dump not implemented."), 4000);
-  // qDebug() << "Dump not implemented.";
-#endif
-#endif
 }
 
 
