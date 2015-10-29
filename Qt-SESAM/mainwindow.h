@@ -132,7 +132,6 @@ private slots:
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
-  void createFullDump(void);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
 #ifdef WIN32
