@@ -1827,8 +1827,8 @@ void MainWindow::onDomainSelected(QString domain)
     }
   }
   d->lastCleanDomainSettings = d->domains.at(domain);
+  copyDomainSettingsToGUI(d->lastCleanDomainSettings);
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-  copyDomainSettingsToGUI(domain);
   setDirty(false);
 }
 
@@ -1899,10 +1899,9 @@ void MainWindow::onRevert(void)
   switch (button) {
   case QMessageBox::Yes:
     copyDomainSettingsToGUI(d->lastCleanDomainSettings);
-    d->lastCleanDomainSettings.clear();
     setDirty(false);
     break;
-  case QMessageBox::No:
+  case QMessageBox::Cancel:
     // fall-through
   default:
     break;
