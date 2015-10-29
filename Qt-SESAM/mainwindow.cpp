@@ -1890,29 +1890,25 @@ void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onRevert()" << d->lastDomainSettings.domainName;
-  if (d->parameterSetDirty) {
-    d->interactionSemaphore.acquire();
-    QMessageBox::StandardButton button = QMessageBox::question(
-          this,
-          tr("Revert settings?"),
-          tr("Do you really want to revert the settings?"),
-          QMessageBox::Yes | QMessageBox::No,
-          QMessageBox::Yes);
-    d->interactionSemaphore.release();
-    switch (button) {
-    case QMessageBox::Yes:
-      setDirty(false);
-      copyDomainSettingsToGUI(d->lastDomainSettings);
-      break;
-    case QMessageBox::No:
-      // fall-through
-    default:
-      break;
-    }
-  }
-  else if (!ui->domainsComboBox->currentText().isEmpty()) {
-    resetAllFields();
+  qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
+  d->interactionSemaphore.acquire();
+  QMessageBox::StandardButton button = QMessageBox::question(
+        this,
+        tr("Revert settings?"),
+        tr("Do you really want to revert the settings?"),
+        QMessageBox::Yes | QMessageBox::Cancel,
+        QMessageBox::Yes);
+  d->interactionSemaphore.release();
+  switch (button) {
+  case QMessageBox::Yes:
+    copyDomainSettingsToGUI(d->lastCleanDomainSettings);
+    d->lastCleanDomainSettings.clear();
+    setDirty(false);
+    break;
+  case QMessageBox::No:
+    // fall-through
+  default:
+    break;
   }
 }
 
