@@ -149,7 +149,8 @@ public:
   CountdownWidget *countdownWidget;
   QAction *actionShow;
   QString lastDomainBeforeLock;
-  DomainSettings lastDomainSettings;
+  DomainSettings lastCleanDomainSettings;
+  DomainSettings domainSettingsBeforceSync;
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
@@ -219,7 +220,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   resetAllFields();
 
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
-  QObject::connect(ui->domainsComboBox, SIGNAL(activated(QString)), SLOT(onDomainSelected(QString)));
+  QObject::connect(ui->domainsComboBox, SIGNAL(currentIndexChanged(QString)), SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->installEventFilter(this);
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(onUserChanged(QString)));
   ui->userLineEdit->installEventFilter(this);
@@ -1141,7 +1142,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
+  qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(ds.domainName);
   ui->domainsComboBox->blockSignals(false);
@@ -1212,8 +1213,7 @@ void MainWindow::copyDomainSettingsToGUI(const QString &domain)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
-  const DomainSettings &ds = d->domains.at(domain);
-  copyDomainSettingsToGUI(ds);
+  copyDomainSettingsToGUI(d->domains.at(domain));
 }
 
 
@@ -1291,7 +1291,7 @@ void MainWindow::saveCurrentDomainSettings(void)
       if (ds.deleted)
         resetAllFields();
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
-      d->lastDomainSettings = ds;
+      d->lastCleanDomainSettings = ds;
     }
   }
 }
@@ -1601,6 +1601,7 @@ void MainWindow::onSync(void)
   Q_D(MainWindow);
   restartInvalidationTimer();
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
+  d->domainSettingsBeforceSync = d->domains.at(ui->domainsComboBox->currentText());
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
     QFileInfo fi(d->optionsDialog->syncFilename());
@@ -1695,6 +1696,8 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     restoreDomainDataFromSettings();
     d->domains.setDirty(false);
   }
+
+  copyDomainSettingsToGUI(d->domainSettingsBeforceSync);
 }
 
 
@@ -1834,40 +1837,34 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   if (sender() == Q_NULLPTR)
     return;
-  if (domain == d->lastDomainSettings.domainName)
+  if (domain == d->lastCleanDomainSettings.domainName)
     return;
   if (d->parameterSetDirty) {
+    ui->domainsComboBox->blockSignals(true);
+    ui->domainsComboBox->setCurrentText(d->lastCleanDomainSettings.domainName);
+    ui->domainsComboBox->blockSignals(false);
     QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
     case QMessageBox::Yes:
-      ui->domainsComboBox->blockSignals(true);
-      ui->domainsComboBox->setCurrentText(d->lastDomainSettings.domainName);
-      ui->domainsComboBox->blockSignals(false);
       saveCurrentDomainSettings();
-      domain = d->lastDomainSettings.domainName;
       break;
     case QMessageBox::No:
       break;
     case QMessageBox::Cancel:
-      ui->domainsComboBox->blockSignals(true);
-      ui->domainsComboBox->setCurrentText(d->lastDomainSettings.domainName);
-      ui->domainsComboBox->blockSignals(false);
       return;
       break;
     default:
       break;
     }
   }
-  d->lastDomainSettings = collectedDomainSettings();
-  bool autoLoginPossible = !ui->urlLineEdit->text().isEmpty();
-  ui->loginPushButton->setEnabled(autoLoginPossible);
+  d->lastCleanDomainSettings = d->domains.at(domain);
+  copyDomainSettingsToGUI(d->lastCleanDomainSettings);
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-  copyDomainSettingsToGUI(domain);
   setDirty(false);
 }
 
@@ -1875,10 +1872,10 @@ void MainWindow::onDomainSelected(QString domain)
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastDomainSettings.domainName;
+  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName;
   int idx = findDomainInComboBox(domain);
   if (idx == NotFound) {
-    if (!d->lastDomainSettings.isEmpty()) {
+    if (!d->lastCleanDomainSettings.isEmpty()) {
       ui->tabWidgetVersions->setCurrentIndex(TabExpert);
       ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
       resetAllFieldsExceptDomainComboBox();
@@ -1886,7 +1883,7 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     updateTemplate();
     updatePassword();
-    d->lastDomainSettings.clear();
+    d->lastCleanDomainSettings.clear();
     ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
     ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
@@ -1926,28 +1923,24 @@ void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  if (d->parameterSetDirty) {
-    d->interactionSemaphore.acquire();
-    QMessageBox::StandardButton button = QMessageBox::question(
-          this,
-          tr("Revert settings?"),
-          tr("Do you really want to revert the settings?"),
-          QMessageBox::Yes | QMessageBox::No,
-          QMessageBox::Yes);
-    d->interactionSemaphore.release();
-    switch (button) {
-    case QMessageBox::Yes:
-      setDirty(false);
-      copyDomainSettingsToGUI(d->lastDomainSettings);
-      break;
-    case QMessageBox::No:
-      // fall-through
-    default:
-      break;
-    }
-  }
-  else if (!ui->domainsComboBox->currentText().isEmpty()) {
-    resetAllFields();
+  //  qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
+  d->interactionSemaphore.acquire();
+  QMessageBox::StandardButton button = QMessageBox::question(
+        this,
+        tr("Revert settings?"),
+        tr("Do you really want to revert the settings?"),
+        QMessageBox::Yes | QMessageBox::Cancel,
+        QMessageBox::Yes);
+  d->interactionSemaphore.release();
+  switch (button) {
+  case QMessageBox::Yes:
+    copyDomainSettingsToGUI(d->lastCleanDomainSettings);
+    setDirty(false);
+    break;
+  case QMessageBox::Cancel:
+    // fall-through
+  default:
+    break;
   }
 }
 
