@@ -35,7 +35,7 @@ HEADERS += \
     tcpserver.h \
     messenger.h
 
-DISTFILES += \
+OTHER_FILES += \
     extension/background.js \
     extension/manifest.json \
     extension/popup.html \
