@@ -65,9 +65,9 @@ var LoginManager = (function(window) {
   }
 
 
-  function sendToTab(tabId, msg) {
+  function sendMessageToTab(tabId, msg) {
     if (msg && msg.domain && msg.user) {
-      chrome.tabs.sendMessage(tabId, msg);
+      chrome.tabs.sendMessage(tabId, msg, function(response) { console.log(response); });
     }
   }
 
@@ -77,7 +77,7 @@ var LoginManager = (function(window) {
       if (domain === null)
         return;
       if (domain.url instanceof Array && loginStep < domain.url.length) {
-        sendToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
+        sendMessageToTab(tab.id, { domain: domain, user: user, loginStep: loginStep });
       }
       if (info.status === "ok") {
         if (domain.id.test(info.url))
@@ -170,6 +170,6 @@ var LoginManager = (function(window) {
 
   }
 
-  document.addEventListener('DOMContentLoaded', main);
+  document.addEventListener("DOMContentLoaded", main);
 
 })(window);

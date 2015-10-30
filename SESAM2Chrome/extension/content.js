@@ -74,5 +74,4 @@
 
   chrome.runtime.onMessage.addListener(doLogin);
 
-
 })($, window);
