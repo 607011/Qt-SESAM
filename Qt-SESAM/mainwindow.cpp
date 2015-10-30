@@ -148,6 +148,7 @@ public:
   QAction *actionShow;
   QString lastDomainBeforeLock;
   DomainSettings lastCleanDomainSettings;
+  DomainSettings domainSettingsBeforceSync;
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
@@ -1107,7 +1108,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
+  qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(ds.domainName);
   ui->domainsComboBox->blockSignals(false);
@@ -1566,6 +1567,7 @@ void MainWindow::onSync(void)
   Q_D(MainWindow);
   restartInvalidationTimer();
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
+  d->domainSettingsBeforceSync = d->domains.at(ui->domainsComboBox->currentText());
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
     QFileInfo fi(d->optionsDialog->syncFilename());
@@ -1660,6 +1662,8 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     restoreDomainDataFromSettings();
     d->domains.setDirty(false);
   }
+
+  copyDomainSettingsToGUI(d->domainSettingsBeforceSync);
 }
 
 
@@ -1799,15 +1803,13 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   if (sender() == Q_NULLPTR)
     return;
-  if (domain == d->lastCleanDomainSettings.domainName) {
-    qDebug() << "  domain == d->lastDomainSettings.domainName";
+  if (domain == d->lastCleanDomainSettings.domainName)
     return;
-  }
   if (d->parameterSetDirty) {
     ui->domainsComboBox->blockSignals(true);
     ui->domainsComboBox->setCurrentText(d->lastCleanDomainSettings.domainName);
@@ -1887,7 +1889,7 @@ void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
+  //  qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
   d->interactionSemaphore.acquire();
   QMessageBox::StandardButton button = QMessageBox::question(
         this,
