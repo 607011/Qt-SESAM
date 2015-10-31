@@ -34,13 +34,3 @@ SOURCES += main.cpp \
 HEADERS += \
     tcpserver.h \
     messenger.h
-
-OTHER_FILES += \
-    extension/background.js \
-    extension/manifest.json \
-    extension/popup.html \
-    extension/content.js \
-    extension/domains.json \
-    extension/popup.js \
-    manifest-dev.json \
-    extension/default.css
