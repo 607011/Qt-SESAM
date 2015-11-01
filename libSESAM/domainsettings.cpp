@@ -46,6 +46,8 @@ const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
 // v3 settings
 const QString DomainSettings::EXTRA_CHARACTERS = "extras";
 const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
+const QString DomainSettings::GROUP = "group";
+const QString DomainSettings::EXPIRY_DATE = "expiryDate";
 
 DomainSettings::DomainSettings(void)
   : salt_base64(DefaultSalt_base64)
@@ -71,6 +73,8 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   // v3 settings
   , extraCharacters(o.extraCharacters)
   , passwordTemplate(o.passwordTemplate)
+  , group(o.group)
+  , expiryDate(o.expiryDate)
 { /* ... */ }
 
 
@@ -100,6 +104,10 @@ QVariantMap DomainSettings::toVariantMap(void) const
       map[EXTRA_CHARACTERS] = extraCharacters;
     if (!passwordTemplate.isEmpty())
       map[PASSWORD_TEMPLATE] = passwordTemplate;
+    if (!group.isEmpty())
+      map[GROUP] = group;
+    if (!expiryDate.isNull())
+      map[EXPIRY_DATE] = expiryDate;
   }
   return map;
 }
@@ -123,5 +131,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   // v3 settings
   ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
+  ds.group = map[GROUP].toString();
+  ds.expiryDate = map[EXPIRY_DATE].toDateTime();
   return ds;
 }
