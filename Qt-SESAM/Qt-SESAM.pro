@@ -40,8 +40,8 @@ win32-msvc* {
     CONFIG += windows
     CONFIG -= console
     RC_FILE = QtSESAM.rc
-    SOURCES += clipboardmonitor.cpp
-    HEADERS += clipboardmonitor.h
+    SOURCES +=
+    HEADERS +=
     LIBS += User32.lib
     QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:WINDOWS
 }

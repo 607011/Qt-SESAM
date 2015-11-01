@@ -74,11 +74,6 @@
 #include "passwordchecker.h"
 #include "tcpclient.h"
 
-#ifdef WIN32
-#include "clipboardmonitor.h"
-static const int SmartLoginNotActive = -1;
-#endif
-
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
 static const int NotFound = -1;
@@ -126,9 +121,6 @@ public:
     , maxCounter(0)
     , masterPasswordChangeStep(0)
     , interactionSemaphore(1)
-  #ifdef WIN32
-    , smartLoginStep(SmartLoginNotActive)
-  #endif
   {
     resetSSLConf();
   }
@@ -189,9 +181,6 @@ public:
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
   TcpClient tcpClient;
-#ifdef WIN32
-  int smartLoginStep;
-#endif
 };
 
 
@@ -301,15 +290,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
-
-#ifdef WIN32
-  QObject::connect(ClipboardMonitor::instance(), SIGNAL(pasted()), SLOT(onPasted()));
-#endif
-
-#ifndef WIN32
-  ui->topButtonsHorizontalLayout->removeWidget(ui->loginPushButton);
-  ui->loginPushButton->hide();
-#endif
 
   ui->passwordTemplateLineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
@@ -1076,42 +1056,8 @@ void MainWindow::onGenerateSaltKeyIV(void)
 }
 
 
-#ifdef WIN32
-void MainWindow::onPasted(void)
-{
-  Q_D(MainWindow);
-  if (!d->optionsDialog->smartLogin())
-    return;
-  switch (d->smartLoginStep) {
-  case 0:
-  {
-    if (ui->legacyPasswordLineEdit->text().isEmpty()) {
-      copyGeneratedPasswordToClipboard();
-    }
-    else {
-      copyLegacyPasswordToClipboard();
-    }
-    break;
-  }
-  case 1:
-  {
-    clearClipboard();
-    d->smartLoginStep = SmartLoginNotActive;
-    break;
-  }
-  default:
-    break;
-  }
-}
-#endif
-
-
 void MainWindow::copyUsernameToClipboard(void)
 {
-#ifdef WIN32
-  Q_D(MainWindow);
-  d->smartLoginStep = 0;
-#endif
   QApplication::clipboard()->setText(ui->userLineEdit->text());
   ui->statusBar->showMessage(tr("Username copied to clipboard."), 5000);
 }
@@ -1119,10 +1065,6 @@ void MainWindow::copyUsernameToClipboard(void)
 
 void MainWindow::copyGeneratedPasswordToClipboard(void)
 {
-#ifdef WIN32
-  Q_D(MainWindow);
-  d->smartLoginStep = 1;
-#endif
   QApplication::clipboard()->setText(ui->generatedPasswordLineEdit->text());
   ui->statusBar->showMessage(tr("Generated password copied to clipboard."), 3000);
 }
@@ -1130,10 +1072,6 @@ void MainWindow::copyGeneratedPasswordToClipboard(void)
 
 void MainWindow::copyLegacyPasswordToClipboard(void)
 {
-#ifdef WIN32
-  Q_D(MainWindow);
-  d->smartLoginStep = 1;
-#endif
   QApplication::clipboard()->setText(ui->legacyPasswordLineEdit->text());
   ui->statusBar->showMessage(tr("Legacy password copied to clipboard."), 5000);
 }
