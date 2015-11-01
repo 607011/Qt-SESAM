@@ -20,14 +20,15 @@
 (function(window) {
 
   function main() {
-    var statEl = $('#proxy-connection-status');
+    var statEl = $("#proxy-connection-status");
     var port = chrome.extension.connect({ name: "c't SESAM" });
     port.postMessage({ status: "ok" });
     port.onMessage.addListener(function(msg) {
-      statEl.html(msg['proxy-connection-status']);
+      var status = msg["proxy-connection-status"];
+      statEl.html(status).removeClass("connected disconnected").addClass(status);
     });
   }
 
-  document.addEventListener('DOMContentLoaded', main);
+  document.addEventListener("DOMContentLoaded", main);
 
 })(window);

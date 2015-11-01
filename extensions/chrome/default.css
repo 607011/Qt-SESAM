@@ -22,6 +22,12 @@ h1 {
 #proxy-connection-status {
   font-weight: bold;
 }
+#proxy-connection-status.connected {
+  color: green;
+}
+#proxy-connection-status.disconnected {
+  color: red;
+}
 a {
   text-decoration: none;
   color: #222;

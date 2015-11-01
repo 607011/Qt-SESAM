@@ -34,3 +34,6 @@ SOURCES += main.cpp \
 HEADERS += \
     tcpserver.h \
     messenger.h
+
+DISTFILES += \
+    manifest-dev.json

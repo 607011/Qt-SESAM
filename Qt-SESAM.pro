@@ -30,6 +30,7 @@ OTHER_FILES += \
     extensions\chrome\popup.js \
     extensions\chrome\popup.html \
     extensions\chrome\domains.json \
+    extensions\chrome\default.css \
     extensions\chrome\manifest.json \
     extensions\firefox\index.js \
     extensions\firefox\README.md \
