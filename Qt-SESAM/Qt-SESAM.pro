@@ -57,7 +57,8 @@ SOURCES += main.cpp \
     passwordchecker.cpp \
     easyselectorwidget.cpp \
     countdownwidget.cpp \
-    keepass2xmlreader.cpp
+    keepass2xmlreader.cpp \
+    hackhelper.cpp
 
 HEADERS  += \
     mainwindow.h \

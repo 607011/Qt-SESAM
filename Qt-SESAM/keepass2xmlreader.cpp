@@ -25,31 +25,30 @@
 
 #include <QDebug>
 #include <QFile>
-#include <QString>
 #include <QVector>
 #include <QDomDocument>
-#include <QDomElement>
 #include <QDomNode>
 
-#include <functional>
 
 class KeePass2XmlReaderPrivate {
 public:
   KeePass2XmlReaderPrivate(void)
-    : xmlFile(Q_NULLPTR)
-    , ok(true)
+    : ok(true)
     , xmlErrorLine(-1)
     , xmlErrorColumn(-1)
+    , groupNames(10)
   { /* ... */ }
   ~KeePass2XmlReaderPrivate()
   { /* ... */ }
-  QFile *xmlFile;
+  QFile xmlFile;
   QDomDocument xml;
   bool ok;
   int xmlErrorLine;
   int xmlErrorColumn;
+  QString xmlErrorString;
   QString errorString;
   DomainSettingsList domains;
+  QVector<QString> groupNames;
 };
 
 
@@ -57,113 +56,16 @@ KeePass2XmlReader::KeePass2XmlReader(const QString &xmlFilename)
   : d_ptr(new KeePass2XmlReaderPrivate)
 {
   Q_D(KeePass2XmlReader);
-  d->xmlFile = new QFile(xmlFilename);
-  bool ok = d->xmlFile->open(QIODevice::ReadOnly);
-  d->errorString = ok ? QString() : d->xmlFile->errorString();
-  d->ok = d->xml.setContent(d->xmlFile, &d->errorString, &d->xmlErrorLine, &d->xmlErrorColumn);
-  std::function<QDomElement(const QDomElement &root, const QString &tagName)> findChildByTagName;
-  findChildByTagName = [](const QDomElement &root, const QString &tagName) {
-    if (!root.isNull() && root.hasChildNodes()) {
-      QDomNode child = root.firstChild();
-      while (!child.isNull()) {
-        QDomElement e = child.toElement();
-        if (!e.isNull()) {
-          if (e.tagName() == tagName) {
-            return e;
-          }
-        }
-        child = child.nextSibling();
-      }
+  d->xmlFile.setFileName(xmlFilename);
+  d->ok = d->xmlFile.open(QIODevice::ReadOnly);
+  d->errorString = d->ok ? QString() : d->xmlFile.errorString();
+  if (d->ok) {
+    d->ok = d->xml.setContent(&d->xmlFile, &d->xmlErrorString, &d->xmlErrorLine, &d->xmlErrorColumn);
+    if (d->ok) {
+      parseXml(d->xml.documentElement(), 0);
     }
-    return QDomElement();
-  };
-
-  QVector<QString> groupNames(10);
-  std::function<QString(int level)> groupHierarchy;
-  groupHierarchy = [&groupNames](int level) {
-    QString g;
-    for (int l = 2; l <= level; ++l) {
-      g.append(groupNames[l]);
-      if (l < level)
-        g.append("/");
-    }
-    return g;
-  };
-
-  std::function<void(const QDomElement &e, int)> drillDown;
-  drillDown = [&](const QDomElement &e, int level) {
-    if (level < groupNames.size()) {
-      QDomNode n = e.firstChild();
-      while (!n.isNull()) {
-        QDomElement e = n.toElement();
-        if (!e.isNull()) {
-          if (e.tagName() == "Group") {
-            QDomElement groupName = findChildByTagName(e, "Name");
-            if (!groupName.isNull()) {
-              groupNames[level] = groupName.text();
-              qDebug().nospace().noquote() << groupHierarchy(level);
-            }
-            else {
-              qWarning() << "warning: group has no name";
-            }
-            QDomElement entry = findChildByTagName(e, "Entry");
-            if (!entry.isNull()) {
-              DomainSettings ds;
-              ds.group = groupHierarchy(level);
-              QDomNode child = entry.firstChild();
-              while (!child.isNull()) {
-                QDomElement eChild = child.toElement();
-                if (eChild.tagName() == "String") {
-                  QDomElement eKey = findChildByTagName(eChild, "Key");
-                  QDomElement eValue = findChildByTagName(eChild, "Value");
-                  if (!eKey.isNull() && !eValue.isNull() && !eValue.text().isNull()) {
-                    if (eKey.text() == "Notes") {
-                      ds.notes = eValue.text();
-                    }
-                    else if (eKey.text() == "Title") {
-                      ds.domainName = eValue.text();
-                    }
-                    else if (eKey.text() == "URL") {
-                      ds.url = eValue.text();
-                    }
-                    else if (eKey.text() == "UserName") {
-                      ds.userName = eValue.text();
-                    }
-                    else if (eKey.text() == "Password") {
-                      ds.legacyPassword = eValue.text();
-                    }
-                  }
-                }
-                else if (eChild.tagName() == "Times") {
-                  QDomElement eCreated = findChildByTagName(eChild, "CreationTime");
-                  if (!eCreated.isNull())
-                    ds.createdDate = QDateTime::fromString(eCreated.text(), "yyyy-MM-ddThh:mm:ssZ");
-                  QDomElement eModified = findChildByTagName(eChild, "LastModificationTime");
-                  if (!eModified.isNull())
-                    ds.createdDate = QDateTime::fromString(eModified.text(), "yyyy-MM-ddThh:mm:ssZ");
-                  QDomElement eExpires = findChildByTagName(eChild, "Expires");
-                  if (!eExpires.isNull() && eExpires.text() != "false") {
-                    QDomElement eExpiryTime = findChildByTagName(eChild, "Expires");
-                    if (!eExpiryTime.isNull())
-                      ds.expiryDate = QDateTime::fromString(eExpiryTime.text(), "yyyy-MM-ddThh:mm:ssZ");
-                  }
-                }
-                child = child.nextSibling();
-              }
-              d->domains.append(ds);
-            }
-          }
-        }
-        if (e.hasChildNodes()) {
-          drillDown(e, level + 1);
-        }
-        n = n.nextSibling();
-      }
-    }
-  };
-  drillDown(d->xml.documentElement(), 0);
-
-  close();
+  }
+  d->xmlFile.close();
 }
 
 
@@ -173,19 +75,113 @@ KeePass2XmlReader::~KeePass2XmlReader()
 }
 
 
-void KeePass2XmlReader::close(void)
+QString KeePass2XmlReader::groupHierarchy(int level)
 {
   Q_D(KeePass2XmlReader);
-  if (d->xmlFile != Q_NULLPTR) {
-    d->xmlFile->close();
-    SafeDelete(d->xmlFile);
+  QString g;
+  for (int l = 2; l <= level; ++l) {
+    g.append(d->groupNames[l]);
+    if (l < level)
+      g.append("/");
+  }
+  return g;
+}
+
+
+QDomElement KeePass2XmlReader::findChildByTagName(const QDomElement &root, const QString &tagName)
+{
+  Q_D(KeePass2XmlReader);
+  if (!root.isNull() && root.hasChildNodes()) {
+    QDomNode child = root.firstChild();
+    while (!child.isNull()) {
+      QDomElement e = child.toElement();
+      if (!e.isNull()) {
+        if (e.tagName() == tagName) {
+          return e;
+        }
+      }
+      child = child.nextSibling();
+    }
+  }
+  return QDomElement();
+}
+
+
+void KeePass2XmlReader::parseXml(const QDomElement &e, int level)
+{
+  Q_D(KeePass2XmlReader);
+  if (level < d->groupNames.size()) {
+    QDomNode n = e.firstChild();
+    while (!n.isNull()) {
+      QDomElement e = n.toElement();
+      if (!e.isNull()) {
+        if (e.tagName() == "Group") {
+          QDomElement groupName = findChildByTagName(e, "Name");
+          if (!groupName.isNull()) {
+            d->groupNames[level] = groupName.text();
+          }
+          else {
+            qWarning() << "warning: group has no name";
+          }
+          QDomElement entry = findChildByTagName(e, "Entry");
+          if (!entry.isNull()) {
+            DomainSettings ds;
+            ds.group = groupHierarchy(level);
+            QDomNode child = entry.firstChild();
+            while (!child.isNull()) {
+              QDomElement eChild = child.toElement();
+              if (eChild.tagName() == "String") {
+                QDomElement eKey = findChildByTagName(eChild, "Key");
+                QDomElement eValue = findChildByTagName(eChild, "Value");
+                if (!eKey.isNull() && !eValue.isNull() && !eValue.text().isNull()) {
+                  if (eKey.text() == "Notes") {
+                    ds.notes = eValue.text();
+                  }
+                  else if (eKey.text() == "Title") {
+                    ds.domainName = eValue.text();
+                  }
+                  else if (eKey.text() == "URL") {
+                    ds.url = eValue.text();
+                  }
+                  else if (eKey.text() == "UserName") {
+                    ds.userName = eValue.text();
+                  }
+                  else if (eKey.text() == "Password") {
+                    ds.legacyPassword = eValue.text();
+                  }
+                }
+              }
+              else if (eChild.tagName() == "Times") {
+                QDomElement eCreated = findChildByTagName(eChild, "CreationTime");
+                if (!eCreated.isNull())
+                  ds.createdDate = QDateTime::fromString(eCreated.text(), "yyyy-MM-ddThh:mm:ssZ");
+                QDomElement eModified = findChildByTagName(eChild, "LastModificationTime");
+                if (!eModified.isNull())
+                  ds.createdDate = QDateTime::fromString(eModified.text(), "yyyy-MM-ddThh:mm:ssZ");
+                QDomElement eExpires = findChildByTagName(eChild, "Expires");
+                if (!eExpires.isNull() && eExpires.text() == "True") {
+                  QDomElement eExpiryTime = findChildByTagName(eChild, "ExpiryTime");
+                  if (!eExpiryTime.isNull())
+                    ds.expiryDate = QDateTime::fromString(eExpiryTime.text(), "yyyy-MM-ddThh:mm:ssZ");
+                }
+              }
+              child = child.nextSibling();
+            }
+            d->domains.append(ds);
+          }
+        }
+      }
+      if (e.hasChildNodes())
+        parseXml(e, level + 1);
+      n = n.nextSibling();
+    }
   }
 }
 
 
 bool KeePass2XmlReader::isOpen(void) const
 {
-  return d_ptr->xmlFile->isOpen();
+  return d_ptr->xmlFile.isOpen();
 }
 
 
@@ -201,13 +197,19 @@ QString KeePass2XmlReader::errorString(void) const
 }
 
 
-int KeePass2XmlReader::errorLine(void) const
+QString KeePass2XmlReader::xmlErrorString(void) const
+{
+  return d_ptr->xmlErrorString;
+}
+
+
+int KeePass2XmlReader::xmlErrorLine(void) const
 {
   return d_ptr->xmlErrorLine;
 }
 
 
-int KeePass2XmlReader::errorColumn(void) const
+int KeePass2XmlReader::xmlErrorColumn(void) const
 {
   return d_ptr->xmlErrorColumn;
 }

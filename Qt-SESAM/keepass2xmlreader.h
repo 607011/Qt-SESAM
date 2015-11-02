@@ -23,6 +23,9 @@
 
 
 #include <QScopedPointer>
+#include <QDomElement>
+#include <QString>
+
 #include "domainsettingslist.h"
 
 class KeePass2XmlReaderPrivate;
@@ -32,18 +35,23 @@ class KeePass2XmlReader
 public:
   KeePass2XmlReader(const QString &xmlFilename);
   ~KeePass2XmlReader();
-  void close(void);
   bool isOpen(void) const;
   bool isValid(void) const;
   QString errorString(void) const;
-  int errorColumn(void) const;
-  int errorLine(void) const;
+  QString xmlErrorString(void) const;
+  int xmlErrorColumn(void) const;
+  int xmlErrorLine(void) const;
   DomainSettingsList domains(void) const;
 
 private:
   QScopedPointer<KeePass2XmlReaderPrivate> d_ptr;
   Q_DECLARE_PRIVATE(KeePass2XmlReader)
   Q_DISABLE_COPY(KeePass2XmlReader)
+
+private: // methods
+  QString groupHierarchy(int level);
+  void parseXml(const QDomElement &e, int level);
+  QDomElement findChildByTagName(const QDomElement &root, const QString &tagName);
 };
 
 #endif // __KEEPASS2XMLREADER_H_

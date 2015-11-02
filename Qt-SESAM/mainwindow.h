@@ -183,6 +183,7 @@ private: // methods
   QString usedCharacters(void);
   void applyTemplate(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
+  QString selectAlternativeDomainNameFor(const QString &domainName);
 };
 
 #endif // __MAINWINDOW_H_
