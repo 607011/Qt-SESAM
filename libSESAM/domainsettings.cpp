@@ -48,6 +48,7 @@ const QString DomainSettings::EXTRA_CHARACTERS = "extras";
 const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
 const QString DomainSettings::GROUP = "group";
 const QString DomainSettings::EXPIRY_DATE = "expiryDate";
+const QString DomainSettings::TAGS = "tags";
 
 DomainSettings::DomainSettings(void)
   : salt_base64(DefaultSalt_base64)
@@ -75,6 +76,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , passwordTemplate(o.passwordTemplate)
   , group(o.group)
   , expiryDate(o.expiryDate)
+  , tags(o.tags)
 { /* ... */ }
 
 
@@ -91,23 +93,28 @@ QVariantMap DomainSettings::toVariantMap(void) const
         map[USER_NAME] = userName;
     if (!url.isEmpty())
       map[URL] = url;
-    if (!legacyPassword.isEmpty())
-      map[LEGACY_PASSWORD] = legacyPassword;
     if (!notes.isEmpty())
       map[NOTES] = notes;
-    map[SALT] = salt_base64;
-    map[ITERATIONS] = iterations;
-    map[PASSWORD_LENGTH] = passwordLength;
-    map[USED_CHARACTERS] = usedCharacters;
-    // v3 settings
-    if (!extraCharacters.isEmpty())
-      map[EXTRA_CHARACTERS] = extraCharacters;
-    if (!passwordTemplate.isEmpty())
-      map[PASSWORD_TEMPLATE] = passwordTemplate;
     if (!group.isEmpty())
       map[GROUP] = group;
     if (!expiryDate.isNull())
       map[EXPIRY_DATE] = expiryDate;
+    if (!tags.isEmpty())
+      map[TAGS] = tags.join(QChar('\t'));
+    if (legacyPassword.isEmpty()) {
+      map[SALT] = salt_base64;
+      map[ITERATIONS] = iterations;
+      map[PASSWORD_LENGTH] = passwordLength;
+      map[USED_CHARACTERS] = usedCharacters;
+      // v3 settings
+      if (!extraCharacters.isEmpty())
+        map[EXTRA_CHARACTERS] = extraCharacters;
+      if (!passwordTemplate.isEmpty())
+        map[PASSWORD_TEMPLATE] = passwordTemplate;
+    }
+    else {
+      map[LEGACY_PASSWORD] = legacyPassword;
+    }
   }
   return map;
 }
@@ -133,5 +140,6 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
   ds.group = map[GROUP].toString();
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
+  ds.tags = map[TAGS].toString().split(QChar('\t'));
   return ds;
 }

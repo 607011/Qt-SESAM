@@ -80,12 +80,6 @@ public:
   static const QString DELETED;
   bool deleted;
 
-  static const QString GROUP;
-  QString group;
-
-  static const QString EXPIRY_DATE;
-  QDateTime expiryDate;
-
   // v3 settings
 
   static const QString EXTRA_CHARACTERS;
@@ -94,6 +88,14 @@ public:
   static const QString PASSWORD_TEMPLATE;
   QByteArray passwordTemplate;
 
+  static const QString GROUP;
+  QString group;
+
+  static const QString EXPIRY_DATE;
+  QDateTime expiryDate;
+
+  static const QString TAGS;
+  QStringList tags;
 };
 
 

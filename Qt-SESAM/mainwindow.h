@@ -131,6 +131,7 @@ private slots:
 #endif
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+  void onImportKeePass2XmlFile(void);
 
 signals:
   void passwordGenerated(void);

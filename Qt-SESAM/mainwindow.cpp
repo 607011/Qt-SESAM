@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkSession>
@@ -71,6 +72,7 @@
 #include "crypter.h"
 #include "securebytearray.h"
 #include "passwordchecker.h"
+#include "keepass2xmlreader.h"
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
@@ -244,6 +246,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
+  QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
@@ -1024,6 +1027,34 @@ void MainWindow::onGenerateSaltKeyIV(void)
 {
   Q_D(MainWindow);
   ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 4).toHex())), 2000);
+}
+
+
+void MainWindow::onImportKeePass2XmlFile(void)
+{
+  const QString &kp2xmlFilename = QFileDialog::getOpenFileName(this, tr("Import KeePass XML file"), QString(), "KeePass 2 XML (*.xml)");
+  if (kp2xmlFilename.isEmpty())
+    return;
+  QFileInfo fi(kp2xmlFilename);
+  if (fi.isReadable() && fi.isFile()) {
+    KeePass2XmlReader reader(kp2xmlFilename);
+    if (!reader.isOpen()) {
+      QMessageBox::warning(this,
+                           tr("Cannot open file"),
+                           tr("The selected KeePass 2 XML file could not be opened: %1")
+                           .arg(reader.errorString()));
+      return;
+    }
+    if (!reader.isValid()) {
+      reader.close();
+      QMessageBox::warning(this,
+                           tr("Cannot read file"),
+                           tr("The selected KeePass 2 XML file is not valid XML: %1 (line %2, column: %3")
+                           .arg(reader.errorString()).arg(reader.errorLine()).arg(reader.errorColumn()));
+      return;
+    }
+    reader.close();
+  }
 }
 
 
