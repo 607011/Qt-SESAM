@@ -44,6 +44,7 @@
 #include <QLabel>
 
 #include "global.h"
+#include "domainsettings.h"
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
 
@@ -184,6 +185,9 @@ private: // methods
   void applyTemplate(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
   QString selectAlternativeDomainNameFor(const QString &domainName);
+  void warnAboutDifferingKGKs(void);
+  void convertToLegacyPassword(DomainSettings &ds);
+  QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
 };
 
 #endif // __MAINWINDOW_H_

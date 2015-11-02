@@ -123,6 +123,7 @@ public:
     , maxCounter(0)
     , masterPasswordChangeStep(0)
     , interactionSemaphore(1)
+    , doConvertLocalToLegacy(false)
   {
     resetSSLConf();
   }
@@ -187,6 +188,7 @@ public:
   int maxCounter;
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
+  bool doConvertLocalToLegacy;
 };
 
 
@@ -1041,9 +1043,21 @@ QString MainWindow::selectAlternativeDomainNameFor(const QString &domainName)
 {
   Q_D(MainWindow);
   QString newDomainName = domainName;
-  int idx = 1;
+  int idx = 0;
   while (findDomainInComboBox(newDomainName) != NotFound)
-    newDomainName = QString("%1 (%2)").arg(domainName).arg(idx++);
+    newDomainName = QString("%1 (%2)").arg(domainName).arg(++idx);
+  return newDomainName;
+}
+
+
+QString MainWindow::selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList)
+{
+  QString newDomainName;
+  int idx = 0;
+  do {
+    newDomainName = QString("%1 (%2)").arg(domainName).arg(++idx);
+  }
+  while (domainNameList.contains(newDomainName));
   return newDomainName;
 }
 
@@ -1635,15 +1649,33 @@ QByteArray MainWindow::cryptedRemoteDomains(void)
 }
 
 
+void MainWindow::warnAboutDifferingKGKs(void)
+{
+  QMessageBox::information(this,
+                           tr("KGKs differ"),
+                           tr("The remote key generation key (KGK) is not the same as the local one. "
+                              "You probably began entering domain settings on this computer without syncing beforehand. "
+                              "The local settings will be converted so that generated passwords become legacy passwords. "
+                              "None of your work will get lost."));
+}
+
+
 void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
   QJsonDocument remoteJSON;
+  d->doConvertLocalToLegacy = false;
   if (!remoteDomainsEncoded.isEmpty()) {
     QByteArray baDomains;
     bool ok = true;
     try {
-      baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, d->KGK);
+      SecureByteArray KGK;
+      baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
+      if (d->KGK != KGK && !d->domains.isEmpty()) {
+        warnAboutDifferingKGKs();
+        d->doConvertLocalToLegacy = true;
+        d->KGK = KGK;
+      }
     }
     catch (CryptoPP::Exception &e) {
       ok = false;
@@ -1654,7 +1686,13 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     }
     if (!ok) { // fall back to new password
       try {
-        baDomains = Crypter::decode(d->changeMasterPasswordDialog->newPassword().toUtf8(), remoteDomainsEncoded, CompressionEnabled, d->KGK);
+        SecureByteArray KGK;
+        baDomains = Crypter::decode(d->changeMasterPasswordDialog->newPassword().toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
+        if (d->KGK != KGK && !d->domains.isEmpty()) {
+          warnAboutDifferingKGKs();
+          d->doConvertLocalToLegacy = true;
+          d->KGK = KGK;
+        }
       }
       catch (CryptoPP::Exception &e) {
         wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -1690,6 +1728,19 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
 }
 
 
+void MainWindow::convertToLegacyPassword(DomainSettings &ds)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::convertToLegacyPassword()";
+  if (ds.legacyPassword.isEmpty()) {
+    qDebug() << ds;
+    Password pwd(ds);
+    pwd.generate(d->masterPassword.toUtf8());
+    ds.legacyPassword = pwd.password();
+  }
+}
+
+
 void MainWindow::mergeLocalAndRemoteData(void)
 {
   Q_D(MainWindow);
@@ -1697,25 +1748,36 @@ void MainWindow::mergeLocalAndRemoteData(void)
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
     const DomainSettings &remoteDomainSetting = d->remoteDomains.at(domainName);
-    const DomainSettings &localDomainSetting = d->domains.at(domainName);
+    DomainSettings localDomainSetting = d->domains.at(domainName);
     if (!localDomainSetting.isEmpty() && !remoteDomainSetting.isEmpty()) {
       if (remoteDomainSetting.modifiedDate > localDomainSetting.modifiedDate) {
         d->domains.updateWith(remoteDomainSetting);
       }
       else if (remoteDomainSetting.modifiedDate < localDomainSetting.modifiedDate) {
+        if (d->doConvertLocalToLegacy && !localDomainSetting.deleted) {
+          convertToLegacyPassword(localDomainSetting);
+          localDomainSetting.domainName = selectAlternativeDomainNameFor(domainName, d->domains.keys());
+        }
         d->remoteDomains.updateWith(localDomainSetting);
       }
     }
     else if (remoteDomainSetting.isEmpty()) {
-      if (!localDomainSetting.deleted)
+      if (!localDomainSetting.deleted) {
+        if (d->doConvertLocalToLegacy) {
+          convertToLegacyPassword(localDomainSetting);
+        }
         d->remoteDomains.updateWith(localDomainSetting);
-      else
+      }
+      else {
         d->domains.remove(domainName);
+      }
     }
     else {
       d->domains.updateWith(remoteDomainSetting);
     }
   }
+  foreach (DomainSettings ds, d->domains)
+    qDebug() << ds;
 }
 
 
