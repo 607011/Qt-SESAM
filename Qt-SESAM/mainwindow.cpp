@@ -1732,7 +1732,6 @@ void MainWindow::convertToLegacyPassword(DomainSettings &ds)
 {
   Q_D(MainWindow);
   if (ds.legacyPassword.isEmpty()) {
-    qDebug() << ds;
     Password pwd(ds);
     pwd.generate(d->masterPassword.toUtf8());
     ds.legacyPassword = pwd.password();
