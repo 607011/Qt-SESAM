@@ -135,6 +135,11 @@ public:
     sslConf = QSslConfiguration::defaultConfiguration();
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
+  const SecureByteArray &kgk(void) {
+    if (KGK.isEmpty())
+      KGK = Crypter::generateKGK();
+    return KGK;
+  }
   MasterPasswordDialog *masterPasswordDialog;
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
@@ -1323,7 +1328,7 @@ void MainWindow::saveAllDomainDataToSettings(void)
   d->keyGenerationMutex.lock();
   QByteArray cipher;
   try {
-    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled);
+    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
   }
   catch (CryptoPP::Exception &e) {
     qErrnoWarning((int)e.GetErrorType(), e.what());
@@ -1394,7 +1399,7 @@ void MainWindow::saveSettings(void)
   d->keyGenerationMutex.lock();
   QByteArray baCryptedData;
   try {
-    baCryptedData = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
+    baCryptedData = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -1544,7 +1549,7 @@ void MainWindow::createEmptySyncFile(void)
                          .arg(syncFile.errorString()), QMessageBox::Ok);
   }
   d->keyGenerationMutex.lock();
-  const QByteArray &domains = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, QByteArray("{}"), CompressionEnabled);
+  const QByteArray &domains = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QByteArray("{}"), CompressionEnabled);
   d->keyGenerationMutex.unlock();
   syncFile.write(domains);
   syncFile.close();
@@ -1621,7 +1626,7 @@ QByteArray MainWindow::cryptedRemoteDomains(void)
   QMutexLocker(&d->keyGenerationMutex);
   QByteArray cipher;
   try {
-    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, d->remoteDomains.toJson(), CompressionEnabled);
+    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->remoteDomains.toJson(), CompressionEnabled);
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -1780,7 +1785,7 @@ void MainWindow::onForcedPush(void)
   d->keyGenerationMutex.lock();
   QByteArray cipher;
   try {
-    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->KGK, d->domains.toJson(), CompressionEnabled);
+    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -1972,9 +1977,6 @@ void MainWindow::onMasterPasswordEntered(void)
   QString masterPwd = d->masterPasswordDialog->masterPassword();
   if (!masterPwd.isEmpty()) {
     d->masterPassword = masterPwd;
-    if (d->KGK.isEmpty()) {
-      d->KGK = Crypter::generateKGK();
-    }
     ok = restoreSettings();
     if (ok) {
       ok = restoreDomainDataFromSettings();
