@@ -894,47 +894,55 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren</translation>
     </message>
     <message>
         <source>KeePass 2 XML file ...</source>
-        <translation type="unfinished"></translation>
+        <translation>KeePass-2-XML-Datei ...</translation>
     </message>
     <message>
         <source>Ctrl+I, Ctrl+K</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Import KeePass 2 XML file</source>
-        <translation type="unfinished"></translation>
+        <translation>KeePass-2-XML-Datei importieren</translation>
     </message>
     <message>
         <source>Invalid KeePass 2 XML file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige KeePass-2-XML-Datei</translation>
     </message>
     <message>
         <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Die gewählte KeePass-2-XML-Datei enthält kein valied XML: %1 (Zeile: %2, Spalte: %3)</translation>
     </message>
     <message>
         <source>Cannot read KeePass 2 XML file</source>
-        <translation type="unfinished"></translation>
+        <translation>KeePass-2-XML-Datei nicht lesbar</translation>
     </message>
     <message>
         <source>The selected KeePass 2 XML file cannot be read: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;%1 domains have been imported successfully from the KeePass 2 XML file &lt;strong&gt;%2&lt;/strong&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;%3 domains had to be renamed:&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die gewählte KeePass-2-XML-Datei ist nicht lesbar: %1</translation>
     </message>
     <message>
         <source>Import successful</source>
-        <translation type="unfinished"></translation>
+        <translation>Import erfolgreich</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain has been imported successfully from the KeePass 2 XML file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde erfolgreich aus der KeePass-2-XML-Datei importiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains have been imported successfully from the KeePass 2 XML file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden erfolgreich aus der KeePass-2-XML-Datei imporiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain had to be renamed:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde umbenannt:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains had to be renamed:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden umbenannt:&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
