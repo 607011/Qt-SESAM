@@ -914,7 +914,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3</source>
-        <translation>Die gewählte KeePass-2-XML-Datei enthält kein valied XML: %1 (Zeile: %2, Spalte: %3)</translation>
+        <translation type="vanished">Die gewählte KeePass-2-XML-Datei enthält kein valied XML: %1 (Zeile: %2, Spalte: %3)</translation>
     </message>
     <message>
         <source>Cannot read KeePass 2 XML file</source>
@@ -943,6 +943,10 @@ auf deinem Computer: %3</translation>
     <message>
         <source>&lt;p&gt;%1 domains had to be renamed:&lt;/p&gt;</source>
         <translation>&lt;p&gt;%1 Domains wurden umbenannt:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3)</source>
+        <translation>Die gewählte KeePass-2-XML-Datei enthält kein valides XML: %1 (Zeile: %2, Spalte: %3)</translation>
     </message>
 </context>
 <context>

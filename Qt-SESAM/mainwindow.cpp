@@ -1056,7 +1056,7 @@ void MainWindow::onImportKeePass2XmlFile(void)
       if (!reader.xmlErrorString().isEmpty()) {
       QMessageBox::warning(this,
                            tr("Invalid KeePass 2 XML file"),
-                           tr("The selected KeePass 2 XML file doesn't contain valid XML: %1 (line %2, column: %3")
+                           tr("The selected KeePass 2 XML file doesn't contain valid XML: %1 (line %2, column: %3)")
                            .arg(reader.xmlErrorString()).arg(reader.xmlErrorLine()).arg(reader.xmlErrorColumn()));
       }
       else {
