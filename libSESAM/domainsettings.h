@@ -28,6 +28,8 @@
 #include <QVariantMap>
 #include <QDateTime>
 
+#include "securestring.h"
+
 class DomainSettings {
 public:
   DomainSettings(void);
@@ -55,7 +57,7 @@ public:
   QString userName;
 
   static const QString LEGACY_PASSWORD;
-  QString legacyPassword;
+  SecureString legacyPassword;
 
   static const QString NOTES;
   QString notes;
