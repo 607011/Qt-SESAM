@@ -21,6 +21,7 @@
 #ifndef __DOMAINSETTINGS_H_
 #define __DOMAINSETTINGS_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -97,6 +98,9 @@ public:
   static const QString TAGS;
   QStringList tags;
 };
+
+
+extern QDebug operator<<(QDebug debug, const DomainSettings &ds);
 
 
 #endif // __DOMAINSETTINGS_H_

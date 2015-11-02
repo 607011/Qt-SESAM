@@ -87,7 +87,8 @@ QVariantMap DomainSettings::toVariantMap(void) const
   if (deleted)
     map[DELETED] = true;
   map[CDATE] = createdDate;
-  map[MDATE] = modifiedDate;
+  if (modifiedDate.isValid())
+    map[MDATE] = modifiedDate;
   if (!deleted) {
     if (!userName.isEmpty())
         map[USER_NAME] = userName;
@@ -142,4 +143,51 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
   ds.tags = map[TAGS].toString().split(QChar('\t'));
   return ds;
+}
+
+
+QDebug operator<<(QDebug debug, const DomainSettings &ds)
+{
+  QDebugStateSaver saver(debug);
+  (void)saver;
+  debug.nospace()
+      << "DomainSettings {\n"
+      << "  " << DomainSettings::DOMAIN_NAME << ": " << ds.domainName << ",\n";
+  if (ds.createdDate.isValid())
+    debug.nospace() << "  " << DomainSettings::CDATE << ": " << ds.createdDate << ",\n";
+  if (ds.modifiedDate.isValid())
+    debug.nospace() << "  " << DomainSettings::MDATE << ": " << ds.modifiedDate << ",\n";
+  if (!ds.deleted) {
+    if (!ds.userName.isEmpty())
+        debug.nospace() << "  " << DomainSettings::USER_NAME << ": " << ds.userName << ",\n";
+    if (!ds.url.isEmpty())
+      debug.nospace() << "  " << DomainSettings::URL << ": " << ds.url << ",\n";
+    if (!ds.notes.isEmpty())
+      debug.nospace() << "  " << DomainSettings::NOTES << ": " << ds.notes << ",\n";
+    if (!ds.group.isEmpty())
+      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.group << ",\n";
+    if (!ds.expiryDate.isNull())
+      debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
+    if (!ds.tags.isEmpty())
+      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(';');
+    if (!ds.legacyPassword.isEmpty()) {
+      debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";
+    }
+    else {
+      debug.nospace() << "  " << DomainSettings::SALT << ": " << ds.salt_base64 << ",\n";
+      debug.nospace() << "  " << DomainSettings::ITERATIONS << ": " << ds.iterations << ",\n";
+      debug.nospace() << "  " << DomainSettings::PASSWORD_LENGTH << ": " << ds.passwordLength << ",\n";
+      debug.nospace() << "  " << DomainSettings::USED_CHARACTERS << ": " <<  ds.usedCharacters << ",\n";
+      // v3 settings
+      if (!ds.extraCharacters.isEmpty())
+        debug.nospace() << "  " << DomainSettings::EXTRA_CHARACTERS << ": " << ds.extraCharacters << ",\n";
+      if (!ds.passwordTemplate.isEmpty())
+        debug.nospace() << "  " << DomainSettings::PASSWORD_TEMPLATE << ": " << ds.passwordTemplate << ",\n";
+    }
+  }
+  else {
+    debug.nospace() << "  " << DomainSettings::DELETED << ": true,\n";
+  }
+  debug.nospace() << "}";
+  return debug;
 }
