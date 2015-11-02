@@ -1731,7 +1731,6 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
 void MainWindow::convertToLegacyPassword(DomainSettings &ds)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::convertToLegacyPassword()";
   if (ds.legacyPassword.isEmpty()) {
     qDebug() << ds;
     Password pwd(ds);
@@ -1776,8 +1775,6 @@ void MainWindow::mergeLocalAndRemoteData(void)
       d->domains.updateWith(remoteDomainSetting);
     }
   }
-  foreach (DomainSettings ds, d->domains)
-    qDebug() << ds;
 }
 
 
