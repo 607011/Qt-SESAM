@@ -169,7 +169,7 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
     if (!ds.expiryDate.isNull())
       debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
     if (!ds.tags.isEmpty())
-      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(';');
+      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(';') << ",\n";
     if (!ds.legacyPassword.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";
     }
