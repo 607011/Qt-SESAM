@@ -1826,7 +1826,7 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  // qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   if (sender() == Q_NULLPTR)
@@ -1861,7 +1861,7 @@ void MainWindow::onDomainSelected(QString domain)
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName;
+  // qDebug() << "MainWindow::onDomainTextChanged(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName;
   int idx = findDomainInComboBox(domain);
   if (idx == NotFound) {
     if (!d->lastCleanDomainSettings.isEmpty()) {
