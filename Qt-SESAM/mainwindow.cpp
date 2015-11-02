@@ -91,6 +91,8 @@ static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
 
+static const char *ExpandedProperty = "expanded";
+
 
 class MainWindowPrivate {
 public:
@@ -237,6 +239,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(onIterationsChanged(int)));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(onSaltChanged(QString)));
   ui->generatedPasswordLineEdit->installEventFilter(this);
+  ui->expandableLabel->installEventFilter(this);
   QObject::connect(ui->passwordTemplateLineEdit, SIGNAL(textChanged(QString)), SLOT(onPasswordTemplateChanged(QString)));
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
@@ -305,6 +308,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   enterMasterPassword();
+
 }
 
 
@@ -1430,6 +1434,7 @@ void MainWindow::saveSettings(void)
 #ifdef WIN32
   d->settings.setValue("misc/smartLogin", d->optionsDialog->smartLogin());
 #endif
+  d->settings.setValue("misc/moreSettingsExpanded", ui->moreSettingsGroupBox->property(ExpandedProperty).toBool());
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
@@ -1486,6 +1491,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setReadUrl(DefaultSyncServerReadUrl);
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
   d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
+  showMoreSettings(d->settings.value("misc/moreSettingsExpanded", true).toBool());
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
     QByteArray baSyncData;
@@ -2257,6 +2263,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
       else if (obj->objectName() == "legacyPasswordLineEdit")
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+      else if (obj->objectName() == "expandableLabel")
+        toggleMoreSettings();
     break;
   case QEvent::MouseButtonRelease:
       if (obj->objectName() == "generatedPasswordLineEdit")
@@ -2269,3 +2277,30 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   }
   return QObject::eventFilter(obj, event);
 }
+
+
+void MainWindow::showMoreSettings(bool expanded)
+{
+  static const QPixmap CollapsedPixmap(":/images/collapsed.png");
+  static const QPixmap ExpandedPixmap(":/images/expanded.png");
+  if (!expanded) {
+    ui->expandableLabel->setPixmap(CollapsedPixmap);
+    ui->moreSettingsGroupBox->setMaximumHeight(22);
+    ui->moreSettingsGroupBox->adjustSize();
+    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, false);
+  }
+  else {
+    ui->expandableLabel->setPixmap(ExpandedPixmap);
+    ui->moreSettingsGroupBox->setMaximumHeight(QWIDGETSIZE_MAX);
+    ui->moreSettingsGroupBox->adjustSize();
+    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, true);
+  }
+}
+
+
+void MainWindow::toggleMoreSettings(void)
+{
+  showMoreSettings(!ui->moreSettingsGroupBox->property(ExpandedProperty).toBool());
+}
+
+

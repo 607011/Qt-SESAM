@@ -111,6 +111,7 @@ private slots:
   void onMigrateDomainSettingsToExpert(void);
   void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
+  void toggleMoreSettings(void);
   void clearClipboard(void);
   void about(void);
   void aboutQt(void);
@@ -188,6 +189,7 @@ private: // methods
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
+  void showMoreSettings(bool collapsed);
 };
 
 #endif // __MAINWINDOW_H_
