@@ -948,6 +948,14 @@ auf deinem Computer: %3</translation>
         <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3)</source>
         <translation>Die gewählte KeePass-2-XML-Datei enthält kein valides XML: %1 (Zeile: %2, Spalte: %3)</translation>
     </message>
+    <message>
+        <source>KGKs differ</source>
+        <translation>KGKs unterscheiden sich</translation>
+    </message>
+    <message>
+        <source>The remote key generation key (KGK) is not the same as the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings will be converted so that generated passwords become legacy passwords. None of your work will get lost.</source>
+        <translation>Der Key Generation Key (KGK) der Synchronisationsgegenstelle unterscheidet sich vom lokalen. Du hast vermutlich mit dem Anlegen von Domain-Einstellungen begonnen, ohne vorher zu synchronisieren. Die lokalen Einstellungen werden nun konvertiert, sodass aus den generierten Passwörtern klassische werden. Keine Sorge, nichts geht dabei verloren.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
