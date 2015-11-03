@@ -305,7 +305,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   QLayout *moreSettingsGroupBoxLayout = ui->moreSettingsGroupBox->layout();
   d->expandableGroupBox->setLayout(moreSettingsGroupBoxLayout);
-  d->expandableGroupBox->setTitle(tr("Advanced settings"));
+  d->expandableGroupBox->setTitle(ui->moreSettingsGroupBox->title());
   ui->generatedPasswordTab->layout()->addWidget(d->expandableGroupBox);
   ui->moreSettingsGroupBox->hide();
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
