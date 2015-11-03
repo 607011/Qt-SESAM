@@ -980,6 +980,10 @@ auf deinem Computer: %3</translation>
         <source>Your password is about to be regenerated. This is useful if you suspect that your credential have been compromised. You cannot undo this action. Are you sure you want to generate a new password?</source>
         <translation>Du hast dich entschieden, das Passwort zu erneuern. Das ist nützlich, wenn du glaubst, dass die Zugangsdaten für diese Domain kompromittiert wurden. Du kannst diese Änderung nicht rückgängig machen. Bist du sicher, dass du ein neues Passwort generieren möchtest?</translation>
     </message>
+    <message>
+        <source>(%1 characters)</source>
+        <translation>(%1 Zeichen)</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

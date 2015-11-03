@@ -56,6 +56,7 @@
 #include <QDesktopServices>
 #include <QCompleter>
 #include <QShortcut>
+#include <QGraphicsOpacityEffect>
 
 #include "singleinstancedetector.h"
 #include "global.h"
@@ -123,6 +124,7 @@ public:
     , readReply(Q_NULLPTR)
     , writeReply(Q_NULLPTR)
     , completer(Q_NULLPTR)
+    , pwdLabelOpacityEffect(Q_NULLPTR)
     , counter(0)
     , maxCounter(0)
     , masterPasswordChangeStep(0)
@@ -189,6 +191,7 @@ public:
   QNetworkReply *readReply;
   QNetworkReply *writeReply;
   QCompleter *completer;
+  QGraphicsOpacityEffect *pwdLabelOpacityEffect;
   int counter;
   int maxCounter;
   int masterPasswordChangeStep;
@@ -302,6 +305,10 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
+
+  d->pwdLabelOpacityEffect = new QGraphicsOpacityEffect(ui->passwordLengthLabel);
+  d->pwdLabelOpacityEffect->setOpacity(0.5);
+  ui->passwordLengthLabel->setGraphicsEffect(d->pwdLabelOpacityEffect);
 
   QLayout *moreSettingsGroupBoxLayout = ui->moreSettingsGroupBox->layout();
   d->expandableGroupBox->setLayout(moreSettingsGroupBoxLayout);
@@ -963,6 +970,8 @@ void MainWindow::onPasswordGenerated(void)
   if (!d->hackingMode) {
 #endif
     ui->generatedPasswordLineEdit->setText(d->password());
+    ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(d->password().length()));
+    d->pwdLabelOpacityEffect->setOpacity(1);
     if (!d->password.isAborted())
       ui->statusBar->showMessage(tr("generation time: %1 ms")
                                  .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 4), 3000);
@@ -2015,7 +2024,10 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   applyComplexity(complexity);
   updateTemplate();
   d->password.setDomainSettings(collectedDomainSettings());
-  ui->generatedPasswordLineEdit->setText(d->password.remixed());
+  const SecureString &pwd = d->password.remixed();
+  ui->generatedPasswordLineEdit->setText(pwd);
+  ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(length));
+  d->pwdLabelOpacityEffect->setOpacity(pwd.isEmpty() ? 0.5 : 1.0);
   setDirty();
   restartInvalidationTimer();
 }

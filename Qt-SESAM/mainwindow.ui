@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>332</width>
-    <height>648</height>
+    <height>612</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -215,11 +215,31 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Generated password</string>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="bottomMargin">
+           <number>0</number>
           </property>
-         </widget>
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Generated password</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="passwordLengthLabel">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
