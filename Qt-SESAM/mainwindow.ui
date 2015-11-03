@@ -587,9 +587,6 @@
                </item>
                <item>
                 <widget class="QLineEdit" name="saltBase64LineEdit">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
@@ -599,6 +596,9 @@
                  <property name="cursor">
                   <cursorShape>ForbiddenCursor</cursorShape>
                  </property>
+                 <property name="visible">
+                  <bool>false</bool>
+                 </property>
                  <property name="readOnly">
                   <bool>true</bool>
                  </property>
@@ -606,14 +606,14 @@
                </item>
                <item>
                 <widget class="QLineEdit" name="passwordTemplateLineEdit">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
                    <height>0</height>
                   </size>
+                 </property>
+                 <property name="visible">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>

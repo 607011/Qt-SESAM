@@ -310,8 +310,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->moreSettingsGroupBox->hide();
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
 
-  ui->passwordTemplateLineEdit->hide();
-  ui->saltBase64LineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
