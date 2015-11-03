@@ -1294,6 +1294,7 @@ void MainWindow::saveCurrentDomainSettings(void)
       QMessageBox::warning(this, tr("Empty character table"), tr("You forgot to fill in some characters into the field \"used characters\""));
     }
     else {
+      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
       saveDomainSettings(ds);
       if (ds.deleted)
         resetAllFields();
@@ -1533,6 +1534,8 @@ void MainWindow::onWriteFinished(QNetworkReply *reply)
     else {
       if (d->counter == d->maxCounter) {
         d->progressDialog->setText(tr("Sync to server finished."));
+        if (d->doConvertLocalToLegacy && !d->optionsDialog->useSyncFile())
+          warnAboutDifferingKGKs();
       }
     }
   }
@@ -1625,6 +1628,8 @@ void MainWindow::onSync(void)
                            tr("The sync file %1 cannot be opened for reading.")
                            .arg(d->optionsDialog->syncFilename()), QMessageBox::Ok);
     }
+    if (d->doConvertLocalToLegacy && !d->optionsDialog->useSyncServer())
+      warnAboutDifferingKGKs();
   }
   if (d->optionsDialog->useSyncServer()) {
     if (d->masterPasswordChangeStep == 0) {
@@ -1659,10 +1664,10 @@ void MainWindow::warnAboutDifferingKGKs(void)
 {
   QMessageBox::information(this,
                            tr("KGKs differ"),
-                           tr("The remote key generation key (KGK) is not the same as the local one. "
+                           tr("The remote key generation key (KGK) differs from the local one. "
                               "You probably began entering domain settings on this computer without syncing beforehand. "
-                              "The local settings will be converted so that generated passwords become legacy passwords. "
-                              "None of your work will get lost."));
+                              "The local settings have be converted so that generated passwords became legacy passwords. "
+                              "All settings have been kept, none of your work is lost."));
 }
 
 
@@ -1678,7 +1683,6 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
       SecureByteArray KGK;
       baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
       if (d->KGK != KGK && !d->domains.isEmpty()) {
-        warnAboutDifferingKGKs();
         d->doConvertLocalToLegacy = true;
         d->KGK = KGK;
       }
@@ -1695,7 +1699,6 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
         SecureByteArray KGK;
         baDomains = Crypter::decode(d->changeMasterPasswordDialog->newPassword().toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
         if (d->KGK != KGK && !d->domains.isEmpty()) {
-          warnAboutDifferingKGKs();
           d->doConvertLocalToLegacy = true;
           d->KGK = KGK;
         }
@@ -2016,6 +2019,31 @@ void MainWindow::updateWindowTitle(void)
 }
 
 
+void MainWindow::showMoreSettings(bool expanded)
+{
+  static const QPixmap CollapsedPixmap(":/images/collapsed.png");
+  static const QPixmap ExpandedPixmap(":/images/expanded.png");
+  if (!expanded) {
+    ui->expandableLabel->setPixmap(CollapsedPixmap);
+    ui->moreSettingsGroupBox->setMaximumHeight(22);
+    ui->moreSettingsGroupBox->adjustSize();
+    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, false);
+  }
+  else {
+    ui->expandableLabel->setPixmap(ExpandedPixmap);
+    ui->moreSettingsGroupBox->setMaximumHeight(QWIDGETSIZE_MAX);
+    ui->moreSettingsGroupBox->adjustSize();
+    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, true);
+  }
+}
+
+
+void MainWindow::toggleMoreSettings(void)
+{
+  showMoreSettings(!ui->moreSettingsGroupBox->property(ExpandedProperty).toBool());
+}
+
+
 void MainWindow::clearClipboard(void)
 {
   QApplication::clipboard()->clear();
@@ -2277,30 +2305,3 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   }
   return QObject::eventFilter(obj, event);
 }
-
-
-void MainWindow::showMoreSettings(bool expanded)
-{
-  static const QPixmap CollapsedPixmap(":/images/collapsed.png");
-  static const QPixmap ExpandedPixmap(":/images/expanded.png");
-  if (!expanded) {
-    ui->expandableLabel->setPixmap(CollapsedPixmap);
-    ui->moreSettingsGroupBox->setMaximumHeight(22);
-    ui->moreSettingsGroupBox->adjustSize();
-    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, false);
-  }
-  else {
-    ui->expandableLabel->setPixmap(ExpandedPixmap);
-    ui->moreSettingsGroupBox->setMaximumHeight(QWIDGETSIZE_MAX);
-    ui->moreSettingsGroupBox->adjustSize();
-    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, true);
-  }
-}
-
-
-void MainWindow::toggleMoreSettings(void)
-{
-  showMoreSettings(!ui->moreSettingsGroupBox->property(ExpandedProperty).toBool());
-}
-
-
