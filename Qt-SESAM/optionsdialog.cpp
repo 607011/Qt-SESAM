@@ -51,9 +51,6 @@ public:
     , secure(false)
     , loaderIcon(":/images/loader.gif")
     , escShortcut(Q_NULLPTR)
-#ifdef WIN32
-    , smartLoginCheckbox(Q_NULLPTR)
-#endif
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
@@ -70,9 +67,6 @@ public:
   bool secure;
   QMovie loaderIcon;
   QShortcut *escShortcut;
-#ifdef WIN32
-  QCheckBox *smartLoginCheckbox;
-#endif
 };
 
 
@@ -98,12 +92,6 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   d->escShortcut = new QShortcut(Qt::Key_Escape, this, SLOT(reject()));
-
-#ifdef WIN32
-  d->smartLoginCheckbox = new QCheckBox(tr("Smart login"));
-  d->smartLoginCheckbox->setChecked(true);
-  ui->miscFormLayout->addWidget(d->smartLoginCheckbox);
-#endif
 }
 
 
@@ -331,20 +319,6 @@ bool OptionsDialog::writeBackups(void) const
 {
   return ui->writeBackupsCheckBox->isChecked();
 }
-
-
-#ifdef WIN32
-void OptionsDialog::setSmartLogin(bool enabled)
-{
-   d_ptr->smartLoginCheckbox->setChecked(enabled);
-}
-
-
-bool OptionsDialog::smartLogin(void) const
-{
-  return d_ptr->smartLoginCheckbox->isChecked();
-}
-#endif
 
 
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const

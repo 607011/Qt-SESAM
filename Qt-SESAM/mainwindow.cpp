@@ -1473,9 +1473,6 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
-#ifdef WIN32
-  d->settings.setValue("misc/smartLogin", d->optionsDialog->smartLogin());
-#endif
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
@@ -1517,9 +1514,6 @@ bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-#ifdef WIN32
-  d->optionsDialog->setSmartLogin(d->settings.value("misc/smartLogin").toBool());
-#endif
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
