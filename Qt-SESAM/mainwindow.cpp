@@ -109,6 +109,7 @@ public:
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
     , expandableGroupBox(new ExpandableGroupbox)
+    , expandableGroupBoxLastExpanded(false)
 #if HACKING_MODE_ENABLED
     , hackIterationDurationMs(0)
     , hackSalt(4, 0)
@@ -161,6 +162,7 @@ public:
   bool customCharacterSetDirty;
   bool parameterSetDirty;
   ExpandableGroupbox *expandableGroupBox;
+  bool expandableGroupBoxLastExpanded;
 #if HACKING_MODE_ENABLED
   qint64 hackIterationDurationMs;
   QElapsedTimer hackClock;
@@ -249,6 +251,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->revertPushButton, SIGNAL(clicked(bool)), SLOT(onRevert()));
   QObject::connect(ui->savePushButton, SIGNAL(clicked(bool)), SLOT(saveCurrentDomainSettings()));
+  QObject::connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(onSync()));
@@ -304,10 +307,10 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   QLayout *moreSettingsGroupBoxLayout = ui->moreSettingsGroupBox->layout();
   d->expandableGroupBox->setLayout(moreSettingsGroupBoxLayout);
-  d->expandableGroupBox->setTitle(tr("More settings"));
+  d->expandableGroupBox->setTitle(tr("Advanced settings"));
   ui->generatedPasswordTab->layout()->addWidget(d->expandableGroupBox);
   ui->moreSettingsGroupBox->hide();
-  QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(expandableCheckBoxStateChanged()));
+  QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
 
   ui->passwordTemplateLineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
@@ -317,6 +320,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   enterMasterPassword();
+
+  new QShortcut(QKeySequence("Ctrl+M"), this, SLOT(shrink()));
 }
 
 
@@ -362,6 +367,12 @@ MainWindow::~MainWindow()
 
 
 QSize MainWindow::sizeHint(void) const
+{
+  return QSize(240, 240);
+}
+
+
+QSize MainWindow::minimumSizeHint(void) const
 {
   return QSize(240, 240);
 }
@@ -429,6 +440,12 @@ void MainWindow::changeEvent(QEvent *e)
   default:
     break;
   }
+}
+
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+  // ...
 }
 
 
@@ -1753,15 +1770,32 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
 
 void MainWindow::shrink(void)
 {
-  resize(0, 0);
+  const QSize &newSize = QSize(width(), 0);
+  resize(newSize);
 }
 
 
-void MainWindow::expandableCheckBoxStateChanged(void)
+void MainWindow::onExpandableCheckBoxStateChanged(void)
 {
   Q_D(MainWindow);
-  if (!d->expandableGroupBox->expanded())
-    shrink();
+  if (!d->expandableGroupBox->expanded()) {
+    QTimer::singleShot(10, this, SLOT(shrink()));
+  }
+}
+
+
+void MainWindow::onTabChanged(int idx)
+{
+  Q_D(MainWindow);
+  if (idx == TabLegacyPassword) {
+    d->expandableGroupBoxLastExpanded = d->expandableGroupBox->expanded();
+    if (d->expandableGroupBoxLastExpanded)
+      d->expandableGroupBox->collapse();
+  }
+  else {
+    if (d->expandableGroupBoxLastExpanded)
+      d->expandableGroupBox->expand();
+  }
 }
 
 

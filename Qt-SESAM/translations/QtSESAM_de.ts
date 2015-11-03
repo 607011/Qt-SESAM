@@ -964,6 +964,10 @@ auf deinem Computer: %3</translation>
         <source>The remote key generation key (KGK) differs from the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings have be converted so that generated passwords became legacy passwords. All settings have been kept, none of your work is lost.</source>
         <translation>Der Key Generation Key (KGK) der Synchronisationsgegenstelle unterscheidet sich vom lokalen. Du hast vermutlich mit dem Anlegen von Domain-Einstellungen begonnen, ohne vorher zu synchronisieren. Die lokalen Einstellungen wurden konvertiert: Aus den generierten Passwörtern wurden klassisch. Keine Sorge, nichts ist dabei verloren gegangen.</translation>
     </message>
+    <message>
+        <source>Advanced settings</source>
+        <translation>Erweiterte Einstellungen</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

@@ -20,49 +20,50 @@
 
 #include "expandablegroupbox.h"
 #include <QGroupBox>
+#include <QFrame>
 #include <QLabel>
 #include <QPixmap>
 #include <QVBoxLayout>
 
 class ExpandableGroupboxPrivate {
 public:
-  ExpandableGroupboxPrivate(void)
-    : layout(Q_NULLPTR)
-    , groupBox(Q_NULLPTR)
-    , title(Q_NULLPTR)
-    , button(Q_NULLPTR)
+  ExpandableGroupboxPrivate(QWidget *parent)
+    : layout(new QVBoxLayout(parent))
+    , contents(new QFrame(parent))
+    , title(new QLabel(parent))
+    , button(new QLabel(parent))
     , expanded(true)
   { /* ... */ }
   ~ExpandableGroupboxPrivate(void)
   { /* ... */ }
   QVBoxLayout *layout;
-  QGroupBox *groupBox;
+  QFrame *contents;
   QLabel *button;
   QLabel *title;
   bool expanded;
 };
 
+static const QString ExpandCollapseButton = "expandCollapseButton";
 
 
 ExpandableGroupbox::ExpandableGroupbox(QWidget *parent)
   : QWidget(parent)
-  , d_ptr(new ExpandableGroupboxPrivate)
+  , d_ptr(new ExpandableGroupboxPrivate(this))
 {
   Q_D(ExpandableGroupbox);
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
   setObjectName("ExpandableGroupbox");
-  d->layout = new QVBoxLayout(this);
-  d->layout->setContentsMargins(0, 17, 0, 0);
+  d->layout->setContentsMargins(0, 20, 0, 0);
   QWidget::setLayout(d->layout);
-  d->groupBox = new QGroupBox(this);
-  d->title = new QLabel(this);
-  d->title->move(13, -4);
-  d->button = new QLabel(this);
+  d->contents = new QFrame(this);
+  d->contents->setFrameShape(QFrame::StyledPanel);
+  d->title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  d->title->move(12, -5);
   d->button->setCursor(Qt::PointingHandCursor);
-  d->button->setObjectName("button");
-  d->button->move(2, -4);
+  d->button->setObjectName(ExpandCollapseButton);
   d->button->installEventFilter(this);
-  d->layout->addWidget(d->groupBox);
+  d->button->move(0, -5);
+  d->layout->addWidget(d->contents);
   d->layout->addStretch(0);
   collapse();
 }
@@ -80,8 +81,8 @@ void ExpandableGroupbox::expand(void)
   d->expanded = true;
   static const QPixmap ExpandedPixmap(":/images/expanded.png");
   d->button->setPixmap(ExpandedPixmap);
-  d->groupBox->setMaximumHeight(QWIDGETSIZE_MAX);
-  d->groupBox->adjustSize();
+  d->contents->setMaximumHeight(QWIDGETSIZE_MAX);
+  d->contents->adjustSize();
   emit expansionStateChanged();
 }
 
@@ -92,8 +93,9 @@ void ExpandableGroupbox::collapse(void)
   d->expanded = false;
   static const QPixmap CollapsedPixmap(":/images/collapsed.png");
   d->button->setPixmap(CollapsedPixmap);
-  d->groupBox->setMaximumHeight(11);
-  d->groupBox->adjustSize();
+  d->contents->setMaximumHeight(0);
+  d->contents->adjustSize();
+  adjustSize();
   emit expansionStateChanged();
 }
 
@@ -133,7 +135,7 @@ void ExpandableGroupbox::setTitle(const QString &title)
 void ExpandableGroupbox::setLayout(QLayout *layout)
 {
   Q_D(ExpandableGroupbox);
-  d->groupBox->setLayout(layout);
+  d->contents->setLayout(layout);
 }
 
 
@@ -141,7 +143,7 @@ bool ExpandableGroupbox::eventFilter(QObject *obj, QEvent *event)
 {
   switch (event->type()) {
   case QEvent::MouseButtonPress:
-    if (obj->objectName() == "button") {
+    if (obj->objectName() == ExpandCollapseButton) {
       toggle();
     }
     break;

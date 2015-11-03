@@ -64,6 +64,7 @@ public:
   ~MainWindow();
 
   virtual QSize sizeHint(void) const;
+  virtual QSize minimumSizeHint(void) const;
 
 private:
   typedef enum _Type {
@@ -111,7 +112,8 @@ private slots:
   void onMigrateDomainSettingsToExpert(void);
   void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
-  void expandableCheckBoxStateChanged(void);
+  void onExpandableCheckBoxStateChanged(void);
+  void onTabChanged(int idx);
   void clearClipboard(void);
   void shrink(void);
   void about(void);
@@ -143,6 +145,7 @@ signals:
 protected:
   void closeEvent(QCloseEvent *);
   void changeEvent(QEvent *);
+  void resizeEvent(QResizeEvent*);
   bool event(QEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
