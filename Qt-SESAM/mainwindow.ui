@@ -451,7 +451,17 @@
                   <number>0</number>
                  </property>
                  <item row="0" column="0">
-                  <widget class="EasySelectorWidget" name="easySelectorWidget" native="true"/>
+                  <widget class="EasySelectorWidget" name="easySelectorWidget" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>PointingHandCursor</cursorShape>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </item>
@@ -596,6 +606,9 @@
             <spacer name="verticalSpacer_4">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Minimum</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -770,7 +783,7 @@
      <x>0</x>
      <y>0</y>
      <width>332</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

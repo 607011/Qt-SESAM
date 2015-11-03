@@ -27,8 +27,6 @@
 #include <QColor>
 #include <QBrush>
 #include <QPen>
-#include <QLinearGradient>
-#include <QGradientStop>
 #include <QPoint>
 #include <QPixmap>
 #include <QToolTip>
@@ -69,8 +67,6 @@ public:
   QPixmap background;
   bool doAbortSpeedTest;
   QFuture<void> speedTestFuture;
-  QTimer speedTestTimer;
-  QTimer speedTestAbortionTimer;
   qreal hashesPerSec;
 };
 
@@ -80,15 +76,8 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
   , d_ptr(new EasySelectorWidgetPrivate)
 {
   Q_D(EasySelectorWidget);
-  setMinimumSize(100, 100);
-  setMaximumHeight(250);
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-  setCursor(Qt::PointingHandCursor);
   QObject::connect(this, SIGNAL(speedTestFinished(qreal)), SLOT(onSpeedTestEnd(qreal)), Qt::QueuedConnection);
-  QObject::connect(&d->speedTestAbortionTimer, SIGNAL(timeout()), SLOT(onSpeedTestAbort()));
-  QObject::connect(&d->speedTestTimer, SIGNAL(timeout()), SLOT(onSpeedTestBegin()));
-  d->speedTestTimer.setSingleShot(true);
-  d->speedTestTimer.start(500);
+  QTimer::singleShot(500, this, SLOT(onSpeedTestBegin()));
   qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 }
 
@@ -96,6 +85,12 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
 EasySelectorWidget::~EasySelectorWidget()
 {
   /* ... */
+}
+
+
+QSize EasySelectorWidget::minimumSizeHint(void) const
+{
+  return QSize(200, 100);
 }
 
 
@@ -401,8 +396,7 @@ void EasySelectorWidget::setMaxLength(int maxLength)
 void EasySelectorWidget::onSpeedTestBegin(void)
 {
   Q_D(EasySelectorWidget);
-  d->speedTestAbortionTimer.setSingleShot(true);
-  d->speedTestAbortionTimer.start(3000);
+  QTimer::singleShot(3000, this, SLOT(onSpeedTestAbort()));
   d->speedTestFuture = QtConcurrent::run(this, &EasySelectorWidget::speedTest);
 }
 

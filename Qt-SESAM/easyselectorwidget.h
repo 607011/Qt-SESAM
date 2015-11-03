@@ -52,6 +52,7 @@ protected:
   void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
   void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
   bool event(QEvent*) Q_DECL_OVERRIDE;
+  QSize minimumSizeHint(void) const;
 
 signals:
   void valuesChanged(int newLength, int newComplexity);
