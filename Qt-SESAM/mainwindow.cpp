@@ -492,11 +492,11 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->saltBase64LineEdit->blockSignals(false);
 
   ui->iterationsSpinBox->blockSignals(true);
-  ui->iterationsSpinBox->setValue(DomainSettings::DefaultIterations);
+  ui->iterationsSpinBox->setValue(d->optionsDialog->defaultIterations());
   ui->iterationsSpinBox->blockSignals(false);
 
   ui->passwordLengthSpinBox->blockSignals(true);
-  ui->passwordLengthSpinBox->setValue(DomainSettings::DefaultPasswordLength);
+  ui->passwordLengthSpinBox->setValue(d->optionsDialog->defaultPasswordLength());
   ui->passwordLengthSpinBox->blockSignals(false);
 
   ui->notesPlainTextEdit->blockSignals(true);
@@ -523,7 +523,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->extraLineEdit->blockSignals(false);
 
   ui->easySelectorWidget->blockSignals(true);
-  ui->easySelectorWidget->setLength(DomainSettings::DefaultPasswordLength);
+  ui->easySelectorWidget->setLength(d->optionsDialog->defaultPasswordLength());
   ui->easySelectorWidget->setComplexity(Password::DefaultComplexity);
   ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
   ui->easySelectorWidget->blockSignals(false);
@@ -1467,13 +1467,15 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
+  d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
+  d->settings.setValue("misc/defaultPBKDF2Iterations", d->optionsDialog->defaultIterations());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
+  d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
 #ifdef WIN32
   d->settings.setValue("misc/smartLogin", d->optionsDialog->smartLogin());
 #endif
-  d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
@@ -1515,14 +1517,16 @@ bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
-  d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
-  d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
-  d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
-  d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength", 28).toInt());
 #ifdef WIN32
   d->optionsDialog->setSmartLogin(d->settings.value("misc/smartLogin").toBool());
 #endif
+  d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
+  d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
+  d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
+  d->optionsDialog->setSaltLength(d->settings.value("misc/saltLength", DomainSettings::DefaultSaltLength).toInt());
+  d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength", Password::DefaultMaxLength).toInt());
+  d->optionsDialog->setDefaultPasswordLength(d->settings.value("misc/defaultPasswordLength", DomainSettings::DefaultPasswordLength).toInt());
+  d->optionsDialog->setDefaultIterations(d->settings.value("misc/defaultPBKDF2Iterations", DomainSettings::DefaultIterations).toInt());
   d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
   d->optionsDialog->setServerRootUrl(DefaultSyncServerRoot);
   d->optionsDialog->setServerUsername(DefaultSyncServerUsername);

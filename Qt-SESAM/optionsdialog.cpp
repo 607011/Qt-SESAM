@@ -92,6 +92,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(onServerRootUrlChanged(QString)));
   QObject::connect(ui->saltLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(saltLengthChanged(int)));
   QObject::connect(ui->maxPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(maxPasswordLengthChanged(int)));
+  QObject::connect(ui->defaultPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(defaultPasswordLengthChanged(int)));
   QObject::connect(ui->masterPasswordInvalidationTimeMinsSpinBox, SIGNAL(valueChanged(int)), SIGNAL(masterPasswordInvalidationTimeMinsChanged(int)));
   QObject::connect(&d->NAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
@@ -379,6 +380,30 @@ int OptionsDialog::maxPasswordLength(void) const
 void OptionsDialog::setMaxPasswordLength(int len)
 {
   ui->maxPasswordLengthSpinBox->setValue(len);
+}
+
+
+int OptionsDialog::defaultPasswordLength(void) const
+{
+  return ui->defaultPasswordLengthSpinBox->value();
+}
+
+
+void OptionsDialog::setDefaultPasswordLength(int len)
+{
+  ui->defaultPasswordLengthSpinBox->setValue(len);
+}
+
+
+int OptionsDialog::defaultIterations(void) const
+{
+  return ui->defaultPBKDF2IterationsSpinBox->value();
+}
+
+
+void OptionsDialog::setDefaultIterations(int iter)
+{
+  ui->defaultPBKDF2IterationsSpinBox->setValue(iter);
 }
 
 

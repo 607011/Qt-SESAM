@@ -101,6 +101,12 @@ public:
   int maxPasswordLength(void) const;
   void setMaxPasswordLength(int);
 
+  int defaultPasswordLength(void) const;
+  void setDefaultPasswordLength(int);
+
+  int defaultIterations(void) const;
+  void setDefaultIterations(int);
+
   bool syncToFileEnabled(void) const;
   bool syncToServerEnabled(void) const;
 
@@ -108,6 +114,7 @@ signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
   void saltLengthChanged(int);
   void maxPasswordLengthChanged(int);
+  void defaultPasswordLengthChanged(int);
   void masterPasswordInvalidationTimeMinsChanged(int);
 
 private slots:
