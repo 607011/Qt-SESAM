@@ -311,6 +311,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
 
   ui->passwordTemplateLineEdit->hide();
+  ui->saltBase64LineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
@@ -575,8 +576,11 @@ void MainWindow::onRenewSalt(void)
   if (domainComboboxContains(ui->domainsComboBox->currentText())) {
     button = QMessageBox::question(
           this,
-          tr("Really renew salt?"),
-          tr("Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?"),
+          tr("Really regenerate?"),
+          tr("Your password is about to be regenerated. "
+             "This is useful if you suspect that your credential have been compromised. "
+             "You cannot undo this action. "
+             "Are you sure you want to generate a new password?"),
           QMessageBox::Yes,
           QMessageBox::No);
   }

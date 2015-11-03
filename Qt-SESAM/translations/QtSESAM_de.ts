@@ -139,7 +139,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Salt (Base64)</source>
-        <translation>Salt (Base64)</translation>
+        <translation type="vanished">Salt (Base64)</translation>
     </message>
     <message>
         <source>Additional parameters</source>
@@ -339,11 +339,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Really renew salt?</source>
-        <translation>Salt wirklich erneuern?</translation>
+        <translation type="vanished">Salt wirklich erneuern?</translation>
     </message>
     <message>
         <source>Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?</source>
-        <translation>Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
+        <translation type="vanished">Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
     </message>
     <message>
         <source>HACKED in %1! :-)</source>
@@ -958,7 +958,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>More settings</source>
-        <translation>Mehr Einstellungen</translation>
+        <translation type="vanished">Mehr Einstellungen</translation>
     </message>
     <message>
         <source>The remote key generation key (KGK) differs from the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings have be converted so that generated passwords became legacy passwords. All settings have been kept, none of your work is lost.</source>
@@ -967,6 +967,18 @@ auf deinem Computer: %3</translation>
     <message>
         <source>Advanced settings</source>
         <translation>Erweiterte Einstellungen</translation>
+    </message>
+    <message>
+        <source>Generate new password</source>
+        <translation>Neues Passwort generieren</translation>
+    </message>
+    <message>
+        <source>Really regenerate?</source>
+        <translation>Passwort wirklich erneuern?</translation>
+    </message>
+    <message>
+        <source>Your password is about to be regenerated. This is useful if you suspect that your credential have been compromised. You cannot undo this action. Are you sure you want to generate a new password?</source>
+        <translation>Du hast dich entschieden, das Passwort zu erneuern. Das ist nützlich, wenn du glaubst, dass die Zugangsdaten für diese Domain kompromittiert wurden. Du kannst diese Änderung nicht rückgängig machen. Bist du sicher, dass du ein neues Passwort generieren möchtest?</translation>
     </message>
 </context>
 <context>
