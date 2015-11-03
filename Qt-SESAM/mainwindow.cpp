@@ -320,8 +320,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   enterMasterPassword();
-
-  new QShortcut(QKeySequence("Ctrl+M"), this, SLOT(shrink()));
 }
 
 
