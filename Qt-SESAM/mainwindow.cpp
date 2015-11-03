@@ -516,7 +516,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->extraLineEdit->blockSignals(false);
 
   ui->easySelectorWidget->blockSignals(true);
-  ui->easySelectorWidget->setLength(d->optionsDialog->maxPasswordLength() / 2);
+  ui->easySelectorWidget->setLength(DomainSettings::DefaultPasswordLength);
   ui->easySelectorWidget->setComplexity(Password::DefaultComplexity);
   ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
   ui->easySelectorWidget->blockSignals(false);
