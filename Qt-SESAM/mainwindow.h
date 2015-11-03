@@ -61,10 +61,10 @@ class MainWindow : public QMainWindow
 
 public:
   explicit MainWindow(bool forceStart, QWidget *parent = Q_NULLPTR);
-
   ~MainWindow();
 
-  void applyComplexity(int complexity);
+  virtual QSize sizeHint(void) const;
+
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
@@ -111,8 +111,9 @@ private slots:
   void onMigrateDomainSettingsToExpert(void);
   void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
-  void toggleMoreSettings(void);
+  void expandableCheckBoxStateChanged(void);
   void clearClipboard(void);
+  void shrink(void);
   void about(void);
   void aboutQt(void);
   void enterMasterPassword(void);
@@ -181,6 +182,7 @@ private: // methods
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
+  void applyComplexity(int complexity);
   void updateTemplate(void);
   QString usedCharacters(void);
   void applyTemplate(const QByteArray &);
@@ -189,7 +191,6 @@ private: // methods
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
-  void showMoreSettings(bool collapsed);
 };
 
 #endif // __MAINWINDOW_H_

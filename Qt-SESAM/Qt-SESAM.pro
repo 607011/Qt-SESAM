@@ -58,7 +58,8 @@ SOURCES += main.cpp \
     easyselectorwidget.cpp \
     countdownwidget.cpp \
     keepass2xmlreader.cpp \
-    hackhelper.cpp
+    hackhelper.cpp \
+    expandablegroupbox.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -73,7 +74,8 @@ HEADERS  += \
     singleinstancedetector.h \
     easyselectorwidget.h \
     countdownwidget.h \
-    keepass2xmlreader.h
+    keepass2xmlreader.h \
+    expandablegroupbox.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

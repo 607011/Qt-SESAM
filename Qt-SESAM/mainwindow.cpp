@@ -66,6 +66,7 @@
 #include "optionsdialog.h"
 #include "easyselectorwidget.h"
 #include "countdownwidget.h"
+#include "expandablegroupbox.h"
 #if HACKING_MODE_ENABLED
 #include "hackhelper.h"
 #endif
@@ -107,6 +108,7 @@ public:
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
+    , expandableGroupBox(new ExpandableGroupbox)
 #if HACKING_MODE_ENABLED
     , hackIterationDurationMs(0)
     , hackSalt(4, 0)
@@ -158,6 +160,7 @@ public:
   DomainSettingsList remoteDomains;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
+  ExpandableGroupbox *expandableGroupBox;
 #if HACKING_MODE_ENABLED
   qint64 hackIterationDurationMs;
   QElapsedTimer hackClock;
@@ -239,7 +242,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(onIterationsChanged(int)));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(onSaltChanged(QString)));
   ui->generatedPasswordLineEdit->installEventFilter(this);
-  ui->expandableLabel->installEventFilter(this);
   QObject::connect(ui->passwordTemplateLineEdit, SIGNAL(textChanged(QString)), SLOT(onPasswordTemplateChanged(QString)));
   QObject::connect(ui->copyGeneratedPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyGeneratedPasswordToClipboard()));
   QObject::connect(ui->copyLegacyPasswordToClipboardPushButton, SIGNAL(clicked()), SLOT(copyLegacyPasswordToClipboard()));
@@ -300,6 +302,13 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
 
+  QLayout *moreSettingsGroupBoxLayout = ui->moreSettingsGroupBox->layout();
+  d->expandableGroupBox->setLayout(moreSettingsGroupBoxLayout);
+  d->expandableGroupBox->setTitle(tr("More settings"));
+  ui->generatedPasswordTab->layout()->addWidget(d->expandableGroupBox);
+  ui->moreSettingsGroupBox->hide();
+  QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(expandableCheckBoxStateChanged()));
+
   ui->passwordTemplateLineEdit->hide();
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
@@ -308,7 +317,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   enterMasterPassword();
-
 }
 
 
@@ -350,6 +358,12 @@ MainWindow::~MainWindow()
   d_ptr->changeMasterPasswordDialog->close();
   d_ptr->masterPasswordDialog->close();
   delete ui;
+}
+
+
+QSize MainWindow::sizeHint(void) const
+{
+  return QSize(240, 240);
 }
 
 
@@ -1435,7 +1449,7 @@ void MainWindow::saveSettings(void)
 #ifdef WIN32
   d->settings.setValue("misc/smartLogin", d->optionsDialog->smartLogin());
 #endif
-  d->settings.setValue("misc/moreSettingsExpanded", ui->moreSettingsGroupBox->property(ExpandedProperty).toBool());
+  d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
   saveAllDomainDataToSettings();
   d->settings.sync();
 }
@@ -1492,7 +1506,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setReadUrl(DefaultSyncServerReadUrl);
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
   d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
-  showMoreSettings(d->settings.value("misc/moreSettingsExpanded", true).toBool());
+  d->expandableGroupBox->setExpanded(d->settings.value("misc/moreSettingsExpanded", true).toBool());
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
     QByteArray baSyncData;
@@ -1734,6 +1748,20 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
   }
 
   copyDomainSettingsToGUI(d->domainSettingsBeforceSync);
+}
+
+
+void MainWindow::shrink(void)
+{
+  resize(0, 0);
+}
+
+
+void MainWindow::expandableCheckBoxStateChanged(void)
+{
+  Q_D(MainWindow);
+  if (!d->expandableGroupBox->expanded())
+    shrink();
 }
 
 
@@ -2019,31 +2047,6 @@ void MainWindow::updateWindowTitle(void)
 }
 
 
-void MainWindow::showMoreSettings(bool expanded)
-{
-  static const QPixmap CollapsedPixmap(":/images/collapsed.png");
-  static const QPixmap ExpandedPixmap(":/images/expanded.png");
-  if (!expanded) {
-    ui->expandableLabel->setPixmap(CollapsedPixmap);
-    ui->moreSettingsGroupBox->setMaximumHeight(22);
-    ui->moreSettingsGroupBox->adjustSize();
-    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, false);
-  }
-  else {
-    ui->expandableLabel->setPixmap(ExpandedPixmap);
-    ui->moreSettingsGroupBox->setMaximumHeight(QWIDGETSIZE_MAX);
-    ui->moreSettingsGroupBox->adjustSize();
-    ui->moreSettingsGroupBox->setProperty(ExpandedProperty, true);
-  }
-}
-
-
-void MainWindow::toggleMoreSettings(void)
-{
-  showMoreSettings(!ui->moreSettingsGroupBox->property(ExpandedProperty).toBool());
-}
-
-
 void MainWindow::clearClipboard(void)
 {
   QApplication::clipboard()->clear();
@@ -2291,8 +2294,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
       else if (obj->objectName() == "legacyPasswordLineEdit")
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
-      else if (obj->objectName() == "expandableLabel")
-        toggleMoreSettings();
     break;
   case QEvent::MouseButtonRelease:
       if (obj->objectName() == "generatedPasswordLineEdit")
