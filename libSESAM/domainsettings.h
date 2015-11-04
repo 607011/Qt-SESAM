@@ -38,6 +38,7 @@ public:
   QVariantMap toVariantMap(void) const;
   bool isEmpty(void) const;
   void clear(void);
+  int count(void) const;
 
   static DomainSettings fromVariantMap(const QVariantMap &);
 
@@ -92,13 +93,18 @@ public:
   QByteArray passwordTemplate;
 
   static const QString GROUP;
-  QString group;
+  QStringList groupHierarchy;
 
   static const QString EXPIRY_DATE;
   QDateTime expiryDate;
 
   static const QString TAGS;
   QStringList tags;
+
+private:
+  static const QChar TagSeparator;
+  static const QChar GroupSeparator;
+
 };
 
 

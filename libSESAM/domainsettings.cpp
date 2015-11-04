@@ -29,7 +29,8 @@ const QByteArray DomainSettings::DefaultSalt_base64 = DomainSettings::DefaultSal
 const int DomainSettings::DefaultIterations = 8192;
 const int DomainSettings::DefaultPasswordLength = 16;
 const int DomainSettings::DefaultSaltLength = 16;
-
+const QChar DomainSettings::TagSeparator = QChar('\t');
+const QChar DomainSettings::GroupSeparator = QChar('\t');
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
 const QString DomainSettings::URL = "url";
@@ -49,6 +50,7 @@ const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
 const QString DomainSettings::GROUP = "group";
 const QString DomainSettings::EXPIRY_DATE = "expiryDate";
 const QString DomainSettings::TAGS = "tags";
+
 
 DomainSettings::DomainSettings(void)
   : salt_base64(DefaultSalt_base64)
@@ -74,7 +76,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   // v3 settings
   , extraCharacters(o.extraCharacters)
   , passwordTemplate(o.passwordTemplate)
-  , group(o.group)
+  , groupHierarchy(o.groupHierarchy)
   , expiryDate(o.expiryDate)
   , tags(o.tags)
 { /* ... */ }
@@ -90,6 +92,13 @@ void DomainSettings::clear(void)
 {
   *this = DomainSettings();
 }
+
+
+int DomainSettings::count(void) const
+{
+  return 3;
+}
+
 
 QVariantMap DomainSettings::toVariantMap(void) const
 {
@@ -107,12 +116,12 @@ QVariantMap DomainSettings::toVariantMap(void) const
       map[URL] = url;
     if (!notes.isEmpty())
       map[NOTES] = notes;
-    if (!group.isEmpty())
-      map[GROUP] = group;
+    if (!groupHierarchy.isEmpty())
+      map[GROUP] = groupHierarchy.join(GroupSeparator);
     if (!expiryDate.isNull())
       map[EXPIRY_DATE] = expiryDate;
     if (!tags.isEmpty())
-      map[TAGS] = tags.join(QChar('\t'));
+      map[TAGS] = tags.join(TagSeparator);
     if (legacyPassword.isEmpty()) {
       map[SALT] = salt_base64;
       map[ITERATIONS] = iterations;
@@ -150,9 +159,9 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   // v3 settings
   ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
-  ds.group = map[GROUP].toString();
+  ds.groupHierarchy = map[GROUP].toString().split(GroupSeparator);
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
-  ds.tags = map[TAGS].toString().split(QChar('\t'));
+  ds.tags = map[TAGS].toString().split(TagSeparator);
   return ds;
 }
 
@@ -175,8 +184,8 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
       debug.nospace() << "  " << DomainSettings::URL << ": " << ds.url << ",\n";
     if (!ds.notes.isEmpty())
       debug.nospace() << "  " << DomainSettings::NOTES << ": " << ds.notes << ",\n";
-    if (!ds.group.isEmpty())
-      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.group << ",\n";
+    if (!ds.groupHierarchy.isEmpty())
+      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.groupHierarchy.join(';') << ",\n";
     if (!ds.expiryDate.isNull())
       debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
     if (!ds.tags.isEmpty())
