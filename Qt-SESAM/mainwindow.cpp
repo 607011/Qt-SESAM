@@ -57,6 +57,8 @@
 #include <QCompleter>
 #include <QShortcut>
 #include <QGraphicsOpacityEffect>
+#include <QTreeView>
+#include <QAbstractItemModel>
 
 #include "singleinstancedetector.h"
 #include "global.h"
@@ -68,15 +70,15 @@
 #include "easyselectorwidget.h"
 #include "countdownwidget.h"
 #include "expandablegroupbox.h"
-#if HACKING_MODE_ENABLED
-#include "hackhelper.h"
-#endif
 #include "pbkdf2.h"
 #include "password.h"
 #include "crypter.h"
 #include "securebytearray.h"
 #include "passwordchecker.h"
 #include "keepass2xmlreader.h"
+#if HACKING_MODE_ENABLED
+#include "hackhelper.h"
+#endif
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
