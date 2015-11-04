@@ -153,9 +153,9 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   // v3 settings
   ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
-  ds.groupHierarchy = map[GROUP].toString().split(GroupSeparator);
+  ds.groupHierarchy = map[GROUP].toString().split(GroupSeparator, QString::SkipEmptyParts);
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
-  ds.tags = map[TAGS].toString().split(TagSeparator);
+  ds.tags = map[TAGS].toString().split(TagSeparator, QString::SkipEmptyParts);
   return ds;
 }
 
