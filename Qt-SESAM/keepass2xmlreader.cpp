@@ -75,15 +75,12 @@ KeePass2XmlReader::~KeePass2XmlReader()
 }
 
 
-QString KeePass2XmlReader::groupHierarchy(int level)
+QStringList KeePass2XmlReader::groupHierarchy(int level)
 {
   Q_D(KeePass2XmlReader);
-  QString g;
-  for (int l = 2; l <= level; ++l) {
-    g.append(d->groupNames[l]);
-    if (l < level)
-      g.append("/");
-  }
+  QStringList g;
+  for (int l = 2; l <= level; ++l)
+    g << d->groupNames[l];
   return g;
 }
 
@@ -126,7 +123,7 @@ void KeePass2XmlReader::parseXml(const QDomElement &e, int level)
           QDomElement entry = findChildByTagName(e, "Entry");
           if (!entry.isNull()) {
             DomainSettings ds;
-            ds.group = groupHierarchy(level);
+            ds.groupHierarchy = groupHierarchy(level);
             QDomNode child = entry.firstChild();
             while (!child.isNull()) {
               QDomElement eChild = child.toElement();

@@ -49,7 +49,7 @@ private:
   Q_DISABLE_COPY(KeePass2XmlReader)
 
 private: // methods
-  QString groupHierarchy(int level);
+  QStringList groupHierarchy(int level);
   void parseXml(const QDomElement &e, int level);
   QDomElement findChildByTagName(const QDomElement &root, const QString &tagName);
 };
