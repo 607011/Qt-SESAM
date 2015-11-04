@@ -19,40 +19,47 @@
 
 #include "treeitem.h"
 
-TreeItem::TreeItem(const DomainSettings &data, TreeItem *parent)
+TreeItem::TreeItem(TreeItem *parentItem)
+  : mParentItem(parentItem)
 {
-  m_parentItem = parent;
-  m_itemData = data;
+  /* ... */
+}
+
+TreeItem::TreeItem(const DomainSettings &data, TreeItem *parentItem)
+  : mParentItem(parentItem)
+  , mItemData(data)
+{
+  /* ... */
 }
 
 
 TreeItem::~TreeItem()
 {
-  qDeleteAll(m_childItems);
+  qDeleteAll(mChildItems);
 }
 
 
 void TreeItem::appendChild(TreeItem *item)
 {
-  m_childItems.append(item);
+  mChildItems.append(item);
 }
 
 
 TreeItem *TreeItem::child(int row)
 {
-  return m_childItems.value(row);
+  return mChildItems.value(row);
 }
 
 
 int TreeItem::childCount(void) const
 {
-  return m_childItems.count();
+  return mChildItems.count();
 }
 
 
 int TreeItem::columnCount(void) const
 {
-  return m_itemData.count();
+  return 4;
 }
 
 
@@ -60,24 +67,29 @@ QVariant TreeItem::data(int column) const
 {
   switch (column) {
   case 0:
-    return m_itemData.domainName;
-    break;
+    return mItemData.domainName;
   case 1:
-    return m_itemData.userName;
+    return mItemData.userName;
+  case 2:
+    return mItemData.url;
+  case 3:
+    return mItemData.groupHierarchy.join(QChar('/'));
+  default:
     break;
   }
+  return QString("<invalid>");
 }
 
 
 TreeItem *TreeItem::parentItem(void)
 {
-  return m_parentItem;
+  return mParentItem;
 }
 
 
 int TreeItem::row(void) const
 {
-  if (m_parentItem)
-    return m_parentItem->m_childItems.indexOf(const_cast<TreeItem*>(this));
+  if (mParentItem)
+    return mParentItem->mChildItems.indexOf(const_cast<TreeItem*>(this));
   return 0;
 }

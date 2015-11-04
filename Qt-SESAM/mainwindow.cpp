@@ -76,6 +76,8 @@
 #include "securebytearray.h"
 #include "passwordchecker.h"
 #include "keepass2xmlreader.h"
+#include "treeitem.h"
+#include "treemodel.h"
 #if HACKING_MODE_ENABLED
 #include "hackhelper.h"
 #endif
@@ -199,6 +201,7 @@ public:
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
   bool doConvertLocalToLegacy;
+  TreeModel treeModel;
 };
 
 
@@ -307,6 +310,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
   d->trayIcon.setContextMenu(trayMenu);
   d->trayIcon.show();
+
+  ui->domainView->setModel(&d->treeModel);
 
   d->pwdLabelOpacityEffect = new QGraphicsOpacityEffect(ui->passwordLengthLabel);
   d->pwdLabelOpacityEffect->setOpacity(0.5);
@@ -1286,6 +1291,7 @@ void MainWindow::makeDomainComboBox(void)
   ui->domainsComboBox->setCompleter(d->completer);
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->blockSignals(false);
+  d->treeModel.setData(d->domains);
 }
 
 
@@ -1467,6 +1473,10 @@ void MainWindow::saveSettings(void)
   d->keyGenerationMutex.unlock();
   d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
   d->settings.setValue("mainwindow/geometry", saveGeometry());
+  d->settings.setValue("mainwindow/state", saveState());
+  d->settings.setValue("domainViewerDock/geometry", ui->domainViewerDockWidget->saveGeometry());
+  for (int column = 0; column < d->treeModel.columnCount(); ++column)
+    d->settings.setValue(QString("domainView/column/%1/width").arg(column), ui->domainView->columnWidth(column));
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
   d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
@@ -1516,6 +1526,10 @@ bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
+  restoreState(d->settings.value("mainwindow/state").toByteArray());
+  ui->domainViewerDockWidget->restoreGeometry(d->settings.value("domainViewerDock/geometry").toByteArray());
+  for (int column = 0; column < d->treeModel.columnCount(); ++column)
+    ui->domainView->setColumnWidth(column, d->settings.value(QString("domainView/column/%1/width").arg(column), -1).toInt());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", false).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());

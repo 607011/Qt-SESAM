@@ -19,13 +19,13 @@
 
 #include "treeitem.h"
 #include "treemodel.h"
+#include "util.h"
 
-
-TreeModel::TreeModel(const DomainSettingsList &data, QObject *parent)
+TreeModel::TreeModel(QObject *parent)
   : QAbstractItemModel(parent)
-  , rootItem(new TreeItem)
+  , rootItem(Q_NULLPTR)
 {
-  setupModelData(data, rootItem);
+  /* ... */
 }
 
 
@@ -35,10 +35,17 @@ TreeModel::~TreeModel()
 }
 
 
+void TreeModel::setData(const DomainSettingsList &data)
+{
+  SafeRenew(rootItem, new TreeItem);
+  setupModelData(data, rootItem);
+}
+
+
 int TreeModel::columnCount(const QModelIndex &parent) const
 {
   if (parent.isValid())
-    return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
+    return reinterpret_cast<TreeItem*>(parent.internalPointer())->columnCount();
   else
     return rootItem->columnCount();
 }
@@ -65,8 +72,20 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-  if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-    return rootItem->data(section);
+  if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+    switch (section) {
+    case 0:
+      return tr("Domain");
+    case 1:
+      return tr("User");
+    case 2:
+      return tr("URL");
+    case 3:
+      return tr("Group");
+    default:
+      break;
+    }
+  }
   return QVariant();
 }
 

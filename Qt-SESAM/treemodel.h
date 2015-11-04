@@ -29,24 +29,23 @@ class TreeItem;
 
 class TreeModel : public QAbstractItemModel
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit TreeModel(const DomainSettingsList &data, QObject *parent = Q_NULLPTR);
-    ~TreeModel();
+  explicit TreeModel(QObject *parent = Q_NULLPTR);
+  ~TreeModel();
 
-    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
-    Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  void setData(const DomainSettingsList &data);
+  QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+  Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
 private:
-    void setupModelData(const DomainSettingsList &domainSettingsList, TreeItem *parent);
-    TreeItem *rootItem;
+  void setupModelData(const DomainSettingsList &domainSettingsList, TreeItem *parent);
+  TreeItem *rootItem;
 };
 
 #endif // __TREEMODEL_H_

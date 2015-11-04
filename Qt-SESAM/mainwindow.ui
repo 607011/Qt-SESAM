@@ -878,7 +878,7 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="domainViewerDockWidget">
    <property name="minimumSize">
     <size>
      <width>230</width>
@@ -909,7 +909,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QTreeWidget" name="domainTreeWidget"/>
+      <widget class="QTreeView" name="domainView"/>
      </item>
     </layout>
    </widget>

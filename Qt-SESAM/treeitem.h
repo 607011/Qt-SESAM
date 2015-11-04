@@ -21,26 +21,29 @@
 #ifndef __TREEITEM_H_
 #define __TREEITEM_H_
 
+#include <QList>
+#include <QVariant>
 #include "domainsettings.h"
 
 
 class TreeItem
 {
 public:
-    explicit TreeItem(const DomainSettings &data = DomainSettings(), TreeItem *parentItem = Q_NULLPTR);
-    ~TreeItem();
+  explicit TreeItem(TreeItem *parentItem = Q_NULLPTR);
+  TreeItem(const DomainSettings &data, TreeItem *parentItem = Q_NULLPTR);
+  ~TreeItem();
 
-    void appendChild(TreeItem *child);
-    TreeItem *child(int row);
-    int childCount(void) const;
-    int columnCount(void) const;
-    QVariant data(int column) const;
-    int row(void) const;
-    TreeItem *parentItem();
+  void appendChild(TreeItem *child);
+  TreeItem *child(int row);
+  int childCount(void) const;
+  int columnCount(void) const;
+  QVariant data(int column) const;
+  int row(void) const;
+  TreeItem *parentItem(void);
 
 private:
-    QList<TreeItem*> m_childItems;
-    DomainSettings m_itemData;
-    TreeItem *m_parentItem;
+  QList<TreeItem*> mChildItems;
+  DomainSettings mItemData;
+  TreeItem *mParentItem;
 };
 #endif // __TREEITEM_H_
