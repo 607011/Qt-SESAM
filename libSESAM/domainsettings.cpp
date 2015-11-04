@@ -94,12 +94,6 @@ void DomainSettings::clear(void)
 }
 
 
-int DomainSettings::count(void) const
-{
-  return 3;
-}
-
-
 QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
