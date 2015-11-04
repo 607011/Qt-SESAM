@@ -916,7 +916,7 @@
    <property name="minimumSize">
     <size>
      <width>230</width>
-     <height>111</height>
+     <height>129</height>
     </size>
    </property>
    <property name="floating">
@@ -944,6 +944,36 @@
      </property>
      <item>
       <widget class="QTreeView" name="domainView"/>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="topMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="addGroupPushButton">
+         <property name="text">
+          <string>Add group</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
