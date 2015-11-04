@@ -76,7 +76,9 @@
 #include "securebytearray.h"
 #include "passwordchecker.h"
 #include "keepass2xmlreader.h"
-#include "treeitem.h"
+#include "abstracttreenode.h"
+#include "domainnode.h"
+#include "groupnode.h"
 #include "treemodel.h"
 #if HACKING_MODE_ENABLED
 #include "hackhelper.h"
@@ -314,6 +316,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.show();
 
   ui->domainView->setModel(&d->treeModel);
+  QObject::connect(ui->addGroupPushButton, SIGNAL(pressed()), SLOT(onAddGroup()));
+  QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
+  QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
 
   d->pwdLabelOpacityEffect = new QGraphicsOpacityEffect(ui->passwordLengthLabel);
   d->pwdLabelOpacityEffect->setOpacity(0.5);
@@ -716,6 +721,47 @@ void MainWindow::onIterationsChanged(int)
 void MainWindow::onGroupChanged(QString)
 {
   setDirty();
+}
+
+
+void MainWindow::onAddGroup(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::onAddGroup()";
+  AbstractTreeNode *node = d->treeModel.node(ui->domainView->currentIndex());
+  if (node != Q_NULLPTR) {
+    if (node->type() == AbstractTreeNode::LeafType) {
+      qDebug() << "... to group" << reinterpret_cast<GroupNode*>(node->parentItem())->name();
+    }
+    else {
+      qDebug() << "... to group" << reinterpret_cast<GroupNode*>(node)->name();
+    }
+  }
+}
+
+
+void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
+{
+  Q_D(MainWindow);
+  AbstractTreeNode *node = d->treeModel.node(modelIndex);
+  if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
+    DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
+    onDomainSelected(domainNode->data(0).toString());
+    ui->domainsComboBox->setCurrentText(domainNode->data(0).toString());
+  }
+}
+
+
+void MainWindow::onDomainViewDoubleClicked(const QModelIndex &modelIndex)
+{
+  Q_D(MainWindow);
+  AbstractTreeNode *node = d->treeModel.node(modelIndex);
+  if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
+    DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
+    const QString &domainName = domainNode->data(0).toString();
+    // TODO: 1-click login if available (see issue #81) ...
+    Q_UNUSED(domainName);
+  }
 }
 
 
@@ -2006,10 +2052,8 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
-    return;
-  if (sender() == Q_NULLPTR)
     return;
   if (domain == d->lastCleanDomainSettings.domainName)
     return;

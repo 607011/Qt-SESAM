@@ -88,6 +88,14 @@ int TreeModel::columnCount(const QModelIndex &parent) const
 }
 
 
+AbstractTreeNode *TreeModel::node(const QModelIndex &index)
+{
+  if (!index.isValid())
+    return Q_NULLPTR;
+  return reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+}
+
+
 QVariant TreeModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
@@ -95,7 +103,11 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
   if (role != Qt::DisplayRole)
     return QVariant();
   AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
-  return item->data(index.column());
+  if (item->type() == AbstractTreeNode::LeafType)
+    return item->data(index.column());
+  if (index.column() == 0)
+    return item->data(0);
+  return QVariant();
 }
 
 

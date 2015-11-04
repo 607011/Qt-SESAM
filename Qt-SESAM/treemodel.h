@@ -27,6 +27,7 @@
 #include <QStringList>
 #include "domainsettingslist.h"
 
+class AbstractTreeNode;
 class GroupNode;
 
 class TreeModel : public QAbstractItemModel
@@ -37,13 +38,14 @@ public:
   ~TreeModel();
 
   void setData(const DomainSettingsList &);
-  QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
   Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
   int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+  AbstractTreeNode *node(const QModelIndex &index);
 
 private:
   static GroupNode *findChild(const QString &name, GroupNode *node);

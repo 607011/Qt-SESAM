@@ -42,6 +42,7 @@
 #include <QEvent>
 #include <QMessageBox>
 #include <QLabel>
+#include <QModelIndex>
 
 #include "global.h"
 #include "domainsettings.h"
@@ -82,6 +83,9 @@ private slots:
   void onIterationsChanged(int);
   void onGroupChanged(QString);
   void onTagChanged(QString);
+  void onAddGroup(void);
+  void onDomainViewClicked(const QModelIndex &);
+  void onDomainViewDoubleClicked(const QModelIndex &);
   void onSaltChanged(QString);
   void onDeleteChanged(bool);
   void updatePassword(void);
