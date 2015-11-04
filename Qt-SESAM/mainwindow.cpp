@@ -759,7 +759,7 @@ void MainWindow::onDomainViewDoubleClicked(const QModelIndex &modelIndex)
   if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
     DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
     const QString &domainName = domainNode->data(0).toString();
-    // TODO: 1-click login if available (see issue #81) ...
+    // TODO: 1-click login if available (see issue #81)
     Q_UNUSED(domainName);
   }
 }
@@ -2052,7 +2052,7 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
+  // qDebug() << "MainWindow::onDomainSelected(" << domain << ")" << "d->lastCleanDomainSettings.domainName =" << d->lastCleanDomainSettings.domainName << " SENDER: " << (sender() != Q_NULLPTR ? sender()->objectName() : "NONE");
   if (!domainComboboxContains(domain))
     return;
   if (domain == d->lastCleanDomainSettings.domainName)

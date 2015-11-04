@@ -17,6 +17,7 @@
 
 */
 
+#include <QDebug>
 #include "domainnode.h"
 
 DomainNode::DomainNode(const DomainSettings &data, AbstractTreeNode *parentItem)

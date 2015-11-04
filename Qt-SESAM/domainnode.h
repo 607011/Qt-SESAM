@@ -29,7 +29,7 @@ class DomainNode : public AbstractTreeNode
 public:
   explicit DomainNode(AbstractTreeNode *parentItem = Q_NULLPTR);
   DomainNode(const DomainSettings &data, AbstractTreeNode *parentItem = Q_NULLPTR);
-  ~DomainNode();
+  virtual ~DomainNode();
 
   virtual QVariant data(int column) const;
 

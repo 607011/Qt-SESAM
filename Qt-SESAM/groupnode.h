@@ -27,7 +27,7 @@ class GroupNode : public AbstractTreeNode
 {
 public:
   GroupNode(const QString &name = QString(), AbstractTreeNode *parentItem = Q_NULLPTR);
-  ~GroupNode();
+  virtual ~GroupNode();
 
   const QString &name(void) const;
   virtual QVariant data(int column) const;

@@ -17,6 +17,7 @@
 
 */
 
+#include <QDebug>
 #include "groupnode.h"
 #include "abstracttreenode.h"
 

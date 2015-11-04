@@ -30,7 +30,7 @@ class AbstractTreeNode
 {
 public:
   explicit AbstractTreeNode(AbstractTreeNode *parentItem = Q_NULLPTR);
-  ~AbstractTreeNode();
+  virtual ~AbstractTreeNode();
 
   void appendChild(AbstractTreeNode *child);
   AbstractTreeNode *child(int row);

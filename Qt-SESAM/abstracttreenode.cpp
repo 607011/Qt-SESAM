@@ -17,6 +17,7 @@
 
 */
 
+#include <QDebug>
 #include "abstracttreenode.h"
 
 AbstractTreeNode::AbstractTreeNode(AbstractTreeNode *parentItem)
@@ -27,7 +28,7 @@ AbstractTreeNode::AbstractTreeNode(AbstractTreeNode *parentItem)
 
 AbstractTreeNode::~AbstractTreeNode()
 {
-  /* ... */
+  qDeleteAll(mChildItems);
 }
 
 
