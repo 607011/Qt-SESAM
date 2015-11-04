@@ -984,6 +984,10 @@ auf deinem Computer: %3</translation>
         <source>(%1 characters)</source>
         <translation>(%1 Zeichen)</translation>
     </message>
+    <message>
+        <source>Domain Viewer</source>
+        <translation>Domain-Übersicht</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1342,7 +1346,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Smart login</source>
-        <translation>Smart Login</translation>
+        <translation type="vanished">Smart Login</translation>
     </message>
     <message>
         <source>Delete URL</source>
@@ -1379,6 +1383,14 @@ auf deinem Computer: %3</translation>
     <message>
         <source>reply cannot be parsed as JSON data: %1 (data: %2)</source>
         <translation>Antwort vom Server enthält keine JSON-formatierten Daten: %1 (Daten: %2)</translation>
+    </message>
+    <message>
+        <source>Default password length</source>
+        <translation>Standard-Passwortlänge</translation>
+    </message>
+    <message>
+        <source>Default PBKDF2 iterations</source>
+        <translation>Standard-PBKDF2-Iterationen</translation>
     </message>
 </context>
 <context>
@@ -1718,6 +1730,25 @@ auf deinem Computer: %3</translation>
     <message>
         <source>&lt;p&gt;&lt;strong&gt;Attention!&lt;/strong&gt; The certificate chain of the host with the SHA1 fingerprint %2 can not be fully trusted:&lt;p&gt;</source>
         <translation>&lt;p&gt;&lt;strong&gt;Achtung!&lt;/strong&gt; Der Zertifikatskette mit dem SHA1-Fingerabdruck %2 kann nicht voll vertraut werden:&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>TreeModel</name>
+    <message>
+        <source>Domain</source>
+        <translation>Domain</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Benutzer</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Gruppe</translation>
     </message>
 </context>
 </TS>
