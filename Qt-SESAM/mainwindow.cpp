@@ -79,7 +79,7 @@
 #include "abstracttreenode.h"
 #include "domainnode.h"
 #include "groupnode.h"
-#include "treemodel.h"
+#include "domaintreemodel.h"
 #if HACKING_MODE_ENABLED
 #include "hackhelper.h"
 #endif
@@ -203,7 +203,7 @@ public:
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
   bool doConvertLocalToLegacy;
-  TreeModel treeModel;
+  DomainTreeModel treeModel;
 };
 
 

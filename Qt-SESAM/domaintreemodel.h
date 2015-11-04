@@ -30,12 +30,12 @@
 class AbstractTreeNode;
 class GroupNode;
 
-class TreeModel : public QAbstractItemModel
+class DomainTreeModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  explicit TreeModel(QObject *parent = Q_NULLPTR);
-  ~TreeModel();
+  explicit DomainTreeModel(QObject *parent = Q_NULLPTR);
+  ~DomainTreeModel();
 
   void setData(const DomainSettingsList &);
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;

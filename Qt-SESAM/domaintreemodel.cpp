@@ -19,11 +19,11 @@
 
 #include "groupnode.h"
 #include "domainnode.h"
-#include "treemodel.h"
+#include "domaintreemodel.h"
 #include "util.h"
 
 
-TreeModel::TreeModel(QObject *parent)
+DomainTreeModel::DomainTreeModel(QObject *parent)
   : QAbstractItemModel(parent)
   , mRootItem(Q_NULLPTR)
 {
@@ -31,13 +31,13 @@ TreeModel::TreeModel(QObject *parent)
 }
 
 
-TreeModel::~TreeModel()
+DomainTreeModel::~DomainTreeModel()
 {
   SafeDelete(mRootItem);
 }
 
 
-GroupNode *TreeModel::findChild(const QString &name, GroupNode *node) {
+GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node) {
   GroupNode *foundChild = Q_NULLPTR;
   for (int row = 0; row < node->childCount(); ++row) {
     AbstractTreeNode *child = node->child(row);
@@ -53,7 +53,7 @@ GroupNode *TreeModel::findChild(const QString &name, GroupNode *node) {
 }
 
 
-GroupNode *TreeModel::addToHierarchy(const QStringList &groups, GroupNode *node) {
+GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode *node) {
   GroupNode *nextNode = node;
   foreach (QString groupName, groups) {
     nextNode = findChild(groupName, nextNode);
@@ -67,7 +67,7 @@ GroupNode *TreeModel::addToHierarchy(const QStringList &groups, GroupNode *node)
 }
 
 
-void TreeModel::setData(const DomainSettingsList &domainSettingsList)
+void DomainTreeModel::setData(const DomainSettingsList &domainSettingsList)
 {
   SafeRenew<GroupNode*>(mRootItem, new GroupNode);
   foreach (DomainSettings ds, domainSettingsList) {
@@ -79,7 +79,7 @@ void TreeModel::setData(const DomainSettingsList &domainSettingsList)
 }
 
 
-int TreeModel::columnCount(const QModelIndex &parent) const
+int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
   if (parent.isValid())
     return reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount();
@@ -88,7 +88,7 @@ int TreeModel::columnCount(const QModelIndex &parent) const
 }
 
 
-AbstractTreeNode *TreeModel::node(const QModelIndex &index)
+AbstractTreeNode *DomainTreeModel::node(const QModelIndex &index)
 {
   if (!index.isValid())
     return Q_NULLPTR;
@@ -96,7 +96,7 @@ AbstractTreeNode *TreeModel::node(const QModelIndex &index)
 }
 
 
-QVariant TreeModel::data(const QModelIndex &index, int role) const
+QVariant DomainTreeModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
@@ -111,7 +111,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 }
 
 
-Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid())
     return 0;
@@ -119,7 +119,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 }
 
 
-QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     switch (section) {
@@ -139,7 +139,7 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int rol
 }
 
 
-QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex DomainTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
   if (!hasIndex(row, column, parent))
     return QModelIndex();
@@ -156,7 +156,7 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) con
 }
 
 
-QModelIndex TreeModel::parent(const QModelIndex &index) const
+QModelIndex DomainTreeModel::parent(const QModelIndex &index) const
 {
   if (!index.isValid())
     return QModelIndex();
@@ -168,7 +168,7 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
 }
 
 
-int TreeModel::rowCount(const QModelIndex &parent) const
+int DomainTreeModel::rowCount(const QModelIndex &parent) const
 {
   AbstractTreeNode *parentItem;
   if (parent.column() > 0)
