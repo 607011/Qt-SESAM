@@ -80,6 +80,8 @@ private slots:
   void onExtraCharactersChanged(QString);
   void onPasswordLengthChanged(int);
   void onIterationsChanged(int);
+  void onGroupChanged(QString);
+  void onTagChanged(QString);
   void onSaltChanged(QString);
   void onDeleteChanged(bool);
   void updatePassword(void);

@@ -17,53 +17,23 @@
 
 */
 
-#include "treeitem.h"
+#include "domainnode.h"
 
-TreeItem::TreeItem(TreeItem *parentItem)
-  : mParentItem(parentItem)
-{
-  /* ... */
-}
-
-TreeItem::TreeItem(const DomainSettings &data, TreeItem *parentItem)
-  : mParentItem(parentItem)
+DomainNode::DomainNode(const DomainSettings &data, AbstractTreeNode *parentItem)
+  : AbstractTreeNode(parentItem)
   , mItemData(data)
 {
   /* ... */
 }
 
 
-TreeItem::~TreeItem()
+DomainNode::~DomainNode()
 {
-  qDeleteAll(mChildItems);
+  /* ... */
 }
 
 
-void TreeItem::appendChild(TreeItem *item)
-{
-  mChildItems.append(item);
-}
-
-
-TreeItem *TreeItem::child(int row)
-{
-  return mChildItems.value(row);
-}
-
-
-int TreeItem::childCount(void) const
-{
-  return mChildItems.count();
-}
-
-
-int TreeItem::columnCount(void) const
-{
-  return 4;
-}
-
-
-QVariant TreeItem::data(int column) const
+QVariant DomainNode::data(int column) const
 {
   switch (column) {
   case 0:
@@ -78,18 +48,4 @@ QVariant TreeItem::data(int column) const
     break;
   }
   return QString("<invalid>");
-}
-
-
-TreeItem *TreeItem::parentItem(void)
-{
-  return mParentItem;
-}
-
-
-int TreeItem::row(void) const
-{
-  if (mParentItem)
-    return mParentItem->mChildItems.indexOf(const_cast<TreeItem*>(this));
-  return 0;
 }

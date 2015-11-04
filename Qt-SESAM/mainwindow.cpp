@@ -248,6 +248,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->passwordLengthSpinBox->installEventFilter(this);
   QObject::connect(ui->deleteCheckBox, SIGNAL(toggled(bool)), SLOT(onDeleteChanged(bool)));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(onIterationsChanged(int)));
+  QObject::connect(ui->groupLineEdit, SIGNAL(textChanged(QString)), SLOT(onGroupChanged(QString)));
+  QObject::connect(ui->tagLineEdit, SIGNAL(textChanged(QString)), SLOT(onTagChanged(QString)));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(onSaltChanged(QString)));
   ui->generatedPasswordLineEdit->installEventFilter(this);
   QObject::connect(ui->passwordTemplateLineEdit, SIGNAL(textChanged(QString)), SLOT(onPasswordTemplateChanged(QString)));
@@ -502,6 +504,14 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->iterationsSpinBox->setValue(d->optionsDialog->defaultIterations());
   ui->iterationsSpinBox->blockSignals(false);
 
+  ui->groupLineEdit->blockSignals(true);
+  ui->groupLineEdit->setText(QString());
+  ui->groupLineEdit->blockSignals(false);
+
+  ui->tagLineEdit->blockSignals(true);
+  ui->tagLineEdit->setText(QString());
+  ui->tagLineEdit->blockSignals(false);
+
   ui->passwordLengthSpinBox->blockSignals(true);
   ui->passwordLengthSpinBox->setValue(d->optionsDialog->defaultPasswordLength());
   ui->passwordLengthSpinBox->blockSignals(false);
@@ -703,6 +713,18 @@ void MainWindow::onIterationsChanged(int)
 }
 
 
+void MainWindow::onGroupChanged(QString)
+{
+  setDirty();
+}
+
+
+void MainWindow::onTagChanged(QString)
+{
+  setDirty();
+}
+
+
 void MainWindow::onSaltChanged(QString)
 {
   setDirty();
@@ -775,6 +797,8 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.passwordLength = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
+  ds.groupHierarchy = ui->groupLineEdit->text().split(QChar(';'));
+  ds.tags = ui->tagLineEdit->text().split(QChar(';'));
   // v3
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text().toUtf8();
@@ -1215,6 +1239,12 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   ui->iterationsSpinBox->blockSignals(true);
   ui->iterationsSpinBox->setValue(ds.iterations);
   ui->iterationsSpinBox->blockSignals(false);
+  ui->groupLineEdit->blockSignals(true);
+  ui->groupLineEdit->setText(ds.groupHierarchy.join(QChar(';')));
+  ui->groupLineEdit->blockSignals(false);
+  ui->tagLineEdit->blockSignals(true);
+  ui->tagLineEdit->setText(ds.tags.join(QChar(';')));
+  ui->tagLineEdit->blockSignals(false);
   ui->passwordLengthSpinBox->blockSignals(true);
   ui->passwordLengthSpinBox->setValue(ds.passwordLength);
   ui->passwordLengthSpinBox->blockSignals(false);

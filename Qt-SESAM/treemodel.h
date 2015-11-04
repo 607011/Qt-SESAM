@@ -23,9 +23,11 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
+#include <QString>
+#include <QStringList>
 #include "domainsettingslist.h"
 
-class TreeItem;
+class GroupNode;
 
 class TreeModel : public QAbstractItemModel
 {
@@ -34,7 +36,7 @@ public:
   explicit TreeModel(QObject *parent = Q_NULLPTR);
   ~TreeModel();
 
-  void setData(const DomainSettingsList &data);
+  void setData(const DomainSettingsList &);
   QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
   Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
@@ -44,8 +46,11 @@ public:
   int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
 private:
-  void setupModelData(const DomainSettingsList &domainSettingsList, TreeItem *parent);
-  TreeItem *rootItem;
+  static GroupNode *findChild(const QString &name, GroupNode *node);
+  static GroupNode *addToHierarchy(const QStringList &groups, GroupNode *node);
+
+private: // member variables
+  GroupNode *mRootItem;
 };
 
 #endif // __TREEMODEL_H_

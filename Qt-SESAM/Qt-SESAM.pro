@@ -60,8 +60,10 @@ SOURCES += main.cpp \
     keepass2xmlreader.cpp \
     hackhelper.cpp \
     expandablegroupbox.cpp \
-    treeitem.cpp \
-    treemodel.cpp
+    treemodel.cpp \
+    domainnode.cpp \
+    groupnode.cpp \
+    abstracttreenode.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -78,8 +80,10 @@ HEADERS  += \
     countdownwidget.h \
     keepass2xmlreader.h \
     expandablegroupbox.h \
-    treeitem.h \
-    treemodel.h
+    treemodel.h \
+    domainnode.h \
+    groupnode.h \
+    abstracttreenode.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

@@ -17,33 +17,26 @@
 
 */
 
+#ifndef __DOMAINNODE_H_
+#define __DOMAINNODE_H_
 
-#ifndef __TREEITEM_H_
-#define __TREEITEM_H_
-
-#include <QList>
-#include <QVariant>
+#include "abstracttreenode.h"
 #include "domainsettings.h"
 
 
-class TreeItem
+class DomainNode : public AbstractTreeNode
 {
 public:
-  explicit TreeItem(TreeItem *parentItem = Q_NULLPTR);
-  TreeItem(const DomainSettings &data, TreeItem *parentItem = Q_NULLPTR);
-  ~TreeItem();
+  explicit DomainNode(AbstractTreeNode *parentItem = Q_NULLPTR);
+  DomainNode(const DomainSettings &data, AbstractTreeNode *parentItem = Q_NULLPTR);
+  ~DomainNode();
 
-  void appendChild(TreeItem *child);
-  TreeItem *child(int row);
-  int childCount(void) const;
-  int columnCount(void) const;
-  QVariant data(int column) const;
-  int row(void) const;
-  TreeItem *parentItem(void);
+  virtual QVariant data(int column) const;
+
+  virtual NodeType type(void) const { return LeafType; }
 
 private:
-  QList<TreeItem*> mChildItems;
   DomainSettings mItemData;
-  TreeItem *mParentItem;
 };
-#endif // __TREEITEM_H_
+
+#endif // __DOMAINNODE_H_

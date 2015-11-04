@@ -988,6 +988,18 @@ auf deinem Computer: %3</translation>
         <source>Domain Viewer</source>
         <translation>Domain-Übersicht</translation>
     </message>
+    <message>
+        <source>Group</source>
+        <translation>Gruppe</translation>
+    </message>
+    <message>
+        <source>separate group hierarchy items with ;</source>
+        <translation>Einträge trennen mit Semikolon</translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <translation>Tags</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

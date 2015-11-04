@@ -17,13 +17,15 @@
 
 */
 
-#include "treeitem.h"
+#include "groupnode.h"
+#include "domainnode.h"
 #include "treemodel.h"
 #include "util.h"
 
+
 TreeModel::TreeModel(QObject *parent)
   : QAbstractItemModel(parent)
-  , rootItem(Q_NULLPTR)
+  , mRootItem(Q_NULLPTR)
 {
   /* ... */
 }
@@ -31,23 +33,58 @@ TreeModel::TreeModel(QObject *parent)
 
 TreeModel::~TreeModel()
 {
-  delete rootItem;
+  SafeDelete(mRootItem);
 }
 
 
-void TreeModel::setData(const DomainSettingsList &data)
+GroupNode *TreeModel::findChild(const QString &name, GroupNode *node) {
+  GroupNode *foundChild = Q_NULLPTR;
+  for (int row = 0; row < node->childCount(); ++row) {
+    AbstractTreeNode *child = node->child(row);
+    if (child->type() == AbstractTreeNode::GroupType) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*>(child);
+      if (groupNode->name() == name) {
+        foundChild = groupNode;
+        break;
+      }
+    }
+  }
+  return foundChild;
+}
+
+
+GroupNode *TreeModel::addToHierarchy(const QStringList &groups, GroupNode *node) {
+  GroupNode *nextNode = node;
+  foreach (QString groupName, groups) {
+    nextNode = findChild(groupName, nextNode);
+    if (nextNode == Q_NULLPTR) {
+      nextNode = new GroupNode(groupName, node);
+      node->appendChild(nextNode);
+      node = nextNode;
+    }
+  }
+  return nextNode;
+}
+
+
+void TreeModel::setData(const DomainSettingsList &domainSettingsList)
 {
-  SafeRenew(rootItem, new TreeItem);
-  setupModelData(data, rootItem);
+  SafeRenew<GroupNode*>(mRootItem, new GroupNode);
+  foreach (DomainSettings ds, domainSettingsList) {
+    if (!ds.deleted) {
+      GroupNode *node = addToHierarchy(ds.groupHierarchy, mRootItem);
+      node->appendChild(new DomainNode(ds, node));
+    }
+  }
 }
 
 
 int TreeModel::columnCount(const QModelIndex &parent) const
 {
   if (parent.isValid())
-    return reinterpret_cast<TreeItem*>(parent.internalPointer())->columnCount();
+    return reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount();
   else
-    return rootItem->columnCount();
+    return mRootItem->columnCount();
 }
 
 
@@ -57,7 +94,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
   if (role != Qt::DisplayRole)
     return QVariant();
-  TreeItem *item = reinterpret_cast<TreeItem*>(index.internalPointer());
+  AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
   return item->data(index.column());
 }
 
@@ -94,12 +131,12 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) con
 {
   if (!hasIndex(row, column, parent))
     return QModelIndex();
-  TreeItem *parentItem;
+  AbstractTreeNode *parentItem;
   if (!parent.isValid())
-    parentItem = rootItem;
+    parentItem = mRootItem;
   else
-    parentItem = reinterpret_cast<TreeItem*>(parent.internalPointer());
-  TreeItem *childItem = parentItem->child(row);
+    parentItem = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
+  AbstractTreeNode *childItem = parentItem->child(row);
   if (childItem)
     return createIndex(row, column, childItem);
   else
@@ -111,9 +148,9 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
 {
   if (!index.isValid())
     return QModelIndex();
-  TreeItem *childItem = reinterpret_cast<TreeItem*>(index.internalPointer());
-  TreeItem *parentItem = childItem->parentItem();
-  if (parentItem == rootItem)
+  AbstractTreeNode *childItem = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+  AbstractTreeNode *parentItem = childItem->parentItem();
+  if (parentItem == mRootItem)
     return QModelIndex();
   return createIndex(parentItem->row(), 0, parentItem);
 }
@@ -121,25 +158,12 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
 
 int TreeModel::rowCount(const QModelIndex &parent) const
 {
-  TreeItem *parentItem;
+  AbstractTreeNode *parentItem;
   if (parent.column() > 0)
     return 0;
   if (!parent.isValid())
-    parentItem = rootItem;
+    parentItem = mRootItem;
   else
-    parentItem = reinterpret_cast<TreeItem*>(parent.internalPointer());
+    parentItem = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
   return parentItem->childCount();
-}
-
-
-void TreeModel::setupModelData(const DomainSettingsList &domainSettingsList, TreeItem *parent)
-{
-  QList<TreeItem*> parents;
-  parents << parent;
-  foreach (DomainSettings ds, domainSettingsList) {
-    if (!ds.deleted) {
-      // TODO: build tree respecting , not flat
-      parents.last()->appendChild(new TreeItem(ds, parents.last()));
-    }
-  }
 }
