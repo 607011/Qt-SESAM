@@ -137,7 +137,6 @@ void CountdownWidget::redrawImage(const QSize &sz)
 
 void CountdownWidget::resizeEvent(QResizeEvent *e)
 {
-  Q_D(CountdownWidget);
   redrawImage(e->size());
 }
 
