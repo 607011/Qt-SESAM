@@ -1006,6 +1006,9 @@
    </property>
   </action>
   <action name="actionKeePassXmlFile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>KeePass 2 XML file ...</string>
    </property>
