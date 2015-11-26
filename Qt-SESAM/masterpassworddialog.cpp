@@ -106,10 +106,7 @@ void MasterPasswordDialog::closeEvent(QCloseEvent*)
 
 void MasterPasswordDialog::okClicked(void)
 {
-  if (ui->passwordLineEdit->text().isEmpty()) {
-    ui->passwordLineEdit->setFocus();
-  }
-  else if (ui->repeatPasswordLabel->isVisible()) {
+  if (ui->repeatPasswordLabel->isVisible()) {
     if (ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text()) {
       accept();
     }

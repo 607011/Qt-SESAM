@@ -71,12 +71,7 @@ void ChangeMasterPasswordDialog::invalidate(void)
 
 void ChangeMasterPasswordDialog::okClicked(void)
 {
-  if (ui->currentPasswordLineEdit->text().isEmpty()) {
-    ui->currentPasswordLineEdit->setFocus();
-  }
-  else {
-    accept();
-  }
+  accept();
 }
 
 
