@@ -2112,23 +2112,21 @@ void MainWindow::onMasterPasswordEntered(void)
   Q_D(MainWindow);
   bool ok = true;
   QString masterPwd = d->masterPasswordDialog->masterPassword();
-  if (!masterPwd.isEmpty()) {
-    d->masterPassword = masterPwd;
-    ok = restoreSettings();
+  d->masterPassword = masterPwd;
+  ok = restoreSettings();
+  if (ok) {
+    ok = restoreDomainDataFromSettings();
     if (ok) {
-      ok = restoreDomainDataFromSettings();
-      if (ok) {
-        generateSaltKeyIV().waitForFinished();
-        d->settings.setValue("mainwindow/masterPasswordEntered", true);
-        d->settings.sync();
-        ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
-        ui->domainsComboBox->setFocus();
-        d->masterPasswordDialog->hide();
-        show();
-        if (d->optionsDialog->syncOnStart())
-          onSync();
-        restartInvalidationTimer();
-      }
+      generateSaltKeyIV().waitForFinished();
+      d->settings.setValue("mainwindow/masterPasswordEntered", true);
+      d->settings.sync();
+      ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
+      ui->domainsComboBox->setFocus();
+      d->masterPasswordDialog->hide();
+      show();
+      if (d->optionsDialog->syncOnStart())
+        onSync();
+      restartInvalidationTimer();
     }
   }
   if (!ok ) {
