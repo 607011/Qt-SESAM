@@ -178,7 +178,7 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-  void writeBackupFile(const QByteArray &binaryDomainData);
+  void writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams);
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
@@ -194,6 +194,7 @@ private: // methods
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
+  QString collectedSyncData(void);
 };
 
 #endif // __MAINWINDOW_H_

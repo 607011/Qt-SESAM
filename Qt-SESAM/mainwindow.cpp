@@ -1352,7 +1352,7 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 }
 
 
-void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
+void MainWindow::writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams)
 {
   /* From the Qt docs: "QStandardPaths::DataLocation returns the
    * same value as AppLocalDataLocation. This enumeration value
@@ -1372,7 +1372,10 @@ void MainWindow::writeBackupFile(const QByteArray &binaryDomainData)
   if (QDir().mkpath(backupFilePath)) {
     QFile backupFile(backupFilename);
     backupFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    backupFile.write(binaryDomainData);
+    backupFile.write("[sync]\ndomains=");
+    backupFile.write(binaryDomainData.toUtf8());
+    backupFile.write("\nparam=");
+    backupFile.write(binarySyncParams.toUtf8());
     backupFile.close();
   }
 }
@@ -1391,12 +1394,14 @@ void MainWindow::saveAllDomainDataToSettings(void)
     qErrnoWarning((int)e.GetErrorType(), e.what());
   }
   d->keyGenerationMutex.unlock();
-  const QByteArray &binaryDomainData = cipher.toBase64();
-  d->settings.setValue("sync/domains", QString::fromUtf8(binaryDomainData));
+  const QString &b64DomainData = QString::fromUtf8(cipher.toBase64());
+  const QString &b64SyncParam = collectedSyncData();
+
+  d->settings.setValue("sync/domains", b64DomainData);
   d->settings.sync();
   if (d->masterPasswordChangeStep == 0) {
     if (d->optionsDialog->writeBackups())
-      writeBackupFile(binaryDomainData);
+      writeBackupFile(b64DomainData, b64SyncParam);
     generateSaltKeyIV().waitForFinished();
   }
 }
@@ -1436,10 +1441,10 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 }
 
 
-void MainWindow::saveSettings(void)
+QString MainWindow::collectedSyncData(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveSettings()";
+  QMutexLocker(&d->keyGenerationMutex);
   QVariantMap syncData;
   syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
   syncData["sync/server/username"] = d->optionsDialog->serverUsername();
@@ -1453,17 +1458,23 @@ void MainWindow::saveSettings(void)
   syncData["sync/filename"] = d->optionsDialog->syncFilename();
   syncData["sync/useFile"] = d->optionsDialog->useSyncFile();
   syncData["sync/useServer"] = d->optionsDialog->useSyncServer();
-  d->keyGenerationMutex.lock();
   QByteArray baCryptedData;
   try {
     baCryptedData = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
-    return;
+    return QString();
   }
-  d->keyGenerationMutex.unlock();
-  d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
+  return QString::fromUtf8(baCryptedData.toBase64());
+}
+
+
+void MainWindow::saveSettings(void)
+{
+  Q_D(MainWindow);
+  // qDebug() << "MainWindow::saveSettings()";
+  d->settings.setValue("sync/param", collectedSyncData());
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
