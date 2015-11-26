@@ -75,7 +75,6 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
   : QWidget(parent)
   , d_ptr(new EasySelectorWidgetPrivate)
 {
-  Q_D(EasySelectorWidget);
   QObject::connect(this, SIGNAL(speedTestFinished(qreal)), SLOT(onSpeedTestEnd(qreal)), Qt::QueuedConnection);
   QTimer::singleShot(500, this, SLOT(onSpeedTestBegin()));
   qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
@@ -223,7 +222,6 @@ void EasySelectorWidget::resizeEvent(QResizeEvent *)
 
 bool EasySelectorWidget::event(QEvent *e)
 {
-  Q_D(EasySelectorWidget);
   if (e->type() == QEvent::ToolTip) {
     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
     QString helpText;

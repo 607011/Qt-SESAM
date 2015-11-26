@@ -90,7 +90,6 @@ QString KeePass2XmlReader::groupHierarchy(int level)
 
 QDomElement KeePass2XmlReader::findChildByTagName(const QDomElement &root, const QString &tagName)
 {
-  Q_D(KeePass2XmlReader);
   if (!root.isNull() && root.hasChildNodes()) {
     QDomNode child = root.firstChild();
     while (!child.isNull()) {

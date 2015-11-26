@@ -621,7 +621,9 @@ NAMESPACE_END
 // This tests compatibility with C++11 nullptr
 #if defined(__clang__)
 #  if (__has_feature(cxx_nullptr))
-#    define NULL nullptr
+#    ifndef NULL
+#      define NULL nullptr
+#    endif
 #  endif
 #endif
 
