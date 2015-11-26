@@ -81,8 +81,9 @@ QString KeePass2XmlReader::groupHierarchy(int level)
   QString g;
   for (int l = 2; l <= level; ++l) {
     g.append(d->groupNames[l]);
-    if (l < level)
+    if (l < level) {
       g.append("/");
+    }
   }
   return g;
 }
@@ -170,8 +171,9 @@ void KeePass2XmlReader::parseXml(const QDomElement &e, int level)
           }
         }
       }
-      if (e.hasChildNodes())
+      if (e.hasChildNodes()) {
         parseXml(e, level + 1);
+      }
       n = n.nextSibling();
     }
   }

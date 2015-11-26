@@ -82,10 +82,12 @@ qint64 PasswordChecker::findInPasswordFile(qint64 lo, qint64 hi, const QString &
   mid = d->pwdFile.pos();
   const QString &word = QString::fromLatin1(d->pwdFile.readLine()).trimmed();
   const int comparison = needle.compare(word, Qt::CaseInsensitive);
-  if (comparison < 0)
+  if (comparison < 0) {
     return findInPasswordFile(lo, mid - 1, needle);
-  else if (comparison > 0)
+  }
+  else if (comparison > 0) {
     return findInPasswordFile(mid + word.size(), hi, needle);
+  }
   return mid;
 }
 
@@ -101,8 +103,9 @@ qreal PasswordChecker::entropy(const QString &str) {
   const qreal l = sample.size();
   for (int i = 0; i < Range; ++i) {
     const qreal p = qreal(histo[i]) / l;
-    if (p > 0)
+    if (p > 0) {
       ent += p * M_LOG2E * qLn(1.0 / p);
+    }
   }
   const qreal bitsPerVariate = qLn(qreal(Range)) * M_LOG2E;
   return ent / bitsPerVariate;

@@ -56,8 +56,9 @@ int main(int argc, char *argv[])
   if (!ok)
     qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
 #endif
-  if (ok)
+  if (ok) {
     a.installTranslator(&translator);
+  }
 
   MainWindow w(forceStart);
   w.activateWindow();

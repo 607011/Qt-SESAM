@@ -96,17 +96,17 @@ QSize EasySelectorWidget::minimumSizeHint(void) const
 void EasySelectorWidget::setMousePos(const QPoint &pos)
 {
   Q_D(EasySelectorWidget);
-  if (d->background.isNull())
-    return;
-  const int nX = d->maxLength - d->minLength + 1;
-  const int nY = Password::MaxComplexity + 1;
-  const int xs = d->background.width() / nX;
-  const int ys = d->background.height() / nY;
-  const int clampedX = clamp(pos.x(), 0, d->background.width() - xs);
-  const int clampedY = clamp(pos.y(), 0, d->background.height() - ys);
-  d->length = d->minLength + clampedX / xs;
-  d->complexity = Password::MaxComplexity - clampedY / ys;
-  update();
+  if (!d->background.isNull()) {
+    const int nX = d->maxLength - d->minLength + 1;
+    const int nY = Password::MaxComplexity + 1;
+    const int xs = d->background.width() / nX;
+    const int ys = d->background.height() / nY;
+    const int clampedX = clamp(pos.x(), 0, d->background.width() - xs);
+    const int clampedY = clamp(pos.y(), 0, d->background.height() - ys);
+    d->length = d->minLength + clampedX / xs;
+    d->complexity = Password::MaxComplexity - clampedY / ys;
+    update();
+  }
 }
 
 
@@ -118,8 +118,9 @@ void EasySelectorWidget::setLength(int length)
     emit valuesChanged(d->length, d->complexity);
     d->oldLength = d->length;
   }
-  if (d->length > d->maxLength)
+  if (d->length > d->maxLength) {
     setMaxLength(d->length);
+  }
   update();
 }
 
@@ -198,19 +199,19 @@ void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
 void EasySelectorWidget::paintEvent(QPaintEvent *)
 {
   Q_D(EasySelectorWidget);
-  if (d->background.isNull())
-    return;
-  const int nX = d->maxLength - d->minLength + 1;
-  const int nY = Password::MaxComplexity + 1;
-  const int xs = d->background.width() / nX;
-  const int ys = d->background.height() / nY;
-  QPainter p(this);
-  p.drawPixmap(QPoint(0, 0), d->background);
-  p.setBrush(QColor(255, 255, 255, 208));
-  p.setPen(Qt::transparent);
-  p.drawRect(QRect(QPoint(xs * (d->length - d->minLength) + 1,
-                          d->background.height() - ys * (d->complexity + 1)),
-                   QSize(xs - 1, ys - 1)));
+  if (!d->background.isNull()) {
+    const int nX = d->maxLength - d->minLength + 1;
+    const int nY = Password::MaxComplexity + 1;
+    const int xs = d->background.width() / nX;
+    const int ys = d->background.height() / nY;
+    QPainter p(this);
+    p.drawPixmap(QPoint(0, 0), d->background);
+    p.setBrush(QColor(255, 255, 255, 208));
+    p.setPen(Qt::transparent);
+    p.drawRect(QRect(QPoint(xs * (d->length - d->minLength) + 1,
+                            d->background.height() - ys * (d->complexity + 1)),
+                     QSize(xs - 1, ys - 1)));
+  }
 }
 
 
@@ -225,10 +226,12 @@ bool EasySelectorWidget::event(QEvent *e)
   if (e->type() == QEvent::ToolTip) {
     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
     QString helpText;
-    if (tooltipTextAt(helpEvent->pos(), helpText))
+    if (tooltipTextAt(helpEvent->pos(), helpText)) {
       QToolTip::showText(helpEvent->globalPos(), helpText);
-    else
+    }
+    else {
       QToolTip::hideText();
+    }
     return true;
   }
   return QWidget::event(e);;
@@ -266,16 +269,20 @@ void EasySelectorWidget::redrawBackground(void)
   const int ys = height() / nY;
   d->background = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
   QPainter p(&d->background);
-  for (int y = 0; y < nY; ++y)
-    for (int x = 0; x < nX; ++x)
+  for (int y = 0; y < nY; ++y) {
+    for (int x = 0; x < nX; ++x) {
       p.fillRect(QRect(x * xs, d->background.height() - y * ys - ys, xs, ys),
                  red2yellow2green(qLn(passwordStrength(x + d->minLength, y)) / 40).darker(168));
+    }
+  }
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
-  for (int x = 0; x <= nX; ++x)
+  for (int x = 0; x <= nX; ++x) {
     p.drawLine(xs * x, 0, xs * x, d->background.height());
-  for (int y = 0; y <= nY; ++y)
+  }
+  for (int y = 0; y <= nY; ++y) {
     p.drawLine(0, ys * y, d->background.width(), ys * y);
+  }
 }
 
 
@@ -334,14 +341,18 @@ qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
 {
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
   int charCount = 0;
-  if (ba.at(Password::TemplateDigits))
+  if (ba.at(Password::TemplateDigits)) {
     charCount += Password::Digits.count();
-  if (ba.at(Password::TemplateLowercase))
+  }
+  if (ba.at(Password::TemplateLowercase)) {
     charCount += Password::LowerChars.count();
-  if (ba.at(Password::TemplateUppercase))
+  }
+  if (ba.at(Password::TemplateUppercase)) {
     charCount += Password::UpperChars.count();
-  if (ba.at(Password::TemplateExtra))
+  }
+  if (ba.at(Password::TemplateExtra)) {
     charCount += d_ptr->extraCharCount;
+  }
   static const int Iterations = 1;
   const qreal perms = qPow(charCount, length);
   const qreal t2secs = perms * Iterations / sha1PerSec;
@@ -423,8 +434,9 @@ void EasySelectorWidget::speedTest(void)
   t.start();
   qint64 n = 0;
   while (!d->doAbortSpeedTest && t.elapsed() < 5000) {
-    for (QByteArray::iterator d = data.begin(); d != data.end(); ++d)
+    for (QByteArray::iterator d = data.begin(); d != data.end(); ++d) {
       *d = qrand() & 0xff;
+    }
     hash.addData(data);
     hash.result();
     hash.reset();

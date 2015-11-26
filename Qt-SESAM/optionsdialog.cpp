@@ -131,8 +131,9 @@ void OptionsDialog::validateHostCertificateChain(void)
   bool ok = (d->sslErrors.count() == 0) || d->sslErrors.at(0) == QSslError::NoError;
   if (!ok) {
     d->serverCertificateWidget.setServerSslErrors(d->reply->sslConfiguration(), d->sslErrors);
-    if (d->serverCertificateWidget.exec() == QDialog::Accepted)
+    if (d->serverCertificateWidget.exec() == QDialog::Accepted) {
       setServerCertificates(d->reply->sslConfiguration().peerCertificateChain());
+    }
   }
   else {
     setServerCertificates(QList<QSslCertificate>());
@@ -472,8 +473,9 @@ void OptionsDialog::chooseSyncFile(void)
   const QString &currentFile = ui->syncFileLineEdit->text();
   const QString &savePath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
   QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), savePath);
-  if (!chosenFile.isEmpty())
+  if (!chosenFile.isEmpty()) {
     ui->syncFileLineEdit->setText(chosenFile);
+  }
 }
 
 
@@ -482,8 +484,9 @@ void OptionsDialog::choosePasswordFile()
   const QString &currentFile = ui->passwordFileLineEdit->text();
   const QString &openPath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
   QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose password file"), openPath);
-  if (!chosenFile.isEmpty())
+  if (!chosenFile.isEmpty()) {
     ui->passwordFileLineEdit->setText(chosenFile);
+  }
 }
 
 
@@ -494,8 +497,10 @@ void OptionsDialog::okClicked(void)
     QFileInfo fi(ui->syncFileLineEdit->text());
     ok = fi.exists();
   }
-  if (ok)
+  if (ok) {
     accept();
-  else
+  }
+  else {
     reject();
+  }
 }

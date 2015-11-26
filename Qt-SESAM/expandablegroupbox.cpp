@@ -124,10 +124,12 @@ bool ExpandableGroupbox::expanded(void) const
 
 void ExpandableGroupbox::setExpanded(bool doExpand)
 {
-  if (doExpand)
+  if (doExpand) {
     expand();
-  else
+  }
+  else {
     collapse();
+  }
 }
 
 

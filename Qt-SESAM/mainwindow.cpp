@@ -545,14 +545,17 @@ void MainWindow::resetAllFields(void)
 
 
 int MainWindow::findDomainInComboBox(const QString &domain, int lo, int hi) const {
-  if (hi < lo)
+  if (hi < lo) {
     return NotFound;
+  }
   const int idx = (lo + hi) / 2;
   const int c = ui->domainsComboBox->itemText(idx).compare(domain, Qt::CaseInsensitive);
-  if (c > 0)
+  if (c > 0) {
     return findDomainInComboBox(domain, lo, idx - 1);
-  else if (c < 0)
+  }
+  else if (c < 0) {
     return findDomainInComboBox(domain, idx + 1, hi);
+  }
   return idx;
 }
 
@@ -589,8 +592,9 @@ void MainWindow::onRenewSalt(void)
           QMessageBox::Yes,
           QMessageBox::No);
   }
-  if (button == QMessageBox::Yes)
+  if (button == QMessageBox::Yes) {
     renewSalt();
+  }
 }
 
 
@@ -826,14 +830,18 @@ void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
 QString MainWindow::usedCharacters(void)
 {
   QString used;
-  if (ui->useDigitsLabel->isEnabled())
+  if (ui->useDigitsLabel->isEnabled()) {
     used += Password::Digits;
-  if (ui->useLowercaseLabel->isEnabled())
+  }
+  if (ui->useLowercaseLabel->isEnabled()) {
     used += Password::LowerChars;
-  if (ui->useUppercaseLabel->isEnabled())
+  }
+  if (ui->useUppercaseLabel->isEnabled()) {
     used += Password::UpperChars;
-  if (ui->useExtraLabel->isEnabled())
+  }
+  if (ui->useExtraLabel->isEnabled()) {
     used += ui->extraLineEdit->text();
+  }
   return used;
 }
 
@@ -842,14 +850,18 @@ void MainWindow::updateTemplate(void)
 {
   Q_D(MainWindow);
   QByteArray used;
-  if (ui->useDigitsLabel->isEnabled())
+  if (ui->useDigitsLabel->isEnabled()) {
     used += 'n';
-  if (ui->useLowercaseLabel->isEnabled())
+  }
+  if (ui->useLowercaseLabel->isEnabled()) {
     used += 'a';
-  if (ui->useUppercaseLabel->isEnabled())
+  }
+  if (ui->useUppercaseLabel->isEnabled()) {
     used += 'A';
-  if (ui->useExtraLabel->isEnabled())
+  }
+  if (ui->useExtraLabel->isEnabled()) {
     used += 'o';
+  }
   QByteArray pwdTemplate = used + QByteArray(ui->easySelectorWidget->length() - used.count(), 'x');
   ui->passwordTemplateLineEdit->setText(QString("%1").arg(ui->easySelectorWidget->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
   ui->usedCharactersPlainTextEdit->blockSignals(true);
@@ -916,8 +928,9 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->progressDialog->setValue(1);
     saveAllDomainDataToSettings();
     onSync();
-    if (!d->optionsDialog->syncToServerEnabled())
+    if (!d->optionsDialog->syncToServerEnabled()) {
       nextChangeMasterPasswordStep();
+    }
     break;
   case 2:
     d->progressDialog->setValue(2);
@@ -926,8 +939,9 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->progressDialog->setText(tr("Writing to sync peers ..."));
     if (d->optionsDialog->useSyncFile()) {
       writeToRemote(SyncPeerFile);
-      if (!d->optionsDialog->syncToServerEnabled())
+      if (!d->optionsDialog->syncToServerEnabled()) {
         nextChangeMasterPasswordStep();
+      }
     }
     if (d->optionsDialog->syncToServerEnabled()) {
       writeToRemote(SyncPeerServer);
@@ -972,9 +986,10 @@ void MainWindow::onPasswordGenerated(void)
     ui->generatedPasswordLineEdit->setText(d->password());
     ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(d->password().length()));
     d->pwdLabelOpacityEffect->setOpacity(1);
-    if (!d->password.isAborted())
+    if (!d->password.isAborted()) {
       ui->statusBar->showMessage(tr("generation time: %1 ms")
                                  .arg(1e3 * d->password.elapsedSeconds(), 0, 'f', 4), 3000);
+    }
 #if HACKING_MODE_ENABLED
   }
   else { // in hacking mode
@@ -1039,8 +1054,9 @@ void MainWindow::onServerCertificatesUpdated(const QList<QSslCertificate> &certs
   d->readNAM.clearAccessCache();
   d->writeNAM.clearAccessCache();
   d->resetSSLConf();
-  if (!certs.isEmpty())
+  if (!certs.isEmpty()) {
     d->sslConf.setCaCertificates(certs);
+  }
 }
 
 
@@ -1050,8 +1066,9 @@ void MainWindow::showOptionsDialog(void)
   d->interactionSemaphore.acquire();
   int button = d->optionsDialog->exec();
   d->interactionSemaphore.release();
-  if (button == QDialog::Accepted)
+  if (button == QDialog::Accepted) {
     onOptionsAccepted();
+  }
 }
 
 
@@ -1086,8 +1103,9 @@ QString MainWindow::selectAlternativeDomainNameFor(const QString &domainName)
   Q_D(MainWindow);
   QString newDomainName = domainName;
   int idx = 0;
-  while (findDomainInComboBox(newDomainName) != NotFound)
+  while (findDomainInComboBox(newDomainName) != NotFound) {
     newDomainName = QString("%1 (%2)").arg(domainName).arg(++idx);
+  }
   return newDomainName;
 }
 
@@ -1139,23 +1157,29 @@ void MainWindow::onImportKeePass2XmlFile(void)
     }
     DomainSettings currentDomainSettings = d->domains.at(ui->domainsComboBox->currentText());
     makeDomainComboBox();
-    if (!currentDomainSettings.isEmpty())
+    if (!currentDomainSettings.isEmpty()) {
       copyDomainSettingsToGUI(currentDomainSettings);
+    }
     QString msgBoxText;
-    if (reader.domains().count() == 1)
+    if (reader.domains().count() == 1) {
       msgBoxText = tr("<p>%1 domain has been imported successfully from the KeePass 2 XML file.</p>")
         .arg(reader.domains().count());
-    else
+    }
+    else {
       msgBoxText = tr("<p>%1 domains have been imported successfully from the KeePass 2 XML file.</p>")
         .arg(reader.domains().count());
+    }
     if (renamed.count() > 0) {
-      if (renamed.count() == 1)
+      if (renamed.count() == 1) {
         msgBoxText += tr("<p>%1 domain had to be renamed:</p>").arg(renamed.count());
-      else
+      }
+      else {
         msgBoxText += tr("<p>%1 domains had to be renamed:</p>").arg(renamed.count());
+      }
       msgBoxText += "<ul>";
-      foreach (StringPair r, renamed)
+      foreach (StringPair r, renamed) {
         msgBoxText += "<li>" + r.first + " >> " + r.second + "</li>";
+      }
       msgBoxText += "</ul>";
     }
     QMessageBox::information(this, tr("Import successful"), msgBoxText);
@@ -1220,8 +1244,9 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
   ui->extraLineEdit->blockSignals(false);
-  if (!ds.passwordTemplate.isEmpty())
+  if (!ds.passwordTemplate.isEmpty()) {
     applyTemplate(ds.passwordTemplate);
+  }
   ui->passwordTemplateLineEdit->blockSignals(true);
   ui->passwordTemplateLineEdit->setText(ds.passwordTemplate);
   ui->passwordTemplateLineEdit->blockSignals(false);
@@ -1269,9 +1294,11 @@ void MainWindow::makeDomainComboBox(void)
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->clear();
   QStringList domainNames;
-  foreach(DomainSettings ds, d->domains)
-    if (!ds.deleted)
+  foreach(DomainSettings ds, d->domains) {
+    if (!ds.deleted) {
       domainNames.append(ds.domainName);
+    }
+  }
   domainNames.sort(Qt::CaseInsensitive);
   ui->domainsComboBox->addItems(domainNames);
   if (d->completer != Q_NULLPTR) {
@@ -1295,9 +1322,9 @@ void MainWindow::saveDomainSettings(DomainSettings ds)
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
   const QString currentDomain = ui->domainsComboBox->currentText();
   QStringList domainList;
-  for (int i = 0; i < ui->domainsComboBox->count(); ++i)
+  for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
     domainList.append(ui->domainsComboBox->itemText(i));
-
+  }
   if (domainList.contains(ds.domainName, Qt::CaseInsensitive)) {
     ds.modifiedDate = QDateTime::currentDateTime();
     if (ds.deleted) {
@@ -1334,8 +1361,9 @@ void MainWindow::saveCurrentDomainSettings(void)
     else {
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
       saveDomainSettings(ds);
-      if (ds.deleted)
+      if (ds.deleted) {
         resetAllFields();
+      }
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
       d->lastCleanDomainSettings = ds;
     }
@@ -1347,8 +1375,9 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 {
   setDirty();
   ui->actionHackLegacyPassword->setEnabled(!legacyPassword.isEmpty());
-  if (!legacyPassword.isEmpty())
+  if (!legacyPassword.isEmpty()) {
     ui->generatedPasswordLineEdit->setText(QString());
+  }
 }
 
 
@@ -1400,8 +1429,9 @@ void MainWindow::saveAllDomainDataToSettings(void)
   d->settings.setValue("sync/domains", b64DomainData);
   d->settings.sync();
   if (d->masterPasswordChangeStep == 0) {
-    if (d->optionsDialog->writeBackups())
+    if (d->optionsDialog->writeBackups()) {
       writeBackupFile(b64DomainData, b64SyncParam);
+    }
     generateSaltKeyIV().waitForFinished();
   }
 }
@@ -1948,8 +1978,9 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
   const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
   QString extra;
   foreach (QChar ch, ui->usedCharactersPlainTextEdit->toPlainText()) {
-    if (Password::Digits.contains(ch) || Password::LowerChars.contains(ch) || Password::UpperChars.contains(ch))
+    if (Password::Digits.contains(ch) || Password::LowerChars.contains(ch) || Password::UpperChars.contains(ch)) {
       continue;
+    }
     extra += ch;
   }
   ui->extraLineEdit->blockSignals(true);
@@ -2136,8 +2167,9 @@ void MainWindow::onMasterPasswordEntered(void)
         ui->domainsComboBox->setFocus();
         d->masterPasswordDialog->hide();
         show();
-        if (d->optionsDialog->syncOnStart())
+        if (d->optionsDialog->syncOnStart()) {
           onSync();
+        }
         restartInvalidationTimer();
       }
     }
@@ -2167,8 +2199,9 @@ void MainWindow::clearAllSettings(void)
     d->settings.sync();
     if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
       QFileInfo fi(d->optionsDialog->syncFilename());
-      if (fi.isWritable())
+      if (fi.isWritable()) {
         QFile(d->optionsDialog->syncFilename()).remove();
+      }
     }
     if (d->optionsDialog->useSyncServer() && !d->optionsDialog->deleteUrl().isEmpty()) {
       QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->deleteUrl()));
@@ -2224,8 +2257,9 @@ void MainWindow::lockApplication(void)
 
 void MainWindow::sslErrorsOccured(QNetworkReply *reply, const QList<QSslError> &errors)
 {
-  foreach (QSslError error, errors)
+  foreach (QSslError error, errors) {
     qWarning() << "SSL error occured: " << int(error.error()) << error.errorString();
+  }
 }
 
 
@@ -2331,28 +2365,36 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 //  qDebug() << "MainWindow::eventFilter(" << obj << event << ")";
   switch (event->type()) {
   case QEvent::Enter:
-    if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty())
+    if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty()) {
       ui->generatedPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
-    else if (obj->objectName() == "legacyPasswordLineEdit" && !ui->legacyPasswordLineEdit->text().isEmpty())
+    }
+    else if (obj->objectName() == "legacyPasswordLineEdit" && !ui->legacyPasswordLineEdit->text().isEmpty()) {
       ui->legacyPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
+    }
     break;
   case QEvent::Leave:
-    if (obj->objectName() == "generatedPasswordLineEdit")
+    if (obj->objectName() == "generatedPasswordLineEdit") {
       ui->generatedPasswordLineEdit->setCursor(Qt::ArrowCursor);
-    else if (obj->objectName() == "legacyPasswordLineEdit")
+    }
+    else if (obj->objectName() == "legacyPasswordLineEdit") {
       ui->legacyPasswordLineEdit->setCursor(Qt::ArrowCursor);
+    }
     break;
   case QEvent::MouseButtonPress:
-      if (obj->objectName() == "generatedPasswordLineEdit")
+      if (obj->objectName() == "generatedPasswordLineEdit") {
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
-      else if (obj->objectName() == "legacyPasswordLineEdit")
+      }
+      else if (obj->objectName() == "legacyPasswordLineEdit") {
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+      }
     break;
   case QEvent::MouseButtonRelease:
-      if (obj->objectName() == "generatedPasswordLineEdit")
+      if (obj->objectName() == "generatedPasswordLineEdit") {
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-      else if (obj->objectName() == "legacyPasswordLineEdit")
+      }
+      else if (obj->objectName() == "legacyPasswordLineEdit") {
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Password);
+      }
     break;
   default:
     break;
