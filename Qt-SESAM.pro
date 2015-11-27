@@ -22,5 +22,3 @@ SUBDIRS += \
     libSESAM \
     UnitTests \
     Qt-SESAM
-
-win32:SUBDIRS += HashMaster
