@@ -2316,8 +2316,9 @@ void MainWindow::onReadFinished(QNetworkReply *reply)
       else {
         d->progressDialog->setText(tr("Reading from the sync server failed. Status: %1 - Error: %2").arg(map["status"].toString()).arg(map["error"].toString()));
       }
-      if (d->masterPasswordChangeStep > 0)
+      if (d->masterPasswordChangeStep > 0) {
         nextChangeMasterPasswordStep();
+      }
     }
     else {
       d->progressDialog->setText(tr("Decoding the data from the sync server failed: %1").arg(parseError.errorString()));
