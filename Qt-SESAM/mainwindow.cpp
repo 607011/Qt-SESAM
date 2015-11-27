@@ -2237,8 +2237,10 @@ void MainWindow::invalidatePassword(bool reenter)
   SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
   ui->statusBar->showMessage(tr("Master password cleared for security"));
-  if (reenter)
+  d->KGK.invalidate();
+  if (reenter) {
     enterMasterPassword();
+  }
 }
 
 
