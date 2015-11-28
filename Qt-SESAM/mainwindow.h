@@ -134,6 +134,7 @@ private slots:
 #endif
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+  void onImportKeePass2XmlFile(void);
 
 signals:
   void passwordGenerated(void);
@@ -185,6 +186,7 @@ private: // methods
   QString usedCharacters(void);
   void applyTemplate(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
+  QString selectAlternativeDomainNameFor(const QString &domainName);
 };
 
 #endif // __MAINWINDOW_H_

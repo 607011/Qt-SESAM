@@ -23,6 +23,8 @@
 
 #include <QDebug>
 #include <QObject>
+#include <QList>
+#include <QPair>
 #include <QClipboard>
 #include <QMessageBox>
 #include <QStringListModel>
@@ -30,6 +32,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkSession>
@@ -73,6 +76,7 @@
 #include "securebytearray.h"
 #include "passwordchecker.h"
 #include "tcpclient.h"
+#include "keepass2xmlreader.h"
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
@@ -248,6 +252,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
+  QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
@@ -1056,6 +1061,76 @@ void MainWindow::onGenerateSaltKeyIV(void)
 }
 
 
+QString MainWindow::selectAlternativeDomainNameFor(const QString &domainName)
+{
+  Q_D(MainWindow);
+  QString newDomainName = domainName;
+  int idx = 1;
+  while (findDomainInComboBox(newDomainName) != NotFound)
+    newDomainName = QString("%1 (%2)").arg(domainName).arg(idx++);
+  return newDomainName;
+}
+
+
+void MainWindow::onImportKeePass2XmlFile(void)
+{
+  Q_D(MainWindow);
+  const QString &kp2xmlFilename = QFileDialog::getOpenFileName(this, tr("Import KeePass 2 XML file"), QString(), "KeePass 2 XML (*.xml)");
+  if (kp2xmlFilename.isEmpty())
+    return;
+  QFileInfo fi(kp2xmlFilename);
+  if (fi.isReadable() && fi.isFile()) {
+    KeePass2XmlReader reader(kp2xmlFilename);
+    if (!reader.isValid()) {
+      if (!reader.xmlErrorString().isEmpty()) {
+      QMessageBox::warning(this,
+                           tr("Invalid KeePass 2 XML file"),
+                           tr("The selected KeePass 2 XML file doesn't contain valid XML: %1 (line %2, column: %3")
+                           .arg(reader.xmlErrorString()).arg(reader.xmlErrorLine()).arg(reader.xmlErrorColumn()));
+      }
+      else {
+        QMessageBox::warning(this,
+                             tr("Cannot read KeePass 2 XML file"),
+                             tr("The selected KeePass 2 XML file cannot be read: %1")
+                             .arg(reader.errorString()));
+      }
+      return;
+    }
+    typedef QPair<QString, QString> StringPair;
+    QList<StringPair> renamed;
+    foreach (DomainSettings ds, reader.domains()) {
+      QString newDomainName = selectAlternativeDomainNameFor(ds.domainName);
+      if (newDomainName != ds.domainName)
+        renamed.append(qMakePair(ds.domainName, newDomainName));
+      ds.domainName = newDomainName;
+      d->domains.append(ds);
+    }
+    DomainSettings currentDomainSettings = d->domains.at(ui->domainsComboBox->currentText());
+    makeDomainComboBox();
+    if (!currentDomainSettings.isEmpty())
+      copyDomainSettingsToGUI(currentDomainSettings);
+    QString msgBoxText;
+    if (reader.domains().count() == 1)
+      msgBoxText = tr("<p>%1 domain has been imported successfully from the KeePass 2 XML file.</p>")
+        .arg(reader.domains().count());
+    else
+      msgBoxText = tr("<p>%1 domains have been imported successfully from the KeePass 2 XML file.</p>")
+        .arg(reader.domains().count());
+    if (renamed.count() > 0) {
+      if (renamed.count() == 1)
+        msgBoxText += tr("<p>%1 domain had to be renamed:</p>").arg(renamed.count());
+      else
+        msgBoxText += tr("<p>%1 domains had to be renamed:</p>").arg(renamed.count());
+      msgBoxText += "<ul>";
+      foreach (StringPair r, renamed)
+        msgBoxText += "<li>" + r.first + " >> " + r.second + "</li>";
+      msgBoxText += "</ul>";
+    }
+    QMessageBox::information(this, tr("Import successful"), msgBoxText);
+  }
+}
+
+
 void MainWindow::copyUsernameToClipboard(void)
 {
   QApplication::clipboard()->setText(ui->userLineEdit->text());
@@ -1080,7 +1155,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
+  // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
   ui->domainsComboBox->blockSignals(true);
   ui->domainsComboBox->setCurrentText(ds.domainName);
   ui->domainsComboBox->blockSignals(false);
@@ -1221,7 +1296,7 @@ void MainWindow::saveCurrentDomainSettings(void)
   if (!ui->domainsComboBox->currentText().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
-    if (ds.usedCharacters.isEmpty()) {
+    if (ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
       QMessageBox::warning(this, tr("Empty character table"), tr("You forgot to fill in some characters into the field \"used characters\""));
     }
     else {

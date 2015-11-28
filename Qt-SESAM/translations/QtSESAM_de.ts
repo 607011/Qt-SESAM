@@ -327,7 +327,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>[DEBUG] Create Mini Dump</source>
-        <translation>[DEBUG] Mini Dump erzeugen</translation>
+        <translation type="vanished">[DEBUG] Mini Dump erzeugen</translation>
     </message>
     <message>
         <source>Save before exit?</source>
@@ -572,11 +572,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Dump created.</source>
-        <translation>Dump generiert.</translation>
+        <translation type="vanished">Dump generiert.</translation>
     </message>
     <message>
         <source>Dump not implemented.</source>
-        <translation>Dump nicht implementiert.</translation>
+        <translation type="vanished">Dump nicht implementiert.</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
@@ -899,6 +899,48 @@ auf deinem Computer: %3</translation>
     <message>
         <source>Error: %1</source>
         <translation>Fehler: %1</translation>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>KeePass 2 XML file ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+I, Ctrl+K</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import KeePass 2 XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid KeePass 2 XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot read KeePass 2 XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file cannot be read: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains have been imported successfully from the KeePass 2 XML file &lt;strong&gt;%2&lt;/strong&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%3 domains had to be renamed:&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import successful</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

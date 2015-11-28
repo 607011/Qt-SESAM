@@ -21,6 +21,7 @@
 #ifndef __DOMAINSETTINGS_H_
 #define __DOMAINSETTINGS_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -88,7 +89,18 @@ public:
   static const QString PASSWORD_TEMPLATE;
   QByteArray passwordTemplate;
 
+  static const QString GROUP;
+  QString group;
+
+  static const QString EXPIRY_DATE;
+  QDateTime expiryDate;
+
+  static const QString TAGS;
+  QStringList tags;
 };
+
+
+extern QDebug operator<<(QDebug debug, const DomainSettings &ds);
 
 
 #endif // __DOMAINSETTINGS_H_
