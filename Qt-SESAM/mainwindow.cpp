@@ -679,7 +679,7 @@ void MainWindow::onExtraCharactersChanged(QString)
 {
   Q_D(MainWindow);
   setDirty();
-  updateTemplate();
+  setTemplateAndUsedCharacters();
   updatePassword();
 }
 
@@ -779,6 +779,15 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
 }
 
 
+void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
+{
+  static const QPixmap CheckedPixmap(":/images/check.png");
+  static const QPixmap UncheckedPixmap(":/images/uncheck.png");
+  label->setPixmap(checked ? CheckedPixmap : UncheckedPixmap);
+  label->setEnabled(checked);
+}
+
+
 void MainWindow::applyComplexity(int complexity)
 {
   const QBitArray &ba = Password::deconstructedComplexity(complexity);
@@ -789,10 +798,10 @@ void MainWindow::applyComplexity(int complexity)
 }
 
 
-void MainWindow::applyTemplate(const QByteArray &templ)
+void MainWindow::applyTemplateStringToGUI(const QByteArray &templ)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::applyTemplate(" << templ << ")";
+  // qDebug() << "MainWindow::applyTemplateStringToGUI(" << templ << ")";
   const QList<QByteArray> &templateParts = templ.split(';');
   if (templateParts.count() != 2)
     return;
@@ -818,15 +827,6 @@ void MainWindow::applyTemplate(const QByteArray &templ)
 }
 
 
-void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
-{
-  static const QPixmap CheckedPixmap(":/images/check.png");
-  static const QPixmap UncheckedPixmap(":/images/uncheck.png");
-  label->setPixmap(checked ? CheckedPixmap : UncheckedPixmap);
-  label->setEnabled(checked);
-}
-
-
 QString MainWindow::usedCharacters(void)
 {
   QString used;
@@ -846,7 +846,7 @@ QString MainWindow::usedCharacters(void)
 }
 
 
-void MainWindow::updateTemplate(void)
+void MainWindow::setTemplateAndUsedCharacters(void)
 {
   Q_D(MainWindow);
   QByteArray used;
@@ -874,7 +874,7 @@ void MainWindow::updateTemplate(void)
 void MainWindow::generatePassword(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::generatePassword()";
+  // qDebug() << "MainWindow::generatePassword()" << ui->usedCharactersPlainTextEdit->toPlainText();
   if (ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
     ui->generatedPasswordLineEdit->setText(QString());
   }
@@ -1244,9 +1244,6 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
   ui->extraLineEdit->blockSignals(false);
-  if (!ds.passwordTemplate.isEmpty()) {
-    applyTemplate(ds.passwordTemplate);
-  }
   ui->passwordTemplateLineEdit->blockSignals(true);
   ui->passwordTemplateLineEdit->setText(ds.passwordTemplate);
   ui->passwordTemplateLineEdit->blockSignals(false);
@@ -1273,6 +1270,7 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
     ui->actionMigrateDomainToV3->setEnabled(false);
     ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
+    applyTemplateStringToGUI(ds.passwordTemplate);
   }
 
   updatePassword();
@@ -1659,6 +1657,7 @@ void MainWindow::createEmptySyncFile(void)
 void MainWindow::syncWithFile(void)
 {
   Q_D(MainWindow);
+  // qDebug() << "MainWindow::syncWithFile()";
   QFile syncFile(d->optionsDialog->syncFilename());
   bool ok = syncFile.open(QIODevice::ReadOnly);
   if (!ok) {
@@ -1688,6 +1687,7 @@ void MainWindow::beginSyncWithServer(void)
 void MainWindow::onSync(void)
 {
   Q_D(MainWindow);
+  // qDebug() << "MainWindow::onSync()";
   restartInvalidationTimer();
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
   d->domainSettingsBeforceSync = d->domains.at(ui->domainsComboBox->currentText());
@@ -1751,6 +1751,7 @@ void MainWindow::warnAboutDifferingKGKs(void)
 void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEncoded)
 {
   Q_D(MainWindow);
+  // qDebug() << "MainWindow::syncWith(" << syncPeer << ")";
   QJsonDocument remoteJSON;
   d->doConvertLocalToLegacy = false;
   if (!remoteDomainsEncoded.isEmpty()) {
@@ -2046,7 +2047,7 @@ void MainWindow::onDomainTextChanged(const QString &domain)
       resetAllFieldsExceptDomainComboBox();
     }
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
-    updateTemplate();
+    setTemplateAndUsedCharacters();
     updatePassword();
     d->lastCleanDomainSettings.clear();
     ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
@@ -2062,7 +2063,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   Q_D(MainWindow);
   Q_UNUSED(length);
   applyComplexity(complexity);
-  updateTemplate();
+  setTemplateAndUsedCharacters();
   d->password.setDomainSettings(collectedDomainSettings());
   const SecureString &pwd = d->password.remixed();
   ui->generatedPasswordLineEdit->setText(pwd);
@@ -2077,7 +2078,7 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::onPasswordTemplateChanged(" << templ << ")";
-  applyTemplate(templ.toUtf8());
+  applyTemplateStringToGUI(templ.toUtf8());
 }
 
 
@@ -2091,7 +2092,7 @@ void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  //  qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
+  // qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
   d->interactionSemaphore.acquire();
   QMessageBox::StandardButton button = QMessageBox::question(
         this,
@@ -2365,7 +2366,7 @@ void MainWindow::aboutQt(void)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-//  qDebug() << "MainWindow::eventFilter(" << obj << event << ")";
+  // qDebug() << "MainWindow::eventFilter(" << obj << event << ")";
   switch (event->type()) {
   case QEvent::Enter:
     if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty()) {
