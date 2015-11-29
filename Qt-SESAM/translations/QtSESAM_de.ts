@@ -1342,7 +1342,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Smart login</source>
-        <translation>Smart Login</translation>
+        <translation type="vanished">Smart Login</translation>
     </message>
     <message>
         <source>Delete URL</source>
@@ -1379,6 +1379,14 @@ auf deinem Computer: %3</translation>
     <message>
         <source>reply cannot be parsed as JSON data: %1 (data: %2)</source>
         <translation>Antwort vom Server enthält keine JSON-formatierten Daten: %1 (Daten: %2)</translation>
+    </message>
+    <message>
+        <source>Default password length</source>
+        <translation>Passwortlänge (Vorgabe)</translation>
+    </message>
+    <message>
+        <source>Default PBKDF2 iterations</source>
+        <translation>PBKDF2-Iterationen (Vorgabe)</translation>
     </message>
 </context>
 <context>
