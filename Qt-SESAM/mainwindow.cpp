@@ -1262,6 +1262,7 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
       ui->actionMigrateDomainToV3->setEnabled(false);
       ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
       ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
+      applyTemplateStringToGUI(ds.passwordTemplate);
     }
   }
   else {
@@ -1270,7 +1271,6 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
     ui->actionMigrateDomainToV3->setEnabled(false);
     ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
-    applyTemplateStringToGUI(ds.passwordTemplate);
   }
 
   updatePassword();
