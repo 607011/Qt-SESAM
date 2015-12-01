@@ -1381,6 +1381,7 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 
 void MainWindow::writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams)
 {
+  Q_D(MainWindow);
   /* From the Qt docs: "QStandardPaths::DataLocation returns the
    * same value as AppLocalDataLocation. This enumeration value
    * is deprecated. Using AppDataLocation is preferable since on
@@ -1397,13 +1398,11 @@ void MainWindow::writeBackupFile(const QString &binaryDomainData, const QString 
       .arg(QDateTime::currentDateTime().toString("yyyyMMddThhmmss"))
       .arg(AppName);
   if (QDir().mkpath(backupFilePath)) {
-    QFile backupFile(backupFilename);
-    backupFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    backupFile.write("[sync]\ndomains=");
-    backupFile.write(binaryDomainData.toUtf8());
-    backupFile.write("\nparam=");
-    backupFile.write(binarySyncParams.toUtf8());
-    backupFile.close();
+    QSettings backupSettings(backupFilename, QSettings::IniFormat);
+    foreach (QString key, d->settings.allKeys()) {
+      backupSettings.setValue(key, d->settings.value(key));
+    }
+    backupSettings.sync();
   }
 }
 
