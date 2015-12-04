@@ -113,61 +113,62 @@ bool Exporter::write(const SecureByteArray &data, const SecureString &pwd)
 SecureByteArray Exporter::read(const SecureString &pwd)
 {
   Q_D(Exporter);
+  SecureByteArray plain;
   QFile file(d->filename);
   bool opened = file.open(QIODevice::ReadOnly);
-  if (!opened)
-    return false;
-  static const int MaxLineSize = 66;
-  int state = 0;
-  QByteArray b64;
-  while (!file.atEnd()) {
-    char buf[MaxLineSize];
-    qint64 bytesRead = file.readLine(buf, MaxLineSize);
-    QString line = QByteArray(buf, bytesRead).trimmed();
-    switch (state) {
-    case 0:
-      if (line == PemPreamble) {
-        state = 1;
+  if (opened) {
+    static const int MaxLineSize = 64 + 2;
+    int state = 0;
+    QByteArray b64;
+    while (!file.atEnd()) {
+      char buf[MaxLineSize];
+      const qint64 bytesRead = file.readLine(buf, MaxLineSize);
+      const QString line = QByteArray(buf, bytesRead).trimmed();
+      switch (state) {
+      case 0:
+        if (line == PemPreamble) {
+          state = 1;
+        }
+        else {
+          qWarning() << "bad format";
+        }
+        break;
+      case 1:
+        if (line != PemEpilog) {
+          b64.append(line.toUtf8());
+        }
+        else {
+          state = 2;
+        }
+        break;
+      case 2:
+        // ignore trailing lines
+        break;
+      default:
+        qWarning() << "Oops! Should never have gotten here.";
+        break;
       }
-      else {
-        qWarning() << "bad format";
-      }
-      break;
-    case 1:
-      if (line != PemEpilog) {
-        b64.append(line.toUtf8());
-      }
-      else {
-        state = 2;
-      }
-      break;
-    case 2:
-      // ignore trailing lines
-      break;
-    default:
-      qWarning() << "Oops! Should never have gotten here.";
-      break;
     }
+    file.close();
+    SecureByteArray iv;
+    SecureByteArray key;
+    QByteArray imported = QByteArray::fromBase64(b64);
+    QByteArray salt = imported.mid(0, Crypter::SaltSize);
+    QByteArray cipher = imported.mid(Crypter::SaltSize);
+    Crypter::makeKeyAndIVFromPassword(pwd.toUtf8(), salt, key, iv);
+    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+    dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(iv.constData()));
+    plain = SecureByteArray(cipher.size(), static_cast<char>(0));
+    CryptoPP::ArraySource s(
+          reinterpret_cast<const byte*>(cipher.constData()), cipher.size(),
+          true,
+          new CryptoPP::StreamTransformationFilter(
+            dec,
+            new CryptoPP::ArraySink(reinterpret_cast<byte*>(plain.data()), plain.size()),
+            CryptoPP::StreamTransformationFilter::NO_PADDING
+            )
+          );
+    Q_UNUSED(s); // just to please the compiler
   }
-  file.close();
-  SecureByteArray iv;
-  SecureByteArray key;
-  QByteArray imported = QByteArray::fromBase64(b64);
-  QByteArray salt = imported.mid(0, Crypter::SaltSize);
-  QByteArray cipher = imported.mid(Crypter::SaltSize);
-  Crypter::makeKeyAndIVFromPassword(pwd.toUtf8(), salt, key, iv);
-  CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-  dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(iv.constData()));
-  SecureByteArray plain(cipher.size(), static_cast<char>(0));
-  CryptoPP::ArraySource s(
-        reinterpret_cast<const byte*>(cipher.constData()), cipher.size(),
-        true,
-        new CryptoPP::StreamTransformationFilter(
-          dec,
-          new CryptoPP::ArraySink(reinterpret_cast<byte*>(plain.data()), plain.size()),
-          CryptoPP::StreamTransformationFilter::NO_PADDING
-          )
-        );
-  Q_UNUSED(s); // just to please the compiler
   return plain;
 }
