@@ -733,20 +733,12 @@ auf deinem Computer: %3</translation>
         <translation>Sicherheitshinweis</translation>
     </message>
     <message>
-        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. It is recommended to protect the KGK with a really strong passphrase. Are you prepared for this?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Import KGK ...</source>
         <translation>KGK importieren ...</translation>
     </message>
     <message>
         <source>Export KGK to ...</source>
         <translation>KGK exportieren nach ...</translation>
-    </message>
-    <message>
-        <source>Not implemented yet.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Parameters</source>
@@ -975,6 +967,38 @@ auf deinem Computer: %3</translation>
     <message>
         <source>(%1 characters)</source>
         <translation>(%1 Zeichen)</translation>
+    </message>
+    <message>
+        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. The KGK is encrypted with a key derived from your master password. Are you prepared for this?</source>
+        <translation>Du stehst kurz davor, deinen Schlüsselgenerierungsschlüssel (key generation key, KGK) zu exportieren. Der KGK wird verwendet, um zusammen mit deinem Master-Passwort die Dienstpasswörter zu berechnen, und um die Programmeinstellungen zu verschlüsseln. Normalerweise musst du den KGK nicht exportieren, es sei denn zu Backup-Zwecken. Der exportierte KGK ist mit einem Schlüssel verschlüsselt, der aus deinem Master-Passwort abgeleitet wurde. Willst du wirklich exportieren?</translation>
+    </message>
+    <message>
+        <source>Import KGK from ...</source>
+        <translation>KGK importieren ...</translation>
+    </message>
+    <message>
+        <source>Read carefully before proceeding!</source>
+        <translation>Vor dem Weitermachen bitte sorgfältig lesen!</translation>
+    </message>
+    <message>
+        <source>You are about to import a previously saved key generation key (KGK). This should only be done if absolutely necessary, e.g. to restore a damaged settings file. This is because changing the KGK will also change the generated passwords. Are you really sure you want to import a KGK?</source>
+        <translation>Du stehst kurz davor, einen kürzlich gespeicherten Schlüsselerzeugungsschlüssel (key generation key, KGK) zu importieren. Das solltest du nur tun, wenn es unbedingt notwendig ist, weil das Importieren eines anderen KGK dazu führt, dass andere Dienstpasswörter generiert werden. Bist du sicher, dass du einen KGK importieren möchtest?</translation>
+    </message>
+    <message>
+        <source>Bad KGK</source>
+        <translation>Ungültiger KGK</translation>
+    </message>
+    <message>
+        <source>The KGK you&apos;ve loaded is malformed. It shall be %1 byte long, but is in fact %2 byte long. The KGK will not be imported and your settings will not be changed.</source>
+        <translation>Der geladene KGK ist ungültig. Er muss %1 Byte lang sein, ist aber %2 Byte lang. Der KGK wird nicht importiert und deine bisherigen Einstellungen bleiben erhalten.</translation>
+    </message>
+    <message>
+        <source>KGK imported</source>
+        <translation>KGK importiert</translation>
+    </message>
+    <message>
+        <source>KGK successfully imported. Your generated passwords may have changed. Please check if they are still valid, or valid again.</source>
+        <translation>Der KGK wurde erfolgreich importiert. Deine Dienstpasswörter dürfen sich allesamt geändert haben. Bitte prüfe, ob sie immer noch (oder wieder) gültig sind.</translation>
     </message>
 </context>
 <context>
@@ -1583,6 +1607,10 @@ auf deinem Computer: %3</translation>
     <message>
         <source>~ %1 years</source>
         <translation>~ %1 Jahre</translation>
+    </message>
+    <message>
+        <source>KGK file (*.pem *.kgk)</source>
+        <translation>KGK-Datei (*.pem *.kgk)</translation>
     </message>
 </context>
 <context>
