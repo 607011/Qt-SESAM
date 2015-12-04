@@ -1101,6 +1101,9 @@ void MainWindow::onGenerateSaltKeyIV(void)
 }
 
 
+static const QString KGKFileExtension = QObject::tr("KGK file (*.pem *.kgk)");
+
+
 void MainWindow::onExportKGK(void)
 {
   Q_D(MainWindow);
@@ -1113,7 +1116,7 @@ void MainWindow::onExportKGK(void)
                                     "The KGK is encrypted with a key derived from your master password. "
                                     "Are you prepared for this?"));
   if (rc == QMessageBox::Yes) {
-    QString kgkFilename = QFileDialog::getSaveFileName(this, tr("Export KGK to ..."), QString(), "*.pem");
+    QString kgkFilename = QFileDialog::getSaveFileName(this, tr("Export KGK to ..."), QString(), KGKFileExtension);
     if (!kgkFilename.isEmpty()) {
       Exporter(kgkFilename).write(d->KGK, d->masterPassword.toUtf8());
     }
@@ -1124,14 +1127,34 @@ void MainWindow::onExportKGK(void)
 void MainWindow::onImportKGK(void)
 {
   Q_D(MainWindow);
-  int rc = QMessageBox::information(this, tr("Not implemented yet"), tr("Not implemented yet."));
-  if (rc == QMessageBox::Ok) {
-//    QString kgkFilename = QFileDialog::getOpenFileName(this, tr("Import KGK from ..."), QString(), "*.pem");
-//    if (!kgkFilename.isEmpty()) {
-//      SecureByteArray kgk = Exporter(kgkFilename).read(d->masterPassword.toUtf8());
-//      if (kgk.size() != Crypter::KGKSize)
-//        qWarning() << "bad size (is:" << kgk.size() << ", must:" << Crypter::KGKSize << ")";
-//    }
+  int rc = QMessageBox::question(this,
+                                 tr("Read carefully before proceeding!"),
+                                 tr("You are about to import a previously saved key generation key (KGK). "
+                                    "This should only be done if absolutely necessary, e.g. "
+                                    "to restore a damaged settings file. This is because changing the KGK "
+                                    "will also change the generated passwords. "
+                                    "Are you really sure you want to import a KGK?"));
+  if (rc == QMessageBox::Yes) {
+    QString kgkFilename = QFileDialog::getOpenFileName(this, tr("Import KGK from ..."), QString(), KGKFileExtension);
+    if (!kgkFilename.isEmpty()) {
+      SecureByteArray kgk = Exporter(kgkFilename).read(d->masterPassword.toUtf8());
+      if (kgk.size() == Crypter::KGKSize) {
+        d->KGK = kgk;
+        QMessageBox::information(this,
+                                 tr("KGK imported"),
+                                 tr("KGK successfully imported. Your generated passwords may have changed. "
+                                    "Please check if they are still valid, or valid again."));
+      }
+      else {
+        QMessageBox::warning(this,
+                             tr("Bad KGK"),
+                             tr("The KGK you've loaded is malformed. "
+                                "It shall be %1 byte long, but is in fact %2 byte long. "
+                                "The KGK will not be imported and "
+                                "your settings will not be changed.")
+                             .arg(Crypter::KGKSize).arg(kgk.size()));
+      }
+    }
   }
 }
 
