@@ -23,8 +23,9 @@
 
 #include <QDebug>
 #include <QString>
-#include <QByteArray>
-#include <QSharedMemory>
+#include <QLockFile>
+#include <QStandardPaths>
+
 #include "global.h"
 #include "util.h"
 
@@ -38,42 +39,43 @@ public:
   }
 
 
-  bool attach(void)
+  bool alreadyRunning(void)
   {
-    if (sharedMem == Q_NULLPTR)
-      sharedMem = new QSharedMemory(AppName);
-    return sharedMem->attach(QSharedMemory::ReadOnly);
+      return lockFile.isLocked();
   }
 
 
-  bool alreadyRunning(void)
+  bool attach(void)
   {
-    if (isRunning)
-      return true;
-    if (sharedMem == Q_NULLPTR)
-      sharedMem = new QSharedMemory(AppName);
-    if (sharedMem->create(1, QSharedMemory::ReadOnly)) {
-      attach();
-      return false;
-    }
-    isRunning = true;
-    return true;
+      return lockFile.tryLock();
   }
 
 
   void detach(void)
   {
-    if (sharedMem != Q_NULLPTR)
-      sharedMem->detach();
-    SafeDelete(sharedMem);
+      lockFile.unlock();
+  }
+
+
+  bool forceDetach(void)
+  {
+      return lockFile.removeStaleLockFile();
+  }
+
+
+  QLockFile::LockError error(void) const
+  {
+      return lockFile.error();
   }
 
 
 private:
   SingleInstanceDetector(void)
-    : sharedMem(Q_NULLPTR)
-    , isRunning(false)
-  { /* ... */ }
+    : lockFile(QStandardPaths::TempLocation + "/qt-sesam.lock")
+  {
+    attach();
+
+  }
   ~SingleInstanceDetector()
   {
     detach();
@@ -94,8 +96,7 @@ private:
    * running the QSharedMemory destructor, the shared memory
    * segment survives the crash.
    */
-  QSharedMemory *sharedMem;
-  bool isRunning;
+  QLockFile lockFile;
 };
 
 #endif // __SINGLEINSTANCEDETECTOR_H_

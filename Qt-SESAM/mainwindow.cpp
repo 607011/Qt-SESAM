@@ -57,8 +57,8 @@
 #include <QCompleter>
 #include <QShortcut>
 #include <QGraphicsOpacityEffect>
+#include <QLockFile>
 
-#include "singleinstancedetector.h"
 #include "global.h"
 #include "util.h"
 #include "progressdialog.h"
@@ -130,6 +130,8 @@ public:
     , masterPasswordChangeStep(0)
     , interactionSemaphore(1)
     , doConvertLocalToLegacy(false)
+    , lockFile(QStandardPaths::TempLocation + "/qt-sesam.lock")
+    , forceStart(false)
   {
     resetSSLConf();
   }
@@ -197,6 +199,8 @@ public:
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
   bool doConvertLocalToLegacy;
+  QLockFile lockFile;
+  bool forceStart;
 };
 
 
@@ -207,13 +211,15 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 {
   Q_D(MainWindow);
 
-  if (!forceStart && SingleInstanceDetector::instance().alreadyRunning()) {
+  d->forceStart = forceStart;
+  qDebug() << d->forceStart;
+  if (!d->forceStart && d->lockFile.isLocked()) {
+    qDebug() << "LOCKED.";
     QMessageBox::information(Q_NULLPTR, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
-    SingleInstanceDetector::instance().detach();
     close();
     ::exit(1);
   }
-  SingleInstanceDetector::instance().attach();
+  d->lockFile.lock();
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
@@ -394,7 +400,10 @@ void MainWindow::closeEvent(QCloseEvent *e)
   auto prepareExit = [this]() {
     saveSettings();
     invalidatePassword(false);
-    SingleInstanceDetector::instance().detach();
+    this->d_ptr->lockFile.unlock();
+    if (this->d_ptr->forceStart) {
+      this->d_ptr->lockFile.removeStaleLockFile();
+    }
   };
 
   cancelPasswordGeneration();
