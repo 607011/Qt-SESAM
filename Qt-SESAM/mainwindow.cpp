@@ -1144,6 +1144,7 @@ void MainWindow::onImportKGK(void)
                                  tr("KGK imported"),
                                  tr("KGK successfully imported. Your generated passwords may have changed. "
                                     "Please check if they are still valid, or valid again."));
+        resetAllFields();
       }
       else {
         QMessageBox::warning(this,
