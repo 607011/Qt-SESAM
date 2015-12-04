@@ -63,7 +63,8 @@ const QVector<QBitArray> Password::ComplexityMapping =
   toQBitArray("1100"),
   toQBitArray("0110"),
   toQBitArray("1110"),
-  toQBitArray("1111")
+  toQBitArray("1111"),
+  toQBitArray("0001"),
 };
 
 
@@ -72,10 +73,10 @@ const QString Password::UpperChars = Password::LowerChars.toUpper();
 const QString Password::Digits = QString("0123456789");
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8(); // default: !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
 const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
-const int Password::DefaultMaxLength = 36;
-const int Password::DefaultLength = 24;
-const int Password::MaxComplexity = 6;
-const int Password::DefaultComplexity = Password::MaxComplexity;
+const int Password::DefaultLength = 13;
+const int Password::DefaultMaxLength = 2 * Password::DefaultLength;
+const int Password::MaxComplexity = 7;
+const int Password::DefaultComplexity = 5;
 const int Password::NoComplexity = -1;
 
 
@@ -119,6 +120,12 @@ QBitArray Password::deconstructedComplexity(int complexity)
 {
   QBitArray ba(4, false);
   switch (complexity) {
+  case 7:
+    ba[TemplateDigits] = false;
+    ba[TemplateLowercase] = false;
+    ba[TemplateUppercase] = false;
+    ba[TemplateExtra] = true;
+    break;
   case 6:
     ba[TemplateDigits] = true;
     ba[TemplateLowercase] = true;
@@ -261,8 +268,7 @@ const SecureString &Password::remixed(void)
 void Password::generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings)
 {
   Q_D(Password);
-  if (!domainSettings.isEmpty())
-    d->domainSettings = domainSettings;
+  d->domainSettings = domainSettings;
   d->future = QtConcurrent::run(this, &Password::generate, masterPassword);
 }
 

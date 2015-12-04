@@ -44,6 +44,7 @@
 #include <QLabel>
 
 #include "global.h"
+#include "domainsettings.h"
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
 
@@ -60,10 +61,11 @@ class MainWindow : public QMainWindow
 
 public:
   explicit MainWindow(bool forceStart, QWidget *parent = Q_NULLPTR);
-
   ~MainWindow();
 
-  void applyComplexity(int complexity);
+  virtual QSize sizeHint(void) const;
+  virtual QSize minimumSizeHint(void) const;
+
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
@@ -96,7 +98,8 @@ private slots:
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
   void onPasswordTemplateChanged(const QString &);
-  void onEscPressed(void);
+  void masterPasswordInvalidationTimeMinsChanged(int);
+  void onRevert(void);
   void renewSalt(void);
   void onRenewSalt(void);
   void cancelPasswordGeneration(void);
@@ -106,10 +109,13 @@ private slots:
   void setDirty(bool dirty = true);
   void openURL(void);
   void onForcedPush(void);
-  void onMigrateDomainToV3(void);
-  void sync(void);
+  void onMigrateDomainSettingsToExpert(void);
+  void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
+  void onExpandableCheckBoxStateChanged(void);
+  void onTabChanged(int idx);
   void clearClipboard(void);
+  void shrink(void);
   void about(void);
   void aboutQt(void);
   void enterMasterPassword(void);
@@ -128,15 +134,11 @@ private slots:
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
-  void hideActivityIcons(void);
-  void createFullDump(void);
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
   void onExportKGK(void);
   void onImportKGK(void);
-#ifdef WIN32
-  void onPasted(void);
-#endif
+  void onImportKeePass2XmlFile(void);
 
 signals:
   void passwordGenerated(void);
@@ -145,8 +147,8 @@ signals:
 protected:
   void closeEvent(QCloseEvent *);
   void changeEvent(QEvent *);
-  void resizeEvent(QResizeEvent *);
-  void moveEvent(QMoveEvent *);
+  void resizeEvent(QResizeEvent*);
+  bool event(QEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
 private:
@@ -161,8 +163,10 @@ private: // methods
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
+  void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
+  void copyDomainSettingsToGUI(const DomainSettings &ds);
   void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
@@ -176,16 +180,23 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-  void writeBackupFile(const QByteArray &binaryDomainData);
-  bool syncToServerEnabled(void) const;
-  bool syncToFileEnabled(void) const;
+  void writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams);
+  void createEmptySyncFile(void);
+  void syncWithFile(void);
+  void beginSyncWithServer(void);
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
-  void createTemplate_v3(void);
-  QString usedCharacters_v3(void);
-  void analyzeTemplate_v3(const QByteArray &);
-  void checkLabel(QLabel *, bool checked);
+  void applyComplexity(int complexity);
+  void setTemplateAndUsedCharacters(void);
+  QString usedCharacters(void);
+  void applyTemplateStringToGUI(const QByteArray &);
+  void updateCheckableLabel(QLabel *, bool checked);
+  QString selectAlternativeDomainNameFor(const QString &domainName);
+  void warnAboutDifferingKGKs(void);
+  void convertToLegacyPassword(DomainSettings &ds);
+  QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
+  QString collectedSyncData(void);
 };
 
 #endif // __MAINWINDOW_H_

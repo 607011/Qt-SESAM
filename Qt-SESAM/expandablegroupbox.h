@@ -17,39 +17,47 @@
 
 */
 
-#ifndef __EXPORTER_H_
-#define __EXPORTER_H_
+
+#ifndef __EXPANDABLEGROUPBOX_H_
+#define __EXPANDABLEGROUPBOX_H_
 
 #include <QObject>
+#include <QEvent>
 #include <QString>
-#include <QByteArray>
+#include <QWidget>
+#include <QLayout>
 #include <QScopedPointer>
 
-#include "securebytearray.h"
-#include "securestring.h"
+class ExpandableGroupboxPrivate;
 
-
-class ExporterPrivate;
-
-class Exporter : public QObject
+class ExpandableGroupbox : public QWidget
 {
   Q_OBJECT
+  Q_PROPERTY(bool expanded READ expanded WRITE setExpanded)
+
 public:
-  explicit Exporter(QObject *parent = Q_NULLPTR);
-  Exporter(const QString &filename, QObject *parent = Q_NULLPTR);
-  ~Exporter();
-  void setFileName(const QString &);
-  bool write(const SecureByteArray &data, const SecureString &pwd);
-  SecureByteArray read(const SecureString &pwd);
+  ExpandableGroupbox(QWidget *parent = Q_NULLPTR);
+  ~ExpandableGroupbox();
+  void expand(void);
+  void collapse(void);
+  void toggle(void);
+  bool expanded(void) const;
+  void setExpanded(bool doExpand = true);
+  void setTitle(const QString &title);
+  virtual void setLayout(QLayout*);
+
+protected:
+  bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
+  void expansionStateChanged(void);
 
 public slots:
 
 private:
-  QScopedPointer<ExporterPrivate> d_ptr;
-  Q_DECLARE_PRIVATE(Exporter)
-  Q_DISABLE_COPY(Exporter)
+  QScopedPointer<ExpandableGroupboxPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(ExpandableGroupbox)
+  Q_DISABLE_COPY(ExpandableGroupbox)
 };
 
-#endif // __EXPORTER_H_
+#endif // __EXPANDABLEGROUPBOX_H_

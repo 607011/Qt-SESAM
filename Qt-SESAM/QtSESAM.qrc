@@ -11,5 +11,7 @@
         <file alias="check.png">resources/images/check.png</file>
         <file alias="warning.png">resources/images/warning.png</file>
         <file alias="uncheck.png">resources/images/uncheck.png</file>
+        <file alias="collapsed.png">resources/images/collapsed.png</file>
+        <file alias="expanded.png">resources/images/expanded.png</file>
     </qresource>
 </RCC>

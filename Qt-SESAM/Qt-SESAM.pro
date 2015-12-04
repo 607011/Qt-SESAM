@@ -22,7 +22,7 @@ TARGET = Qt-SESAM
 
 TEMPLATE = app qt
 
-QT += core gui widgets concurrent network
+QT += core gui widgets concurrent network xml
 
 TRANSLATIONS = $$files(translations/QtSESAM_*.ts)
 
@@ -40,8 +40,8 @@ win32-msvc* {
     CONFIG += windows
     CONFIG -= console
     RC_FILE = QtSESAM.rc
-    SOURCES += dump.cpp clipboardmonitor.cpp
-    HEADERS += dump.h clipboardmonitor.h
+    SOURCES +=
+    HEADERS +=
     LIBS += User32.lib
     QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:WINDOWS
 }
@@ -56,7 +56,10 @@ SOURCES += main.cpp \
     changemasterpassworddialog.cpp \
     passwordchecker.cpp \
     easyselectorwidget.cpp \
-    countdownwidget.cpp
+    countdownwidget.cpp \
+    keepass2xmlreader.cpp \
+    hackhelper.cpp \
+    expandablegroupbox.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -70,7 +73,9 @@ HEADERS  += \
     passwordchecker.h \
     singleinstancedetector.h \
     easyselectorwidget.h \
-    countdownwidget.h
+    countdownwidget.h \
+    keepass2xmlreader.h \
+    expandablegroupbox.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

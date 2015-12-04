@@ -17,30 +17,30 @@
 
 */
 
+#include "hackhelper.h"
 
-#ifndef __CLIPBOARDMONITOR_H_
-#define __CLIPBOARDMONITOR_H_
 
-#include <QObject>
-#include <Windows.h>
+void incrementEndianless(QByteArray &b)
+{
+  int i = b.size();
+  while (--i) {
+    quint8 byte = static_cast<quint8>(b.at(i));
+    ++byte;
+    b[i] = static_cast<char>(byte);
+    if (byte != 0)
+      break;
+  }
+}
 
-class ClipboardMonitor : public QObject {
-  Q_OBJECT
-
-public:
-  static ClipboardMonitor *instance(void);
-
-signals:
-  void pasted(void);
-
-private:
-  ClipboardMonitor(void);
-  ~ClipboardMonitor();
-  bool hook(void);
-  void hookIntoClipboard(HWND);
-  HHOOK keyboardHook;
-  static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
-  static ClipboardMonitor *singleInstance;
-};
-
-#endif // __CLIPBOARDMONITOR_H_
+QDebug operator<<(QDebug debug, const PositionTable &sub)
+{
+  QDebugStateSaver saver(debug);
+  (void)saver;
+  debug.nospace() << "PositionTable {\n";
+  for (int i = 0; i < sub.size(); ++i) {
+    const CharacterPositions &s = sub.at(i);
+    debug.nospace() << s.character() << " @ " << s.positions() << "\n";
+  }
+  debug.nospace() << "}";
+  return debug;
+}

@@ -25,7 +25,7 @@
 #include <QChar>
 #include <QList>
 #include <QString>
-
+#include <QDebug>
 
 typedef QList<int> PositionList;
 
@@ -136,31 +136,8 @@ private: // methods
 };
 
 
-void incrementEndianless(QByteArray &b)
-{
-  int i = b.size();
-  while (--i) {
-    quint8 byte = static_cast<quint8>(b.at(i));
-    ++byte;
-    b[i] = static_cast<char>(byte);
-    if (byte != 0)
-      break;
-  }
-}
-
-
-QDebug operator<<(QDebug debug, const PositionTable &sub)
-{
-    QDebugStateSaver saver(debug);
-    (void)saver;
-    debug.nospace() << "PositionTable{\n";
-    for (int i = 0; i < sub.size(); ++i) {
-      const CharacterPositions &s = sub.at(i);
-      debug.nospace() << s.character() << " @ " << s.positions() << "\n";
-    }
-    debug.nospace() << "}";
-    return debug;
-}
+extern void incrementEndianless(QByteArray &b);
+extern QDebug operator<<(QDebug debug, const PositionTable &sub);
 
 #endif // __SUBSTITUTION_H_
 

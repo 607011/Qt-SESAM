@@ -43,20 +43,27 @@ public:
   int length(void) const;
   void setComplexity(int);
   int complexity(void) const;
+  void setExtraCharacterCount(int);
 
 protected:
-  void mouseMoveEvent(QMouseEvent*);
-  void mousePressEvent(QMouseEvent*);
-  void mouseReleaseEvent(QMouseEvent*);
-  void paintEvent(QPaintEvent*);
-  void resizeEvent(QResizeEvent*);
+  void mouseMoveEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+  void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+  void mouseReleaseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+  void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
+  void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+  bool event(QEvent*) Q_DECL_OVERRIDE;
+  QSize minimumSizeHint(void) const Q_DECL_OVERRIDE;
 
 signals:
   void valuesChanged(int newLength, int newComplexity);
+  void speedTestFinished(qreal);
 
 public slots:
   void setMinLength(int);
   void setMaxLength(int);
+  void onSpeedTestBegin(void);
+  void onSpeedTestEnd(qreal hashesPerSec);
+  void onSpeedTestAbort(void);
 
 private:
   QScopedPointer<EasySelectorWidgetPrivate> d_ptr;
@@ -65,10 +72,15 @@ private:
 
   static const int DefaultMinLength;
   static const int DefaultMaxLength;
-  static const int DefaultMaxComplexity;
 
 private: // methods
+  void speedTest(void);
   void redrawBackground(void);
+  bool tooltipTextAt(const QPoint &pos, QString &helpText) const;
+  qreal tianhe2Secs(int length, int complexity) const;
+  qreal passwordStrength(int length, int complexity) const;
+  qreal sha1Secs(int length, int complexity, qreal sha1PerSec) const;
+  qreal mySecs(int length, int complexity) const;
 };
 
 #endif // __EASYSELECTORWIDGET_H_

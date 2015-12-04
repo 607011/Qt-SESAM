@@ -75,6 +75,31 @@
     </message>
 </context>
 <context>
+    <name>EasySelectorWidget</name>
+    <message>
+        <source>%1 characters</source>
+        <translation type="vanished">%1 Zeichen</translation>
+    </message>
+    <message>
+        <source>%1 characters,
+est. crack time w/ Tianhe-2: %2</source>
+        <translation type="vanished">%1 Zeichen,
+geschätzte Crack-Dauer mit Tianhe-2: %2</translation>
+    </message>
+    <message>
+        <source>%1 characters,
+est. crack time w/ Tianhe-2: %2,
+on your computer: %3</source>
+        <translation>%1 Zeichen,
+geschätzte Crack-Dauer mit Tianhe-2: %2,
+auf deinem Computer: %3</translation>
+    </message>
+    <message>
+        <source>calculating ...</source>
+        <translation>Berechnung läuft ...</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>ctpwdgen</source>
@@ -86,7 +111,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation type="vanished">Speichern</translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <source>Main parameters</source>
@@ -114,7 +139,7 @@
     </message>
     <message>
         <source>Salt (Base64)</source>
-        <translation>Salt (Base64)</translation>
+        <translation type="vanished">Salt (Base64)</translation>
     </message>
     <message>
         <source>Additional parameters</source>
@@ -302,7 +327,7 @@
     </message>
     <message>
         <source>[DEBUG] Create Mini Dump</source>
-        <translation>[DEBUG] Mini Dump erzeugen</translation>
+        <translation type="vanished">[DEBUG] Mini Dump erzeugen</translation>
     </message>
     <message>
         <source>Save before exit?</source>
@@ -314,11 +339,11 @@
     </message>
     <message>
         <source>Really renew salt?</source>
-        <translation>Salt wirklich erneuern?</translation>
+        <translation type="vanished">Salt wirklich erneuern?</translation>
     </message>
     <message>
         <source>Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?</source>
-        <translation>Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
+        <translation type="vanished">Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
     </message>
     <message>
         <source>HACKED in %1! :-)</source>
@@ -547,11 +572,11 @@
     </message>
     <message>
         <source>Dump created.</source>
-        <translation>Dump generiert.</translation>
+        <translation type="vanished">Dump generiert.</translation>
     </message>
     <message>
         <source>Dump not implemented.</source>
-        <translation>Dump nicht implementiert.</translation>
+        <translation type="vanished">Dump nicht implementiert.</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
@@ -591,7 +616,7 @@
     </message>
     <message>
         <source>Generated</source>
-        <translation type="vanished">Generiert</translation>
+        <translation>Generiert</translation>
     </message>
     <message>
         <source>Legacy</source>
@@ -725,7 +750,7 @@
     </message>
     <message>
         <source>Parameters</source>
-        <translation>Parameter</translation>
+        <translation type="vanished">Parameter</translation>
     </message>
     <message>
         <source>Simple</source>
@@ -838,6 +863,118 @@
     <message>
         <source>Ctrl+E, Ctrl+M</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Revert</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <source>Domain settings converted.</source>
+        <translation type="vanished">Domain-Einstellungen wurden konvertiert.</translation>
+    </message>
+    <message>
+        <source>Revert settings?</source>
+        <translation>Einstellungen zurücksetzen?</translation>
+    </message>
+    <message>
+        <source>Do you really want to revert the settings?</source>
+        <translation>Willst du die Änderungen an den Domain-Einstellungen wirklich rückgängig machen?</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importieren</translation>
+    </message>
+    <message>
+        <source>KeePass 2 XML file ...</source>
+        <translation>KeePass-2-XML-Datei ...</translation>
+    </message>
+    <message>
+        <source>Ctrl+I, Ctrl+K</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Import KeePass 2 XML file</source>
+        <translation>KeePass-2-XML-Datei importieren</translation>
+    </message>
+    <message>
+        <source>Invalid KeePass 2 XML file</source>
+        <translation>Ungültige KeePass-2-XML-Datei</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3</source>
+        <translation type="vanished">Die gewählte KeePass-2-XML-Datei enthält kein valied XML: %1 (Zeile: %2, Spalte: %3)</translation>
+    </message>
+    <message>
+        <source>Cannot read KeePass 2 XML file</source>
+        <translation>KeePass-2-XML-Datei nicht lesbar</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file cannot be read: %1</source>
+        <translation>Die gewählte KeePass-2-XML-Datei ist nicht lesbar: %1</translation>
+    </message>
+    <message>
+        <source>Import successful</source>
+        <translation>Import erfolgreich</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain has been imported successfully from the KeePass 2 XML file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde erfolgreich aus der KeePass-2-XML-Datei importiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains have been imported successfully from the KeePass 2 XML file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden erfolgreich aus der KeePass-2-XML-Datei imporiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain had to be renamed:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde umbenannt:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains had to be renamed:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden umbenannt:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3)</source>
+        <translation>Die gewählte KeePass-2-XML-Datei enthält kein valides XML: %1 (Zeile: %2, Spalte: %3)</translation>
+    </message>
+    <message>
+        <source>KGKs differ</source>
+        <translation>KGKs unterscheiden sich</translation>
+    </message>
+    <message>
+        <source>The remote key generation key (KGK) is not the same as the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings will be converted so that generated passwords become legacy passwords. None of your work will get lost.</source>
+        <translation type="vanished">Der Key Generation Key (KGK) der Synchronisationsgegenstelle unterscheidet sich vom lokalen. Du hast vermutlich mit dem Anlegen von Domain-Einstellungen begonnen, ohne vorher zu synchronisieren. Die lokalen Einstellungen werden nun konvertiert, sodass aus den generierten Passwörtern klassische werden. Keine Sorge, nichts geht dabei verloren.</translation>
+    </message>
+    <message>
+        <source>More settings</source>
+        <translation type="vanished">Mehr Einstellungen</translation>
+    </message>
+    <message>
+        <source>The remote key generation key (KGK) differs from the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings have be converted so that generated passwords became legacy passwords. All settings have been kept, none of your work is lost.</source>
+        <translation>Der Key Generation Key (KGK) der Synchronisationsgegenstelle unterscheidet sich vom lokalen. Du hast vermutlich mit dem Anlegen von Domain-Einstellungen begonnen, ohne vorher zu synchronisieren. Die lokalen Einstellungen wurden konvertiert: Aus den generierten Passwörtern wurden klassisch. Keine Sorge, nichts ist dabei verloren gegangen.</translation>
+    </message>
+    <message>
+        <source>Advanced settings</source>
+        <translation>Erweiterte Einstellungen</translation>
+    </message>
+    <message>
+        <source>Generate new password</source>
+        <translation>Neues Passwort generieren</translation>
+    </message>
+    <message>
+        <source>Really regenerate?</source>
+        <translation>Passwort wirklich erneuern?</translation>
+    </message>
+    <message>
+        <source>Your password is about to be regenerated. This is useful if you suspect that your credential have been compromised. You cannot undo this action. Are you sure you want to generate a new password?</source>
+        <translation>Du hast dich entschieden, das Passwort zu erneuern. Das ist nützlich, wenn du glaubst, dass die Zugangsdaten für diese Domain kompromittiert wurden. Du kannst diese Änderung nicht rückgängig machen. Bist du sicher, dass du ein neues Passwort generieren möchtest?</translation>
+    </message>
+    <message>
+        <source>(%1 characters)</source>
+        <translation>(%1 Zeichen)</translation>
     </message>
 </context>
 <context>
@@ -1197,7 +1334,7 @@
     </message>
     <message>
         <source>Smart login</source>
-        <translation>Smart Login</translation>
+        <translation type="vanished">Smart Login</translation>
     </message>
     <message>
         <source>Delete URL</source>
@@ -1221,7 +1358,7 @@
     </message>
     <message>
         <source>reply cannot be parsed as JSON data</source>
-        <translation>Antwort vom Server enthält keine JSON-formatierten Daten</translation>
+        <translation type="vanished">Antwort vom Server enthält keine JSON-formatierten Daten</translation>
     </message>
     <message>
         <source>Encrypted</source>
@@ -1230,6 +1367,18 @@
     <message>
         <source>Max. password length</source>
         <translation>Max. Passwortlänge</translation>
+    </message>
+    <message>
+        <source>reply cannot be parsed as JSON data: %1 (data: %2)</source>
+        <translation>Antwort vom Server enthält keine JSON-formatierten Daten: %1 (Daten: %2)</translation>
+    </message>
+    <message>
+        <source>Default password length</source>
+        <translation>Passwortlänge (Vorgabe)</translation>
+    </message>
+    <message>
+        <source>Default PBKDF2 iterations</source>
+        <translation>PBKDF2-Iterationen (Vorgabe)</translation>
     </message>
 </context>
 <context>
@@ -1395,6 +1544,45 @@
     <message>
         <source>Change length/complexity to %1/%2</source>
         <translation type="vanished">Länge/Komplexität auf %1/%2 ändern</translation>
+    </message>
+    <message>
+        <source>&lt; 1 nanosecond</source>
+        <translation type="vanished">&lt; 1 ns</translation>
+    </message>
+    <message>
+        <source>&lt; 1 microsecond</source>
+        <translation variants="yes">
+            <lengthvariant>&lt; 1 µs</lengthvariant>
+            <lengthvariant></lengthvariant>
+        </translation>
+    </message>
+    <message>
+        <source>&lt; 1 millisecond</source>
+        <translation>&lt; 1 ms</translation>
+    </message>
+    <message>
+        <source>~ %1 milliseconds</source>
+        <translation>~ %1 ms</translation>
+    </message>
+    <message>
+        <source>~ %1 seconds</source>
+        <translation>~ %1 Sekunden</translation>
+    </message>
+    <message>
+        <source>~ %1 minutes</source>
+        <translation>~ %1 Minuten</translation>
+    </message>
+    <message>
+        <source>~ %1 hours</source>
+        <translation>~ %1 Stunden</translation>
+    </message>
+    <message>
+        <source>~ %1 days</source>
+        <translation>~ %1 Tage</translation>
+    </message>
+    <message>
+        <source>~ %1 years</source>
+        <translation>~ %1 Jahre</translation>
     </message>
 </context>
 <context>

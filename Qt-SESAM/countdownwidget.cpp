@@ -35,11 +35,13 @@ public:
   int timeoutMs;
   QTimer masterPasswordInvalidationTimer;
   QTimer countdown;
+  QImage image;
 };
 
 
 const int CountdownWidget::UpdateIntervalMs = 5 * 1000;
 const QSize CountdownWidget::DefaultSize = QSize(16, 16);
+
 
 CountdownWidget::CountdownWidget(QWidget *parent)
   : QWidget(parent)
@@ -60,12 +62,13 @@ CountdownWidget::~CountdownWidget()
 void CountdownWidget::start(int timeoutMs)
 {
   Q_D(CountdownWidget);
+  d->timeoutMs = timeoutMs;
+  stop();
   d->countdown.setInterval(UpdateIntervalMs);
   d->countdown.start();
-  d->timeoutMs = timeoutMs;
   d->masterPasswordInvalidationTimer.setSingleShot(true);
   d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
-  d->masterPasswordInvalidationTimer.start(timeoutMs);
+  d->masterPasswordInvalidationTimer.start(d->timeoutMs);
   tick();
 }
 
@@ -94,31 +97,50 @@ void CountdownWidget::tick(void)
   const QString &msg = tr("Application will be locked in %1.").arg(t);
   setToolTip(msg);
   setWhatsThis(msg);
-  update();
+  redrawImage(size());
 }
 
 
 void CountdownWidget::paintEvent(QPaintEvent *)
 {
   Q_D(CountdownWidget);
-  QImage image(size(), QImage::Format_ARGB32_Premultiplied);
-  image.fill(Qt::transparent);
-  QPainter p(&image);
+  if (!d->image.isNull()) {
+    QPainter tp(this);
+    tp.drawImage(0, 0, d->image);
+  }
+}
+
+
+void CountdownWidget::redrawImage(const QSize &sz)
+{
+  Q_D(CountdownWidget);
+  if (d->image.size() != sz) {
+    d->image = QImage(sz, QImage::Format_ARGB32_Premultiplied);
+  }
+  d->image.fill(Qt::transparent);
+  QPainter p(&d->image);
   p.setOpacity(0.6);
   p.setRenderHint(QPainter::Antialiasing);
   p.setCompositionMode(QPainter::CompositionMode_Source);
   p.setBrush(Qt::transparent);
+  static const int OneMinute = 60 * 1000;
   static const QRect boundingRect(2, 2, 12, 12);
-  static const int Twelve = 16 * 90;
-  p.setPen(QPen(QBrush(remainingTime() < 60 * 1000 ? Qt::red : Qt::black), 1.0));
-  const int angle = 16 * 360 * remainingTime() / d->timeoutMs;
-  if (angle > 16 * (360 - 10))
+  p.setPen(QPen(QBrush(remainingTime() < OneMinute ? Qt::red : Qt::black), 1.0));
+  const int spanAngle = 360 * remainingTime() / d->timeoutMs;
+  if (spanAngle > (360 - 10)) {
     p.drawEllipse(boundingRect);
-  else
-    p.drawPie(boundingRect, Twelve, -angle);
+  }
+  else {
+    p.drawPie(boundingRect, 16 * 90, -16 * spanAngle);
+  }
   p.end();
-  QPainter tp(this);
-  tp.drawImage(0, 0, image);
+  update();
+}
+
+
+void CountdownWidget::resizeEvent(QResizeEvent *e)
+{
+  redrawImage(e->size());
 }
 
 

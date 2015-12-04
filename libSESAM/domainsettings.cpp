@@ -46,6 +46,9 @@ const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
 // v3 settings
 const QString DomainSettings::EXTRA_CHARACTERS = "extras";
 const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
+const QString DomainSettings::GROUP = "group";
+const QString DomainSettings::EXPIRY_DATE = "expiryDate";
+const QString DomainSettings::TAGS = "tags";
 
 DomainSettings::DomainSettings(void)
   : salt_base64(DefaultSalt_base64)
@@ -71,6 +74,9 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   // v3 settings
   , extraCharacters(o.extraCharacters)
   , passwordTemplate(o.passwordTemplate)
+  , group(o.group)
+  , expiryDate(o.expiryDate)
+  , tags(o.tags)
 { /* ... */ }
 
 
@@ -81,25 +87,35 @@ QVariantMap DomainSettings::toVariantMap(void) const
   if (deleted)
     map[DELETED] = true;
   map[CDATE] = createdDate;
-  map[MDATE] = modifiedDate;
+  if (modifiedDate.isValid())
+    map[MDATE] = modifiedDate;
   if (!deleted) {
     if (!userName.isEmpty())
         map[USER_NAME] = userName;
     if (!url.isEmpty())
       map[URL] = url;
-    if (!legacyPassword.isEmpty())
-      map[LEGACY_PASSWORD] = legacyPassword;
     if (!notes.isEmpty())
       map[NOTES] = notes;
-    map[SALT] = salt_base64;
-    map[ITERATIONS] = iterations;
-    map[PASSWORD_LENGTH] = passwordLength;
-    map[USED_CHARACTERS] = usedCharacters;
-    // v3 settings
-    if (!extraCharacters.isEmpty())
-      map[EXTRA_CHARACTERS] = extraCharacters;
-    if (!passwordTemplate.isEmpty())
-      map[PASSWORD_TEMPLATE] = passwordTemplate;
+    if (!group.isEmpty())
+      map[GROUP] = group;
+    if (!expiryDate.isNull())
+      map[EXPIRY_DATE] = expiryDate;
+    if (!tags.isEmpty())
+      map[TAGS] = tags.join(QChar('\t'));
+    if (legacyPassword.isEmpty()) {
+      map[SALT] = salt_base64;
+      map[ITERATIONS] = iterations;
+      map[PASSWORD_LENGTH] = passwordLength;
+      map[USED_CHARACTERS] = usedCharacters;
+      // v3 settings
+      if (!extraCharacters.isEmpty())
+        map[EXTRA_CHARACTERS] = extraCharacters;
+      if (!passwordTemplate.isEmpty())
+        map[PASSWORD_TEMPLATE] = passwordTemplate;
+    }
+    else {
+      map[LEGACY_PASSWORD] = legacyPassword;
+    }
   }
   return map;
 }
@@ -123,5 +139,55 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   // v3 settings
   ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
+  ds.group = map[GROUP].toString();
+  ds.expiryDate = map[EXPIRY_DATE].toDateTime();
+  ds.tags = map[TAGS].toString().split(QChar('\t'));
   return ds;
+}
+
+
+QDebug operator<<(QDebug debug, const DomainSettings &ds)
+{
+  QDebugStateSaver saver(debug);
+  (void)saver;
+  debug.nospace()
+      << "DomainSettings {\n"
+      << "  " << DomainSettings::DOMAIN_NAME << ": " << ds.domainName << ",\n";
+  if (ds.createdDate.isValid())
+    debug.nospace() << "  " << DomainSettings::CDATE << ": " << ds.createdDate << ",\n";
+  if (ds.modifiedDate.isValid())
+    debug.nospace() << "  " << DomainSettings::MDATE << ": " << ds.modifiedDate << ",\n";
+  if (!ds.deleted) {
+    if (!ds.userName.isEmpty())
+        debug.nospace() << "  " << DomainSettings::USER_NAME << ": " << ds.userName << ",\n";
+    if (!ds.url.isEmpty())
+      debug.nospace() << "  " << DomainSettings::URL << ": " << ds.url << ",\n";
+    if (!ds.notes.isEmpty())
+      debug.nospace() << "  " << DomainSettings::NOTES << ": " << ds.notes << ",\n";
+    if (!ds.group.isEmpty())
+      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.group << ",\n";
+    if (!ds.expiryDate.isNull())
+      debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
+    if (!ds.tags.isEmpty())
+      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(';') << ",\n";
+    if (!ds.legacyPassword.isEmpty()) {
+      debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";
+    }
+    else {
+      debug.nospace() << "  " << DomainSettings::SALT << ": " << ds.salt_base64 << ",\n";
+      debug.nospace() << "  " << DomainSettings::ITERATIONS << ": " << ds.iterations << ",\n";
+      debug.nospace() << "  " << DomainSettings::PASSWORD_LENGTH << ": " << ds.passwordLength << ",\n";
+      debug.nospace() << "  " << DomainSettings::USED_CHARACTERS << ": " <<  ds.usedCharacters << ",\n";
+      // v3 settings
+      if (!ds.extraCharacters.isEmpty())
+        debug.nospace() << "  " << DomainSettings::EXTRA_CHARACTERS << ": " << ds.extraCharacters << ",\n";
+      if (!ds.passwordTemplate.isEmpty())
+        debug.nospace() << "  " << DomainSettings::PASSWORD_TEMPLATE << ": " << ds.passwordTemplate << ",\n";
+    }
+  }
+  else {
+    debug.nospace() << "  " << DomainSettings::DELETED << ": true,\n";
+  }
+  debug.nospace() << "}";
+  return debug;
 }
