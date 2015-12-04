@@ -21,11 +21,14 @@
 #ifndef __DOMAINSETTINGS_H_
 #define __DOMAINSETTINGS_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QVariantMap>
 #include <QDateTime>
+
+#include "securestring.h"
 
 class DomainSettings {
 public:
@@ -54,7 +57,7 @@ public:
   QString userName;
 
   static const QString LEGACY_PASSWORD;
-  QString legacyPassword;
+  SecureString legacyPassword;
 
   static const QString NOTES;
   QString notes;
@@ -88,7 +91,18 @@ public:
   static const QString PASSWORD_TEMPLATE;
   QByteArray passwordTemplate;
 
+  static const QString GROUP;
+  QString group;
+
+  static const QString EXPIRY_DATE;
+  QDateTime expiryDate;
+
+  static const QString TAGS;
+  QStringList tags;
 };
+
+
+extern QDebug operator<<(QDebug debug, const DomainSettings &ds);
 
 
 #endif // __DOMAINSETTINGS_H_

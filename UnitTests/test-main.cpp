@@ -21,9 +21,11 @@
 #include "pbkdf2.h"
 #include "password.h"
 #include "crypter.h"
+#include "exporter.h"
 #include "domainsettings.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QMessageAuthenticationCode>
 #include <QtTest/QTest>
 
@@ -287,6 +289,18 @@ private slots:
     QByteArray plain = Crypter::decode(masterPassword, cipher, true, KGK2);
     QVERIFY(plain == data);
     QVERIFY(KGK == KGK2);
+  }
+
+  void export_import(void)
+  {
+    QString filename = QDir::tempPath() + "/qt-sesam-unit-test.pem";
+    SecureString pwd("wonderful password");
+    Exporter ex(filename);
+    const SecureByteArray &original = Crypter::generateKGK();
+    ex.write(original, pwd);
+    const SecureByteArray &recovered = ex.read(pwd);
+    QVERIFY(original.size() == recovered.size());
+    QVERIFY(original == recovered);
   }
 };
 

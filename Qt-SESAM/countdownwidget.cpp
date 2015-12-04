@@ -114,8 +114,9 @@ void CountdownWidget::paintEvent(QPaintEvent *)
 void CountdownWidget::redrawImage(const QSize &sz)
 {
   Q_D(CountdownWidget);
-  if (d->image.size() != sz)
+  if (d->image.size() != sz) {
     d->image = QImage(sz, QImage::Format_ARGB32_Premultiplied);
+  }
   d->image.fill(Qt::transparent);
   QPainter p(&d->image);
   p.setOpacity(0.6);
@@ -126,10 +127,12 @@ void CountdownWidget::redrawImage(const QSize &sz)
   static const QRect boundingRect(2, 2, 12, 12);
   p.setPen(QPen(QBrush(remainingTime() < OneMinute ? Qt::red : Qt::black), 1.0));
   const int spanAngle = 360 * remainingTime() / d->timeoutMs;
-  if (spanAngle > (360 - 10))
+  if (spanAngle > (360 - 10)) {
     p.drawEllipse(boundingRect);
-  else
+  }
+  else {
     p.drawPie(boundingRect, 16 * 90, -16 * spanAngle);
+  }
   p.end();
   update();
 }
@@ -137,7 +140,6 @@ void CountdownWidget::redrawImage(const QSize &sz)
 
 void CountdownWidget::resizeEvent(QResizeEvent *e)
 {
-  Q_D(CountdownWidget);
   redrawImage(e->size());
 }
 

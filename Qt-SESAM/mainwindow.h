@@ -45,6 +45,7 @@
 #include <QJsonDocument>
 
 #include "global.h"
+#include "domainsettings.h"
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
 
@@ -61,10 +62,11 @@ class MainWindow : public QMainWindow
 
 public:
   explicit MainWindow(bool forceStart, QWidget *parent = Q_NULLPTR);
-
   ~MainWindow();
 
-  void applyComplexity(int complexity);
+  virtual QSize sizeHint(void) const;
+  virtual QSize minimumSizeHint(void) const;
+
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
@@ -113,7 +115,10 @@ private slots:
   void onMigrateDomainSettingsToExpert(void);
   void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
+  void onExpandableCheckBoxStateChanged(void);
+  void onTabChanged(int idx);
   void clearClipboard(void);
+  void shrink(void);
   void about(void);
   void aboutQt(void);
   void enterMasterPassword(void);
@@ -134,6 +139,9 @@ private slots:
 #endif
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+  void onExportKGK(void);
+  void onImportKGK(void);
+  void onImportKeePass2XmlFile(void);
 
 signals:
   void passwordGenerated(void);
@@ -142,6 +150,7 @@ signals:
 protected:
   void closeEvent(QCloseEvent *);
   void changeEvent(QEvent *);
+  void resizeEvent(QResizeEvent*);
   bool event(QEvent *);
   bool eventFilter(QObject *obj, QEvent *event);
 
@@ -174,17 +183,23 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-  void writeBackupFile(const QByteArray &binaryDomainData);
+  void writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams);
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
-  void updateTemplate(void);
+  void applyComplexity(int complexity);
+  void setTemplateAndUsedCharacters(void);
   QString usedCharacters(void);
-  void applyTemplate(const QByteArray &);
+  void applyTemplateStringToGUI(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
+  QString selectAlternativeDomainNameFor(const QString &domainName);
+  void warnAboutDifferingKGKs(void);
+  void convertToLegacyPassword(DomainSettings &ds);
+  QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
+  QString collectedSyncData(void);
 };
 
 #endif // __MAINWINDOW_H_

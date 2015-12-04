@@ -51,9 +51,6 @@ public:
     , secure(false)
     , loaderIcon(":/images/loader.gif")
     , escShortcut(Q_NULLPTR)
-#ifdef WIN32
-    , smartLoginCheckbox(Q_NULLPTR)
-#endif
   {
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
@@ -70,9 +67,6 @@ public:
   bool secure;
   QMovie loaderIcon;
   QShortcut *escShortcut;
-#ifdef WIN32
-  QCheckBox *smartLoginCheckbox;
-#endif
 };
 
 
@@ -92,17 +86,12 @@ OptionsDialog::OptionsDialog(QWidget *parent)
   QObject::connect(ui->serverRootURLLineEdit, SIGNAL(textChanged(QString)), SLOT(onServerRootUrlChanged(QString)));
   QObject::connect(ui->saltLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(saltLengthChanged(int)));
   QObject::connect(ui->maxPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(maxPasswordLengthChanged(int)));
+  QObject::connect(ui->defaultPasswordLengthSpinBox, SIGNAL(valueChanged(int)), SIGNAL(defaultPasswordLengthChanged(int)));
   QObject::connect(ui->masterPasswordInvalidationTimeMinsSpinBox, SIGNAL(valueChanged(int)), SIGNAL(masterPasswordInvalidationTimeMinsChanged(int)));
   QObject::connect(&d->NAM, SIGNAL(finished(QNetworkReply*)), SLOT(onReadFinished(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(encrypted(QNetworkReply*)), SLOT(onEncrypted(QNetworkReply*)));
   QObject::connect(&d->NAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   d->escShortcut = new QShortcut(Qt::Key_Escape, this, SLOT(reject()));
-
-#ifdef WIN32
-  d->smartLoginCheckbox = new QCheckBox(tr("Smart login"));
-  d->smartLoginCheckbox->setChecked(true);
-  ui->miscFormLayout->addWidget(d->smartLoginCheckbox);
-#endif
 }
 
 
@@ -142,8 +131,9 @@ void OptionsDialog::validateHostCertificateChain(void)
   bool ok = (d->sslErrors.count() == 0) || d->sslErrors.at(0) == QSslError::NoError;
   if (!ok) {
     d->serverCertificateWidget.setServerSslErrors(d->reply->sslConfiguration(), d->sslErrors);
-    if (d->serverCertificateWidget.exec() == QDialog::Accepted)
+    if (d->serverCertificateWidget.exec() == QDialog::Accepted) {
       setServerCertificates(d->reply->sslConfiguration().peerCertificateChain());
+    }
   }
   else {
     setServerCertificates(QList<QSslCertificate>());
@@ -332,20 +322,6 @@ bool OptionsDialog::writeBackups(void) const
 }
 
 
-#ifdef WIN32
-void OptionsDialog::setSmartLogin(bool enabled)
-{
-   d_ptr->smartLoginCheckbox->setChecked(enabled);
-}
-
-
-bool OptionsDialog::smartLogin(void) const
-{
-  return d_ptr->smartLoginCheckbox->isChecked();
-}
-#endif
-
-
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
 {
   return ui->masterPasswordInvalidationTimeMinsSpinBox->value();
@@ -379,6 +355,30 @@ int OptionsDialog::maxPasswordLength(void) const
 void OptionsDialog::setMaxPasswordLength(int len)
 {
   ui->maxPasswordLengthSpinBox->setValue(len);
+}
+
+
+int OptionsDialog::defaultPasswordLength(void) const
+{
+  return ui->defaultPasswordLengthSpinBox->value();
+}
+
+
+void OptionsDialog::setDefaultPasswordLength(int len)
+{
+  ui->defaultPasswordLengthSpinBox->setValue(len);
+}
+
+
+int OptionsDialog::defaultIterations(void) const
+{
+  return ui->defaultPBKDF2IterationsSpinBox->value();
+}
+
+
+void OptionsDialog::setDefaultIterations(int iter)
+{
+  ui->defaultPBKDF2IterationsSpinBox->setValue(iter);
 }
 
 
@@ -473,8 +473,9 @@ void OptionsDialog::chooseSyncFile(void)
   const QString &currentFile = ui->syncFileLineEdit->text();
   const QString &savePath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
   QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), savePath);
-  if (!chosenFile.isEmpty())
+  if (!chosenFile.isEmpty()) {
     ui->syncFileLineEdit->setText(chosenFile);
+  }
 }
 
 
@@ -483,8 +484,9 @@ void OptionsDialog::choosePasswordFile()
   const QString &currentFile = ui->passwordFileLineEdit->text();
   const QString &openPath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
   QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose password file"), openPath);
-  if (!chosenFile.isEmpty())
+  if (!chosenFile.isEmpty()) {
     ui->passwordFileLineEdit->setText(chosenFile);
+  }
 }
 
 
@@ -495,8 +497,10 @@ void OptionsDialog::okClicked(void)
     QFileInfo fi(ui->syncFileLineEdit->text());
     ok = fi.exists();
   }
-  if (ok)
+  if (ok) {
     accept();
-  else
+  }
+  else {
     reject();
+  }
 }

@@ -23,10 +23,13 @@
 #include <QDialog>
 #include <QShowEvent>
 #include <QCloseEvent>
+#include <QScopedPointer>
 
 namespace Ui {
 class MasterPasswordDialog;
 }
+
+class MasterPasswordDialogPrivate;
 
 class MasterPasswordDialog : public QDialog
 {
@@ -37,6 +40,7 @@ public:
 
   void invalidatePassword(void);
   void setRepeatPassword(bool);
+  bool repeatedPasswordEntry(void) const;
   QString masterPassword(void) const;
 
 public slots:
@@ -52,6 +56,10 @@ private slots:
 
 private:
   Ui::MasterPasswordDialog *ui;
+
+  QScopedPointer<MasterPasswordDialogPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(MasterPasswordDialog)
+  Q_DISABLE_COPY(MasterPasswordDialog)
 };
 
 #endif // __MASTERPASSWORDDIALOG_H_

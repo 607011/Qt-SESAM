@@ -22,7 +22,7 @@ TARGET = Qt-SESAM
 
 TEMPLATE = app qt
 
-QT += core gui widgets concurrent network
+QT += core gui widgets concurrent network xml
 
 TRANSLATIONS = $$files(translations/QtSESAM_*.ts)
 
@@ -57,7 +57,10 @@ SOURCES += main.cpp \
     passwordchecker.cpp \
     easyselectorwidget.cpp \
     countdownwidget.cpp \
-    tcpclient.cpp
+    tcpclient.cpp \
+    keepass2xmlreader.cpp \
+    hackhelper.cpp \
+    expandablegroupbox.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -72,7 +75,9 @@ HEADERS  += \
     singleinstancedetector.h \
     easyselectorwidget.h \
     countdownwidget.h \
-    tcpclient.h
+    tcpclient.h \
+    keepass2xmlreader.h \
+    expandablegroupbox.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

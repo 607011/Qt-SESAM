@@ -139,7 +139,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Salt (Base64)</source>
-        <translation>Salt (Base64)</translation>
+        <translation type="vanished">Salt (Base64)</translation>
     </message>
     <message>
         <source>Additional parameters</source>
@@ -327,7 +327,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>[DEBUG] Create Mini Dump</source>
-        <translation>[DEBUG] Mini Dump erzeugen</translation>
+        <translation type="vanished">[DEBUG] Mini Dump erzeugen</translation>
     </message>
     <message>
         <source>Save before exit?</source>
@@ -339,11 +339,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Really renew salt?</source>
-        <translation>Salt wirklich erneuern?</translation>
+        <translation type="vanished">Salt wirklich erneuern?</translation>
     </message>
     <message>
         <source>Renewing the salt will invalidate your current generated password. Are you sure you want to generate a new salt?</source>
-        <translation>Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
+        <translation type="vanished">Das Erneuern des Salt verändert das generierte Passwort. Möchtest du wirklich einen neuen Salt generieren?</translation>
     </message>
     <message>
         <source>HACKED in %1! :-)</source>
@@ -572,11 +572,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Dump created.</source>
-        <translation>Dump generiert.</translation>
+        <translation type="vanished">Dump generiert.</translation>
     </message>
     <message>
         <source>Dump not implemented.</source>
-        <translation>Dump nicht implementiert.</translation>
+        <translation type="vanished">Dump nicht implementiert.</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
@@ -726,35 +726,19 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export KGK ...</source>
-        <translation type="vanished">KGK exportieren ...</translation>
+        <translation>KGK exportieren ...</translation>
     </message>
     <message>
         <source>Security hint</source>
-        <translation type="vanished">Sicherheitshinweis</translation>
-    </message>
-    <message>
-        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. It is recommended to protect the KGK with a really strong passphrase. Are you prepared for this?</source>
-        <translation type="vanished">Du stehst kurz davor deinen Key Generation Key (KGK) zu exportieren. Der KGK wird zum Generieren deiner Passwörter und der Schlüssel zum Chiffrieren der Domain-Einstellungen verwendet. Wenn du nicht unbedingt ein Backup davon benötigst, solltest du ihn nicht exportieren. Wenn doch, dann schütze ihn mit einer schwer zu erratenden Passphrase. Bist du dazu bereit?</translation>
+        <translation>Sicherheitshinweis</translation>
     </message>
     <message>
         <source>Import KGK ...</source>
-        <translation type="vanished">KGK importieren ...</translation>
+        <translation>KGK importieren ...</translation>
     </message>
     <message>
         <source>Export KGK to ...</source>
-        <translation type="vanished">KGK exportieren nach ...</translation>
-    </message>
-    <message>
-        <source>Not implemented yet</source>
-        <translation type="vanished">Noch nicht implementiert</translation>
-    </message>
-    <message>
-        <source>Not implemented yet.</source>
-        <translation type="vanished">Noch nicht implementiert.</translation>
-    </message>
-    <message>
-        <source>Import KGK from ...</source>
-        <translation type="vanished">KGK importieren von ...</translation>
+        <translation>KGK exportieren nach ...</translation>
     </message>
     <message>
         <source>Parameters</source>
@@ -899,6 +883,136 @@ auf deinem Computer: %3</translation>
     <message>
         <source>Error: %1</source>
         <translation>Fehler: %1</translation>
+        <source>Import</source>
+        <translation>Importieren</translation>
+    </message>
+    <message>
+        <source>KeePass 2 XML file ...</source>
+        <translation>KeePass-2-XML-Datei ...</translation>
+    </message>
+    <message>
+        <source>Ctrl+I, Ctrl+K</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Import KeePass 2 XML file</source>
+        <translation>KeePass-2-XML-Datei importieren</translation>
+    </message>
+    <message>
+        <source>Invalid KeePass 2 XML file</source>
+        <translation>Ungültige KeePass-2-XML-Datei</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3</source>
+        <translation type="vanished">Die gewählte KeePass-2-XML-Datei enthält kein valied XML: %1 (Zeile: %2, Spalte: %3)</translation>
+    </message>
+    <message>
+        <source>Cannot read KeePass 2 XML file</source>
+        <translation>KeePass-2-XML-Datei nicht lesbar</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file cannot be read: %1</source>
+        <translation>Die gewählte KeePass-2-XML-Datei ist nicht lesbar: %1</translation>
+    </message>
+    <message>
+        <source>Import successful</source>
+        <translation>Import erfolgreich</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain has been imported successfully from the KeePass 2 XML file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde erfolgreich aus der KeePass-2-XML-Datei importiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains have been imported successfully from the KeePass 2 XML file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden erfolgreich aus der KeePass-2-XML-Datei imporiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain had to be renamed:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde umbenannt:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains had to be renamed:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden umbenannt:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>The selected KeePass 2 XML file doesn&apos;t contain valid XML: %1 (line %2, column: %3)</source>
+        <translation>Die gewählte KeePass-2-XML-Datei enthält kein valides XML: %1 (Zeile: %2, Spalte: %3)</translation>
+    </message>
+    <message>
+        <source>KGKs differ</source>
+        <translation>KGKs unterscheiden sich</translation>
+    </message>
+    <message>
+        <source>The remote key generation key (KGK) is not the same as the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings will be converted so that generated passwords become legacy passwords. None of your work will get lost.</source>
+        <translation type="vanished">Der Key Generation Key (KGK) der Synchronisationsgegenstelle unterscheidet sich vom lokalen. Du hast vermutlich mit dem Anlegen von Domain-Einstellungen begonnen, ohne vorher zu synchronisieren. Die lokalen Einstellungen werden nun konvertiert, sodass aus den generierten Passwörtern klassische werden. Keine Sorge, nichts geht dabei verloren.</translation>
+    </message>
+    <message>
+        <source>More settings</source>
+        <translation type="vanished">Mehr Einstellungen</translation>
+    </message>
+    <message>
+        <source>The remote key generation key (KGK) differs from the local one. You probably began entering domain settings on this computer without syncing beforehand. The local settings have be converted so that generated passwords became legacy passwords. All settings have been kept, none of your work is lost.</source>
+        <translation>Der Key Generation Key (KGK) der Synchronisationsgegenstelle unterscheidet sich vom lokalen. Du hast vermutlich mit dem Anlegen von Domain-Einstellungen begonnen, ohne vorher zu synchronisieren. Die lokalen Einstellungen wurden konvertiert: Aus den generierten Passwörtern wurden klassisch. Keine Sorge, nichts ist dabei verloren gegangen.</translation>
+    </message>
+    <message>
+        <source>Advanced settings</source>
+        <translation>Erweiterte Einstellungen</translation>
+    </message>
+    <message>
+        <source>Generate new password</source>
+        <translation>Neues Passwort generieren</translation>
+    </message>
+    <message>
+        <source>Really regenerate?</source>
+        <translation>Passwort wirklich erneuern?</translation>
+    </message>
+    <message>
+        <source>Your password is about to be regenerated. This is useful if you suspect that your credential have been compromised. You cannot undo this action. Are you sure you want to generate a new password?</source>
+        <translation>Du hast dich entschieden, das Passwort zu erneuern. Das ist nützlich, wenn du glaubst, dass die Zugangsdaten für diese Domain kompromittiert wurden. Du kannst diese Änderung nicht rückgängig machen. Bist du sicher, dass du ein neues Passwort generieren möchtest?</translation>
+    </message>
+    <message>
+        <source>(%1 characters)</source>
+        <translation>(%1 Zeichen)</translation>
+    </message>
+    <message>
+        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. The KGK is encrypted with a key derived from your master password. Are you prepared for this?</source>
+        <translation>Du stehst kurz davor, deinen Schlüsselgenerierungsschlüssel (key generation key, KGK) zu exportieren. Der KGK wird verwendet, um zusammen mit deinem Master-Passwort die Dienstpasswörter zu berechnen, und um die Programmeinstellungen zu verschlüsseln. Normalerweise musst du den KGK nicht exportieren, es sei denn zu Backup-Zwecken. Der exportierte KGK ist mit einem Schlüssel verschlüsselt, der aus deinem Master-Passwort abgeleitet wurde. Willst du wirklich exportieren?</translation>
+    </message>
+    <message>
+        <source>Import KGK from ...</source>
+        <translation>KGK importieren ...</translation>
+    </message>
+    <message>
+        <source>Read carefully before proceeding!</source>
+        <translation>Vor dem Weitermachen bitte sorgfältig lesen!</translation>
+    </message>
+    <message>
+        <source>You are about to import a previously saved key generation key (KGK). This should only be done if absolutely necessary, e.g. to restore a damaged settings file. This is because changing the KGK will also change the generated passwords. Are you really sure you want to import a KGK?</source>
+        <translation>Du stehst kurz davor, einen kürzlich gespeicherten Schlüsselerzeugungsschlüssel (key generation key, KGK) zu importieren. Das solltest du nur tun, wenn es unbedingt notwendig ist, weil das Importieren eines anderen KGK dazu führt, dass andere Dienstpasswörter generiert werden. Bist du sicher, dass du einen KGK importieren möchtest?</translation>
+    </message>
+    <message>
+        <source>Bad KGK</source>
+        <translation>Ungültiger KGK</translation>
+    </message>
+    <message>
+        <source>The KGK you&apos;ve loaded is malformed. It shall be %1 byte long, but is in fact %2 byte long. The KGK will not be imported and your settings will not be changed.</source>
+        <translation>Der geladene KGK ist ungültig. Er muss %1 Byte lang sein, ist aber %2 Byte lang. Der KGK wird nicht importiert und deine bisherigen Einstellungen bleiben erhalten.</translation>
+    </message>
+    <message>
+        <source>KGK imported</source>
+        <translation>KGK importiert</translation>
+    </message>
+    <message>
+        <source>KGK successfully imported. Your generated passwords may have changed. Please check if they are still valid, or valid again.</source>
+        <translation>Der KGK wurde erfolgreich importiert. Deine Dienstpasswörter dürfen sich allesamt geändert haben. Bitte prüfe, ob sie immer noch (oder wieder) gültig sind.</translation>
+    </message>
+    <message>
+        <source>Sync now!</source>
+        <translation>Jetzt synchronisieren!</translation>
+    </message>
+    <message>
+        <source>You&apos;ve started %1 for the first time on this computer. If you&apos;re using a sync server or file, please go to the Options dialog, enter your sync settings there, and then do a sync. If you don&apos;t follow this advice you may encounter problems later on. Click OK to open the Options dialog now.</source>
+        <translation>Du hast %1 das erste Mal auf diesem Computer gestartet. Falls du deine Einstellungen bereits über einen Server oder eine Datei synchron hältst, solltest du jetzt im Optionen-Dialog die Sync-Parameter setzen und dann sofort synchronisieren. Sonst läufst du Gefahr, später Probleme zu bekommen. OK anklicken, um den Optionen-Dialog zu öffnen.</translation>
     </message>
 </context>
 <context>
@@ -1258,7 +1372,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Smart login</source>
-        <translation>Smart Login</translation>
+        <translation type="vanished">Smart Login</translation>
     </message>
     <message>
         <source>Delete URL</source>
@@ -1295,6 +1409,14 @@ auf deinem Computer: %3</translation>
     <message>
         <source>reply cannot be parsed as JSON data: %1 (data: %2)</source>
         <translation>Antwort vom Server enthält keine JSON-formatierten Daten: %1 (Daten: %2)</translation>
+    </message>
+    <message>
+        <source>Default password length</source>
+        <translation>Passwortlänge (Vorgabe)</translation>
+    </message>
+    <message>
+        <source>Default PBKDF2 iterations</source>
+        <translation>PBKDF2-Iterationen (Vorgabe)</translation>
     </message>
 </context>
 <context>
@@ -1499,6 +1621,10 @@ auf deinem Computer: %3</translation>
     <message>
         <source>~ %1 years</source>
         <translation>~ %1 Jahre</translation>
+    </message>
+    <message>
+        <source>KGK file (*.pem *.kgk)</source>
+        <translation>KGK-Datei (*.pem *.kgk)</translation>
     </message>
 </context>
 <context>
