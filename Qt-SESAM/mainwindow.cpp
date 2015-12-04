@@ -1704,8 +1704,9 @@ void MainWindow::onSync(void)
                            tr("The sync file %1 cannot be opened for reading.")
                            .arg(d->optionsDialog->syncFilename()), QMessageBox::Ok);
     }
-    if (d->doConvertLocalToLegacy && !d->optionsDialog->useSyncServer())
+    if (d->doConvertLocalToLegacy && !d->optionsDialog->useSyncServer()) {
       warnAboutDifferingKGKs();
+    }
   }
   if (d->optionsDialog->useSyncServer()) {
     if (d->masterPasswordChangeStep == 0) {
@@ -1759,8 +1760,8 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     try {
       SecureByteArray KGK;
       baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
-      if (d->KGK != KGK && !d->domains.isEmpty()) {
-        d->doConvertLocalToLegacy = true;
+      if (d->KGK != KGK) {
+        d->doConvertLocalToLegacy = !d->domains.isEmpty();
         d->KGK = KGK;
       }
     }
