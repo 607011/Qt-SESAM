@@ -1483,7 +1483,6 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     QByteArray recovered;
     try {
       recovered = Crypter::decode(d->masterPassword.toUtf8(), domains, CompressionEnabled, d->KGK);
-      qDebug() << fingerprintify(d->KGK);
     }
     catch (CryptoPP::Exception &e) {
       wrongPasswordWarning((int)e.GetErrorType(), e.what());
