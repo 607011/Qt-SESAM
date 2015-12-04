@@ -25,9 +25,20 @@
 #include "global.h"
 
 
+class MasterPasswordDialogPrivate
+{
+public:
+  MasterPasswordDialogPrivate(void)
+    : repeatedPasswordEntry(false)
+  { /* ... */ }
+  bool repeatedPasswordEntry;
+};
+
+
 MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::MasterPasswordDialog)
+  , d_ptr(new MasterPasswordDialogPrivate)
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
@@ -60,6 +71,8 @@ void MasterPasswordDialog::invalidatePassword(void)
 
 void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
 {
+  Q_D(MasterPasswordDialog);
+  d->repeatedPasswordEntry = doRepeat;
   if (doRepeat) {
     invalidatePassword();
     ui->infoLabel->setText(tr("New master password"));
@@ -74,6 +87,12 @@ void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
     ui->strengthLabel->hide();
   }
   comparePasswords();
+}
+
+
+bool MasterPasswordDialog::repeatedPasswordEntry(void) const
+{
+  return d_ptr->repeatedPasswordEntry;
 }
 
 

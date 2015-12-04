@@ -2216,7 +2216,8 @@ void MainWindow::onMasterPasswordEntered(void)
 {
   Q_D(MainWindow);
   bool ok = true;
-  QString masterPwd = d->masterPasswordDialog->masterPassword();
+  const QString masterPwd = d->masterPasswordDialog->masterPassword();
+  const bool repeatedPasswordEntry = d->masterPasswordDialog->repeatedPasswordEntry();
   if (!masterPwd.isEmpty()) {
     d->masterPassword = masterPwd;
     ok = restoreSettings();
@@ -2232,6 +2233,19 @@ void MainWindow::onMasterPasswordEntered(void)
         show();
         if (d->optionsDialog->syncOnStart()) {
           onSync();
+        }
+        else if (repeatedPasswordEntry) {
+          int rc = QMessageBox::warning(this,
+                               tr("Sync now!"),
+                               tr("You've started %1 for the first time on this computer. "
+                                  "If you're using a sync server or file, please go to the "
+                                  "Options dialog, enter your sync settings there, and then do a sync. "
+                                  "If you don't follow this advice you may encounter problems later on. "
+                                  "Click OK to open the Options dialog now.").arg(AppName),
+                               QMessageBox::Ok | QMessageBox::Ignore);
+          if (rc == QMessageBox::Ok) {
+            showOptionsDialog();
+          }
         }
         restartInvalidationTimer();
       }

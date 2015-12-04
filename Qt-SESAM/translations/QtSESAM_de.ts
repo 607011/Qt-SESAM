@@ -1000,6 +1000,14 @@ auf deinem Computer: %3</translation>
         <source>KGK successfully imported. Your generated passwords may have changed. Please check if they are still valid, or valid again.</source>
         <translation>Der KGK wurde erfolgreich importiert. Deine Dienstpasswörter dürfen sich allesamt geändert haben. Bitte prüfe, ob sie immer noch (oder wieder) gültig sind.</translation>
     </message>
+    <message>
+        <source>Sync now!</source>
+        <translation>Jetzt synchronisieren!</translation>
+    </message>
+    <message>
+        <source>You&apos;ve started %1 for the first time on this computer. If you&apos;re using a sync server or file, please go to the Options dialog, enter your sync settings there, and then do a sync. If you don&apos;t follow this advice you may encounter problems later on. Click OK to open the Options dialog now.</source>
+        <translation>Du hast %1 das erste Mal auf diesem Computer gestartet. Falls du deine Einstellungen bereits über einen Server oder eine Datei synchron hältst, solltest du jetzt im Optionen-Dialog die Sync-Parameter setzen und dann sofort synchronisieren. Sonst läufst du Gefahr, später Probleme zu bekommen. OK anklicken, um den Optionen-Dialog zu öffnen.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
