@@ -34,6 +34,7 @@ public:
 
   QVariantMap toVariantMap(void) const;
   bool isEmpty(void) const;
+  void clear(void);
 
   static DomainSettings fromVariantMap(const QVariantMap &);
 
@@ -48,9 +49,6 @@ public:
 
   static const QString URL;
   QString url;
-
-  static const QString EXTRAS;
-  QString extras;
 
   static const QString USER_NAME;
   QString userName;
@@ -67,8 +65,8 @@ public:
   static const QString ITERATIONS;
   int iterations;
 
-  static const QString LENGTH;
-  int length;
+  static const QString PASSWORD_LENGTH;
+  int passwordLength;
 
   static const QString USED_CHARACTERS;
   QString usedCharacters;
@@ -82,12 +80,15 @@ public:
   static const QString DELETED;
   bool deleted;
 
-  bool forceLowerCase;
-  bool forceUpperCase;
-  bool forceDigits;
-  bool forceExtra;
-};
+  // v3 settings
 
+  static const QString EXTRA_CHARACTERS;
+  QString extraCharacters;
+
+  static const QString PASSWORD_TEMPLATE;
+  QByteArray passwordTemplate;
+
+};
 
 
 #endif // __DOMAINSETTINGS_H_

@@ -22,9 +22,11 @@
 
 #include <QObject>
 #include <QString>
+#include <QByteArray>
 #include <QScopedPointer>
 
 #include "securebytearray.h"
+#include "securestring.h"
 
 
 class ExporterPrivate;
@@ -36,8 +38,9 @@ public:
   explicit Exporter(QObject *parent = nullptr);
   Exporter(const QString &filename, QObject *parent = nullptr);
   ~Exporter();
-  bool write(const SecureByteArray &data);
-  SecureByteArray read(void);
+  void setFileName(const QString &);
+  bool write(const SecureByteArray &data, const SecureString &pwd);
+  SecureByteArray read(const SecureString &pwd);
 
 signals:
 

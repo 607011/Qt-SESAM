@@ -17,7 +17,7 @@
 
 */
 
-
+#include <QDebug>
 #include "util.h"
 
 
@@ -38,3 +38,70 @@ void SecureErase(QString str)
   str.clear();
 }
 #endif
+
+
+/*!
+ * \brief shuffle
+ *
+ * Fisher-Yates shuffling of a string.
+ *
+ * \param s String to be shuffled
+ * \return shuffled string
+ */
+
+QString shuffled(const QString& s)
+{
+  QString result = s;
+  int n = result.count();
+  QChar *c = result.data();
+  while (n) {
+    int j = qrand() % n--;
+    QChar tmp = *(c + n);
+    *(c + n) = *(c + j);
+    *(c + j) = tmp;
+  }
+  return result;
+}
+
+
+/*!
+ * \brief shuffle
+ *
+ * Fisher-Yates shuffling of a byte array.
+ *
+ * \param s byte array to be shuffled
+ * \return shuffled byte array
+ */
+QByteArray shuffled(const QByteArray& ba)
+{
+  QByteArray result = ba;
+  int n = result.count();
+  char *c = result.data();
+  while (n) {
+    int j = qrand() % n--;
+    char tmp = *(c + n);
+    *(c + n) = *(c + j);
+    *(c + j) = tmp;
+  }
+  return result;
+}
+
+
+bool containsAll(const QString &haystack, const QString &needles) {
+  bool ok = true;
+  foreach (QChar needle, needles) {
+    if (!haystack.contains(needle)) {
+      ok = false;
+      break;
+    }
+  }
+  return ok;
+}
+
+
+bool containsAny(const QString &haystack, const QString &needles) {
+  foreach (QChar needle, needles)
+    if (haystack.contains(needle))
+      return true;
+  return false;
+}

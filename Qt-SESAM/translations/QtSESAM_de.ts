@@ -37,6 +37,21 @@
     </message>
 </context>
 <context>
+    <name>CountdownWidget</name>
+    <message>
+        <source>%1 seconds</source>
+        <translation>%1 Sekunden</translation>
+    </message>
+    <message>
+        <source>&lt;%1 minutes</source>
+        <translation>&lt;%1 Minuten</translation>
+    </message>
+    <message>
+        <source>Application will be locked in %1.</source>
+        <translation>Anwendung wird in %1 gesperrt.</translation>
+    </message>
+</context>
+<context>
     <name>CredentialsDialog</name>
     <message>
         <source>Enter master password</source>
@@ -71,7 +86,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation>Speichern</translation>
+        <translation type="vanished">Speichern</translation>
     </message>
     <message>
         <source>Main parameters</source>
@@ -179,7 +194,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
@@ -291,11 +306,11 @@
     </message>
     <message>
         <source>Save before exit?</source>
-        <translation>Speichern vor dem Beenden?</translation>
+        <translation type="vanished">Speichern vor dem Beenden?</translation>
     </message>
     <message>
         <source>Your domain parameters have changed. Do you want to save the changes before exiting?</source>
-        <translation>Deine Domain-Parameters wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
+        <translation type="vanished">Deine Domain-Parameter wurden geändert. Möchtest du die Änderungen vor dem Beenden speichern?</translation>
     </message>
     <message>
         <source>Really renew salt?</source>
@@ -552,7 +567,7 @@
     </message>
     <message>
         <source>Ctrl+Shift+H</source>
-        <translation>Ctrl+Shift+H</translation>
+        <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
         <source>Starting synchronisation ...</source>
@@ -564,7 +579,7 @@
     </message>
     <message>
         <source>Click to show password</source>
-        <translation>Klicken um Passwort anzuzeigen</translation>
+        <translation type="vanished">Klicken um Passwort anzuzeigen</translation>
     </message>
     <message>
         <source>Password changed.</source>
@@ -572,11 +587,11 @@
     </message>
     <message>
         <source>&lt;New domain ...&gt;</source>
-        <translation>&lt;Neue Domain ...&gt;</translation>
+        <translation type="vanished">&lt;Neue Domain ...&gt;</translation>
     </message>
     <message>
         <source>Generated</source>
-        <translation>Generiert</translation>
+        <translation type="vanished">Generiert</translation>
     </message>
     <message>
         <source>Legacy</source>
@@ -678,7 +693,7 @@
     </message>
     <message>
         <source>Password does not follow the rules. Increasing iteration count.</source>
-        <translation>Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
+        <translation type="vanished">Passwort entspricht nicht den Regeln. Erhöhen des Iterationszählers.</translation>
     </message>
     <message>
         <source>Cannot hack</source>
@@ -705,16 +720,124 @@
         <translation>KGK exportieren nach ...</translation>
     </message>
     <message>
-        <source>Not implemented yet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not implemented yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Import KGK from ...</source>
-        <translation>KGK importieren von ...</translation>
+        <source>Parameters</source>
+        <translation>Parameter</translation>
+    </message>
+    <message>
+        <source>Simple</source>
+        <translation>Einfach</translation>
+    </message>
+    <message>
+        <source>Expert</source>
+        <translation>Experten</translation>
+    </message>
+    <message>
+        <source>Force</source>
+        <translation type="vanished">Erzwingen</translation>
+    </message>
+    <message>
+        <source>Use</source>
+        <translation type="vanished">Verwenden</translation>
+    </message>
+    <message>
+        <source>abc ...</source>
+        <translation type="vanished">abc ...</translation>
+    </message>
+    <message>
+        <source>ABC ...</source>
+        <translation type="vanished">ABC ...</translation>
+    </message>
+    <message>
+        <source>#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</source>
+        <translation type="vanished">#!\/&quot;$%&amp;()[]{}`&apos;=-_+*&lt;&gt;.,;:</translation>
+    </message>
+    <message>
+        <source>0123 ...</source>
+        <translation type="vanished">0123 ...</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="vanished">Edit</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+Z</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Save changes?</source>
+        <translation>Änderungen speichern?</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save or discard the changes before selecting a new domain?</source>
+        <translation type="vanished">Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor die gewählte Domain angezeigt wird?</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save or discard the changes before proceeding?</source>
+        <translation type="vanished">Du hast die aktuellen Domain-Einstellungen verändert? Willst du sie speichern oder verwerfen, bevor du weiter machts?</translation>
+    </message>
+    <message>
+        <source>Save domain settings</source>
+        <translation>Domain-Einstellungen jetzt speichern</translation>
+    </message>
+    <message>
+        <source>abcdefghijklmnopqrstuvwxyz</source>
+        <translation>abcdefghijklmnopqrstuvwxyz</translation>
+    </message>
+    <message>
+        <source>ABCDEFGHIJKLMNOPQRSTUVWXYZ</source>
+        <translation>ABCDEFGHIJKLMNOPQRSTUVWXYZ</translation>
+    </message>
+    <message>
+        <source>0123456789</source>
+        <translation>0123456789</translation>
+    </message>
+    <message>
+        <source>Forced push ...</source>
+        <translation>Erzwungenes Senden ...</translation>
+    </message>
+    <message>
+        <source>Send local domain settings to server no matter what</source>
+        <translation>Aktuelle lokale Domain-Einstellungen an den Sync-Server senden, egal ob dort neue vorliegen oder nicht</translation>
+    </message>
+    <message>
+        <source>You have changed the current domain settings. Do you want to save the changes before proceeding?</source>
+        <translation>Du hast die Domain-Einstellungen verändert. Möchtest du die Änderungen speichern bevor du weiter machst?</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+H</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+C, Ctrl+C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+F, Ctrl+P</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Migrate domain to v3</source>
+        <translation>Domain-Einstellungen nach v3 migrieren</translation>
+    </message>
+    <message>
+        <source>Migrate current domain settings from v2 (simple) to v3 (expert)</source>
+        <translation>Die aktuellen Domain-Einstellungen von v2 (einfach) nach v3 (Expert) wandeln</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+M</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -755,123 +878,175 @@
     <name>NewDomainWizard</name>
     <message>
         <source>Create new domain</source>
-        <translation>Neue Domain anlegen</translation>
+        <translation type="vanished">Neue Domain anlegen</translation>
     </message>
     <message>
         <source>Base64 encoded salt</source>
-        <translation>Base64-kodiertes Salt</translation>
+        <translation type="vanished">Base64-kodiertes Salt</translation>
     </message>
     <message>
         <source>Password length</source>
-        <translation>Passwortlänge</translation>
+        <translation type="vanished">Passwortlänge</translation>
     </message>
     <message>
         <source>optional</source>
-        <translation>optional</translation>
+        <translation type="vanished">optional</translation>
     </message>
     <message>
         <source>Domain</source>
-        <translation>Domain</translation>
+        <translation type="vanished">Domain</translation>
     </message>
     <message>
         <source>mandatory</source>
-        <translation>erforderlich</translation>
+        <translation type="vanished">erforderlich</translation>
     </message>
     <message>
         <source>Salt (Base64)</source>
-        <translation>Salt (Base64)</translation>
+        <translation type="vanished">Salt (Base64)</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Benutzername</translation>
+        <translation type="vanished">Benutzername</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation>Notizen</translation>
+        <translation type="vanished">Notizen</translation>
     </message>
     <message>
         <source>may be empty</source>
-        <translation>kann leer bleiben</translation>
+        <translation type="vanished">kann leer bleiben</translation>
     </message>
     <message>
         <source>Min. iterations</source>
-        <translation>Min. Iterationen</translation>
+        <translation type="vanished">Min. Iterationen</translation>
     </message>
     <message>
         <source>don&apos;t fill unless you really need to</source>
-        <translation>nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
+        <translation type="vanished">nicht ausfüllen, wenn nicht unbedingt erforderlich</translation>
     </message>
     <message>
         <source>Legacy password</source>
-        <translation>Klassisches Passwort</translation>
+        <translation type="vanished">Klassisches Passwort</translation>
     </message>
     <message>
         <source>Used characters</source>
-        <translation>Verwendete Zeichen</translation>
+        <translation type="vanished">Verwendete Zeichen</translation>
     </message>
     <message>
         <source>add lower case characters to character set</source>
-        <translation>Kleinbuchstaben hinzufügen</translation>
+        <translation type="vanished">Kleinbuchstaben hinzufügen</translation>
     </message>
     <message>
         <source>abc…</source>
-        <translation>abc...</translation>
+        <translation type="vanished">abc...</translation>
     </message>
     <message>
         <source>add upper case characters to character set</source>
-        <translation>Großbuchstaben hinzufügen</translation>
+        <translation type="vanished">Großbuchstaben hinzufügen</translation>
     </message>
     <message>
         <source>ABC…</source>
-        <translation>ABC...</translation>
+        <translation type="vanished">ABC...</translation>
     </message>
     <message>
         <source>add digits to character set</source>
-        <translation>Ziffern hinzufügen</translation>
+        <translation type="vanished">Ziffern hinzufügen</translation>
     </message>
     <message>
         <source>0123…</source>
-        <translation>0123...</translation>
+        <translation type="vanished">0123...</translation>
     </message>
     <message>
         <source>add some special characters to character set</source>
-        <translation>Sonderzeichen hinzufügen</translation>
+        <translation type="vanished">Sonderzeichen hinzufügen</translation>
     </message>
     <message>
         <source>#!&quot;.…</source>
-        <translation>#!&quot;.…</translation>
+        <translation type="vanished">#!&quot;.…</translation>
     </message>
     <message>
         <source>Forced characters</source>
-        <translation>Erzwungene Zeichen</translation>
+        <translation type="vanished">Erzwungene Zeichen</translation>
     </message>
     <message>
         <source>upper case</source>
-        <translation>Großbuchstaben</translation>
+        <translation type="vanished">Großbuchstaben</translation>
     </message>
     <message>
         <source>lower case</source>
-        <translation>Kleinbuchstaben</translation>
+        <translation type="vanished">Kleinbuchstaben</translation>
     </message>
     <message>
         <source>digits</source>
-        <translation>Ziffern</translation>
+        <translation type="vanished">Ziffern</translation>
     </message>
     <message>
         <source>extra</source>
-        <translation>Sonderzeichen</translation>
+        <translation type="vanished">Sonderzeichen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation>Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation type="vanished">URL</translation>
+    </message>
+    <message>
+        <source>Force the use of any of %1</source>
+        <translation type="vanished">Die Benutzung von einem der Zeichen %1 erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any lower case character</source>
+        <translation type="vanished">Die Verwendung von Kleinbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any upper case character</source>
+        <translation type="vanished">Die Verwendung von Großbuchstaben erzwingen</translation>
+    </message>
+    <message>
+        <source>Force the use of any digit</source>
+        <translation type="vanished">Die Verwendung von Ziffern erzwingen</translation>
+    </message>
+    <message>
+        <source>Lowercase characters missing</source>
+        <translation type="vanished">Kleinbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce lowercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Kleinbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Uppercase characters missing</source>
+        <translation type="vanished">Großbuchstaben fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce uppercase characters but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Großbuchstaben in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Digits missing</source>
+        <translation type="vanished">Ziffern fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce digits but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Ziffern in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Extra characters missing</source>
+        <translation type="vanished">Sonderzeichen fehlen</translation>
+    </message>
+    <message>
+        <source>You want to enforce extra characters but your character set does not contain any. Do you want to add them?</source>
+        <translation type="vanished">Du willst Sonderzeichen in deinem Passwort haben, aber die Zeichenmenge enthält keine. Sollen welche hinzugefügt werden?</translation>
+    </message>
+    <message>
+        <source>Interrupt</source>
+        <translation type="vanished">Unterbrechen</translation>
     </message>
 </context>
 <context>
@@ -1052,6 +1227,10 @@
         <source>Encrypted</source>
         <translation>Verschlüsselt</translation>
     </message>
+    <message>
+        <source>Max. password length</source>
+        <translation>Max. Passwortlänge</translation>
+    </message>
 </context>
 <context>
     <name>PasswordChecker</name>
@@ -1162,12 +1341,60 @@
         <translation>Mit dem Löschen dieses Verzeichnis werden alle Anwendungs- und Passworteinstellungen gelöscht. Vorsicht, bitte!</translation>
     </message>
     <message>
-        <source>Can run only once</source>
-        <translation>Mein Mehrfachstart erlaubt</translation>
+        <source>Only one instance of this program can run at a time.</source>
+        <translation type="vanished">Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
     </message>
     <message>
-        <source>Only one instance of this program can run at a time.</source>
-        <translation>Es kann immer nur eine Instanz von Qt-SESAM aktiv sein.</translation>
+        <source>%1 can run only once</source>
+        <translation>%1 - Kein Mehrfachstart möglich</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time.</source>
+        <translation>Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="vanished">Abbrechen</translation>
+    </message>
+    <message>
+        <source>Accept</source>
+        <translation type="vanished">Übernehmen</translation>
+    </message>
+    <message>
+        <source>Extreme security (32 chars)</source>
+        <translation type="vanished">Extreme Sicherheit (32 Zeichen)</translation>
+    </message>
+    <message>
+        <source>Very high security (24 chars)</source>
+        <translation type="vanished">Sehr hohe Sicherheit (24 Zeichen)</translation>
+    </message>
+    <message>
+        <source>High security (18 chars)</source>
+        <translation type="vanished">Hohe Sicherheit (18 Zeichen)</translation>
+    </message>
+    <message>
+        <source>Medium security (12 chars)</source>
+        <translation type="vanished">Mittlere Sicherheit (12 Zeichen)</translation>
+    </message>
+    <message>
+        <source>High security (18 chars, easy to type)</source>
+        <translation type="vanished">Hohe Sicherheit (18 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Medium security (12 chars, easy to type)</source>
+        <translation type="vanished">Mittlere Sicherheit (12 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Basic security (8 chars, easy to type)</source>
+        <translation type="vanished">Niedrige Sicherheit (18 Zeichen, leicht einzutippen)</translation>
+    </message>
+    <message>
+        <source>Change to %1</source>
+        <translation type="vanished">Ändern auf %1</translation>
+    </message>
+    <message>
+        <source>Change length/complexity to %1/%2</source>
+        <translation type="vanished">Länge/Komplexität auf %1/%2 ändern</translation>
     </message>
 </context>
 <context>

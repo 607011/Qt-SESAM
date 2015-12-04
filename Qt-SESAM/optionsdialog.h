@@ -39,7 +39,7 @@ class OptionsDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit OptionsDialog(QWidget *parent = nullptr);
+  explicit OptionsDialog(QWidget *parent = Q_NULLPTR);
   ~OptionsDialog();
 
   bool syncOnStart(void) const;
@@ -98,8 +98,13 @@ public:
   QString passwordFilename(void) const;
   void setPasswordFilename(const QString &filename);
 
+  int maxPasswordLength(void) const;
+  void setMaxPasswordLength(int);
+
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
+  void saltLengthChanged(int);
+  void maxPasswordLengthChanged(int);
 
 private slots:
   void chooseSyncFile(void);

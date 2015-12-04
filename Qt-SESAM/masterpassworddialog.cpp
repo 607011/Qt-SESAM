@@ -98,7 +98,9 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 
 void MasterPasswordDialog::closeEvent(QCloseEvent*)
 {
-  // ...
+  /* DO NOT REMOVE THIS FUNCTION!
+   * Without overriding closeEvent() the window cannot be closed.
+   */
 }
 
 
@@ -123,7 +125,7 @@ void MasterPasswordDialog::comparePasswords(void)
   if (ui->repeatPasswordLineEdit->isVisible()) {
     QString grade;
     QColor color;
-    PasswordChecker::evaluatePasswordStrength(ui->passwordLineEdit->text(), color, grade, nullptr);
+    PasswordChecker::evaluatePasswordStrength(ui->passwordLineEdit->text(), color, grade, Q_NULLPTR);
     ui->strengthLabel->setText(tr("%1").arg(grade));
     ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
     ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty() && ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text());

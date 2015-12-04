@@ -38,23 +38,20 @@ const QString DomainSettings::LEGACY_PASSWORD = "legacyPassword";
 const QString DomainSettings::NOTES = "notes";
 const QString DomainSettings::ITERATIONS = "iterations";
 const QString DomainSettings::SALT = "salt";
-const QString DomainSettings::LENGTH = "length";
 const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
-const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
 const QString DomainSettings::DELETED = "deleted";
-const QString DomainSettings::EXTRAS = "extras";
-
+const QString DomainSettings::PASSWORD_LENGTH = "length";
+const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
+// v3 settings
+const QString DomainSettings::EXTRA_CHARACTERS = "extras";
+const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
 
 DomainSettings::DomainSettings(void)
   : salt_base64(DefaultSalt_base64)
   , iterations(DefaultIterations)
-  , length(DefaultPasswordLength)
+  , passwordLength(DefaultPasswordLength)
   , deleted(false)
-  , forceLowerCase(false)
-  , forceUpperCase(false)
-  , forceDigits(false)
-  , forceExtra(false)
 { /* ... */ }
 
 
@@ -66,16 +63,14 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , notes(o.notes)
   , salt_base64(o.salt_base64)
   , iterations(o.iterations)
-  , length(o.length)
+  , passwordLength(o.passwordLength)
   , usedCharacters(o.usedCharacters)
   , createdDate(o.createdDate)
   , modifiedDate(o.modifiedDate)
   , deleted(o.deleted)
-  , extras(o.extras)
-  , forceLowerCase(o.forceLowerCase)
-  , forceUpperCase(o.forceUpperCase)
-  , forceDigits(o.forceDigits)
-  , forceExtra(o.forceExtra)
+  // v3 settings
+  , extraCharacters(o.extraCharacters)
+  , passwordTemplate(o.passwordTemplate)
 { /* ... */ }
 
 
@@ -96,12 +91,15 @@ QVariantMap DomainSettings::toVariantMap(void) const
       map[LEGACY_PASSWORD] = legacyPassword;
     if (!notes.isEmpty())
       map[NOTES] = notes;
-    map[ITERATIONS] = iterations;
-    map[LENGTH] = length;
     map[SALT] = salt_base64;
+    map[ITERATIONS] = iterations;
+    map[PASSWORD_LENGTH] = passwordLength;
     map[USED_CHARACTERS] = usedCharacters;
-    if (!extras.isEmpty())
-      map[EXTRAS] = extras;
+    // v3 settings
+    if (!extraCharacters.isEmpty())
+      map[EXTRA_CHARACTERS] = extraCharacters;
+    if (!passwordTemplate.isEmpty())
+      map[PASSWORD_TEMPLATE] = passwordTemplate;
   }
   return map;
 }
@@ -115,13 +113,15 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.url = map[URL].toString();
   ds.legacyPassword = map[LEGACY_PASSWORD].toString();
   ds.notes = map[NOTES].toString();
-  ds.iterations = map[ITERATIONS].toInt();
-  ds.length = map[LENGTH].toInt();
   ds.salt_base64 = map[SALT].toByteArray();
+  ds.iterations = map[ITERATIONS].toInt();
+  ds.passwordLength = map[PASSWORD_LENGTH].toInt();
   ds.usedCharacters = map[USED_CHARACTERS].toString();
   ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
-  ds.deleted = map[DELETED].toBool(); // XXX
-  ds.extras = map[URL].toString();
+  ds.deleted = map[DELETED].toBool();
+  // v3 settings
+  ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
+  ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
   return ds;
 }

@@ -159,6 +159,6 @@ void PasswordChecker::evaluatePasswordStrength(const QString &password, QColor &
       grade = tr("Useless");
     }
   }
-  if (_fitness != nullptr)
+  if (_fitness != Q_NULLPTR)
     *_fitness = fitness;
 }

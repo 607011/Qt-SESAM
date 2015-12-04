@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
       auto dump = [&out](std::string algo, byte *digest, size_t digestLen)
       {
-        CryptoPP::HexEncoder encoder(nullptr, false);
+        CryptoPP::HexEncoder encoder(NULL, false);
         std::string hexDigest;
         encoder.Attach(new CryptoPP::StringSink(hexDigest));
         encoder.Put(digest, digestLen);
@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
   WIN32_FIND_DATAA findData;
   HANDLE ff = FindFirstFileA(fname.c_str(), &findData);
   if (ff != INVALID_HANDLE_VALUE) {
-    if (findData.cFileName != nullptr) {
+    if (findData.cFileName != NULL) {
       fileList.push_back(findData.cFileName);
     }
     while (FindNextFileA(ff, &findData)) {
-      if (findData.cFileName != nullptr)
+      if (findData.cFileName != NULL)
         fileList.push_back(findData.cFileName);
     }
   }

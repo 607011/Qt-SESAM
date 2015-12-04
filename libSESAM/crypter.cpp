@@ -83,14 +83,14 @@ QByteArray Crypter::encode(const SecureByteArray &key,
                            const QByteArray &data,
                            bool compress)
 {
-  const QByteArray &salt2 = randomBytes(SaltSize);
-  const QByteArray &IV2 = randomBytes(AESBlockSize);
+  const QByteArray &salt2 = generateSalt();
+  const SecureByteArray &IV2 = generateIV();
   const SecureByteArray &KGK2 = salt2 + IV2 + KGK;
   const QByteArray &encryptedKGK = encrypt(key, IV, KGK2, CryptoPP::StreamTransformationFilter::NO_PADDING);
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
-  const QByteArray &baPlain = compress ? qCompress(data, 9) : data;
+  const SecureByteArray &baPlain = compress ? qCompress(data, 9) : data;
   const QByteArray &baCipher = encrypt(blobKey, IV2, baPlain, CryptoPP::StreamTransformationFilter::PKCS_PADDING);
-  const QByteArray &formatFlag = QByteArray(int(1), static_cast<char>(AES256EncryptedMasterkeyFormat));
+  const QByteArray formatFlag(int(1), static_cast<char>(AES256EncryptedMasterkeyFormat));
   return formatFlag + salt + encryptedKGK + baCipher;
 }
 
@@ -116,7 +116,7 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
   Crypter::makeKeyAndIVFromPassword(masterPassword, salt, key, IV);
   QByteArray baKGK = decrypt(key, IV, encryptedKGK, CryptoPP::StreamTransformationFilter::NO_PADDING);
   const QByteArray salt2(baKGK.constData(), SaltSize);
-  const QByteArray IV2(baKGK.constData() + SaltSize, AESBlockSize);
+  const SecureByteArray IV2(baKGK.constData() + SaltSize, AESBlockSize);
   KGK = SecureByteArray(baKGK.constData() + SaltSize + AESBlockSize, KGKSize);
   const SecureByteArray &blobKey = Crypter::makeKeyFromPassword(KGK, salt2);
   const QByteArray &plain = decrypt(blobKey, IV2, cipher.mid(+ sizeof(char) + SaltSize + CryptDataSize), CryptoPP::StreamTransformationFilter::PKCS_PADDING);
@@ -224,6 +224,17 @@ SecureByteArray Crypter::generateKGK(void)
 QByteArray Crypter::generateSalt(void)
 {
   return randomBytes(SaltSize);
+}
+
+
+/*!
+ * \brief Crypter::generateIV
+ *
+ * \return `Crypter::AESBlockSize` random bytes.
+ */
+SecureByteArray Crypter::generateIV(void)
+{
+  return randomBytes(AESBlockSize);
 }
 
 

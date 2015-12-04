@@ -24,13 +24,17 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QTranslator>
-
+#include <QByteArray>
 
 int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(QtSESAM);
 
   checkPortable();
+
+  bool forceStart = false;
+  if (argc > 1 && qstrcmp(argv[1], "--force-start") == 0)
+    forceStart = true;
 
   QApplication a(argc, argv);
   a.setOrganizationName(AppCompanyName);
@@ -55,7 +59,7 @@ int main(int argc, char *argv[])
   if (ok)
     a.installTranslator(&translator);
 
-  MainWindow w;
+  MainWindow w(forceStart);
   w.activateWindow();
   return a.exec();
 }

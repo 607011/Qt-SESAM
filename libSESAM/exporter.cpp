@@ -23,6 +23,9 @@
 #include "exporter.h"
 #include "securestring.h"
 #include "crypter.h"
+#include "pbkdf2.h"
+#include "cryptlib.h"
+#include "ccm.h"
 
 static const QString PemPreamble = "-----BEGIN ENCRYPTED PRIVATE KEY-----";
 static const QString PemEpilog = "-----END ENCRYPTED PRIVATE KEY-----";
@@ -49,7 +52,7 @@ Exporter::Exporter(QObject *parent)
 Exporter::Exporter(const QString &filename, QObject *parent)
   : Exporter(parent)
 {
-  d_ptr->filename = filename;
+  setFileName(filename);
 }
 
 
@@ -59,19 +62,45 @@ Exporter::~Exporter()
 }
 
 
-bool Exporter::write(const SecureByteArray &data)
+void Exporter::setFileName(const QString &filename)
 {
   Q_D(Exporter);
+  d->filename = filename;
+}
+
+
+bool Exporter::write(const SecureByteArray &data, const SecureString &pwd)
+{
+  Q_D(Exporter);
+  Q_ASSERT((data.size() % Crypter::AESBlockSize) == 0);
+  QByteArray salt = Crypter::generateSalt();
+  SecureByteArray iv;
+  SecureByteArray key;
+  Crypter::makeKeyAndIVFromPassword(pwd.toUtf8(), salt, key, iv);
+  CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
+  enc.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(iv.constData()));
+  const int cipherSize = data.size();
+  QByteArray cipher(cipherSize, static_cast<char>(0));
+  CryptoPP::ArraySource s(
+        reinterpret_cast<const byte*>(data.constData()), data.size(),
+        true,
+        new CryptoPP::StreamTransformationFilter(
+          enc,
+          new CryptoPP::ArraySink(reinterpret_cast<byte*>(cipher.data()), cipher.size()),
+          CryptoPP::StreamTransformationFilter::NO_PADDING
+          )
+        );
+  Q_UNUSED(s); // just to please the compiler
   QFile file(d->filename);
   bool opened = file.open(QIODevice::WriteOnly);
   if (!opened)
     return false;
-
+  QByteArray block = salt + cipher;
   file.write(PemPreamble.toUtf8());
   file.write("\n");
-  SecureByteArray kgk_b64 = data.toBase64();
-  for (int i = 0; i < kgk_b64.size(); i += 64) {
-    file.write(kgk_b64.mid(i, qMin(64, kgk_b64.size() - i)));
+  const SecureByteArray &b64 = block.toBase64();
+  for (int i = 0; i < b64.size(); i += 64) {
+    file.write(b64.mid(i, qMin(64, b64.size() - i)));
     file.write("\n");
   }
   file.write(PemEpilog.toUtf8());
@@ -81,21 +110,20 @@ bool Exporter::write(const SecureByteArray &data)
 }
 
 
-SecureByteArray Exporter::read(void)
+SecureByteArray Exporter::read(const SecureString &pwd)
 {
   Q_D(Exporter);
   QFile file(d->filename);
   bool opened = file.open(QIODevice::ReadOnly);
   if (!opened)
     return false;
-  SecureByteArray imported;
   static const int MaxLineSize = 66;
-  char buf[MaxLineSize];
   int state = 0;
-  SecureByteArray base64;
+  QByteArray b64;
   while (!file.atEnd()) {
+    char buf[MaxLineSize];
     qint64 bytesRead = file.readLine(buf, MaxLineSize);
-    SecureString line = QByteArray(buf, bytesRead).trimmed();
+    QString line = QByteArray(buf, bytesRead).trimmed();
     switch (state) {
     case 0:
       if (line == PemPreamble) {
@@ -107,7 +135,7 @@ SecureByteArray Exporter::read(void)
       break;
     case 1:
       if (line != PemEpilog) {
-        base64.append(line.toUtf8());
+        b64.append(line.toUtf8());
       }
       else {
         state = 2;
@@ -121,9 +149,25 @@ SecureByteArray Exporter::read(void)
       break;
     }
   }
-
   file.close();
-  imported = SecureByteArray::fromBase64(base64);
-
-  return imported;
+  SecureByteArray iv;
+  SecureByteArray key;
+  QByteArray imported = QByteArray::fromBase64(b64);
+  QByteArray salt = imported.mid(0, Crypter::SaltSize);
+  QByteArray cipher = imported.mid(Crypter::SaltSize);
+  Crypter::makeKeyAndIVFromPassword(pwd.toUtf8(), salt, key, iv);
+  CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+  dec.SetKeyWithIV(reinterpret_cast<const byte*>(key.constData()), key.size(), reinterpret_cast<const byte*>(iv.constData()));
+  SecureByteArray plain(cipher.size(), static_cast<char>(0));
+  CryptoPP::ArraySource s(
+        reinterpret_cast<const byte*>(cipher.constData()), cipher.size(),
+        true,
+        new CryptoPP::StreamTransformationFilter(
+          dec,
+          new CryptoPP::ArraySink(reinterpret_cast<byte*>(plain.data()), plain.size()),
+          CryptoPP::StreamTransformationFilter::NO_PADDING
+          )
+        );
+  Q_UNUSED(s); // just to please the compiler
+  return plain;
 }
