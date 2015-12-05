@@ -21,25 +21,34 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QByteArray>
+#include <QStringList>
 #include <QCoreApplication>
+
+
+static const int NoApplicationId = -1;
+
 
 class LockFilePrivate {
 public:
   LockFilePrivate(const QString &lockFilename)
     : lockFilename(lockFilename)
     , lockFile(lockFilename)
+    , applicationId(NoApplicationId)
   { /* ... */ }
   ~LockFilePrivate()
   { /* ... */ }
   QString lockFilename;
   QFile lockFile;
+  QString applicationName;
+  int applicationId;
 };
+
 
 
 LockFile::LockFile(const QString &lockFilename)
   : d_ptr(new LockFilePrivate(lockFilename))
 {
-  /* ... */
+  checkExtractInfo();
 }
 
 
@@ -67,6 +76,7 @@ void LockFile::unlock(void)
   Q_D(LockFile);
   if (isLocked()) {
     d->lockFile.remove();
+    d->applicationId = NoApplicationId;
   }
 }
 
@@ -74,4 +84,49 @@ void LockFile::unlock(void)
 bool LockFile::isLocked(void) const
 {
   return QFileInfo(d_ptr->lockFilename).isFile();
+}
+
+
+void LockFile::extractInfo(void)
+{
+  Q_D(LockFile);
+  d->applicationId = NoApplicationId;
+  d->applicationName.clear();
+  d->lockFile.open(QIODevice::ReadOnly);
+  QString line = d->lockFile.readLine();
+  d->lockFile.close();
+  QStringList parts = line.split(' ', QString::SkipEmptyParts);
+  if (parts.count() == 2) {
+    bool ok = false;
+    int appId = parts.at(0).toInt(&ok);
+    if (ok) {
+      d->applicationId = appId;
+    }
+    d->applicationName = parts.at(1).trimmed();
+  }
+}
+
+
+void LockFile::checkExtractInfo(void)
+{
+  Q_D(LockFile);
+  if (isLocked() && (d->applicationId == NoApplicationId || d->applicationName.isEmpty())) {
+    extractInfo();
+  }
+}
+
+
+int LockFile::applicationId(void)
+{
+  Q_D(LockFile);
+  checkExtractInfo();
+  return d->applicationId;
+}
+
+
+QString LockFile::applicationName(void)
+{
+  Q_D(LockFile);
+  checkExtractInfo();
+  return d->applicationName;
 }

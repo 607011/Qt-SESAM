@@ -35,11 +35,17 @@ public:
   bool lock(void);
   void unlock(void);
   bool isLocked(void) const;
+  int applicationId(void);
+  QString applicationName(void);
 
 private:
   QScopedPointer<LockFilePrivate> d_ptr;
   Q_DECLARE_PRIVATE(LockFile)
   Q_DISABLE_COPY(LockFile)
+
+private: // methods
+  void checkExtractInfo(void);
+  void extractInfo(void);
 };
 
 #endif // __LOCKFILE_H_
