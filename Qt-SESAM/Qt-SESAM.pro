@@ -73,7 +73,6 @@ HEADERS  += \
     servercertificatewidget.h \
     changemasterpassworddialog.h \
     passwordchecker.h \
-    singleinstancedetector.h \
     easyselectorwidget.h \
     countdownwidget.h \
     tcpclient.h \
