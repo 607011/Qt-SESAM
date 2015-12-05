@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: sans-serif;
+  min-width: 256px;
+  background-color: #C6D7DB;
+}
+.icon {
+  background-color: #D7DBC6;
+  line-height: 0;
+}
+.main {
+  padding: 1ex 1em;
+}
+h1 {
+  font-weight: bold;
+  font-size: 140%;
+  margin: 1ex 1em;
+}
+#proxy-connection-status {
+  font-weight: bold;
+}
+#proxy-connection-status.connected {
+  color: green;
+}
+#proxy-connection-status.disconnected {
+  color: red;
+}
+a {
+  text-decoration: none;
+  color: #222;
+}
+a:hover {
+  text-decoration: underline;
+}
+.copyright {
+  font-size: smaller;
+  color: #555;
+  margin: 3em 1ex 0.1em 1ex;
+}

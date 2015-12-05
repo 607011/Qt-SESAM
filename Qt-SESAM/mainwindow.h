@@ -42,6 +42,7 @@
 #include <QEvent>
 #include <QMessageBox>
 #include <QLabel>
+#include <QJsonDocument>
 
 #include "global.h"
 #include "domainsettings.h"
@@ -74,6 +75,8 @@ private:
   } SyncPeer;
 
 private slots:
+  void onLogin(void);
+  void onMessageFromTcpClient(QJsonDocument);
   void onUserChanged(QString);
   void onURLChanged(QString);
   void onUsedCharactersChanged(void);
@@ -131,11 +134,14 @@ private slots:
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+  void deleteOldBackupFiles(void);
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+  void onExportKGK(void);
+  void onImportKGK(void);
   void onImportKeePass2XmlFile(void);
 
 signals:
@@ -178,7 +184,7 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-  void writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams);
+  void writeBackupFile(void);
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
@@ -195,6 +201,8 @@ private: // methods
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
   QString collectedSyncData(void);
+  static bool wipeFile(const QString &filename);
+  void cleanupAfterMasterPasswordChanged(void);
 };
 
 #endif // __MAINWINDOW_H_

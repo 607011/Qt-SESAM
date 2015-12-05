@@ -31,8 +31,10 @@
 class Crypter
 {
 public:
+  static const int KGKSize;
   static const int AESKeySize;
   static const int AESBlockSize;
+  static const int SaltSize;
   enum FormatFlags {
     ObsoleteDefaultEncryptionFormat = 0x00,
     AES256EncryptedMasterkeyFormat = 0x01
@@ -50,8 +52,6 @@ public:
 
 
 private:
-  static const int KGKSize;
-  static const int SaltSize;
   static const int KGKIterations;
   static const int DomainIterations;
   static const int CryptDataSize;

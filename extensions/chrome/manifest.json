@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "c't SESAM Login",
+  "short_name": "c't SESAM",
+  "author": "Oliver Lau",
+  "homepage_url": "https://github.com/ola-ct/Qt-SESAM",
+  "description": "1-click login provider for Qt-SESAM",
+  "version": "0.2.1",
+  "incognito": "spanning",
+  "offline_enabled": false,
+  "icons": {
+    "128": "icon-128x128.png",
+    "32":  "icon-32x32.png"
+  },
+  "browser_action": {
+    "default_title": "c't SESAM",
+    "default_icon": "icon-32x32.png",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": [ "background.js" ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": [ "https://*/*", "http://*/*" ],
+      "js": [ "jquery-2.1.4.min.js", "content.js" ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "background",
+    "tabs",
+    "nativeMessaging"
+  ]
+}

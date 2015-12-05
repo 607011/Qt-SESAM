@@ -64,7 +64,7 @@ public:
   int minLength;
   int maxLength;
   int extraCharCount;
-  QPixmap background;
+  QPixmap bgPixmap;
   bool doAbortSpeedTest;
   QFuture<void> speedTestFuture;
   qreal hashesPerSec;
@@ -96,13 +96,13 @@ QSize EasySelectorWidget::minimumSizeHint(void) const
 void EasySelectorWidget::setMousePos(const QPoint &pos)
 {
   Q_D(EasySelectorWidget);
-  if (!d->background.isNull()) {
+  if (!d->bgPixmap.isNull()) {
     const int nX = d->maxLength - d->minLength + 1;
     const int nY = Password::MaxComplexity + 1;
-    const int xs = d->background.width() / nX;
-    const int ys = d->background.height() / nY;
-    const int clampedX = clamp(pos.x(), 0, d->background.width() - xs);
-    const int clampedY = clamp(pos.y(), 0, d->background.height() - ys);
+    const int xs = d->bgPixmap.width() / nX;
+    const int ys = d->bgPixmap.height() / nY;
+    const int clampedX = clamp(pos.x(), 0, d->bgPixmap.width() - xs);
+    const int clampedY = clamp(pos.y(), 0, d->bgPixmap.height() - ys);
     d->length = d->minLength + clampedX / xs;
     d->complexity = Password::MaxComplexity - clampedY / ys;
     update();
@@ -199,17 +199,17 @@ void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
 void EasySelectorWidget::paintEvent(QPaintEvent *)
 {
   Q_D(EasySelectorWidget);
-  if (!d->background.isNull()) {
+  if (!d->bgPixmap.isNull()) {
     const int nX = d->maxLength - d->minLength + 1;
     const int nY = Password::MaxComplexity + 1;
-    const int xs = d->background.width() / nX;
-    const int ys = d->background.height() / nY;
+    const int xs = d->bgPixmap.width() / nX;
+    const int ys = d->bgPixmap.height() / nY;
     QPainter p(this);
-    p.drawPixmap(QPoint(0, 0), d->background);
+    p.drawPixmap(QPoint(0, 0), d->bgPixmap);
     p.setBrush(QColor(255, 255, 255, 208));
     p.setPen(Qt::transparent);
     p.drawRect(QRect(QPoint(xs * (d->length - d->minLength) + 1,
-                            d->background.height() - ys * (d->complexity + 1)),
+                            d->bgPixmap.height() - ys * (d->complexity + 1)),
                      QSize(xs - 1, ys - 1)));
   }
 }
@@ -260,28 +260,28 @@ void EasySelectorWidget::redrawBackground(void)
 {
   Q_D(EasySelectorWidget);
   if (width() == 0 || height() == 0) {
-    d->background = QPixmap();
+    d->bgPixmap = QPixmap();
     return;
   }
   const int nX = d->maxLength - d->minLength + 1;
   const int nY = Password::MaxComplexity + 1;
-  const int xs = width() / nX;
-  const int ys = height() / nY;
-  d->background = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
-  QPainter p(&d->background);
+  const int xs = (width() - 2) / nX;
+  const int ys = (height() - 2) / nY;
+  d->bgPixmap = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
+  QPainter p(&d->bgPixmap);
   for (int y = 0; y < nY; ++y) {
     for (int x = 0; x < nX; ++x) {
-      p.fillRect(QRect(x * xs, d->background.height() - y * ys - ys, xs, ys),
+      p.fillRect(QRect(x * xs, d->bgPixmap.height() - y * ys - ys, xs, ys),
                  red2yellow2green(qLn(passwordStrength(x + d->minLength, y)) / 40).darker(168));
     }
   }
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
   for (int x = 0; x <= nX; ++x) {
-    p.drawLine(xs * x, 0, xs * x, d->background.height());
+    p.drawLine(xs * x, 0, xs * x, d->bgPixmap.height());
   }
   for (int y = 0; y <= nY; ++y) {
-    p.drawLine(0, ys * y, d->background.width(), ys * y);
+    p.drawLine(0, ys * y, d->bgPixmap.width(), ys * y);
   }
 }
 
@@ -319,10 +319,10 @@ static QString makeCrackDuration(qreal secs)
 
 bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) const
 {
-  if (d_ptr->background.isNull())
+  if (d_ptr->bgPixmap.isNull())
     return false;
-  const int xs = d_ptr->background.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
-  const int ys = d_ptr->background.height() / (Password::MaxComplexity + 1);
+  const int xs = d_ptr->bgPixmap.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
+  const int ys = d_ptr->bgPixmap.height() / (Password::MaxComplexity + 1);
   const int length = pos.x() / xs + d_ptr->minLength;
   const int complexity = Password::MaxComplexity - pos.y() / ys;
   QString crackDuration = makeCrackDuration(tianhe2Secs(length, complexity));

@@ -57,6 +57,7 @@ SOURCES += main.cpp \
     passwordchecker.cpp \
     easyselectorwidget.cpp \
     countdownwidget.cpp \
+    tcpclient.cpp \
     keepass2xmlreader.cpp \
     hackhelper.cpp \
     expandablegroupbox.cpp
@@ -74,6 +75,7 @@ HEADERS  += \
     singleinstancedetector.h \
     easyselectorwidget.h \
     countdownwidget.h \
+    tcpclient.h \
     keepass2xmlreader.h \
     expandablegroupbox.h
 

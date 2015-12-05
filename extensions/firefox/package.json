@@ -1,0 +1,16 @@
+{
+  "title": "c't SESAM Login",
+  "name": "sesam2firefox",
+  "version": "0.0.1",
+  "description": "c't SESAM 1-Click Login",
+  "main": "index.js",
+  "author": "Oliver Lau",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "GPLv3",
+  "keywords": [
+    "jetpack"
+  ]
+}

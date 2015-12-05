@@ -726,35 +726,19 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export KGK ...</source>
-        <translation type="vanished">KGK exportieren ...</translation>
+        <translation>KGK exportieren ...</translation>
     </message>
     <message>
         <source>Security hint</source>
-        <translation type="vanished">Sicherheitshinweis</translation>
-    </message>
-    <message>
-        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. It is recommended to protect the KGK with a really strong passphrase. Are you prepared for this?</source>
-        <translation type="vanished">Du stehst kurz davor deinen Key Generation Key (KGK) zu exportieren. Der KGK wird zum Generieren deiner Passwörter und der Schlüssel zum Chiffrieren der Domain-Einstellungen verwendet. Wenn du nicht unbedingt ein Backup davon benötigst, solltest du ihn nicht exportieren. Wenn doch, dann schütze ihn mit einer schwer zu erratenden Passphrase. Bist du dazu bereit?</translation>
+        <translation>Sicherheitshinweis</translation>
     </message>
     <message>
         <source>Import KGK ...</source>
-        <translation type="vanished">KGK importieren ...</translation>
+        <translation>KGK importieren ...</translation>
     </message>
     <message>
         <source>Export KGK to ...</source>
-        <translation type="vanished">KGK exportieren nach ...</translation>
-    </message>
-    <message>
-        <source>Not implemented yet</source>
-        <translation type="vanished">Noch nicht implementiert</translation>
-    </message>
-    <message>
-        <source>Not implemented yet.</source>
-        <translation type="vanished">Noch nicht implementiert.</translation>
-    </message>
-    <message>
-        <source>Import KGK from ...</source>
-        <translation type="vanished">KGK importieren von ...</translation>
+        <translation>KGK exportieren nach ...</translation>
     </message>
     <message>
         <source>Parameters</source>
@@ -893,6 +877,10 @@ auf deinem Computer: %3</translation>
         <translation>Willst du die Änderungen an den Domain-Einstellungen wirklich rückgängig machen?</translation>
     </message>
     <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
         <source>Import</source>
         <translation>Importieren</translation>
     </message>
@@ -983,6 +971,90 @@ auf deinem Computer: %3</translation>
     <message>
         <source>(%1 characters)</source>
         <translation>(%1 Zeichen)</translation>
+    </message>
+    <message>
+        <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. The KGK is encrypted with a key derived from your master password. Are you prepared for this?</source>
+        <translation>Du stehst kurz davor, deinen Schlüsselgenerierungsschlüssel (key generation key, KGK) zu exportieren. Der KGK wird verwendet, um zusammen mit deinem Master-Passwort die Dienstpasswörter zu berechnen, und um die Programmeinstellungen zu verschlüsseln. Normalerweise musst du den KGK nicht exportieren, es sei denn zu Backup-Zwecken. Der exportierte KGK ist mit einem Schlüssel verschlüsselt, der aus deinem Master-Passwort abgeleitet wurde. Willst du wirklich exportieren?</translation>
+    </message>
+    <message>
+        <source>Import KGK from ...</source>
+        <translation>KGK importieren ...</translation>
+    </message>
+    <message>
+        <source>Read carefully before proceeding!</source>
+        <translation>Vor dem Weitermachen bitte sorgfältig lesen!</translation>
+    </message>
+    <message>
+        <source>You are about to import a previously saved key generation key (KGK). This should only be done if absolutely necessary, e.g. to restore a damaged settings file. This is because changing the KGK will also change the generated passwords. Are you really sure you want to import a KGK?</source>
+        <translation>Du stehst kurz davor, einen kürzlich gespeicherten Schlüsselerzeugungsschlüssel (key generation key, KGK) zu importieren. Das solltest du nur tun, wenn es unbedingt notwendig ist, weil das Importieren eines anderen KGK dazu führt, dass andere Dienstpasswörter generiert werden. Bist du sicher, dass du einen KGK importieren möchtest?</translation>
+    </message>
+    <message>
+        <source>Bad KGK</source>
+        <translation>Ungültiger KGK</translation>
+    </message>
+    <message>
+        <source>The KGK you&apos;ve loaded is malformed. It shall be %1 byte long, but is in fact %2 byte long. The KGK will not be imported and your settings will not be changed.</source>
+        <translation>Der geladene KGK ist ungültig. Er muss %1 Byte lang sein, ist aber %2 Byte lang. Der KGK wird nicht importiert und deine bisherigen Einstellungen bleiben erhalten.</translation>
+    </message>
+    <message>
+        <source>KGK imported</source>
+        <translation>KGK importiert</translation>
+    </message>
+    <message>
+        <source>KGK successfully imported. Your generated passwords may have changed. Please check if they are still valid, or valid again.</source>
+        <translation>Der KGK wurde erfolgreich importiert. Deine Dienstpasswörter dürfen sich allesamt geändert haben. Bitte prüfe, ob sie immer noch (oder wieder) gültig sind.</translation>
+    </message>
+    <message>
+        <source>Sync now!</source>
+        <translation>Jetzt synchronisieren!</translation>
+    </message>
+    <message>
+        <source>You&apos;ve started %1 for the first time on this computer. If you&apos;re using a sync server or file, please go to the Options dialog, enter your sync settings there, and then do a sync. If you don&apos;t follow this advice you may encounter problems later on. Click OK to open the Options dialog now.</source>
+        <translation>Du hast %1 das erste Mal auf diesem Computer gestartet. Falls du deine Einstellungen bereits über einen Server oder eine Datei synchron hältst, solltest du jetzt im Optionen-Dialog die Sync-Parameter setzen und dann sofort synchronisieren. Sonst läufst du Gefahr, später Probleme zu bekommen. OK anklicken, um den Optionen-Dialog zu öffnen.</translation>
+    </message>
+    <message>
+        <source>Delete old backup files ...</source>
+        <translation>Alte Backup-Dateien löschen ...</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+D, Ctrl+B</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Fehler: %1</translation>
+    </message>
+    <message>
+        <source>Delete backup files?</source>
+        <translation>Backup-Dateien löschen?</translation>
+    </message>
+    <message>
+        <source>You&apos;ve changed your master password. Assuming that is has been compromised prior to that, all of your backup files should be deleted. I found %1 backup file(s) in %2. Do you want me to securely delete them and write a new backup file with the current settings?</source>
+        <translation>Du hast dein Master-Passwort geändert. Da es vermutlich zuvor kompromittiert wurde, sollten alle Backup-Dateien gelöscht werden. Ich habe %1 Backup-Datei(en) in %2 gefunden. Soll ich sie sicher löschen und dann eine neue Backup-Datei mit den aktuellen Einstellungen anlegen?</translation>
+    </message>
+    <message>
+        <source>Removed all backup files</source>
+        <translation>Alle alten Backup-Dateien gelöscht.</translation>
+    </message>
+    <message>
+        <source>All of your backup files in %1 have been successfully removed.</source>
+        <translation>Alle alten Backup-Dateien in %1 wurden erfolgreich gelöscht.</translation>
+    </message>
+    <message>
+        <source>Backup files remaining</source>
+        <translation>Übriggebliebene Backup-Dateien</translation>
+    </message>
+    <message>
+        <source>Not all of your backup files in %1 have been successfully wiped. Shall I take you to the directory so that you can remove them manually?</source>
+        <translation>Nicht alle alten Backup-Dateien in %1 konnten sicher gelöscht werden. Soll ich das Verzeichnis aufrufen, damit du die Dateien selber löschen kannst?</translation>
+    </message>
+    <message>
+        <source>No backup files</source>
+        <translation>Keine Backup-Dateien</translation>
+    </message>
+    <message>
+        <source>There are no backup files present in %1.</source>
+        <translation>In %1 sind keine alten Backup-Dateien vorhanden.</translation>
     </message>
 </context>
 <context>
@@ -1591,6 +1663,10 @@ auf deinem Computer: %3</translation>
     <message>
         <source>~ %1 years</source>
         <translation>~ %1 Jahre</translation>
+    </message>
+    <message>
+        <source>KGK file (*.pem *.kgk)</source>
+        <translation>KGK-Datei (*.pem *.kgk)</translation>
     </message>
 </context>
 <context>

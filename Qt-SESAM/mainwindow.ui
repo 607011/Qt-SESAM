@@ -140,7 +140,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
       <item>
        <widget class="QCheckBox" name="deleteCheckBox">
         <property name="text">
@@ -181,6 +181,16 @@
         </property>
         <property name="shortcut">
          <string>Esc</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="loginPushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Login</string>
         </property>
        </widget>
       </item>
@@ -862,6 +872,11 @@
      <addaction name="actionClearAllSettings"/>
      <addaction name="actionForcedPush"/>
      <addaction name="actionMigrateDomainToV3"/>
+     <addaction name="separator"/>
+     <addaction name="actionExportKGK"/>
+     <addaction name="actionImportKGK"/>
+     <addaction name="separator"/>
+     <addaction name="actionDeleteOldBackupFiles"/>
     </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
@@ -1005,6 +1020,16 @@
     <string>Ctrl+E, Ctrl+M</string>
    </property>
   </action>
+  <action name="actionExportKGK">
+   <property name="text">
+    <string>Export KGK ...</string>
+   </property>
+  </action>
+  <action name="actionImportKGK">
+   <property name="text">
+    <string>Import KGK ...</string>
+   </property>
+  </action>
   <action name="actionKeePassXmlFile">
    <property name="enabled">
     <bool>false</bool>
@@ -1014,6 +1039,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I, Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionDeleteOldBackupFiles">
+   <property name="text">
+    <string>Delete old backup files ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E, Ctrl+D, Ctrl+B</string>
    </property>
   </action>
  </widget>
