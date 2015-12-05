@@ -45,11 +45,12 @@ MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   ui->infoLabel->setStyleSheet("font-weight: bold");
   setWindowTitle(QString("%1 %2%3").arg(AppName).arg(AppVersion).arg(isPortable() ? " - PORTABLE" : ""));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
-  QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
-  QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+  QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(checkPasswords()));
+  QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(checkPasswords()));
   setRepeatPassword(false);
   invalidatePassword();
-  comparePasswords();
+  checkPasswords();
+  resize(width(), 1);
 }
 
 
@@ -86,7 +87,7 @@ void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
     ui->repeatPasswordLabel->hide();
     ui->strengthLabel->hide();
   }
-  comparePasswords();
+  checkPasswords();
 }
 
 
@@ -105,7 +106,6 @@ QString MasterPasswordDialog::masterPassword(void) const
 void MasterPasswordDialog::reject(void)
 {
   // ignore
-  qDebug() << "MasterPasswordDialog::reject()";
 }
 
 
@@ -138,7 +138,7 @@ void MasterPasswordDialog::okClicked(void)
 }
 
 
-void MasterPasswordDialog::comparePasswords(void)
+void MasterPasswordDialog::checkPasswords(void)
 {
   if (ui->repeatPasswordLineEdit->isVisible()) {
     QString grade;
@@ -147,5 +147,8 @@ void MasterPasswordDialog::comparePasswords(void)
     ui->strengthLabel->setText(tr("%1").arg(grade));
     ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
     ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty() && ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text());
+  }
+  else {
+    ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty());
   }
 }

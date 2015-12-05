@@ -52,7 +52,7 @@ protected:
 
 private slots:
   void okClicked(void);
-  void comparePasswords(void);
+  void checkPasswords(void);
 
 private:
   Ui::MasterPasswordDialog *ui;
