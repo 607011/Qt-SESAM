@@ -116,12 +116,9 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 }
 
 
-void MasterPasswordDialog::closeEvent(QCloseEvent*)
+void MasterPasswordDialog::closeEvent(QCloseEvent *e)
 {
-  qDebug() << "MasterPasswordDialog::closeEvent()";
-  /* DO NOT REMOVE THIS FUNCTION!
-   * Without overriding closeEvent() the window cannot be closed.
-   */  
+  e->ignore();
 }
 
 
