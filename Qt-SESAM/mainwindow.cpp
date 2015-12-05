@@ -945,6 +945,7 @@ void MainWindow::changeMasterPassword(void)
       d->masterPassword = d->changeMasterPasswordDialog->newPassword();
       d->keyGenerationFuture.waitForFinished();
       generateSaltKeyIV().waitForFinished();
+      cleanupAfterMasterPasswordChanged();
     }
   }
 }
@@ -985,6 +986,7 @@ void MainWindow::nextChangeMasterPasswordStep(void)
     d->masterPasswordChangeStep = 0;
     d->progressDialog->setText(tr("Password changed."));
     d->progressDialog->setValue(3);
+    cleanupAfterMasterPasswordChanged();
     break;
   default:
     // ignore
@@ -1475,16 +1477,39 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 bool MainWindow::wipeFile(const QString &filename)
 {
   QFile f(filename);
-  bool ok = f.open(QIODevice::WriteOnly | QIODevice::Unbuffered);
+  bool ok = f.open(QIODevice::ReadWrite | QIODevice::Unbuffered);
+  const int N = f.size();
   if (ok) {
-    for (int i = 0; i < f.size(); ++i) {
-      static const char NullByte = '\0';
-      qint64 bytesWritten = f.write(&NullByte, 1);
-      ok = bytesWritten == 1;
-      if (!ok) {
-        break;
+    qint64 bytesWritten;
+#ifndef NO_PARANOID_WIPE
+    static const int NumSinglePatterns = 16;
+    static const char SinglePatterns[NumSinglePatterns] = {
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+      0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
+    };
+    for (int i = 0; i < NumSinglePatterns; ++i) {
+      char b = SinglePatterns[i];
+      f.seek(0);
+      for (int j = 0; j < N; ++j) {
+        f.write(&b, 1);
       }
     }
+    static const int NumTriplets = 6;
+    static const char Triplets[NumTriplets][3] = {
+      { 0x92, 0x49, 0x24 }, { 0x49, 0x24, 0x92 }, { 0x24, 0x92, 0x49 },
+      { 0x6d, 0xb6, 0xdb }, { 0xb6, 0xdb, 0x6d }, { 0xdb, 0x6d, 0xb6 }
+    };
+    for (int i = 0; i < NumTriplets; ++i) {
+      const char *b = &Triplets[i][0];
+      f.seek(0);
+      for (int j = 0; j < N / 3; ++j) {
+        f.write(b, 3);
+      }
+    }
+#endif
+    f.seek(0);
+    bytesWritten = f.write(Crypter::randomBytes(N));
+    ok = bytesWritten == N;
     f.close();
     if (ok) {
       ok = f.remove();
@@ -1494,12 +1519,11 @@ bool MainWindow::wipeFile(const QString &filename)
 }
 
 
-void MainWindow::deleteOldBackupFiles(void)
+void MainWindow::cleanupAfterMasterPasswordChanged(void)
 {
-  Q_D(MainWindow);
+  static const QStringList BackupFilenameFilters = { QString("*-%1-backup.txt").arg(AppName) };
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  const QStringList filenameFilters = { QString("*-%1-backup.txt").arg(AppName) };
-  const QStringList backupFileNames = QDir(backupFilePath).entryList(filenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
+  const QStringList backupFileNames = QDir(backupFilePath).entryList(BackupFilenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
   if (!backupFileNames.isEmpty()) {
     int rc = QMessageBox::question(this,
                                    tr("Delete backup files?"),
@@ -1512,32 +1536,43 @@ void MainWindow::deleteOldBackupFiles(void)
                                    .arg(backupFileNames.size())
                                    .arg(backupFilePath));
     if (rc == QMessageBox::Yes) {
-      int nFilesRemoved = 0;
-      foreach (QString backupFilename, backupFileNames) {
-        if (wipeFile(backupFilePath + QDir::separator() + backupFilename)) {
-          ++nFilesRemoved;
-        }
-      }
-      writeBackupFile();
-      if (nFilesRemoved == backupFileNames.size()) {
-        QMessageBox::information(this,
-                                 tr("Removed all backup files"),
-                                 tr("All of your backup files in %1 have been successfully removed.")
-                                 .arg(backupFilePath));
-      }
-      else {
-        int rc = QMessageBox::warning(this,
-                                      tr("Backup files remaining"),
-                                      tr("Not all of your backup files in %1 have been successfully wiped. "
-                                         "Shall I take you to the directory so that you can remove them manually?")
-                                      .arg(backupFilePath),
-                                      QMessageBox::Yes | QMessageBox::No,
-                                      QMessageBox::Yes);
-        if (rc == QMessageBox::Yes) {
-          QDesktopServices::openUrl(QUrl::fromLocalFile(backupFilePath));
-        }
+      deleteOldBackupFiles();
+    }
+  }
+}
+
+
+void MainWindow::deleteOldBackupFiles(void)
+{
+  Q_D(MainWindow);
+  const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  const QStringList backupFileNames = QDir(backupFilePath).entryList(BackupFilenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
+  if (!backupFileNames.isEmpty()) {
+    int nFilesRemoved = 0;
+    foreach (QString backupFilename, backupFileNames) {
+      if (wipeFile(backupFilePath + QDir::separator() + backupFilename)) {
+        ++nFilesRemoved;
       }
     }
+    if (nFilesRemoved == backupFileNames.size()) {
+      QMessageBox::information(this,
+                               tr("Removed all backup files"),
+                               tr("All of your backup files in %1 have been successfully removed.")
+                               .arg(backupFilePath));
+    }
+    else {
+      int rc = QMessageBox::warning(this,
+                                    tr("Backup files remaining"),
+                                    tr("Not all of your backup files in %1 have been successfully wiped. "
+                                       "Shall I take you to the directory so that you can remove them manually?")
+                                    .arg(backupFilePath),
+                                    QMessageBox::Yes | QMessageBox::No,
+                                    QMessageBox::Yes);
+      if (rc == QMessageBox::Yes) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(backupFilePath));
+      }
+    }
+    writeBackupFile();
   }
   else {
     QMessageBox::information(this,

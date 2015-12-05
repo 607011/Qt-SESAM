@@ -202,6 +202,7 @@ private: // methods
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
   QString collectedSyncData(void);
   static bool wipeFile(const QString &filename);
+  void cleanupAfterMasterPasswordChanged(void);
 };
 
 #endif // __MAINWINDOW_H_
