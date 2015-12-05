@@ -48,6 +48,7 @@ const QString AppUserAgent = QString("%1/%2 (+%3) Qt/%4")
     .arg(AppURL)
     .arg(qVersion());
 #endif
+static const QStringList BackupFilenameFilters = { QString("*-%1-backup.txt").arg(AppName) };
 
 static const QString PortableFlagFile = "PORTABLE";
 static const QString ReadMeFile = "README";

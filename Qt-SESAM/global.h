@@ -21,6 +21,7 @@
 #define __GLOBAL_H_
 
 #include <QString>
+#include <QStringList>
 
 extern const QString AppCompanyName;
 extern const QString AppCompanyDomain;
@@ -30,6 +31,7 @@ extern const QString AppURL;
 extern const QString AppAuthor;
 extern const QString AppAuthorMail;
 extern const QString AppUserAgent;
+extern const QStringList BackupFilenameFilters;
 
 extern void checkPortable(void);
 extern bool isPortable(void);
