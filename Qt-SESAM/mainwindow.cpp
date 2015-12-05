@@ -216,18 +216,23 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   d->forceStart = forceStart;
   const QString lockfilePath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/qt-sesam.lck";
-  qDebug() << "lockfilePath =" << lockfilePath;
   d->lockFile = new LockFile(lockfilePath);
-  qDebug() << "lock file locked?" << d->lockFile->isLocked();
   if (d->lockFile->isLocked()) {
-    qDebug() << "LOCKED.";
-    QMessageBox::information(Q_NULLPTR, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
-    close();
-    ::exit(1);
+    if (!d->forceStart) {
+      QMessageBox::information(this,
+                               tr("%1 can run only once").arg(AppName),
+                               tr("Only one instance of %1 can run at a time. "
+                                  "But currently there's another instance running with pid %2.")
+                               .arg(AppName)
+                               .arg(d->lockFile->applicationId()));
+      close();
+      ::exit(1);
+    }
+    else {
+      d->lockFile->unlock();
+    }
   }
-
   d->lockFile->lock();
-  qDebug() << d->lockFile->isLocked();
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
@@ -399,8 +404,6 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::prepareExit()";
-  qDebug() << "lock file locked?" << d->lockFile->isLocked();
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
@@ -408,21 +411,18 @@ void MainWindow::prepareExit(void)
   saveSettings();
   invalidatePassword(false);
   d->lockFile->unlock();
-  qDebug() << "lock file locked?" << d->lockFile->isLocked();
 }
 
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
-  d->password.waitForFinished();
+  cancelPasswordGeneration();
 
   if (d->masterPasswordDialog->masterPassword().isEmpty()) {
     e->ignore();
     return;
   }
-
-  cancelPasswordGeneration();
 
   if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
     QMessageBox::StandardButton button = saveYesNoCancel();
