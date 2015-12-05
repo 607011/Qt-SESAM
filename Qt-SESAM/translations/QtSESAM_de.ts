@@ -1056,6 +1056,14 @@ auf deinem Computer: %3</translation>
         <source>There are no backup files present in %1.</source>
         <translation>In %1 sind keine alten Backup-Dateien vorhanden.</translation>
     </message>
+    <message>
+        <source>%1 can run only once</source>
+        <translation>%1 - Kein Mehrfachstart möglich</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time. But currently there&apos;s another instance running with pid %2.</source>
+        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1575,11 +1583,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>%1 can run only once</source>
-        <translation>%1 - Kein Mehrfachstart möglich</translation>
+        <translation type="vanished">%1 - Kein Mehrfachstart möglich</translation>
     </message>
     <message>
         <source>Only one instance of %1 can run at a time.</source>
-        <translation>Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
+        <translation type="vanished">Von %1 kann nur eine Instanz gleichzeitig laufen.</translation>
     </message>
     <message>
         <source>Cancel</source>
