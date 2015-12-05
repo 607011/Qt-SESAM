@@ -881,8 +881,6 @@ auf deinem Computer: %3</translation>
         <translation>Login</translation>
     </message>
     <message>
-        <source>Error: %1</source>
-        <translation>Fehler: %1</translation>
         <source>Import</source>
         <translation>Importieren</translation>
     </message>
@@ -1013,6 +1011,50 @@ auf deinem Computer: %3</translation>
     <message>
         <source>You&apos;ve started %1 for the first time on this computer. If you&apos;re using a sync server or file, please go to the Options dialog, enter your sync settings there, and then do a sync. If you don&apos;t follow this advice you may encounter problems later on. Click OK to open the Options dialog now.</source>
         <translation>Du hast %1 das erste Mal auf diesem Computer gestartet. Falls du deine Einstellungen bereits über einen Server oder eine Datei synchron hältst, solltest du jetzt im Optionen-Dialog die Sync-Parameter setzen und dann sofort synchronisieren. Sonst läufst du Gefahr, später Probleme zu bekommen. OK anklicken, um den Optionen-Dialog zu öffnen.</translation>
+    </message>
+    <message>
+        <source>Delete old backup files ...</source>
+        <translation>Alte Backup-Dateien löschen ...</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Ctrl+D, Ctrl+B</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Fehler: %1</translation>
+    </message>
+    <message>
+        <source>Delete backup files?</source>
+        <translation>Backup-Dateien löschen?</translation>
+    </message>
+    <message>
+        <source>You&apos;ve changed your master password. Assuming that is has been compromised prior to that, all of your backup files should be deleted. I found %1 backup file(s) in %2. Do you want me to securely delete them and write a new backup file with the current settings?</source>
+        <translation>Du hast dein Master-Passwort geändert. Da es vermutlich zuvor kompromittiert wurde, sollten alle Backup-Dateien gelöscht werden. Ich habe %1 Backup-Datei(en) in %2 gefunden. Soll ich sie sicher löschen und dann eine neue Backup-Datei mit den aktuellen Einstellungen anlegen?</translation>
+    </message>
+    <message>
+        <source>Removed all backup files</source>
+        <translation>Alle alten Backup-Dateien gelöscht.</translation>
+    </message>
+    <message>
+        <source>All of your backup files in %1 have been successfully removed.</source>
+        <translation>Alle alten Backup-Dateien in %1 wurden erfolgreich gelöscht.</translation>
+    </message>
+    <message>
+        <source>Backup files remaining</source>
+        <translation>Übriggebliebene Backup-Dateien</translation>
+    </message>
+    <message>
+        <source>Not all of your backup files in %1 have been successfully wiped. Shall I take you to the directory so that you can remove them manually?</source>
+        <translation>Nicht alle alten Backup-Dateien in %1 konnten sicher gelöscht werden. Soll ich das Verzeichnis aufrufen, damit du die Dateien selber löschen kannst?</translation>
+    </message>
+    <message>
+        <source>No backup files</source>
+        <translation>Keine Backup-Dateien</translation>
+    </message>
+    <message>
+        <source>There are no backup files present in %1.</source>
+        <translation>In %1 sind keine alten Backup-Dateien vorhanden.</translation>
     </message>
 </context>
 <context>
