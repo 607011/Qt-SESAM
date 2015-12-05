@@ -203,6 +203,7 @@ private: // methods
   QString collectedSyncData(void);
   static bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);
+  void prepareExit(void);
 };
 
 #endif // __MAINWINDOW_H_

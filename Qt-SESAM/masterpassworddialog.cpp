@@ -105,6 +105,7 @@ QString MasterPasswordDialog::masterPassword(void) const
 void MasterPasswordDialog::reject(void)
 {
   // ignore
+  qDebug() << "MasterPasswordDialog::reject()";
 }
 
 
@@ -117,9 +118,10 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 
 void MasterPasswordDialog::closeEvent(QCloseEvent*)
 {
+  qDebug() << "MasterPasswordDialog::closeEvent()";
   /* DO NOT REMOVE THIS FUNCTION!
    * Without overriding closeEvent() the window cannot be closed.
-   */
+   */  
 }
 
 

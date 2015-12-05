@@ -57,10 +57,10 @@
 #include <QCompleter>
 #include <QShortcut>
 #include <QGraphicsOpacityEffect>
-#include <QLockFile>
 
 #include "global.h"
 #include "util.h"
+#include "lockfile.h"
 #include "progressdialog.h"
 #include "masterpassworddialog.h"
 #include "changemasterpassworddialog.h"
@@ -132,7 +132,7 @@ public:
     , masterPasswordChangeStep(0)
     , interactionSemaphore(1)
     , doConvertLocalToLegacy(false)
-    , lockFile(QStandardPaths::TempLocation + "/qt-sesam.lock")
+    , lockFile(Q_NULLPTR)
     , forceStart(false)
   {
     resetSSLConf();
@@ -202,7 +202,7 @@ public:
   QSemaphore interactionSemaphore;
   TcpClient tcpClient;
   bool doConvertLocalToLegacy;
-  QLockFile lockFile;
+  LockFile *lockFile;
   bool forceStart;
 };
 
@@ -215,14 +215,19 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   Q_D(MainWindow);
 
   d->forceStart = forceStart;
-  qDebug() << d->forceStart;
-  if (!d->forceStart && d->lockFile.isLocked()) {
+  const QString lockfilePath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/qt-sesam.lck";
+  qDebug() << "lockfilePath =" << lockfilePath;
+  d->lockFile = new LockFile(lockfilePath);
+  qDebug() << "lock file locked?" << d->lockFile->isLocked();
+  if (d->lockFile->isLocked()) {
     qDebug() << "LOCKED.";
     QMessageBox::information(Q_NULLPTR, QObject::tr("%1 can run only once").arg(AppName), QObject::tr("Only one instance of %1 can run at a time.").arg(AppName));
     close();
     ::exit(1);
   }
-  d->lockFile.lock();
+
+  d->lockFile->lock();
+  qDebug() << d->lockFile->isLocked();
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
@@ -349,9 +354,8 @@ void MainWindow::showHide(void)
     d->masterPasswordDialog->raise();
     d->masterPasswordDialog->activateWindow();
     d->masterPasswordDialog->setFocus();
-    return;
   }
-  if (isMinimized()) {
+  else if (this->isMinimized()) {
     show();
     showNormal();
     raise();
@@ -368,17 +372,14 @@ void MainWindow::showHide(void)
 
 void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
-  if (reason == QSystemTrayIcon::DoubleClick)
+  if (reason == QSystemTrayIcon::DoubleClick) {
     showHide();
+  }
 }
 
 
 MainWindow::~MainWindow()
 {
-  d_ptr->trayIcon.hide();
-  d_ptr->optionsDialog->close();
-  d_ptr->changeMasterPasswordDialog->close();
-  d_ptr->masterPasswordDialog->close();
   delete ui;
 }
 
@@ -395,25 +396,31 @@ QSize MainWindow::minimumSizeHint(void) const
 }
 
 
+void MainWindow::prepareExit(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::prepareExit()";
+  qDebug() << "lock file locked?" << d->lockFile->isLocked();
+  d->trayIcon.hide();
+  d->optionsDialog->close();
+  d->changeMasterPasswordDialog->close();
+  d->masterPasswordDialog->close();
+  saveSettings();
+  invalidatePassword(false);
+  d->lockFile->unlock();
+  qDebug() << "lock file locked?" << d->lockFile->isLocked();
+}
+
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
-
-  d_ptr->password.waitForFinished();
+  d->password.waitForFinished();
 
   if (d->masterPasswordDialog->masterPassword().isEmpty()) {
     e->ignore();
     return;
   }
-
-  auto prepareExit = [this]() {
-    saveSettings();
-    invalidatePassword(false);
-    this->d_ptr->lockFile.unlock();
-    if (this->d_ptr->forceStart) {
-      this->d_ptr->lockFile.removeStaleLockFile();
-    }
-  };
 
   cancelPasswordGeneration();
 

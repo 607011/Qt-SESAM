@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
   a.setOrganizationDomain(AppCompanyDomain);
   a.setApplicationName(AppName);
   a.setApplicationVersion(AppVersion);
+  a.setQuitOnLastWindowClosed(true);
 
   QTranslator translator;
   bool ok = translator.load(QLocale::system(),
