@@ -1,5 +1,6 @@
 *.crx
 extension.pem
+SESAM2Chrome
 *~
 *.autosave
 *.a
