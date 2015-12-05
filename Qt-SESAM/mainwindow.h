@@ -134,6 +134,7 @@ private slots:
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+  void deleteOldBackupFiles(void);
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
@@ -183,7 +184,7 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-  void writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams);
+  void writeBackupFile(void);
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
@@ -200,6 +201,7 @@ private: // methods
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
   QString collectedSyncData(void);
+  static bool wipeFile(const QString &filename);
 };
 
 #endif // __MAINWINDOW_H_

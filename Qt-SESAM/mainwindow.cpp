@@ -276,6 +276,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
+  QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(deleteOldBackupFiles()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 #else
@@ -926,6 +927,7 @@ void MainWindow::stopPasswordGeneration(void)
 }
 
 
+
 void MainWindow::changeMasterPassword(void)
 {
   Q_D(MainWindow);
@@ -1470,7 +1472,83 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 }
 
 
-void MainWindow::writeBackupFile(const QString &binaryDomainData, const QString &binarySyncParams)
+bool MainWindow::wipeFile(const QString &filename)
+{
+  QFile f(filename);
+  bool ok = f.open(QIODevice::WriteOnly | QIODevice::Unbuffered);
+  if (ok) {
+    for (int i = 0; i < f.size(); ++i) {
+      static const char NullByte = '\0';
+      qint64 bytesWritten = f.write(&NullByte, 1);
+      ok = bytesWritten == 1;
+      if (!ok) {
+        break;
+      }
+    }
+    f.close();
+    if (ok) {
+      ok = f.remove();
+    }
+  }
+  return ok;
+}
+
+
+void MainWindow::deleteOldBackupFiles(void)
+{
+  Q_D(MainWindow);
+  const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  const QStringList filenameFilters = { QString("*-%1-backup.txt").arg(AppName) };
+  const QStringList backupFileNames = QDir(backupFilePath).entryList(filenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
+  if (!backupFileNames.isEmpty()) {
+    int rc = QMessageBox::question(this,
+                                   tr("Delete backup files?"),
+                                   tr("You've changed your master password. "
+                                      "Assuming that is has been compromised prior to that, "
+                                      "all of your backup files should be deleted. "
+                                      "I found %1 backup file(s) in %2. "
+                                      "Do you want me to securely delete them "
+                                      "and write a new backup file with the current settings?")
+                                   .arg(backupFileNames.size())
+                                   .arg(backupFilePath));
+    if (rc == QMessageBox::Yes) {
+      int nFilesRemoved = 0;
+      foreach (QString backupFilename, backupFileNames) {
+        if (wipeFile(backupFilePath + QDir::separator() + backupFilename)) {
+          ++nFilesRemoved;
+        }
+      }
+      writeBackupFile();
+      if (nFilesRemoved == backupFileNames.size()) {
+        QMessageBox::information(this,
+                                 tr("Removed all backup files"),
+                                 tr("All of your backup files in %1 have been successfully removed.")
+                                 .arg(backupFilePath));
+      }
+      else {
+        int rc = QMessageBox::warning(this,
+                                      tr("Backup files remaining"),
+                                      tr("Not all of your backup files in %1 have been successfully wiped. "
+                                         "Shall I take you to the directory so that you can remove them manually?")
+                                      .arg(backupFilePath),
+                                      QMessageBox::Yes | QMessageBox::No,
+                                      QMessageBox::Yes);
+        if (rc == QMessageBox::Yes) {
+          QDesktopServices::openUrl(QUrl::fromLocalFile(backupFilePath));
+        }
+      }
+    }
+  }
+  else {
+    QMessageBox::information(this,
+                             tr("No backup files"),
+                             tr("There are no backup files present in %1.")
+                             .arg(backupFilePath));
+  }
+}
+
+
+void MainWindow::writeBackupFile(void)
 {
   Q_D(MainWindow);
   /* From the Qt docs: "QStandardPaths::DataLocation returns the
@@ -1484,7 +1562,7 @@ void MainWindow::writeBackupFile(const QString &binaryDomainData, const QString 
    * deprecated value DataLocation.
    */
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  const QString &backupFilename = QString("%1/%2-%3-domaindata-backup.txt")
+  const QString &backupFilename = QString("%1/%2-%3-backup.txt")
       .arg(backupFilePath)
       .arg(QDateTime::currentDateTime().toString("yyyyMMddThhmmss"))
       .arg(AppName);
@@ -1512,13 +1590,11 @@ void MainWindow::saveAllDomainDataToSettings(void)
   }
   d->keyGenerationMutex.unlock();
   const QString &b64DomainData = QString::fromUtf8(cipher.toBase64());
-  const QString &b64SyncParam = collectedSyncData();
-
   d->settings.setValue("sync/domains", b64DomainData);
   d->settings.sync();
   if (d->masterPasswordChangeStep == 0) {
     if (d->optionsDialog->writeBackups()) {
-      writeBackupFile(b64DomainData, b64SyncParam);
+      writeBackupFile();
     }
     generateSaltKeyIV().waitForFinished();
   }

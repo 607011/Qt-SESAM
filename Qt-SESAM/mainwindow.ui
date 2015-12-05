@@ -831,8 +831,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>369</width>
-     <height>22</height>
+     <width>332</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -875,6 +875,8 @@
      <addaction name="separator"/>
      <addaction name="actionExportKGK"/>
      <addaction name="actionImportKGK"/>
+     <addaction name="separator"/>
+     <addaction name="actionDeleteOldBackupFiles"/>
     </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
@@ -1037,6 +1039,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I, Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionDeleteOldBackupFiles">
+   <property name="text">
+    <string>Delete old backup files ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E, Ctrl+D, Ctrl+B</string>
    </property>
   </action>
  </widget>
