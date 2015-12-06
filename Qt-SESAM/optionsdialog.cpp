@@ -322,6 +322,30 @@ bool OptionsDialog::writeBackups(void) const
 }
 
 
+void OptionsDialog::setAutoDeleteBackupFiles(bool checked)
+{
+  ui->autoDeleteOldBackupsCheckBox->setChecked(checked);
+}
+
+
+bool OptionsDialog::autoDeleteBackupFiles(void) const
+{
+  return ui->autoDeleteOldBackupsCheckBox->isChecked();
+}
+
+
+void OptionsDialog::setMaxBackupFileAge(int days)
+{
+  ui->maxBackupFileAgeSpinBox->setValue(days);
+}
+
+
+int OptionsDialog::maxBackupFileAge(void) const
+{
+  return ui->maxBackupFileAgeSpinBox->value();
+}
+
+
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
 {
   return ui->masterPasswordInvalidationTimeMinsSpinBox->value();

@@ -134,7 +134,7 @@ private slots:
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
-  void deleteOldBackupFiles(void);
+  void removeOutdatedBackupFiles(void);
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
@@ -143,10 +143,14 @@ private slots:
   void onExportKGK(void);
   void onImportKGK(void);
   void onImportKeePass2XmlFile(void);
+  void onBackupFilesRemoved(bool ok);
+  void onBackupFilesRemoved(int);
 
 signals:
   void passwordGenerated(void);
   void saltKeyIVGenerated(void);
+  void backupFilesDeleted(int);
+  void backupFilesDeleted(bool);
 
 protected:
   void closeEvent(QCloseEvent *);
@@ -204,6 +208,7 @@ private: // methods
   static bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
+  void removeOutdatedBackupFilesThread(void);
 };
 
 #endif // __MAINWINDOW_H_

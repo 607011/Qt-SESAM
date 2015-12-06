@@ -26,7 +26,6 @@
 #include <QList>
 #include <QPair>
 #include <QClipboard>
-#include <QMessageBox>
 #include <QStringListModel>
 #include <QStandardPaths>
 #include <QDir>
@@ -147,8 +146,9 @@ public:
     sslConf.setCiphers(QSslSocket::supportedCiphers());
   }
   const SecureByteArray &kgk(void) {
-    if (KGK.isEmpty())
+    if (KGK.isEmpty()) {
       KGK = Crypter::generateKGK();
+    }
     return KGK;
   }
   MasterPasswordDialog *masterPasswordDialog;
@@ -200,6 +200,7 @@ public:
   int maxCounter;
   int masterPasswordChangeStep;
   QSemaphore interactionSemaphore;
+  QFuture<void> backupFileDeletionFuture;
   TcpClient tcpClient;
   bool doConvertLocalToLegacy;
   LockFile *lockFile;
@@ -241,6 +242,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), ui->easySelectorWidget, SLOT(setMaxLength(int)));
   QObject::connect(d->optionsDialog, SIGNAL(masterPasswordInvalidationTimeMinsChanged(int)), SLOT(masterPasswordInvalidationTimeMinsChanged(int)));
+  QObject::connect(this, SIGNAL(backupFilesDeleted(bool)), SLOT(onBackupFilesRemoved(bool)));
+  QObject::connect(this, SIGNAL(backupFilesDeleted(int)), SLOT(onBackupFilesRemoved(int)));
   resetAllFields();
 
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
@@ -291,7 +294,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
-  QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(deleteOldBackupFiles()));
+  QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(removeOutdatedBackupFiles()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 #else
@@ -391,13 +394,13 @@ MainWindow::~MainWindow()
 
 QSize MainWindow::sizeHint(void) const
 {
-  return QSize(240, 240);
+  return QSize(340, 400);
 }
 
 
 QSize MainWindow::minimumSizeHint(void) const
 {
-  return QSize(240, 240);
+  return QSize(324, 391);
 }
 
 
@@ -418,6 +421,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
   cancelPasswordGeneration();
+  d->backupFileDeletionFuture.waitForFinished();
 
   if (d->masterPasswordDialog->masterPassword().isEmpty()) {
     e->ignore();
@@ -470,7 +474,7 @@ void MainWindow::changeEvent(QEvent *e)
 }
 
 
-void MainWindow::resizeEvent(QResizeEvent *)
+void MainWindow::resizeEvent(QResizeEvent *e)
 {
   // ...
 }
@@ -1551,50 +1555,81 @@ void MainWindow::cleanupAfterMasterPasswordChanged(void)
                                    .arg(backupFileNames.size())
                                    .arg(backupFilePath));
     if (rc == QMessageBox::Yes) {
-      deleteOldBackupFiles();
+      removeOutdatedBackupFiles();
     }
   }
 }
 
 
-void MainWindow::deleteOldBackupFiles(void)
+void MainWindow::removeOutdatedBackupFilesThread(void)
+{
+  Q_D(MainWindow);
+  const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  const QStringList backupFileNames = QDir(backupFilePath).entryList(BackupFilenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
+  int nFilesRemoved = 0;
+  bool allRemoved = true;
+  if (!backupFileNames.isEmpty()) {
+    static const QRegExp reBackupFileTimestamp("^\\d{8}T\\d{6}");
+    const QDateTime TooOld = QDateTime::currentDateTime().addDays(-d->optionsDialog->maxBackupFileAge());
+    foreach (QString backupFilename, backupFileNames) {
+      if (reBackupFileTimestamp.indexIn(backupFilename) == 0) {
+        const QDateTime fileTimestamp = QDateTime::fromString(reBackupFileTimestamp.cap(0), "yyyyMMddThhmmss");
+        if (fileTimestamp < TooOld) {
+          if (wipeFile(backupFilePath + QDir::separator() + backupFilename)) {
+            emit backupFilesDeleted(++nFilesRemoved);
+          }
+          else {
+            allRemoved = false;
+          }
+        }
+      }
+    }
+  }
+  emit backupFilesDeleted(allRemoved);
+}
+
+
+void MainWindow::removeOutdatedBackupFiles(void)
 {
   Q_D(MainWindow);
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   const QStringList backupFileNames = QDir(backupFilePath).entryList(BackupFilenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
   if (!backupFileNames.isEmpty()) {
-    int nFilesRemoved = 0;
-    foreach (QString backupFilename, backupFileNames) {
-      if (wipeFile(backupFilePath + QDir::separator() + backupFilename)) {
-        ++nFilesRemoved;
-      }
-    }
-    if (nFilesRemoved == backupFileNames.size()) {
-      QMessageBox::information(this,
-                               tr("Removed all backup files"),
-                               tr("All of your backup files in %1 have been successfully removed.")
-                               .arg(backupFilePath));
-    }
-    else {
-      int rc = QMessageBox::warning(this,
-                                    tr("Backup files remaining"),
-                                    tr("Not all of your backup files in %1 have been successfully wiped. "
-                                       "Shall I take you to the directory so that you can remove them manually?")
-                                    .arg(backupFilePath),
-                                    QMessageBox::Yes | QMessageBox::No,
-                                    QMessageBox::Yes);
-      if (rc == QMessageBox::Yes) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(backupFilePath));
-      }
-    }
-    writeBackupFile();
+    d->backupFileDeletionFuture = QtConcurrent::run(this, &MainWindow::removeOutdatedBackupFilesThread);
   }
   else {
-    QMessageBox::information(this,
-                             tr("No backup files"),
-                             tr("There are no backup files present in %1.")
-                             .arg(backupFilePath));
+    ui->statusBar->showMessage(tr("There are no backup files present in %1.")
+                               .arg(backupFilePath), 5000);
   }
+}
+
+
+void MainWindow::onBackupFilesRemoved(bool ok)
+{
+  Q_D(MainWindow);
+  if (ok) {
+    ui->statusBar->showMessage(tr("All of your backup files in %1 have been successfully removed.")
+                               .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)), 5000);
+  }
+  else {
+    int rc = QMessageBox::warning(this,
+                                  tr("Backup files remaining"),
+                                  tr("Not all of your backup files in %1 have been successfully wiped. "
+                                     "Shall I take you to the directory so that you can remove them manually?")
+                                  .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)),
+                                  QMessageBox::Yes | QMessageBox::No,
+                                  QMessageBox::Yes);
+    if (rc == QMessageBox::Yes) {
+      QDesktopServices::openUrl(QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::DataLocation)));
+    }
+  }
+  writeBackupFile();
+}
+
+
+void MainWindow::onBackupFilesRemoved(int n)
+{
+  ui->statusBar->showMessage(tr("Deleted %1 outdated backup files.").arg(n), 3000);
 }
 
 
@@ -1726,6 +1761,8 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("misc/defaultPBKDF2Iterations", d->optionsDialog->defaultIterations());
   d->settings.setValue("misc/saltLength", d->optionsDialog->saltLength());
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
+  d->settings.setValue("misc/autoDeleteBackupFiles", d->optionsDialog->autoDeleteBackupFiles());
+  d->settings.setValue("misc/maxBackupFileAge", d->optionsDialog->maxBackupFileAge());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
   saveAllDomainDataToSettings();
@@ -1776,6 +1813,8 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setMaxPasswordLength(d->settings.value("misc/maxPasswordLength", Password::DefaultMaxLength).toInt());
   d->optionsDialog->setDefaultPasswordLength(d->settings.value("misc/defaultPasswordLength", DomainSettings::DefaultPasswordLength).toInt());
   d->optionsDialog->setDefaultIterations(d->settings.value("misc/defaultPBKDF2Iterations", DomainSettings::DefaultIterations).toInt());
+  d->optionsDialog->setMaxBackupFileAge(d->settings.value("misc/maxBackupFileAge", 30).toInt());
+  d->optionsDialog->setAutoDeleteBackupFiles(d->settings.value("misc/autoDeleteBackupFiles", false).toBool());
   d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
   d->optionsDialog->setServerRootUrl(DefaultSyncServerRoot);
   d->optionsDialog->setServerUsername(DefaultSyncServerUsername);
@@ -2386,6 +2425,9 @@ void MainWindow::onMasterPasswordEntered(void)
         ui->domainsComboBox->setFocus();
         d->masterPasswordDialog->hide();
         show();
+        if (d->optionsDialog->autoDeleteBackupFiles()) {
+          removeOutdatedBackupFiles();
+        }
         if (d->optionsDialog->syncOnStart()) {
           onSync();
         }

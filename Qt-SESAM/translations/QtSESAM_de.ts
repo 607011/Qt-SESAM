@@ -1064,6 +1064,10 @@ auf deinem Computer: %3</translation>
         <source>Only one instance of %1 can run at a time. But currently there&apos;s another instance running with pid %2.</source>
         <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2.</translation>
     </message>
+    <message>
+        <source>Deleted %1 outdated backup files.</source>
+        <translation>%1 veraltete Backup-Dateien gelöscht.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1467,6 +1471,18 @@ auf deinem Computer: %3</translation>
     <message>
         <source>Default PBKDF2 iterations</source>
         <translation>PBKDF2-Iterationen (Vorgabe)</translation>
+    </message>
+    <message>
+        <source>Auto delete backup files older than</source>
+        <translation>Backup-Files automatisch löschen, die älter sind als</translation>
+    </message>
+    <message>
+        <source> days</source>
+        <translation> Tage</translation>
+    </message>
+    <message>
+        <source>Wipe now</source>
+        <translation>Jetzt löschen</translation>
     </message>
 </context>
 <context>
