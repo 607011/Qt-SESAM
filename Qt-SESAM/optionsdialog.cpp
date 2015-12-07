@@ -418,6 +418,18 @@ bool OptionsDialog::syncToServerEnabled(void) const
 }
 
 
+void OptionsDialog::setExtensiveWipeout(bool checked)
+{
+  ui->extensiveWipeoutCheckBox->setChecked(checked);
+}
+
+
+bool OptionsDialog::extensiveWipeout(void) const
+{
+  return ui->extensiveWipeoutCheckBox->isChecked();
+}
+
+
 void OptionsDialog::setUseSyncServer(bool enabled)
 {
   ui->useSyncServerCheckBox->setChecked(enabled);

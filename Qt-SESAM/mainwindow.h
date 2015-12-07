@@ -205,7 +205,7 @@ private: // methods
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
   QString collectedSyncData(void);
-  static bool wipeFile(const QString &filename);
+  bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
   void removeOutdatedBackupFilesThread(void);

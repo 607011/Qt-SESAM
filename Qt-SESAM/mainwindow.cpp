@@ -1495,40 +1495,40 @@ void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 
 bool MainWindow::wipeFile(const QString &filename)
 {
+  Q_D(MainWindow);
   QFile f(filename);
   bool ok = f.open(QIODevice::ReadWrite | QIODevice::Unbuffered);
   const int N = f.size();
   if (ok) {
-    qint64 bytesWritten;
-#ifndef NO_PARANOID_WIPE
-    static const int NumSinglePatterns = 16;
-    static const unsigned char SinglePatterns[NumSinglePatterns] = {
-      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-      0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
-    };
-    for (int i = 0; i < NumSinglePatterns; ++i) {
-      char b = SinglePatterns[i];
-      f.seek(0);
-      for (int j = 0; j < N; ++j) {
-        f.write(&b, 1);
+    if (d->optionsDialog->extensiveWipeout()) {
+      static const int NumSinglePatterns = 16;
+      static const unsigned char SinglePatterns[NumSinglePatterns] = {
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+        0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
+      };
+      for (int i = 0; i < NumSinglePatterns; ++i) {
+        char b = SinglePatterns[i];
+        f.seek(0);
+        for (int j = 0; j < N; ++j) {
+          f.write(&b, 1);
+        }
+      }
+      static const int NumTriplets = 6;
+      static const unsigned char Triplets[NumTriplets][3] = {
+        { 0x92, 0x49, 0x24 }, { 0x49, 0x24, 0x92 }, { 0x24, 0x92, 0x49 },
+        { 0x6d, 0xb6, 0xdb }, { 0xb6, 0xdb, 0x6d }, { 0xdb, 0x6d, 0xb6 }
+      };
+      for (int i = 0; i < NumTriplets; ++i) {
+        const char *b = reinterpret_cast<const char*>(&Triplets[i][0]);
+        f.seek(0);
+        for (int j = 0; j < N / 3; ++j) {
+          f.write(b, 3);
+        }
       }
     }
-    static const int NumTriplets = 6;
-    static const unsigned char Triplets[NumTriplets][3] = {
-      { 0x92, 0x49, 0x24 }, { 0x49, 0x24, 0x92 }, { 0x24, 0x92, 0x49 },
-      { 0x6d, 0xb6, 0xdb }, { 0xb6, 0xdb, 0x6d }, { 0xdb, 0x6d, 0xb6 }
-    };
-    for (int i = 0; i < NumTriplets; ++i) {
-      const char *b = reinterpret_cast<const char*>(&Triplets[i][0]);
-      f.seek(0);
-      for (int j = 0; j < N / 3; ++j) {
-        f.write(b, 3);
-      }
-    }
-#endif
     f.seek(0);
-    bytesWritten = f.write(Crypter::randomBytes(N));
-    ok = bytesWritten == N;
+    const qint64 bytesWritten = f.write(Crypter::randomBytes(N));
+    ok = (bytesWritten == N);
     f.close();
     if (ok) {
       ok = f.remove();
@@ -1763,6 +1763,7 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
   d->settings.setValue("misc/autoDeleteBackupFiles", d->optionsDialog->autoDeleteBackupFiles());
   d->settings.setValue("misc/maxBackupFileAge", d->optionsDialog->maxBackupFileAge());
+  d->settings.setValue("misc/extensiveWipeout", d->optionsDialog->extensiveWipeout());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
   saveAllDomainDataToSettings();
@@ -1815,6 +1816,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setDefaultIterations(d->settings.value("misc/defaultPBKDF2Iterations", DomainSettings::DefaultIterations).toInt());
   d->optionsDialog->setMaxBackupFileAge(d->settings.value("misc/maxBackupFileAge", 30).toInt());
   d->optionsDialog->setAutoDeleteBackupFiles(d->settings.value("misc/autoDeleteBackupFiles", false).toBool());
+  d->optionsDialog->setExtensiveWipeout(d->settings.value("misc/extensiveWipeout", false).toBool());
   d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
   d->optionsDialog->setServerRootUrl(DefaultSyncServerRoot);
   d->optionsDialog->setServerUsername(DefaultSyncServerUsername);

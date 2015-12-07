@@ -1034,7 +1034,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Removed all backup files</source>
-        <translation>Alle alten Backup-Dateien gelöscht.</translation>
+        <translation type="vanished">Alle alten Backup-Dateien gelöscht.</translation>
     </message>
     <message>
         <source>All of your backup files in %1 have been successfully removed.</source>
@@ -1050,7 +1050,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>No backup files</source>
-        <translation>Keine Backup-Dateien</translation>
+        <translation type="vanished">Keine Backup-Dateien</translation>
     </message>
     <message>
         <source>There are no backup files present in %1.</source>
@@ -1482,7 +1482,15 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Wipe now</source>
-        <translation>Jetzt löschen</translation>
+        <translation type="vanished">Jetzt löschen</translation>
+    </message>
+    <message>
+        <source>Backup of settings</source>
+        <translation>Backup der Einstellungen</translation>
+    </message>
+    <message>
+        <source>Extensive wipe-out of backup files</source>
+        <translation>Ausgiebiges Löschen veralteter Backup-Dateien</translation>
     </message>
 </context>
 <context>

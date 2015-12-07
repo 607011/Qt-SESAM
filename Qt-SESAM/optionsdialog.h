@@ -116,6 +116,9 @@ public:
   bool syncToFileEnabled(void) const;
   bool syncToServerEnabled(void) const;
 
+  bool extensiveWipeout(void) const;
+  void setExtensiveWipeout(bool checked);
+
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
   void saltLengthChanged(int);
