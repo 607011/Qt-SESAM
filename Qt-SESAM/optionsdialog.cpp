@@ -131,8 +131,9 @@ void OptionsDialog::validateHostCertificateChain(void)
   bool ok = (d->sslErrors.count() == 0) || d->sslErrors.at(0) == QSslError::NoError;
   if (!ok) {
     d->serverCertificateWidget.setServerSslErrors(d->reply->sslConfiguration(), d->sslErrors);
-    if (d->serverCertificateWidget.exec() == QDialog::Accepted)
+    if (d->serverCertificateWidget.exec() == QDialog::Accepted) {
       setServerCertificates(d->reply->sslConfiguration().peerCertificateChain());
+    }
   }
   else {
     setServerCertificates(QList<QSslCertificate>());
@@ -321,6 +322,30 @@ bool OptionsDialog::writeBackups(void) const
 }
 
 
+void OptionsDialog::setAutoDeleteBackupFiles(bool checked)
+{
+  ui->autoDeleteOldBackupsCheckBox->setChecked(checked);
+}
+
+
+bool OptionsDialog::autoDeleteBackupFiles(void) const
+{
+  return ui->autoDeleteOldBackupsCheckBox->isChecked();
+}
+
+
+void OptionsDialog::setMaxBackupFileAge(int days)
+{
+  ui->maxBackupFileAgeSpinBox->setValue(days);
+}
+
+
+int OptionsDialog::maxBackupFileAge(void) const
+{
+  return ui->maxBackupFileAgeSpinBox->value();
+}
+
+
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
 {
   return ui->masterPasswordInvalidationTimeMinsSpinBox->value();
@@ -390,6 +415,18 @@ bool OptionsDialog::syncToFileEnabled(void) const
 bool OptionsDialog::syncToServerEnabled(void) const
 {
   return useSyncServer();
+}
+
+
+void OptionsDialog::setExtensiveWipeout(bool checked)
+{
+  ui->extensiveWipeoutCheckBox->setChecked(checked);
+}
+
+
+bool OptionsDialog::extensiveWipeout(void) const
+{
+  return ui->extensiveWipeoutCheckBox->isChecked();
 }
 
 
@@ -472,8 +509,9 @@ void OptionsDialog::chooseSyncFile(void)
   const QString &currentFile = ui->syncFileLineEdit->text();
   const QString &savePath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
   QString chosenFile = QFileDialog::getSaveFileName(this, tr("Choose sync file"), savePath);
-  if (!chosenFile.isEmpty())
+  if (!chosenFile.isEmpty()) {
     ui->syncFileLineEdit->setText(chosenFile);
+  }
 }
 
 
@@ -482,8 +520,9 @@ void OptionsDialog::choosePasswordFile()
   const QString &currentFile = ui->passwordFileLineEdit->text();
   const QString &openPath = currentFile.isEmpty() ? QString() : QFileInfo(currentFile).absolutePath();
   QString chosenFile = QFileDialog::getOpenFileName(this, tr("Choose password file"), openPath);
-  if (!chosenFile.isEmpty())
+  if (!chosenFile.isEmpty()) {
     ui->passwordFileLineEdit->setText(chosenFile);
+  }
 }
 
 
@@ -494,8 +533,10 @@ void OptionsDialog::okClicked(void)
     QFileInfo fi(ui->syncFileLineEdit->text());
     ok = fi.exists();
   }
-  if (ok)
+  if (ok) {
     accept();
-  else
+  }
+  else {
     reject();
+  }
 }

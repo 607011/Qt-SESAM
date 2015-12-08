@@ -25,20 +25,32 @@
 #include "global.h"
 
 
+class MasterPasswordDialogPrivate
+{
+public:
+  MasterPasswordDialogPrivate(void)
+    : repeatedPasswordEntry(false)
+  { /* ... */ }
+  bool repeatedPasswordEntry;
+};
+
+
 MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::MasterPasswordDialog)
+  , d_ptr(new MasterPasswordDialogPrivate)
 {
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   ui->infoLabel->setStyleSheet("font-weight: bold");
   setWindowTitle(QString("%1 %2%3").arg(AppName).arg(AppVersion).arg(isPortable() ? " - PORTABLE" : ""));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
-  QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
-  QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(comparePasswords()));
+  QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(checkPasswords()));
+  QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(checkPasswords()));
   setRepeatPassword(false);
   invalidatePassword();
-  comparePasswords();
+  checkPasswords();
+  resize(width(), 1);
 }
 
 
@@ -60,6 +72,8 @@ void MasterPasswordDialog::invalidatePassword(void)
 
 void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
 {
+  Q_D(MasterPasswordDialog);
+  d->repeatedPasswordEntry = doRepeat;
   if (doRepeat) {
     invalidatePassword();
     ui->infoLabel->setText(tr("New master password"));
@@ -73,7 +87,13 @@ void MasterPasswordDialog::setRepeatPassword(bool doRepeat)
     ui->repeatPasswordLabel->hide();
     ui->strengthLabel->hide();
   }
-  comparePasswords();
+  checkPasswords();
+}
+
+
+bool MasterPasswordDialog::repeatedPasswordEntry(void) const
+{
+  return d_ptr->repeatedPasswordEntry;
 }
 
 
@@ -96,11 +116,9 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 }
 
 
-void MasterPasswordDialog::closeEvent(QCloseEvent*)
+void MasterPasswordDialog::closeEvent(QCloseEvent *e)
 {
-  /* DO NOT REMOVE THIS FUNCTION!
-   * Without overriding closeEvent() the window cannot be closed.
-   */
+  e->ignore();
 }
 
 
@@ -120,7 +138,7 @@ void MasterPasswordDialog::okClicked(void)
 }
 
 
-void MasterPasswordDialog::comparePasswords(void)
+void MasterPasswordDialog::checkPasswords(void)
 {
   if (ui->repeatPasswordLineEdit->isVisible()) {
     QString grade;
@@ -129,5 +147,8 @@ void MasterPasswordDialog::comparePasswords(void)
     ui->strengthLabel->setText(tr("%1").arg(grade));
     ui->strengthLabel->setStyleSheet(QString("background-color: rgb(%1, %2, %3); font-weight: bold").arg(color.red()).arg(color.green()).arg(color.blue()));
     ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty() && ui->repeatPasswordLineEdit->text() == ui->passwordLineEdit->text());
+  }
+  else {
+    ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty());
   }
 }

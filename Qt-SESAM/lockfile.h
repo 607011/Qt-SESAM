@@ -17,23 +17,35 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+
+#ifndef __LOCKFILE_H_
+#define __LOCKFILE_H_
 
 #include <QString>
-#include <QStringList>
+#include <QScopedPointer>
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+class LockFilePrivate;
 
-extern void checkPortable(void);
-extern bool isPortable(void);
+class LockFile
+{
+public:
+  LockFile(const QString &lockFilename);
+  ~LockFile();
 
-#endif // __GLOBAL_H_
+  bool lock(void);
+  void unlock(void);
+  bool isLocked(void) const;
+  int applicationId(void);
+  QString applicationName(void);
+
+private:
+  QScopedPointer<LockFilePrivate> d_ptr;
+  Q_DECLARE_PRIVATE(LockFile)
+  Q_DISABLE_COPY(LockFile)
+
+private: // methods
+  void checkExtractInfo(void);
+  void extractInfo(void);
+};
+
+#endif // __LOCKFILE_H_

@@ -17,23 +17,39 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
 
-#include <QString>
-#include <QStringList>
+#ifndef __MESSENGER_H_
+#define __MESSENGER_H_
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+#include <QObject>
+#include <QByteArray>
+#include <QScopedPointer>
 
-extern void checkPortable(void);
-extern bool isPortable(void);
+class MessengerPrivate;
 
-#endif // __GLOBAL_H_
+class Messenger : public QObject
+{
+  Q_OBJECT
+public:
+  Messenger(void);
+  ~Messenger();
+
+public slots:
+  void receiveMessage(void);
+  void sendMessage(const QByteArray &msg);
+
+signals:
+  void messageReceived(QByteArray);
+  void commandReceived(QByteArray);
+  void quit(void);
+
+private:
+  QScopedPointer<MessengerPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Messenger)
+  Q_DISABLE_COPY(Messenger)
+
+};
+
+
+
+#endif // __MESSENGER_H_

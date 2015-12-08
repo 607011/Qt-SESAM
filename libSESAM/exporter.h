@@ -17,23 +17,39 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+#ifndef __EXPORTER_H_
+#define __EXPORTER_H_
 
+#include <QObject>
 #include <QString>
-#include <QStringList>
+#include <QByteArray>
+#include <QScopedPointer>
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+#include "securebytearray.h"
+#include "securestring.h"
 
-extern void checkPortable(void);
-extern bool isPortable(void);
 
-#endif // __GLOBAL_H_
+class ExporterPrivate;
+
+class Exporter : public QObject
+{
+  Q_OBJECT
+public:
+  explicit Exporter(QObject *parent = Q_NULLPTR);
+  Exporter(const QString &filename, QObject *parent = Q_NULLPTR);
+  ~Exporter();
+  void setFileName(const QString &);
+  bool write(const SecureByteArray &data, const SecureString &pwd);
+  SecureByteArray read(const SecureString &pwd);
+
+signals:
+
+public slots:
+
+private:
+  QScopedPointer<ExporterPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Exporter)
+  Q_DISABLE_COPY(Exporter)
+};
+
+#endif // __EXPORTER_H_

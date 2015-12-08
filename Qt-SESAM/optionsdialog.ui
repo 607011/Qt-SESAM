@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -336,54 +336,6 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Password dictionary file</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QLineEdit" name="passwordFileLineEdit">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="selectPasswordFilePushButton">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Select ...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Max. password length</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="maxPasswordLengthSpinBox">
-           <property name="minimum">
-            <number>4</number>
-           </property>
-           <property name="value">
-            <number>36</number>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
@@ -401,27 +353,20 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="2">
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QCheckBox" name="writeBackupsCheckBox">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Write backup files</string>
+            <string>Max. password length</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0" colspan="2">
-          <widget class="Line" name="line_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="maxPasswordLengthSpinBox">
+           <property name="minimum">
+            <number>4</number>
+           </property>
+           <property name="value">
+            <number>36</number>
            </property>
           </widget>
          </item>
@@ -451,6 +396,112 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="pwdFileHorizontalLayout">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Password dictionary file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="passwordFileLineEdit">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="selectPasswordFilePushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Select ...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>44</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Backup of settings</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QCheckBox" name="writeBackupsCheckBox">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Write backup files</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="autoDeleteOldBackupsCheckBox">
+              <property name="text">
+               <string>Auto delete backup files older than</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="maxBackupFileAgeSpinBox">
+              <property name="suffix">
+               <string> days</string>
+              </property>
+              <property name="maximum">
+               <number>365</number>
+              </property>
+              <property name="value">
+               <number>30</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="extensiveWipeoutCheckBox">
+            <property name="text">
+             <string>Extensive wipe-out of backup files</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -458,7 +509,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>276</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -518,8 +569,6 @@
   <tabstop>masterPasswordInvalidationTimeMinsSpinBox</tabstop>
   <tabstop>saltLengthSpinBox</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>passwordFileLineEdit</tabstop>
-  <tabstop>selectPasswordFilePushButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

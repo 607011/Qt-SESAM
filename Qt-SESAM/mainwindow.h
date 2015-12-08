@@ -75,6 +75,8 @@ private:
   } SyncPeer;
 
 private slots:
+  void onLogin(void);
+  void onMessageFromTcpClient(QJsonDocument);
   void onUserChanged(QString);
   void onURLChanged(QString);
   void onUsedCharactersChanged(void);
@@ -137,16 +139,23 @@ private slots:
   void onReadFinished(QNetworkReply*);
   void onWriteFinished(QNetworkReply*);
   void cancelServerOperation(void);
+  void removeOutdatedBackupFiles(void);
 #if HACKING_MODE_ENABLED
   void hackLegacyPassword(void);
 #endif
   QFuture<void> &generateSaltKeyIV(void);
   void onGenerateSaltKeyIV(void);
+  void onExportKGK(void);
+  void onImportKGK(void);
   void onImportKeePass2XmlFile(void);
+  void onBackupFilesRemoved(bool ok);
+  void onBackupFilesRemoved(int);
 
 signals:
   void passwordGenerated(void);
   void saltKeyIVGenerated(void);
+  void backupFilesDeleted(int);
+  void backupFilesDeleted(bool);
 
 protected:
   void closeEvent(QCloseEvent *);
@@ -184,7 +193,7 @@ private: // methods
   void writeToRemote(SyncPeer syncPeer);
   void sendToSyncServer(const QByteArray &cipher);
   void writeToSyncFile(const QByteArray &cipher);
-  void writeBackupFile(const QByteArray &binaryDomainData);
+  void writeBackupFile(void);
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
@@ -192,14 +201,19 @@ private: // methods
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
   void applyComplexity(int complexity);
-  void updateTemplate(void);
+  void setTemplateAndUsedCharacters(void);
   QString usedCharacters(void);
-  void applyTemplate(const QByteArray &);
+  void applyTemplateStringToGUI(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
   QString selectAlternativeDomainNameFor(const QString &domainName);
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
+  QString collectedSyncData(void);
+  bool wipeFile(const QString &filename);
+  void cleanupAfterMasterPasswordChanged(void);
+  void prepareExit(void);
+  void removeOutdatedBackupFilesThread(void);
 };
 
 #endif // __MAINWINDOW_H_

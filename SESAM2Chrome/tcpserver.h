@@ -17,23 +17,38 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+#ifndef __TCPSERVER_H_
+#define __TCPSERVER_H_
 
-#include <QString>
-#include <QStringList>
+#include <QObject>
+#include <QScopedPointer>
+#include <QTcpServer>
+#include <QByteArray>
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+class TcpServerPrivate;
 
-extern void checkPortable(void);
-extern bool isPortable(void);
+class TcpServer : public QTcpServer
+{
+  Q_OBJECT
+public:
+  explicit TcpServer(QTcpServer *parent = Q_NULLPTR);
+  ~TcpServer();
 
-#endif // __GLOBAL_H_
+signals:
+  void connectionEstablished(void);
+  void commandReceived(QByteArray);
+
+private slots:
+  void forwardCommand(void);
+  void sendCommand(QByteArray);
+  void gotConnection(void);
+
+private:
+  QScopedPointer<TcpServerPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(TcpServer)
+  Q_DISABLE_COPY(TcpServer)
+
+  static const int Port = 53548;
+};
+
+#endif // __TCPSERVER_H_

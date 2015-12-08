@@ -47,7 +47,8 @@ SOURCES += \
     password.cpp \
     pbkdf2.cpp \
     securebytearray.cpp \
-    securestring.cpp
+    securestring.cpp \
+    exporter.cpp
 
 HEADERS +=\
     util.h \
@@ -57,7 +58,8 @@ HEADERS +=\
     password.h \
     pbkdf2.h \
     securebytearray.h \
-    securestring.h
+    securestring.h \
+    exporter.h
 
 DISTFILES += \
     3rdparty/cryptopp/Crypto++-License

@@ -79,15 +79,15 @@ QStringList KeePass2XmlReader::groupHierarchy(int level)
 {
   Q_D(KeePass2XmlReader);
   QStringList g;
-  for (int l = 2; l <= level; ++l)
-    g << d->groupNames[l];
+  for (int l = 2; l <= level; ++l) {
+    g.append(d->groupNames[l]);
+  }
   return g;
 }
 
 
 QDomElement KeePass2XmlReader::findChildByTagName(const QDomElement &root, const QString &tagName)
 {
-  Q_D(KeePass2XmlReader);
   if (!root.isNull() && root.hasChildNodes()) {
     QDomNode child = root.firstChild();
     while (!child.isNull()) {
@@ -168,8 +168,9 @@ void KeePass2XmlReader::parseXml(const QDomElement &e, int level)
           }
         }
       }
-      if (e.hasChildNodes())
+      if (e.hasChildNodes()) {
         parseXml(e, level + 1);
+      }
       n = n.nextSibling();
     }
   }

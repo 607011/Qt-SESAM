@@ -83,8 +83,9 @@ void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslCon
   foreach (QSslCertificate cert, sslConf.peerCertificateChain()) {
     QTreeWidgetItem *rootItem = new QTreeWidgetItem;
     const QString &fp = fingerprintify(cert.digest(QCryptographicHash::Sha1));
-    if (firstItem == Q_NULLPTR)
+    if (firstItem == Q_NULLPTR) {
       firstItem = rootItem;
+    }
     treeWidget->addTopLevelItem(rootItem);
     QString shortFp = fp.mid(0, 21);
     rootItem->setText(0, shortFp + "…");
@@ -147,8 +148,9 @@ void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslCon
                    QStringList({tr("Version"), QString(cert.version())})));
     rootItem->addChildren(items);
     lastItem = rootItem;
-    if (fp == fingerprint)
+    if (fp == fingerprint) {
       rootItem->setSelected(true);
+    }
   }
 
   if (firstItem != Q_NULLPTR) {
@@ -166,7 +168,8 @@ void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslCon
   vLayout->addWidget(groupBox);
   vLayout->addWidget(treeWidget);
 
-  if (ui->scrollArea->layout() != Q_NULLPTR)
+  if (ui->scrollArea->layout() != Q_NULLPTR) {
     delete ui->scrollArea->layout();
+  }
   ui->scrollArea->setLayout(vLayout);
 }

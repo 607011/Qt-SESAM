@@ -17,23 +17,18 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+(function(window) {
 
-#include <QString>
-#include <QStringList>
+  function main() {
+    var statEl = $("#proxy-connection-status");
+    var port = chrome.extension.connect({ name: "c't SESAM" });
+    port.postMessage({ status: "ok" });
+    port.onMessage.addListener(function(msg) {
+      var status = msg["proxy-connection-status"];
+      statEl.html(status).removeClass("connected disconnected").addClass(status);
+    });
+  }
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+  document.addEventListener("DOMContentLoaded", main);
 
-extern void checkPortable(void);
-extern bool isPortable(void);
-
-#endif // __GLOBAL_H_
+})(window);

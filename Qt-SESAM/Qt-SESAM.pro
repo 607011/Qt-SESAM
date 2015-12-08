@@ -57,13 +57,15 @@ SOURCES += main.cpp \
     passwordchecker.cpp \
     easyselectorwidget.cpp \
     countdownwidget.cpp \
+    tcpclient.cpp \
     keepass2xmlreader.cpp \
     hackhelper.cpp \
     expandablegroupbox.cpp \
     domainnode.cpp \
     groupnode.cpp \
     abstracttreenode.cpp \
-    domaintreemodel.cpp
+    domaintreemodel.cpp \
+    lockfile.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -75,15 +77,16 @@ HEADERS  += \
     servercertificatewidget.h \
     changemasterpassworddialog.h \
     passwordchecker.h \
-    singleinstancedetector.h \
     easyselectorwidget.h \
     countdownwidget.h \
+    tcpclient.h \
     keepass2xmlreader.h \
     expandablegroupbox.h \
     domainnode.h \
     groupnode.h \
     abstracttreenode.h \
-    domaintreemodel.h
+    domaintreemodel.h \
+    lockfile.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

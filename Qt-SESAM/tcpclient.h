@@ -17,23 +17,40 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+#ifndef __TCPCLIENT_H_
+#define __TCPCLIENT_H_
 
+#include <QObject>
+#include <QTcpSocket>
+#include <QScopedPointer>
+#include <QJsonDocument>
 #include <QString>
-#include <QStringList>
+#include "securestring.h"
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+class TcpClientPrivate;
 
-extern void checkPortable(void);
-extern bool isPortable(void);
+class TcpClient : public QObject
+{
+  Q_OBJECT
+public:
+  explicit TcpClient(QObject *parent = Q_NULLPTR);
+  ~TcpClient();
+  void connect(const QString &url, const SecureString &userId, const SecureString &userPwd);
 
-#endif // __GLOBAL_H_
+private slots:
+  void forwardIncomingMessage(void);
+
+signals:
+  void receivedMessage(QJsonDocument);
+
+public slots:
+
+private:
+  static const int Port = 53548;
+
+  QScopedPointer<TcpClientPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(TcpClient)
+  Q_DISABLE_COPY(TcpClient)
+};
+
+#endif // __TCPCLIENT_H_

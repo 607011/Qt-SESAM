@@ -13,25 +13,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include(Qt-SESAM.pri)
-VERSION = -$${QTSESAM_VERSION}
+TEMPLATE = app
 
-TEMPLATE = subdirs
-CONFIG += ordered
-SUBDIRS += \
-    libSESAM \
-    UnitTests \
-    Qt-SESAM \
-    SESAM2Chrome
+include(../Qt-SESAM.pri)
+DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\"
 
-OTHER_FILES += \
-    extensions\chrome\background.js \
-    extensions\chrome\content.js \
-    extensions\chrome\popup.js \
-    extensions\chrome\popup.html \
-    extensions\chrome\domains.json \
-    extensions\chrome\default.css \
-    extensions\chrome\manifest.json \
-    extensions\firefox\index.js \
-    extensions\firefox\README.md \
-    extensions\firefox\package.json
+QT += core network concurrent
+QT -= gui
+
+TARGET = SESAM2Chrome
+CONFIG += console
+CONFIG -= app_bundle
+
+win32:DEFINES -= UNICODE
+
+SOURCES += main.cpp \
+    tcpserver.cpp \
+    messenger.cpp
+
+HEADERS += \
+    tcpserver.h \
+    messenger.h
+
+DISTFILES += \
+    manifest-dev.json

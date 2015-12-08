@@ -87,6 +87,12 @@ public:
   void setWriteBackups(bool);
   bool writeBackups(void) const;
 
+  void setAutoDeleteBackupFiles(bool);
+  bool autoDeleteBackupFiles(void) const;
+
+  void setMaxBackupFileAge(int days);
+  int maxBackupFileAge(void) const;
+
 #ifdef WIN32
   void setSmartLogin(bool);
   bool smartLogin(void) const;
@@ -109,6 +115,9 @@ public:
 
   bool syncToFileEnabled(void) const;
   bool syncToServerEnabled(void) const;
+
+  bool extensiveWipeout(void) const;
+  void setExtensiveWipeout(bool checked);
 
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);

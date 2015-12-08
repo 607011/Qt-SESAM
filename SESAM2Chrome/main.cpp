@@ -17,23 +17,20 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+#include "tcpserver.h"
+#include "messenger.h"
 
-#include <QString>
-#include <QStringList>
+#include <QCoreApplication>
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+int main(int argc, char *argv[])
+{
+  QCoreApplication app(argc, argv);
+  TcpServer server;
+  Messenger messenger;
 
-extern void checkPortable(void);
-extern bool isPortable(void);
+  QObject::connect(&server, SIGNAL(commandReceived(QByteArray)), &messenger, SLOT(sendMessage(QByteArray)));
+  QObject::connect(&messenger, SIGNAL(messageReceived(QByteArray)), &server, SLOT(sendCommand(QByteArray)));
+  QObject::connect(&messenger, SIGNAL(quit()), &app, SLOT(quit()));
 
-#endif // __GLOBAL_H_
+  return app.exec();
+}
