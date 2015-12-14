@@ -2343,7 +2343,12 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
 {
   Q_D(MainWindow);
-  d->countdownWidget->start(1000 * timeoutMins * 60);
+  if (timeoutMins == 0) {
+    d->countdownWidget->stop();
+  }
+  else {
+    d->countdownWidget->start(1000 * timeoutMins * 60);
+  }
 }
 
 
