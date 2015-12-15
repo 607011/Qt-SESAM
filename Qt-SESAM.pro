@@ -20,9 +20,9 @@ TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
     libSESAM \
-    UnitTests \
+    SESAM2Chrome \
     Qt-SESAM \
-    SESAM2Chrome
+    UnitTests
 
 OTHER_FILES += \
     extensions\chrome\background.js \
