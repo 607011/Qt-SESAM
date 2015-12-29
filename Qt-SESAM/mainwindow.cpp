@@ -220,14 +220,25 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->lockFile = new LockFile(lockfilePath);
   if (d->lockFile->isLocked()) {
     if (!d->forceStart) {
-      QMessageBox::information(this,
+      QMessageBox::StandardButton button = QMessageBox::question(this,
                                tr("%1 can run only once").arg(AppName),
                                tr("Only one instance of %1 can run at a time. "
-                                  "But currently there's another instance running with pid %2.")
+                                  "But a lock file is present in %2 telling "
+                                  "that currently there's another instance running with process ID %3. "
+                                  "Do you want to override this lock? "
+                                  "Please only answer with YES if really no other instance is running at the moment. "
+                                  "This might be the case if the system crashed leaving an stale lock file behind.")
                                .arg(AppName)
-                               .arg(d->lockFile->applicationId()));
-      close();
-      ::exit(1);
+                               .arg(lockfilePath)
+                               .arg(d->lockFile->applicationId()),
+                            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+      if (button == QMessageBox::Yes) {
+        d->lockFile->unlock();
+      }
+      else {
+        close();
+        ::exit(1);
+      }
     }
     else {
       d->lockFile->unlock();
