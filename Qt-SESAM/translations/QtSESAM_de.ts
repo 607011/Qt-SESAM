@@ -1058,15 +1058,27 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>%1 can run only once</source>
-        <translation>%1 - Kein Mehrfachstart möglich</translation>
+        <translation type="vanished">%1 - Kein Mehrfachstart möglich</translation>
     </message>
     <message>
         <source>Only one instance of %1 can run at a time. But currently there&apos;s another instance running with pid %2.</source>
-        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2.</translation>
+        <translation type="vanished">Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2.</translation>
     </message>
     <message>
         <source>Deleted %1 outdated backup files.</source>
         <translation>%1 veraltete Backup-Dateien gelöscht.</translation>
+    </message>
+    <message>
+        <source>%1 cannot run concurrently</source>
+        <translation>%1 kann nicht mehrfach laufen</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time. Another instance is running with process ID %2. Please stop that process before starting a new one.</source>
+        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2. Bitte beende erst den anderen Prozess bevor du Qt-SESAM erneut startest.</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time. But a lock file is present in %2 telling that currently there&apos;s another instance running with process ID %3. Do you want to override this lock? Please only answer with YES if really no other instance is running at the moment. This might be the case if the system crashed leaving an stale lock file behind.</source>
+        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Ein Lock-File (%2) deutet darauf hin, dass %1 bereits in einem Prozess mit der ID %3 läuft. Möchtest du die Sperre umgehen? Bitte antworte nur mit JA, wenn du dir sicher bist, dass %1 nicht läuft. Das könnte der Fall sein, wenn der Computer kürzlich abgestürzt ist und ein ungültiges Lock-File hinterlassen hat.</translation>
     </message>
 </context>
 <context>
