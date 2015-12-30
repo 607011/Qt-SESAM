@@ -35,5 +35,6 @@ extern const QStringList BackupFilenameFilters;
 
 extern void checkPortable(void);
 extern bool isPortable(void);
+extern bool isRunning(int pid);
 
 #endif // __GLOBAL_H_

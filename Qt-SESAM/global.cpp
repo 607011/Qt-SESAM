@@ -18,12 +18,14 @@
 */
 
 #include "global.h"
+#include <QDebug>
 #include <QSysInfo>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QString>
 #include <QSettings>
+#include <QProcess>
 
 const QString AppCompanyName = "ct";
 const QString AppCompanyDomain = "http://www.ct.de/";
@@ -69,3 +71,25 @@ void checkPortable(void) {
     gPortable = true;
   }
 }
+
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+bool isRunning(int pid) {
+  QProcess tasklistProcess;
+  QStringList param = QStringList() << "/NH" << "/FO" << "CSV" << "/FI" << QString("PID eq %1").arg(pid);
+  tasklistProcess.start("tasklist", param);
+  tasklistProcess.waitForFinished();
+  const QString &output = tasklistProcess.readAllStandardOutput();
+  const QStringList &d = output.split(",");
+  if (d.count() < 2)
+    return false;
+  QString pidStr = d.at(1);
+  pidStr.replace("\"", "");
+  return pidStr.toInt() == pid;
+}
+#else
+bool isRunning(int pid) {
+  Q_UNUSED(pid);
+  return false;
+}
+#endif
