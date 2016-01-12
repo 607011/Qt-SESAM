@@ -22,6 +22,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QtGlobal>
 
 extern const QString AppCompanyName;
 extern const QString AppCompanyDomain;
@@ -35,6 +36,6 @@ extern const QStringList BackupFilenameFilters;
 
 extern void checkPortable(void);
 extern bool isPortable(void);
-extern bool isRunning(int pid);
+extern bool isRunning(qint64 pid);
 
 #endif // __GLOBAL_H_

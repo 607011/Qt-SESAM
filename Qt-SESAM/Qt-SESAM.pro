@@ -60,8 +60,7 @@ SOURCES += main.cpp \
     tcpclient.cpp \
     keepass2xmlreader.cpp \
     hackhelper.cpp \
-    expandablegroupbox.cpp \
-    lockfile.cpp
+    expandablegroupbox.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -77,8 +76,7 @@ HEADERS  += \
     countdownwidget.h \
     tcpclient.h \
     keepass2xmlreader.h \
-    expandablegroupbox.h \
-    lockfile.h
+    expandablegroupbox.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

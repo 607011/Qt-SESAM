@@ -56,10 +56,10 @@
 #include <QCompleter>
 #include <QShortcut>
 #include <QGraphicsOpacityEffect>
+#include <QLockFile>
 
 #include "global.h"
 #include "util.h"
-#include "lockfile.h"
 #include "progressdialog.h"
 #include "masterpassworddialog.h"
 #include "changemasterpassworddialog.h"
@@ -203,7 +203,7 @@ public:
   QFuture<void> backupFileDeletionFuture;
   TcpClient tcpClient;
   bool doConvertLocalToLegacy;
-  LockFile *lockFile;
+  QLockFile *lockFile;
   bool forceStart;
 };
 
@@ -216,17 +216,21 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   Q_D(MainWindow);
   d->forceStart = forceStart;
   const QString lockfilePath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/qt-sesam.lck";
-  d->lockFile = new LockFile(lockfilePath);
+  d->lockFile = new QLockFile(lockfilePath);
   if (d->lockFile->isLocked()) {
     if (!d->forceStart) {
-      if (isRunning(d->lockFile->applicationId())) {
+      qint64 appId;
+      QString hostName;
+      QString appName;
+      d->lockFile->getLockInfo(&appId, &hostName, &appName);
+      if (isRunning(appId)) {
         QMessageBox::information(this,
                                  tr("%1 cannot run concurrently").arg(AppName),
                                  tr("Only one instance of %1 can run at a time. "
                                     "Another instance is running with process ID %2. "
                                     "Please stop that process before starting a new one.")
                                  .arg(AppName)
-                                 .arg(d->lockFile->applicationId()));
+                                 .arg(appId));
         close();
         ::exit(1);
       }
@@ -242,7 +246,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
                                      "This might be the case if the system crashed leaving an stale lock file behind.")
                                   .arg(AppName)
                                   .arg(lockfilePath)
-                                  .arg(d->lockFile->applicationId()),
+                                  .arg(appId),
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         if (button == QMessageBox::Yes) {
           d->lockFile->unlock();
