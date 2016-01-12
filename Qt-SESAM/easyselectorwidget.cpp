@@ -83,7 +83,8 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
 
 EasySelectorWidget::~EasySelectorWidget()
 {
-  /* ... */
+  Q_D(EasySelectorWidget);
+  d->speedTestFuture.waitForFinished();
 }
 
 
