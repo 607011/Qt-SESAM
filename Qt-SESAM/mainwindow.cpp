@@ -105,7 +105,9 @@ public:
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(new ProgressDialog(parent))
     , countdownWidget(new CountdownWidget)
+    , trayMenu(Q_NULLPTR)
     , actionShow(Q_NULLPTR)
+    , actionLockApplication(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
@@ -156,7 +158,9 @@ public:
   OptionsDialog *optionsDialog;
   ProgressDialog *progressDialog;
   CountdownWidget *countdownWidget;
+  QMenu *trayMenu;
   QAction *actionShow;
+  QAction *actionLockApplication;
   QString lastDomainBeforeLock;
   DomainSettings lastCleanDomainSettings;
   DomainSettings domainSettingsBeforceSync;
@@ -346,21 +350,21 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
+  d->trayMenu = new QMenu(AppName);
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
-  QMenu *trayMenu = new QMenu(AppName);
-  d->actionShow = trayMenu->addAction(tr("Minimize window"));
+  d->actionShow = d->trayMenu->addAction(tr("Minimize window"));
   QObject::connect(d->actionShow, SIGNAL(triggered(bool)), SLOT(showHide()));
-  QAction *actionSync = trayMenu->addAction(tr("Sync"));
+  QAction *actionSync = d->trayMenu->addAction(tr("Sync"));
   QObject::connect(actionSync, SIGNAL(triggered(bool)), SLOT(onSync()));
-  QAction *actionClearClipboard = trayMenu->addAction(tr("Clear clipboard"));
+  QAction *actionClearClipboard = d->trayMenu->addAction(tr("Clear clipboard"));
   QObject::connect(actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
-  QAction *actionLockApplication = trayMenu->addAction(tr("Lock application ..."));
-  QObject::connect(actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
-  QAction *actionAbout = trayMenu->addAction(tr("About %1").arg(AppName));
+  d->actionLockApplication = d->trayMenu->addAction(tr("Lock application ..."));
+  QObject::connect(d->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
+  QAction *actionAbout = d->trayMenu->addAction(tr("About %1").arg(AppName));
   QObject::connect(actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
-  QAction *actionQuit = trayMenu->addAction(tr("Quit"));
+  QAction *actionQuit = d->trayMenu->addAction(tr("Quit"));
   QObject::connect(actionQuit, SIGNAL(triggered(bool)), SLOT(close()));
-  d->trayIcon.setContextMenu(trayMenu);
+  d->trayIcon.setContextMenu(d->trayMenu);
   d->trayIcon.show();
 
   d->pwdLabelOpacityEffect = new QGraphicsOpacityEffect(ui->passwordLengthLabel);
@@ -695,7 +699,13 @@ void MainWindow::setDirty(bool dirty)
   }
   ui->savePushButton->setEnabled(dirty);
   ui->revertPushButton->setEnabled(dirty);
-  ui->actionInvalidatePassword->setEnabled(!dirty);
+  ui->actionLockApplication->setEnabled(!dirty);
+  if (d->actionLockApplication != Q_NULLPTR) {
+    d->actionLockApplication->setEnabled(!dirty);
+  }
+  if (ui->actionChangeMasterPassword != Q_NULLPTR) {
+    ui->actionChangeMasterPassword->setEnabled(!dirty);
+  }
   updateWindowTitle();
 }
 
