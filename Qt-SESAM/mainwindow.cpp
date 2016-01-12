@@ -219,7 +219,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 {
   Q_D(MainWindow);
   d->forceStart = forceStart;
-  const QString lockfilePath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/qt-sesam.lck";
+  const QString lockfilePath = QDir::homePath() + "/.qt-sesam.lck";
   d->lockFile = new QLockFile(lockfilePath);
   if (d->lockFile->isLocked()) {
     if (!d->forceStart) {
