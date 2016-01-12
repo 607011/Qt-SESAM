@@ -845,6 +845,7 @@
      </property>
      <addaction name="actionKeePassXmlFile"/>
     </widget>
+    <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
     <addaction name="separator"/>

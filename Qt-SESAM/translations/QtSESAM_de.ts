@@ -1080,6 +1080,14 @@ auf deinem Computer: %3</translation>
         <source>Only one instance of %1 can run at a time. But a lock file is present in %2 telling that currently there&apos;s another instance running with process ID %3. Do you want to override this lock? Please only answer with YES if really no other instance is running at the moment. This might be the case if the system crashed leaving an stale lock file behind.</source>
         <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Ein Lock-File (%2) deutet darauf hin, dass %1 bereits in einem Prozess mit der ID %3 läuft. Möchtest du die Sperre umgehen? Bitte antworte nur mit JA, wenn du dir sicher bist, dass %1 nicht läuft. Das könnte der Fall sein, wenn der Computer kürzlich abgestürzt ist und ein ungültiges Lock-File hinterlassen hat.</translation>
     </message>
+    <message>
+        <source>Really create new domain?</source>
+        <translation>Wirklich eine neue Domain erstellen?</translation>
+    </message>
+    <message>
+        <source>You selected to add a new domain but the current settings have been altered. Do you want to save the settings before continuing?</source>
+        <translation>Du hast ausgewählt, dass du eine neue Domain anlegen willst. Allerdings wurden die aktuellen Einstellungen noch nicht gespeichert. Möchtest du die Einstellungen speichern, bevor du fortfährst?</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

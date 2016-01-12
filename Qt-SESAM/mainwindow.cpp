@@ -308,6 +308,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->savePushButton, SIGNAL(clicked(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->loginPushButton, SIGNAL(clicked(bool)), SLOT(onLogin()));
   QObject::connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
+  QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(onNewDomain()));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(onSync()));
@@ -2385,6 +2386,37 @@ void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
   }
   else {
     d->countdownWidget->start(1000 * timeoutMins * 60);
+  }
+}
+
+
+void MainWindow::onNewDomain(void)
+{
+  Q_D(MainWindow);
+  if (!d->parameterSetDirty) {
+    resetAllFields();
+  }
+  else {
+    QMessageBox::StandardButton button =
+        QMessageBox::question(this,
+                              tr("Really create new domain?"),
+                              tr("You selected to add a new domain but the current settings have been altered. "
+                                 "Do you want to save the settings before continuing?"),
+                              QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                              QMessageBox::Yes);
+    switch (button) {
+    case QMessageBox::Yes:
+      saveCurrentDomainSettings();
+      // fall-through
+    case QMessageBox::No:
+      resetAllFields();
+      break;
+    case QMessageBox::Cancel:
+      break;
+    default:
+      qWarning() << "Oops! This should not have happened :-(";
+      break;
+    }
   }
 }
 
