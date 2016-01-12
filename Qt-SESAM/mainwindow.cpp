@@ -436,7 +436,6 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
-//  qDebug() << "MainWindow::prepareExit()";
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
@@ -449,8 +448,6 @@ void MainWindow::prepareExit(void)
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
-
-//  qDebug() << "MainWindow::closeEvent()" << e->spontaneous();
 
   cancelPasswordGeneration();
   d->backupFileDeletionFuture.waitForFinished();
@@ -691,9 +688,7 @@ void MainWindow::cancelPasswordGeneration(void)
 void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::setDirty(" << dirty << ") triggered by" << (sender() ? sender()->objectName() : "NONE");
   d->parameterSetDirty = dirty;
-  // qDebug() << "  domainComboboxContains(" << ui->domainsComboBox->currentText() << ") ->" << domainComboboxContains(ui->domainsComboBox->currentText());
   if (!ui->domainsComboBox->currentText().isEmpty() && domainComboboxContains(ui->domainsComboBox->currentText())) {
     ui->domainsComboBox->setEditable(!dirty);
     ui->domainsComboBox->setCompleter(dirty ? Q_NULLPTR : d->completer);
