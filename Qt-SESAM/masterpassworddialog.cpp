@@ -118,7 +118,10 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 
 void MasterPasswordDialog::closeEvent(QCloseEvent *e)
 {
-  e->ignore();
+  qDebug() << "MasterPasswordDialog::closeEvent()" << e->spontaneous();
+  if (e->spontaneous()) {
+    emit closing();
+  }
 }
 
 

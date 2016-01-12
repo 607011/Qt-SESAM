@@ -316,6 +316,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
+  QObject::connect(d->masterPasswordDialog, SIGNAL(closing()), SLOT(onMasterPasswordClosing()), Qt::DirectConnection);
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
   QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(removeOutdatedBackupFiles()));
@@ -431,6 +432,7 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::prepareExit()";
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
@@ -444,13 +446,16 @@ void MainWindow::prepareExit(void)
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
+
+  qDebug() << "MainWindow::closeEvent()" << e->spontaneous();
+
   cancelPasswordGeneration();
   d->backupFileDeletionFuture.waitForFinished();
 
-  if (d->masterPasswordDialog->masterPassword().isEmpty()) {
-    e->ignore();
-    return;
-  }
+//  if (d->masterPasswordDialog->masterPassword().isEmpty()) {
+//    e->ignore();
+//    return;
+//  }
 
   if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
     QMessageBox::StandardButton button = saveYesNoCancel();
@@ -2485,6 +2490,13 @@ void MainWindow::onMasterPasswordEntered(void)
 }
 
 
+void MainWindow::onMasterPasswordClosing(void)
+{
+  qDebug() << "MainWindow::onMasterPasswordClosing()";
+  close();
+}
+
+
 void MainWindow::clearAllSettings(void)
 {
   Q_D(MainWindow);
@@ -2552,7 +2564,7 @@ void MainWindow::invalidatePassword(bool reenter)
 void MainWindow::lockApplication(void)
 {
   Q_D(MainWindow);
-  if (d->interactionSemaphore.available() == 0) {
+  if (d->parameterSetDirty || d->interactionSemaphore.available() == 0) {
     restartInvalidationTimer();
     return;
   }
