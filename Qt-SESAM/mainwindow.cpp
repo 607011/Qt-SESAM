@@ -432,12 +432,11 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::prepareExit()";
+//  qDebug() << "MainWindow::prepareExit()";
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
   d->masterPasswordDialog->close();
-  saveSettings();
   invalidatePassword(false);
   d->lockFile->unlock();
 }
@@ -447,21 +446,17 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
 
-  qDebug() << "MainWindow::closeEvent()" << e->spontaneous();
+//  qDebug() << "MainWindow::closeEvent()" << e->spontaneous();
 
   cancelPasswordGeneration();
   d->backupFileDeletionFuture.waitForFinished();
-
-//  if (d->masterPasswordDialog->masterPassword().isEmpty()) {
-//    e->ignore();
-//    return;
-//  }
 
   if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
     QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
     case QMessageBox::Yes:
       saveCurrentDomainSettings();
+      saveSettings();
       // fall-through
     case QMessageBox::No:
       prepareExit();
@@ -602,7 +597,8 @@ void MainWindow::resetAllFields(void)
 }
 
 
-int MainWindow::findDomainInComboBox(const QString &domain, int lo, int hi) const {
+int MainWindow::findDomainInComboBox(const QString &domain, int lo, int hi) const
+{
   if (hi < lo) {
     return NotFound;
   }
@@ -618,12 +614,14 @@ int MainWindow::findDomainInComboBox(const QString &domain, int lo, int hi) cons
 }
 
 
-int MainWindow::findDomainInComboBox(const QString &domain) const {
+int MainWindow::findDomainInComboBox(const QString &domain) const
+{
   return findDomainInComboBox(domain, 0, ui->domainsComboBox->count());
 }
 
 
-bool MainWindow::domainComboboxContains(const QString &domain) const {
+bool MainWindow::domainComboboxContains(const QString &domain) const
+{
   return findDomainInComboBox(domain, 0, ui->domainsComboBox->count()) != NotFound;
 }
 
@@ -698,6 +696,7 @@ void MainWindow::setDirty(bool dirty)
   }
   ui->savePushButton->setEnabled(dirty);
   ui->revertPushButton->setEnabled(dirty);
+  ui->actionInvalidatePassword->setEnabled(!dirty);
   updateWindowTitle();
 }
 
@@ -2492,7 +2491,7 @@ void MainWindow::onMasterPasswordEntered(void)
 
 void MainWindow::onMasterPasswordClosing(void)
 {
-  qDebug() << "MainWindow::onMasterPasswordClosing()";
+//  qDebug() << "MainWindow::onMasterPasswordClosing()";
   close();
 }
 
