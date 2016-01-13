@@ -57,6 +57,8 @@
 #include <QShortcut>
 #include <QGraphicsOpacityEffect>
 #include <QLockFile>
+#include <QPainter>
+#include <QPixmap>
 
 #include "global.h"
 #include "util.h"
@@ -79,6 +81,8 @@
 #include "tcpclient.h"
 #include "exporter.h"
 #include "keepass2xmlreader.h"
+
+#include "qrencode.h"
 
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
@@ -319,6 +323,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
+  QObject::connect(ui->actionExportCurrentSettingsAsQRCode, SIGNAL(triggered(bool)), SLOT(onExportCurrentSettingsAsQRCode()));
   QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
   QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
   QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
@@ -2387,6 +2392,54 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 }
 
 
+QImage MainWindow::currentDomainSettings2QRCode(void)
+{
+  static const int ModuleSize = 10;
+  static const int Margin = ModuleSize;
+  DomainSettings ds = collectedDomainSettings();
+  QString str = QString("%1\n%2\n%3\n%4")
+      .arg(ds.domainName)
+      .arg(ds.url)
+      .arg(ds.userName)
+      .arg(ui->generatedPasswordLineEdit->text());
+  QRcode *qrcode = QRcode_encodeString8bit(str.toStdString().c_str(), 0, QR_ECLEVEL_L);
+  const int sz = qrcode->width * ModuleSize + 2 * Margin;
+  QPixmap qr(sz, sz);
+  QPainter p(&qr);
+  p.fillRect(qr.rect(), Qt::white);
+  p.setPen(QPen(Qt::transparent, 0));
+  p.translate(QPoint(Margin, Margin));
+  unsigned char *m = qrcode->data;
+  for (int y = 0; y < qrcode->width; ++y) {
+    unsigned char *row = m + y * qrcode->width;
+    int yy = y * ModuleSize;
+    for (int x = 0; x < qrcode->width; ++x) {
+      p.setBrush(((row[x] & 0x1) == 0x1) ? Qt::black : Qt::white);
+      p.drawRect(x * ModuleSize, yy, ModuleSize, ModuleSize);
+    }
+  }
+  p.end();
+  QRcode_free(qrcode);
+  return qr.toImage();
+}
+
+
+static const QString QRCodeFileExtension = QObject::tr("QR code file (*.png)");
+
+void MainWindow::onExportCurrentSettingsAsQRCode(void)
+{
+  Q_D(MainWindow);
+  QString filename = QFileDialog::getSaveFileName(this,
+                                                  tr("Export current settings as QR code"),
+                                                  QString(),
+                                                  QRCodeFileExtension);
+  if (!filename.isEmpty()) {
+    QImage qrcode = currentDomainSettings2QRCode();
+    qrcode.save(filename);
+  }
+}
+
+
 void MainWindow::onPasswordTemplateChanged(const QString &templ)
 {
   Q_D(MainWindow);
@@ -2736,7 +2789,11 @@ void MainWindow::about(void)
            "along with this program. "
            "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>"
            "<p>Copyright &copy; 2015 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
-           "<p>This program uses the Crypto++ library. Crypto++ is licensed under the Boost Software License, Version 1.0.</p>"
+           "<p>"
+           " This program uses the Crypto++ library and libqrencode by Kentaro Fukuchi. "
+           " Crypto++ is licensed under the Boost Software License, Version 1.0. "
+           " libqrencode is licensed under the GNU Lesser General Public License 2.1 or later."
+           "</p>"
            )
         .arg(AppName).arg(AppURL).arg(AppAuthor).arg(AppAuthorMail));
 }

@@ -19,6 +19,7 @@ VERSION = -$${QTSESAM_VERSION}
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
+    libqrencode \
     libSESAM \
     SESAM2Chrome \
     Qt-SESAM \

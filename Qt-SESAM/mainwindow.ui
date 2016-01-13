@@ -845,11 +845,18 @@
      </property>
      <addaction name="actionKeePassXmlFile"/>
     </widget>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <addaction name="actionExportCurrentSettingsAsQRCode"/>
+    </widget>
     <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
     <addaction name="separator"/>
     <addaction name="menuImport"/>
+    <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1048,6 +1055,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E, Ctrl+D, Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionExportCurrentSettingsAsQRCode">
+   <property name="text">
+    <string>Current settings as QR code ...</string>
    </property>
   </action>
  </widget>

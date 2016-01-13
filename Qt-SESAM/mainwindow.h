@@ -43,6 +43,7 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QJsonDocument>
+#include <QImage>
 
 #include "global.h"
 #include "domainsettings.h"
@@ -100,6 +101,7 @@ private slots:
   void onDomainTextChanged(const QString &);
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
+  void onExportCurrentSettingsAsQRCode(void);
   void onPasswordTemplateChanged(const QString &);
   void masterPasswordInvalidationTimeMinsChanged(int);
   void onNewDomain(void);
@@ -211,6 +213,7 @@ private: // methods
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
   void removeOutdatedBackupFilesThread(void);
+  QImage currentDomainSettings2QRCode(void);
 };
 
 #endif // __MAINWINDOW_H_
