@@ -1178,6 +1178,11 @@ QFuture<void> &MainWindow::generateSaltKeyIV(void)
 void MainWindow::generateSaltKeyIVThread(void)
 {
   Q_D(MainWindow);
+  Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::generateSaltKeyIVThread()", "d->masterPassword must not be empty");
+  if (d->masterPassword.isEmpty()) {
+    qWarning() << "Error in  MainWindow::generateSaltKeyIVThread(): d->masterPassword must not be empty";
+    return;
+  }
   QMutexLocker(&d->keyGenerationMutex);
   d->salt = Crypter::generateSalt();
   Crypter::makeKeyAndIVFromPassword(d->masterPassword.toUtf8(), d->salt, d->masterKey, d->IV);
@@ -2148,6 +2153,11 @@ void MainWindow::convertToLegacyPassword(DomainSettings &ds)
   Q_D(MainWindow);
   if (ds.legacyPassword.isEmpty()) {
     Password pwd(ds);
+    Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::convertToLegacyPassword()", "d->masterPassword must not be empty");
+    if (d->masterPassword.isEmpty()) {
+      qWarning() << "Error in MainWindow::convertToLegacyPassword(): d->masterPassword must not be empty";
+      return;
+    }
     pwd.generate(d->masterPassword.toUtf8());
     ds.legacyPassword = pwd.password();
   }
