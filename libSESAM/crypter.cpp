@@ -107,6 +107,7 @@ QByteArray Crypter::decode(const SecureByteArray &masterPassword,
                            bool uncompress,
                            SecureByteArray &KGK)
 {
+  Q_ASSERT_X(!masterPassword.isEmpty(), "Crypter::decode()", "masterPassword must not be empty");
   FormatFlags formatFlag = static_cast<FormatFlags>(cipher.at(0));
   if (formatFlag != AES256EncryptedMasterkeyFormat)
     return QByteArray();
@@ -268,6 +269,7 @@ SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterKey, c
  */
 void Crypter::makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, SecureByteArray &key, SecureByteArray &IV)
 {
+  Q_ASSERT_X(!masterPassword.isEmpty(), "Crypter::makeKeyAndIVFromPassword()", "masterPassword must not be empty");
   PBKDF2 pbkdf2(masterPassword, salt, DomainIterations, QCryptographicHash::Sha384);
   const SecureByteArray &hash = pbkdf2.derivedKey();
   key = hash.mid(0, AESKeySize);
