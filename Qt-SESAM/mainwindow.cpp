@@ -221,7 +221,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->forceStart = forceStart;
   const QString lockfilePath = QDir::homePath() + "/.qt-sesam.lck";
   d->lockFile = new QLockFile(lockfilePath);
-  if (d->lockFile->isLocked()) {
+  if (!d->lockFile->tryLock()) {
     if (!d->forceStart) {
       qint64 appId;
       QString hostName;
@@ -253,7 +253,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
                                   .arg(appId),
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         if (button == QMessageBox::Yes) {
-          d->lockFile->unlock();
+          d->lockFile->removeStaleLockFile();
         }
         else {
           close();
@@ -262,10 +262,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
       }
     }
     else {
-      d->lockFile->unlock();
+      d->lockFile->removeStaleLockFile();
     }
   }
-  d->lockFile->lock();
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
@@ -441,13 +440,15 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::prepareExit()";
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
   d->masterPasswordDialog->close();
   invalidateMasterPassword(false);
-  invalidatePassword(false);
-  d->lockFile->unlock();
+  if (d->lockFile->isLocked()) {
+    d->lockFile->unlock();
+  }
 }
 
 
@@ -695,18 +696,24 @@ void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
   d->parameterSetDirty = dirty;
-  if (!ui->domainsComboBox->currentText().isEmpty() && domainComboboxContains(ui->domainsComboBox->currentText())) {
-    ui->domainsComboBox->setEditable(!dirty);
-    ui->domainsComboBox->setCompleter(dirty ? Q_NULLPTR : d->completer);
+  if (d->parameterSetDirty) {
+    d->countdownWidget->stop();
   }
-  ui->savePushButton->setEnabled(dirty);
-  ui->revertPushButton->setEnabled(dirty);
-  ui->actionLockApplication->setEnabled(!dirty);
+  else {
+    restartInvalidationTimer();
+  }
+  if (!ui->domainsComboBox->currentText().isEmpty() && domainComboboxContains(ui->domainsComboBox->currentText())) {
+    ui->domainsComboBox->setEditable(!d->parameterSetDirty);
+    ui->domainsComboBox->setCompleter(d->parameterSetDirty ? Q_NULLPTR : d->completer);
+  }
+  ui->savePushButton->setEnabled(d->parameterSetDirty);
+  ui->revertPushButton->setEnabled(d->parameterSetDirty);
+  ui->actionLockApplication->setEnabled(!d->parameterSetDirty);
   if (d->actionLockApplication != Q_NULLPTR) {
-    d->actionLockApplication->setEnabled(!dirty);
+    d->actionLockApplication->setEnabled(!d->parameterSetDirty);
   }
   if (ui->actionChangeMasterPassword != Q_NULLPTR) {
-    ui->actionChangeMasterPassword->setEnabled(!dirty);
+    ui->actionChangeMasterPassword->setEnabled(!d->parameterSetDirty);
   }
   updateWindowTitle();
 }
@@ -789,7 +796,7 @@ void MainWindow::restartInvalidationTimer(void)
 {
   Q_D(MainWindow);
   const int timeout = d->optionsDialog->masterPasswordInvalidationTimeMins();
-  if (timeout > 0) {
+  if (timeout > 0 && !d->parameterSetDirty) {
     d->countdownWidget->start(1000 * timeout * 60);
   }
   else {
@@ -1988,9 +1995,7 @@ void MainWindow::beginSyncWithServer(void)
 void MainWindow::onSync(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onSync()";
   restartInvalidationTimer();
-  Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::sync()", "d->masterPassword must not be empty");
   d->domainSettingsBeforceSync = d->domains.at(ui->domainsComboBox->currentText());
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
@@ -2002,7 +2007,8 @@ void MainWindow::onSync(void)
       syncWithFile();
     }
     else {
-      QMessageBox::warning(this, tr("Sync file read error"),
+      QMessageBox::warning(this,
+                           tr("Sync file read error"),
                            tr("The sync file %1 cannot be opened for reading.")
                            .arg(d->optionsDialog->syncFilename()), QMessageBox::Ok);
     }
@@ -2392,11 +2398,11 @@ void MainWindow::onPasswordTemplateChanged(const QString &templ)
 void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
 {
   Q_D(MainWindow);
-  if (timeoutMins == 0) {
-    d->countdownWidget->stop();
+  if (timeoutMins > 0 && !d->parameterSetDirty) {
+    d->countdownWidget->start(1000 * timeoutMins * 60);
   }
   else {
-    d->countdownWidget->start(1000 * timeoutMins * 60);
+    d->countdownWidget->stop();
   }
 }
 
@@ -2604,7 +2610,6 @@ void MainWindow::invalidateMasterPassword(bool reenter)
   // qDebug() << "MainWindow::invalidatePassword()";
   SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
-  ui->statusBar->showMessage(tr("Master password cleared for security"));
   d->KGK.invalidate();
   if (reenter) {
     enterMasterPassword();
@@ -2615,7 +2620,18 @@ void MainWindow::invalidateMasterPassword(bool reenter)
 void MainWindow::lockApplication(void)
 {
   Q_D(MainWindow);
-  if (d->parameterSetDirty || d->interactionSemaphore.available() == 0) {
+  // qDebug() << "MainWindow::lockApplication() triggered by" << (sender() == Q_NULLPTR ? sender()->objectName() : "NONE");
+  if (d->interactionSemaphore.available() == 0) {
+    restartInvalidationTimer();
+    return;
+  }
+  if (d->parameterSetDirty) {
+    QMessageBox::information(this,
+                             tr("Cannot lock due to pending changes"),
+                             tr("You've made changes to the current domain settings. "
+                                "The application cannot be locked unless the changes have been saved."),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok);
     restartInvalidationTimer();
     return;
   }
