@@ -73,7 +73,7 @@ void checkPortable(void) {
 }
 
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+#ifdef Q_OS_WIN
 bool isRunning(qint64 pid) {
   QProcess tasklistProcess;
   QStringList param = QStringList() << "/NH" << "/FO" << "CSV" << "/FI" << QString("PID eq %1").arg(pid);

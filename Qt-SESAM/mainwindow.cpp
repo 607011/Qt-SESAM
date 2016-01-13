@@ -2616,6 +2616,7 @@ void MainWindow::lockApplication(void)
 
 void MainWindow::sslErrorsOccured(QNetworkReply *reply, const QList<QSslError> &errors)
 {
+  Q_UNUSED(reply);
   foreach (QSslError error, errors) {
     qWarning() << "SSL error occured: " << int(error.error()) << error.errorString();
   }
