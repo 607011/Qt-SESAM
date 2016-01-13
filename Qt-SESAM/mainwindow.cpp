@@ -445,7 +445,7 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::prepareExit()";
+  // qDebug() << "MainWindow::prepareExit()";
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
