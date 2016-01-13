@@ -845,18 +845,11 @@
      </property>
      <addaction name="actionKeePassXmlFile"/>
     </widget>
-    <widget class="QMenu" name="menuExport">
-     <property name="title">
-      <string>Export</string>
-     </property>
-     <addaction name="actionExportCurrentSettingsAsQRCode"/>
-    </widget>
     <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
     <addaction name="separator"/>
     <addaction name="menuImport"/>
-    <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -881,6 +874,7 @@
      <addaction name="actionForcedPush"/>
      <addaction name="actionMigrateDomainToV3"/>
      <addaction name="separator"/>
+     <addaction name="actionExportCurrentSettingsAsQRCode"/>
      <addaction name="actionExportKGK"/>
      <addaction name="actionImportKGK"/>
      <addaction name="separator"/>
@@ -1059,7 +1053,7 @@
   </action>
   <action name="actionExportCurrentSettingsAsQRCode">
    <property name="text">
-    <string>Current settings as QR code ...</string>
+    <string>Export current settings as QR code ...</string>
    </property>
   </action>
  </widget>

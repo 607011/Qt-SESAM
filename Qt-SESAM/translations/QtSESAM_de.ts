@@ -1090,11 +1090,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>Exportieren</translation>
+        <translation type="vanished">Exportieren</translation>
     </message>
     <message>
         <source>Current settings as QR code ...</source>
-        <translation>Aktuelle Einstellungen als QR-Code ...</translation>
+        <translation type="vanished">Aktuelle Einstellungen als QR-Code ...</translation>
     </message>
     <message>
         <source>Export current settings as QR code</source>
@@ -1117,6 +1117,10 @@ auf deinem Computer: %3</translation>
 &lt;p&gt;Dieses Programm verwendet die Crypto++-Bibliothek und  libqrencode von Kentaro Fukuchi. Crypto++ steht unter der Boost Software License, Version 1.0. libqrencode steht unter der GNU Lesser General Public License 2.1 oder neuer.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Die Software wurde zu Lehr-, Lern- und Demonstrationszwecken geschaffen und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und die Heise Medien GmbH &amp;amp; Co. KG  haften nicht für Schäden, die aus der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.&lt;/strong&gt;&lt;/p&gt;
 </translation>
+    </message>
+    <message>
+        <source>Export current settings as QR code ...</source>
+        <translation>Aktuelle Domain-Einstellungen als QR-Code exportieren ...</translation>
     </message>
 </context>
 <context>
