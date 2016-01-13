@@ -445,6 +445,7 @@ void MainWindow::prepareExit(void)
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
   d->masterPasswordDialog->close();
+  invalidateMasterPassword(false);
   invalidatePassword(false);
   d->lockFile->unlock();
 }
@@ -2569,7 +2570,7 @@ void MainWindow::clearAllSettings(void)
       d->deleteReply = d->deleteNAM.post(req, QByteArray());
     }
     d->lastDomainBeforeLock.clear();
-    invalidatePassword(true);
+    invalidateMasterPassword(true);
   }
 }
 
@@ -2587,7 +2588,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 }
 
 
-void MainWindow::invalidatePassword(bool reenter)
+void MainWindow::invalidateMasterPassword(bool reenter)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::invalidatePassword()";
@@ -2610,7 +2611,7 @@ void MainWindow::lockApplication(void)
   }
   d->lastDomainBeforeLock = ui->domainsComboBox->currentText();
   saveSettings();
-  invalidatePassword(true);
+  invalidateMasterPassword(true);
 }
 
 
