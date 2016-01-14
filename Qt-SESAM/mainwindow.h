@@ -44,7 +44,6 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QImage>
-#include <QProgressDialog>
 
 #include "global.h"
 #include "domainsettings.h"

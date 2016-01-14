@@ -2395,9 +2395,9 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 }
 
 
-struct LoginToTextConverter
+struct DomainsettingsToTextConverter
 {
-  LoginToTextConverter(const SecureByteArray &kgk)
+  DomainsettingsToTextConverter(const SecureByteArray &kgk)
     : KGK(kgk)
   { /* ... */ }
   typedef SecureByteArray result_type;
@@ -2423,14 +2423,6 @@ struct LoginToTextConverter
 };
 
 
-void concat(SecureByteArray &all, const SecureByteArray &intermediate)
-{
-  if (!intermediate.isEmpty()) {
-    all.append(intermediate).append("\n");
-  }
-}
-
-
 static const QString LoginDataFileExtension = QObject::tr("Login data file (*.csv)");
 
 void MainWindow::onExportAllLoginDataAsClearText(void)
@@ -2446,19 +2438,23 @@ void MainWindow::onExportAllLoginDataAsClearText(void)
     progressDialog.setLabelText(tr("Exporting logins\nin %1 thread%2 ...")
                                 .arg(QThread::idealThreadCount())
                                 .arg(QThread::idealThreadCount() == 1 ? "" : tr("s")));
-    progressDialog.setCancelButtonText(tr("Cancel"));
+    progressDialog.show();
     QFutureWatcher<SecureByteArray> futureWatcher;
     QObject::connect(&futureWatcher, SIGNAL(finished()), &progressDialog, SLOT(reset()));
     QObject::connect(&progressDialog, SIGNAL(canceled()), &futureWatcher, SLOT(cancel()));
     QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int, int)), &progressDialog, SLOT(setRange(int, int)));
     QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
-    QFuture<SecureByteArray> future = QtConcurrent::mappedReduced(
+    QFuture<SecureByteArray> future = QtConcurrent::mappedReduced<SecureByteArray>(
           d->domains,
-          LoginToTextConverter(d->KGK),
-          concat,
+          DomainsettingsToTextConverter(d->KGK),
+          [](SecureByteArray &all, const SecureByteArray &intermediate)
+          {
+            if (!intermediate.isEmpty()) {
+              all.append(intermediate).append("\n");
+            }
+          },
           QtConcurrent::OrderedReduce);
     futureWatcher.setFuture(future);
-    progressDialog.show();
     progressDialog.exec();
     futureWatcher.waitForFinished();
     if (!futureWatcher.future().isCanceled()) {
@@ -2469,6 +2465,7 @@ void MainWindow::onExportAllLoginDataAsClearText(void)
         outFile.write(future.result());
         outFile.close();
       }
+      QMessageBox::information(this, tr("All login data exported"), tr("Successfully exported %1 logins.").arg(d->domains.count()));
     }
   }
 }
