@@ -80,6 +80,18 @@ DomainSettings::DomainSettings(const DomainSettings &o)
 { /* ... */ }
 
 
+bool DomainSettings::isEmpty(void) const
+{
+  return domainName.isEmpty();
+}
+
+
+void DomainSettings::clear(void)
+{
+  *this = DomainSettings();
+}
+
+
 QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;

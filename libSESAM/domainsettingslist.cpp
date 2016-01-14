@@ -29,18 +29,6 @@ DomainSettingsList::DomainSettingsList(void)
 }
 
 
-bool DomainSettings::isEmpty(void) const
-{
-  return domainName.isEmpty();
-}
-
-
-void DomainSettings::clear(void)
-{
-  *this = DomainSettings();
-}
-
-
 DomainSettings DomainSettingsList::at(const QString &domainName) const
 {
   for (DomainSettingsList::const_iterator ds = constBegin(); ds != constEnd(); ++ds)
