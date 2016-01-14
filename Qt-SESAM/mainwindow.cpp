@@ -2413,12 +2413,26 @@ struct DomainSettingsToTextConverter
         pwd = gpwd();
       }
       if (!pwd.isEmpty()) {
-        data = SecureString("%1\t%2\t%3\t%4")
+        QString notes = ds.notes;
+        notes.replace("\\", "\\\\");
+        notes.replace("\n", "\\n");
+        data = SecureString("[%1]\n"
+                            "pwd = %2\n")
             .arg(ds.domainName)
-            .arg(ds.url)
-            .arg(ds.userName)
             .arg(pwd)
             .toUtf8();
+        if (!ds.url.isEmpty()) {
+          data.append(SecureString("url = %1\n").arg(ds.url).toUtf8());
+        }
+        if (!ds.userName.isEmpty()) {
+          data.append(SecureString("user = %1\n").arg(ds.userName).toUtf8());
+        }
+        if (!notes.isEmpty()) {
+          data.append(SecureString("notes = %1\n").arg(notes).toUtf8());
+        }
+        if (!ds.group.isEmpty()) {
+          data.append(SecureString("group = %1\n").arg(ds.group).toUtf8());
+        }
       }
     }
     return data;
@@ -2426,7 +2440,7 @@ struct DomainSettingsToTextConverter
 };
 
 
-static const QString LoginDataFileExtension = QObject::tr("Login data file (*.csv)");
+static const QString LoginDataFileExtension = QObject::tr("Login data file (*.txt *.sesam)");
 
 void MainWindow::onExportAllLoginDataAsClearText(void)
 {
@@ -2464,7 +2478,6 @@ void MainWindow::onExportAllLoginDataAsClearText(void)
       QFile outFile(filename);
       bool ok = outFile.open(QIODevice::Truncate | QIODevice::WriteOnly);
       if (ok) {
-        outFile.write("Domain\tURL\tUsername\tPassword\n");
         outFile.write(future.result());
         outFile.close();
       }
