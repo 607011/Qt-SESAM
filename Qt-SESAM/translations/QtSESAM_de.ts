@@ -1132,7 +1132,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>All login data as clear text ...</source>
-        <translation>All Logins im Klartext ...</translation>
+        <translation>Alle Logins im Klartext ...</translation>
     </message>
     <message>
         <source>Export all login data as clear text</source>
@@ -1790,7 +1790,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Login data file (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Login-Daten-Datei (*.csv)</translation>
     </message>
 </context>
 <context>
