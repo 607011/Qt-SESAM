@@ -2395,29 +2395,32 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 }
 
 
-struct DomainsettingsToTextConverter
+struct DomainSettingsToTextConverter
 {
-  DomainsettingsToTextConverter(const SecureByteArray &kgk)
-    : KGK(kgk)
+  DomainSettingsToTextConverter(const SecureByteArray &kgk)
+    : kgk(kgk)
   { /* ... */ }
   typedef SecureByteArray result_type;
-  SecureByteArray KGK;
+  SecureByteArray kgk;
   SecureByteArray operator()(const DomainSettings &ds)
   {
-    SecureString pwd = ds.legacyPassword;
-    if (pwd.isEmpty()) {
-      Password gpwd(ds);
-      gpwd.generate(KGK);
-      pwd = gpwd();
+    SecureByteArray data;
+    if (!ds.deleted) {
+      SecureString pwd = ds.legacyPassword;
+      if (pwd.isEmpty()) {
+        Password gpwd(ds);
+        gpwd.generate(kgk);
+        pwd = gpwd();
+      }
+      if (!pwd.isEmpty()) {
+        data = SecureString("%1\t%2\t%3\t%4")
+            .arg(ds.domainName)
+            .arg(ds.url)
+            .arg(ds.userName)
+            .arg(pwd)
+            .toUtf8();
+      }
     }
-    SecureByteArray data = pwd.isEmpty()
-        ? SecureByteArray()
-        : SecureString("%1\t%2\t%3\t%4")
-          .arg(ds.domainName)
-          .arg(ds.url)
-          .arg(ds.userName)
-          .arg(pwd)
-          .toUtf8();
     return data;
   }
 };
@@ -2446,7 +2449,7 @@ void MainWindow::onExportAllLoginDataAsClearText(void)
     QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
     QFuture<SecureByteArray> future = QtConcurrent::mappedReduced<SecureByteArray>(
           d->domains,
-          DomainsettingsToTextConverter(d->KGK),
+          DomainSettingsToTextConverter(d->KGK),
           [](SecureByteArray &all, const SecureByteArray &intermediate)
           {
             if (!intermediate.isEmpty()) {
