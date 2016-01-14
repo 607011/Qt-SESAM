@@ -219,7 +219,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
@@ -726,7 +726,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export KGK ...</source>
-        <translation>KGK exportieren ...</translation>
+        <translation type="vanished">KGK exportieren ...</translation>
     </message>
     <message>
         <source>Security hint</source>
@@ -734,7 +734,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Import KGK ...</source>
-        <translation>KGK importieren ...</translation>
+        <translation type="vanished">KGK importieren ...</translation>
     </message>
     <message>
         <source>Export KGK to ...</source>
@@ -1090,7 +1090,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="vanished">Exportieren</translation>
+        <translation>Exportieren</translation>
     </message>
     <message>
         <source>Current settings as QR code ...</source>
@@ -1120,7 +1120,33 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export current settings as QR code ...</source>
-        <translation>Aktuelle Domain-Einstellungen als QR-Code exportieren ...</translation>
+        <translation type="vanished">Aktuelle Domain-Einstellungen als QR-Code exportieren ...</translation>
+    </message>
+    <message>
+        <source>KGK ...</source>
+        <translation>KGK ...</translation>
+    </message>
+    <message>
+        <source>Current domain settings as QR code ...</source>
+        <translation>Aktuelle Domain-Daten als QR-Code ...</translation>
+    </message>
+    <message>
+        <source>All login data as clear text ...</source>
+        <translation>All Logins im Klartext ...</translation>
+    </message>
+    <message>
+        <source>Export all login data as clear text</source>
+        <translation>All Login-Daten im Klartext exportieren</translation>
+    </message>
+    <message>
+        <source>Exporting logins
+in %1 thread%2 ...</source>
+        <translation>Exportieren der Logins
+in %1 Thread%2 ...</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation>s</translation>
     </message>
 </context>
 <context>
@@ -1757,6 +1783,14 @@ auf deinem Computer: %3</translation>
     <message>
         <source>QR code file (*.png)</source>
         <translation>QR-Code-Datei (*.png)</translation>
+    </message>
+    <message>
+        <source>Login data file (*.csv *.sesam)</source>
+        <translation type="vanished">Login-Daten (*.csv *.sesam)</translation>
+    </message>
+    <message>
+        <source>Login data file (*.csv)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

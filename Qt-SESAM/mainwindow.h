@@ -44,11 +44,13 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QImage>
+#include <QProgressDialog>
 
 #include "global.h"
 #include "domainsettings.h"
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
+#include "securebytearray.h"
 
 namespace Ui {
 class MainWindow;
@@ -101,6 +103,7 @@ private slots:
   void onDomainTextChanged(const QString &);
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
+  void onExportAllLoginDataAsClearText(void);
   void onExportCurrentSettingsAsQRCode(void);
   void onPasswordTemplateChanged(const QString &);
   void masterPasswordInvalidationTimeMinsChanged(int);
@@ -213,7 +216,7 @@ private: // methods
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
   void removeOutdatedBackupFilesThread(void);
-  QImage currentDomainSettings2QRCode(void);
+  QImage currentDomainSettings2QRCode(void) const;
 };
 
 #endif // __MAINWINDOW_H_

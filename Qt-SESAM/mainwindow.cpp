@@ -59,6 +59,8 @@
 #include <QLockFile>
 #include <QPainter>
 #include <QPixmap>
+#include <QFutureWatcher>
+#include <QtConcurrent>
 
 #include "global.h"
 #include "util.h"
@@ -323,6 +325,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
+  QObject::connect(ui->actionExportAllLoginDataAsClearText, SIGNAL(triggered(bool)), SLOT(onExportAllLoginDataAsClearText()));
   QObject::connect(ui->actionExportCurrentSettingsAsQRCode, SIGNAL(triggered(bool)), SLOT(onExportCurrentSettingsAsQRCode()));
   QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
   QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
@@ -2392,7 +2395,86 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
 }
 
 
-QImage MainWindow::currentDomainSettings2QRCode(void)
+struct LoginToTextConverter
+{
+  LoginToTextConverter(const SecureByteArray &kgk)
+    : KGK(kgk)
+  { /* ... */ }
+  typedef SecureByteArray result_type;
+  SecureByteArray KGK;
+  SecureByteArray operator()(const DomainSettings &ds)
+  {
+    SecureString pwd = ds.legacyPassword;
+    if (pwd.isEmpty()) {
+      Password gpwd(ds);
+      gpwd.generate(KGK);
+      pwd = gpwd();
+    }
+    SecureByteArray data = pwd.isEmpty()
+        ? SecureByteArray()
+        : SecureString("%1\t%2\t%3\t%4")
+          .arg(ds.domainName)
+          .arg(ds.url)
+          .arg(ds.userName)
+          .arg(pwd)
+          .toUtf8();
+    return data;
+  }
+};
+
+
+void concat(SecureByteArray &all, const SecureByteArray &intermediate)
+{
+  if (!intermediate.isEmpty()) {
+    all.append(intermediate).append("\n");
+  }
+}
+
+
+static const QString LoginDataFileExtension = QObject::tr("Login data file (*.csv)");
+
+void MainWindow::onExportAllLoginDataAsClearText(void)
+{
+  Q_D(MainWindow);
+  QString filename =
+      QFileDialog::getSaveFileName(this,
+                                   tr("Export all login data as clear text"),
+                                   QString(),
+                                   LoginDataFileExtension);
+  if (!filename.isEmpty()) {
+    QProgressDialog progressDialog(this);
+    progressDialog.setLabelText(tr("Exporting logins\nin %1 thread%2 ...")
+                                .arg(QThread::idealThreadCount())
+                                .arg(QThread::idealThreadCount() == 1 ? "" : tr("s")));
+    progressDialog.setCancelButtonText(tr("Cancel"));
+    QFutureWatcher<SecureByteArray> futureWatcher;
+    QObject::connect(&futureWatcher, SIGNAL(finished()), &progressDialog, SLOT(reset()));
+    QObject::connect(&progressDialog, SIGNAL(canceled()), &futureWatcher, SLOT(cancel()));
+    QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int, int)), &progressDialog, SLOT(setRange(int, int)));
+    QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
+    QFuture<SecureByteArray> future = QtConcurrent::mappedReduced(
+          d->domains,
+          LoginToTextConverter(d->KGK),
+          concat,
+          QtConcurrent::OrderedReduce);
+    futureWatcher.setFuture(future);
+    progressDialog.show();
+    progressDialog.exec();
+    futureWatcher.waitForFinished();
+    if (!futureWatcher.future().isCanceled()) {
+      QFile outFile(filename);
+      bool ok = outFile.open(QIODevice::Truncate | QIODevice::WriteOnly);
+      if (ok) {
+        outFile.write("Domain\tURL\tUsername\tPassword\n");
+        outFile.write(future.result());
+        outFile.close();
+      }
+    }
+  }
+}
+
+
+QImage MainWindow::currentDomainSettings2QRCode(void) const
 {
   static const int ModuleSize = 10;
   static const int Margin = ModuleSize;
