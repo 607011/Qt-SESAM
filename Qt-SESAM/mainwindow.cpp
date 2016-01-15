@@ -2422,16 +2422,16 @@ struct DomainSettingsToTextConverter
             .arg(pwd)
             .toUtf8();
         if (!ds.url.isEmpty()) {
-          data.append(SecureString("url = %1\n").arg(ds.url).toUtf8());
+          data.append(QString("url = %1\n").arg(ds.url).toUtf8());
         }
         if (!ds.userName.isEmpty()) {
-          data.append(SecureString("user = %1\n").arg(ds.userName).toUtf8());
+          data.append(QString("user = %1\n").arg(ds.userName).toUtf8());
         }
         if (!notes.isEmpty()) {
           data.append(SecureString("notes = %1\n").arg(notes).toUtf8());
         }
         if (!ds.group.isEmpty()) {
-          data.append(SecureString("group = %1\n").arg(ds.group).toUtf8());
+          data.append(QString("group = %1\n").arg(ds.group).toUtf8());
         }
       }
     }
