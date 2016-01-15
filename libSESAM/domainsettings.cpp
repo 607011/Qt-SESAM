@@ -82,7 +82,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
 
 bool DomainSettings::expired(void) const
 {
-  return expiryDate > QDateTime::currentDateTime();
+  return !expiryDate.isNull() && expiryDate < QDateTime::currentDateTime();
 }
 
 
