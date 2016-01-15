@@ -193,14 +193,14 @@ int Password::constructedComplexity(const QBitArray &ba)
 void Password::generate(const SecureByteArray &masterPassword)
 {
   Q_D(Password);
-
   const SecureByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
       d->domainSettings.userName.toUtf8() +
       masterPassword;
-
-  d->pbkdf2.generate(pwd, QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()), d->domainSettings.iterations, QCryptographicHash::Sha512);
-
+  d->pbkdf2.generate(pwd,
+                     QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()),
+                     d->domainSettings.iterations,
+                     QCryptographicHash::Sha512);
   remixed();
   emit generated();
 }
