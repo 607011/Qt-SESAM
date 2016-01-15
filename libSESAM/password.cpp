@@ -190,13 +190,13 @@ int Password::constructedComplexity(const QBitArray &ba)
 }
 
 
-void Password::generate(const SecureByteArray &masterPassword)
+void Password::generate(const SecureByteArray &key)
 {
   Q_D(Password);
   const SecureByteArray &pwd =
       d->domainSettings.domainName.toUtf8() +
       d->domainSettings.userName.toUtf8() +
-      masterPassword;
+      key;
   d->pbkdf2.generate(pwd,
                      QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()),
                      d->domainSettings.iterations,
@@ -265,11 +265,11 @@ const SecureString &Password::remixed(void)
 }
 
 
-void Password::generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings)
+void Password::generateAsync(const SecureByteArray &key, const DomainSettings &domainSettings)
 {
   Q_D(Password);
   d->domainSettings = domainSettings;
-  d->future = QtConcurrent::run(this, &Password::generate, masterPassword);
+  d->future = QtConcurrent::run(this, &Password::generate, key);
 }
 
 

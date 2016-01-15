@@ -74,8 +74,8 @@ public:
   static int constructedComplexity(const QBitArray &);
   static const QString &charSetFor(char);
 
-  void generate(const SecureByteArray &masterPassword);
-  void generateAsync(const SecureByteArray &masterPassword, const DomainSettings &domainSettings = DomainSettings());
+  void generate(const SecureByteArray &key);
+  void generateAsync(const SecureByteArray &key, const DomainSettings &domainSettings = DomainSettings());
 
   bool isRunning(void) const;
   bool isAborted(void) const;
