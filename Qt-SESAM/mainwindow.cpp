@@ -2405,12 +2405,12 @@ struct DomainSettingsToTextConverter
   SecureByteArray operator()(const DomainSettings &ds)
   {
     SecureByteArray data;
-    if (!ds.deleted) {
+    if (!ds.deleted && !ds.expired()) {
       SecureString pwd = ds.legacyPassword;
       if (pwd.isEmpty()) {
         Password gpwd(ds);
         gpwd.generate(kgk);
-        pwd = gpwd();
+        pwd = gpwd.password();
       }
       if (!pwd.isEmpty()) {
         QString notes = ds.notes;
