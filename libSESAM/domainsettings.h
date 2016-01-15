@@ -35,6 +35,7 @@ public:
   DomainSettings(void);
   DomainSettings(const DomainSettings &);
 
+  bool expired(void) const;
   QVariantMap toVariantMap(void) const;
   bool isEmpty(void) const;
   void clear(void);
