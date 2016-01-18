@@ -23,6 +23,9 @@
 #include <QtGlobal>
 #include <QString>
 #include <QFile>
+#include <QScopedPointer>
+
+class LoggerPrivate;
 
 class Logger
 {
@@ -32,15 +35,16 @@ public:
   void setEnabled(bool);
   void setFileName(const QString &);
 
+  Logger(const Logger &) = delete;
+  void operator=(Logger const &) = delete;
+
 private:
   Logger(void);
   ~Logger();
-  QFile mFile;
-  bool mEnabled;
 
-public:
-  Logger(const Logger &) = delete;
-  void operator=(Logger const &) = delete;
+
+  QScopedPointer<LoggerPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Logger)
 
 };
 

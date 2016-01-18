@@ -26,18 +26,28 @@
 #include <QStandardPaths>
 #include <QFile>
 
+class LoggerPrivate {
+public:
+  LoggerPrivate(void)
+    : enabled(true)
+  { /* ... */ }
+  QFile file;
+  bool enabled;
+};
+
 
 Logger::Logger(void)
-  : mEnabled(true)
+  : d_ptr(new LoggerPrivate)
 {
-  /* ... */
+  setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
 }
 
 
 Logger::~Logger()
 {
+  Q_D(Logger);
   log(QString("Logger shutting down ..."));
-  mFile.close();
+  d->file.close();
 }
 
 
@@ -50,25 +60,34 @@ Logger &Logger::instance(void)
 
 void Logger::log(const QString &message)
 {
-  qDebug() << message;
-  if (mEnabled && mFile.isOpen()) {
-    mFile.write(QString("[%1] %2\n")
-                .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
-                .arg(message).toUtf8());
-    mFile.flush();
+  Q_D(Logger);
+  if (d->enabled) {
+    const QByteArray &logMsg = QString("[%1] %2")
+        .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+        .arg(message).toUtf8();
+    if (d->file.isOpen()) {
+      d->file.write(logMsg);
+      d->file.write("\n");
+      d->file.flush();
+    }
+    else {
+      qDebug().noquote().nospace() << logMsg;
+    }
   }
 }
 
 
 void Logger::setEnabled(bool enabled)
 {
-  mEnabled = enabled;
+  Q_D(Logger);
+  d->enabled = enabled;
 }
 
 
 void Logger::setFileName(const QString &filename)
 {
-  mFile.setFileName(filename);
-  mFile.open(QIODevice::WriteOnly | QIODevice::Append);
+  Q_D(Logger);
+  d->file.setFileName(filename);
+  d->file.open(QIODevice::WriteOnly | QIODevice::Append);
   log(QString("Logger writing to %1").arg(filename));
 }
