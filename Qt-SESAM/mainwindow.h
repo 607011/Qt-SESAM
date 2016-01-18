@@ -145,7 +145,7 @@ private slots:
   void hackLegacyPassword(void);
 #endif
   QFuture<void> &generateSaltKeyIV(void);
-  void onGenerateSaltKeyIV(void);
+  void onGeneratedSaltKeyIV(void);
   void onExportKGK(void);
   void onImportKGK(void);
   void onImportKeePass2XmlFile(void);
@@ -216,6 +216,7 @@ private: // methods
   void prepareExit(void);
   void removeOutdatedBackupFilesThread(void);
   QImage currentDomainSettings2QRCode(void) const;
+  bool validCredentials(void) const;
 };
 
 #endif // __MAINWINDOW_H_

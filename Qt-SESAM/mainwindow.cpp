@@ -128,8 +128,6 @@ public:
 #endif
     , trayIcon(QIcon(":/images/ctSESAM.ico"))
     , salt(Crypter::generateSalt())
-    , masterKey(Crypter::AESKeySize, static_cast<char>(0))
-    , IV(Crypter::AESBlockSize, static_cast<char>(0))
     , deleteReply(Q_NULLPTR)
     , readReply(Q_NULLPTR)
     , writeReply(Q_NULLPTR)
@@ -226,7 +224,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 {
   Q_D(MainWindow);
 
-  Logger::instance().setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
+  // Logger::instance().setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
   Logger::instance().log("MainWindow::MainWindow()");
   d->forceStart = forceStart;
   const QString lockfilePath = QDir::homePath() + "/.qt-sesam.lck";
@@ -349,7 +347,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->actionHackLegacyPassword->setVisible(false);
 #endif
   QObject::connect(ui->actionRegenerateSaltKeyIV, SIGNAL(triggered(bool)), SLOT(generateSaltKeyIV()));
-  QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGenerateSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
+  QObject::connect(this, SIGNAL(saltKeyIVGenerated()), SLOT(onGeneratedSaltKeyIV()), Qt::ConnectionType::QueuedConnection);
   QObject::connect(d->progressDialog, SIGNAL(cancelled()), SLOT(cancelServerOperation()));
 
   QObject::connect(&d->password, SIGNAL(generated()), SLOT(onPasswordGenerated()));
@@ -1192,6 +1190,7 @@ QFuture<void> &MainWindow::generateSaltKeyIV(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::generateSaltKeyIV()";
+  Logger::instance().log("MainWindow::generateSaltKeyIV() ...");
   d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
   return d->keyGenerationFuture;
 }
@@ -1212,9 +1211,10 @@ void MainWindow::generateSaltKeyIVThread(void)
 }
 
 
-void MainWindow::onGenerateSaltKeyIV(void)
+void MainWindow::onGeneratedSaltKeyIV(void)
 {
   Q_D(MainWindow);
+  Logger::instance().log("MainWindow::onGeneratedSaltKeyIV()");
   ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 4).toHex())), 2000);
 }
 
@@ -1718,7 +1718,7 @@ void MainWindow::writeBackupFile(void)
       .arg(QDateTime::currentDateTime().toString("yyyyMMddThhmmss"))
       .arg(AppName);
   if (QDir().mkpath(backupFilePath)) {
-    Logger::instance().log(QString("Writing backup of settings to %1 ...").arg(backupFilePath));
+    Logger::instance().log(QString("Writing backup of settings to %1 ...").arg(backupFilename));
     QSettings backupSettings(backupFilename, QSettings::IniFormat);
     foreach (QString key, d->settings.allKeys()) {
       backupSettings.setValue(key, d->settings.value(key));
@@ -1732,23 +1732,39 @@ void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::saveAllDomainDataToSettings()";
-  d->keyGenerationMutex.lock();
-  QByteArray cipher;
-  try {
-    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
-  }
-  catch (CryptoPP::Exception &e) {
-    qErrnoWarning((int)e.GetErrorType(), e.what());
-  }
-  d->keyGenerationMutex.unlock();
-  const QString &b64DomainData = QString::fromUtf8(cipher.toBase64());
-  d->settings.setValue("sync/domains", b64DomainData);
-  d->settings.sync();
-  if (d->masterPasswordChangeStep == 0) {
-    if (d->optionsDialog->writeBackups()) {
-      writeBackupFile();
+  if (!d->masterKey.isEmpty()) {
+    QByteArray cipher;
+    {
+      QMutexLocker locker(&d->keyGenerationMutex);
+      try {
+        d->keyGenerationFuture.waitForFinished();
+        if (validCredentials()) {
+          cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
+        }
+        else {
+          Logger::instance().log(QString("ERROR in MainWindow::saveAllDomainDataToSettings(): invalid credentials"));
+        }
+      }
+      catch (CryptoPP::Exception &e) {
+        qErrnoWarning((int)e.GetErrorType(), e.what());
+        Logger::instance().log(QString("ERROR in MainWindow::saveAllDomainDataToSettings(): %1").arg(e.what()));
+        return;
+      }
     }
-    generateSaltKeyIV().waitForFinished();
+    if (!cipher.isEmpty()) {
+      const QString &b64DomainData = QString::fromUtf8(cipher.toBase64());
+      d->settings.setValue("sync/domains", b64DomainData);
+      d->settings.sync();
+      if (d->masterPasswordChangeStep == 0) {
+        if (d->optionsDialog->writeBackups()) {
+          writeBackupFile();
+        }
+        generateSaltKeyIV().waitForFinished();
+      }
+    }
+  }
+  else {
+    Logger::instance().log("ERROR in MainWindow::saveAllDomainDataToSettings(): d->masterKey must not empty");
   }
 }
 
@@ -1806,13 +1822,20 @@ QString MainWindow::collectedSyncData(void)
   syncData["sync/useServer"] = d->optionsDialog->useSyncServer();
   QByteArray baCryptedData;
   try {
-    baCryptedData = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
+    d->keyGenerationFuture.waitForFinished();
+    if (validCredentials()) {
+      baCryptedData = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
+    }
+    else {
+      Logger::instance().log(QString("ERROR in MainWindow::collectedSyncData(): invalid credentials"));
+    }
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
+    Logger::instance().log(QString("ERROR in MainWindow::collectedSyncData(): %1").arg(e.what()));
     return QString();
   }
-  return QString::fromUtf8(baCryptedData.toBase64());
+  return baCryptedData.isEmpty() ? QString() : QString::fromUtf8(baCryptedData.toBase64());
 }
 
 
@@ -1972,12 +1995,27 @@ void MainWindow::createEmptySyncFile(void)
                          tr("The sync file %1 cannot be created. Reason: %2")
                          .arg(d->optionsDialog->syncFilename())
                          .arg(syncFile.errorString()), QMessageBox::Ok);
+    return;
   }
-  d->keyGenerationMutex.lock();
-  const QByteArray &domains = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QByteArray("{}"), CompressionEnabled);
-  d->keyGenerationMutex.unlock();
-  syncFile.write(domains);
-  syncFile.close();
+  QMutexLocker(&d->keyGenerationMutex);
+  d->keyGenerationFuture.waitForFinished();
+  QByteArray domains;
+  try {
+    if (validCredentials()) {
+      domains = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QByteArray("{}"), CompressionEnabled);
+    }
+    else {
+      Logger::instance().log(QString("ERROR in MainWindow::createEmptySyncFile(): invalid credentials"));
+    }
+  }
+  catch (CryptoPP::Exception &e) {
+    Logger::instance().log(QString("ERROR in MainWindow::createEmptySyncFile(): %1").arg(e.what()));
+    return;
+  }
+  if (!domains.isEmpty() && syncFile.isOpen()) {
+    syncFile.write(domains);
+    syncFile.close();
+  }
 }
 
 
@@ -2058,7 +2096,13 @@ QByteArray MainWindow::cryptedRemoteDomains(void)
   QMutexLocker(&d->keyGenerationMutex);
   QByteArray cipher;
   try {
-    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->remoteDomains.toJson(), CompressionEnabled);
+    d->keyGenerationFuture.waitForFinished();
+    if (validCredentials()) {
+      cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->remoteDomains.toJson(), CompressionEnabled);
+    }
+    else {
+      Logger::instance().log(QString("ERROR in MainWindow::cryptedRemoteDomains(): invalid credentials"));
+    }
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -2293,16 +2337,26 @@ void MainWindow::sendToSyncServer(const QByteArray &cipher)
 void MainWindow::onForcedPush(void)
 {
   Q_D(MainWindow);
-  d->keyGenerationMutex.lock();
   QByteArray cipher;
-  try {
-    cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
+  {
+    QMutexLocker(&d->keyGenerationMutex);
+    try {
+      d->keyGenerationFuture.waitForFinished();
+      if (validCredentials()) {
+        cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
+      }
+      else {
+        Logger::instance().log(QString("ERROR in MainWindow::onForcedPush(): invalid credentials"));
+      }
+    }
+    catch (CryptoPP::Exception &e) {
+      wrongPasswordWarning((int)e.GetErrorType(), e.what());
+      return;
+    }
   }
-  catch (CryptoPP::Exception &e) {
-    wrongPasswordWarning((int)e.GetErrorType(), e.what());
+  if (!cipher.isEmpty()) {
+    sendToSyncServer(cipher);
   }
-  d->keyGenerationMutex.unlock();
-  sendToSyncServer(cipher);
 }
 
 
@@ -2530,6 +2584,12 @@ QImage MainWindow::currentDomainSettings2QRCode(void) const
   p.end();
   QRcode_free(qrcode);
   return qr.toImage();
+}
+
+
+bool MainWindow::validCredentials(void) const
+{
+  return !d_ptr->masterKey.isEmpty() && !d_ptr->IV.isEmpty();
 }
 
 
