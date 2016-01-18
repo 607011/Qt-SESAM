@@ -62,6 +62,7 @@
 #include <QFutureWatcher>
 #include <QtConcurrent>
 
+#include "logger.h"
 #include "global.h"
 #include "util.h"
 #include "progressdialog.h"
@@ -224,10 +225,14 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   , d_ptr(new MainWindowPrivate(this))
 {
   Q_D(MainWindow);
+
+  Logger::instance().setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
+  Logger::instance().log("MainWindow::MainWindow()");
   d->forceStart = forceStart;
   const QString lockfilePath = QDir::homePath() + "/.qt-sesam.lck";
   d->lockFile = new QLockFile(lockfilePath);
   if (!d->lockFile->tryLock()) {
+    Logger::instance().log(QString("Lock file detected at %1").arg(lockfilePath));
     if (!d->forceStart) {
       qint64 appId;
       QString hostName;
@@ -260,6 +265,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         if (button == QMessageBox::Yes) {
           d->lockFile->removeStaleLockFile();
+          Logger::instance().log("Removing stale lock file");
         }
         else {
           close();
@@ -269,6 +275,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
     }
     else {
       d->lockFile->removeStaleLockFile();
+      Logger::instance().log("Removing stale lock file");
     }
   }
 
@@ -1711,6 +1718,7 @@ void MainWindow::writeBackupFile(void)
       .arg(QDateTime::currentDateTime().toString("yyyyMMddThhmmss"))
       .arg(AppName);
   if (QDir().mkpath(backupFilePath)) {
+    Logger::instance().log(QString("Writing backup of settings to %1 ...").arg(backupFilePath));
     QSettings backupSettings(backupFilename, QSettings::IniFormat);
     foreach (QString key, d->settings.allKeys()) {
       backupSettings.setValue(key, d->settings.value(key));
@@ -1812,6 +1820,7 @@ void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::saveSettings()";
+  Logger::instance().log("MainWindow::saveSettings()");
   d->settings.setValue("sync/param", collectedSyncData());
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
@@ -1909,6 +1918,8 @@ bool MainWindow::restoreSettings(void)
     d->optionsDialog->setServerUsername(syncData["sync/server/username"].toString());
     d->optionsDialog->setServerPassword(syncData["sync/server/password"].toString());
   }
+  Logger::instance().setEnabled(d->settings.value("misc/logger/enabled", true).toBool());
+  Logger::instance().log("MainWindow::restoreSettings() finish.");
   return true;
 }
 
@@ -1974,6 +1985,7 @@ void MainWindow::syncWithFile(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::syncWithFile()";
+  Logger::instance().log(QString("MainWindow::syncWithFile() %1").arg(d->optionsDialog->syncFilename()));
   QFile syncFile(d->optionsDialog->syncFilename());
   bool ok = syncFile.open(QIODevice::ReadOnly);
   if (!ok) {
@@ -1991,7 +2003,9 @@ void MainWindow::beginSyncWithServer(void)
 {
   Q_D(MainWindow);
   d->progressDialog->setText(tr("Reading from server ..."));
-  QNetworkRequest req(QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl()));
+  QUrl serverUrl = QUrl(d->optionsDialog->serverRootUrl() + d->optionsDialog->readUrl());
+  Logger::instance().log(QString("MainWindow::beginSyncWithServer() %1").arg(serverUrl.toString()));
+  QNetworkRequest req(serverUrl);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
   req.setHeader(QNetworkRequest::UserAgentHeader, AppUserAgent);
   req.setRawHeader("Authorization", d->optionsDialog->httpBasicAuthenticationString());
