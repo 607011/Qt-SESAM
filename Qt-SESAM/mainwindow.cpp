@@ -2833,6 +2833,7 @@ void MainWindow::invalidateMasterPassword(bool reenter)
   SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
   d->KGK.invalidate();
+  d->masterKey.invalidate();
   if (reenter) {
     enterMasterPassword();
   }
