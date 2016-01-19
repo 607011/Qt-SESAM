@@ -87,6 +87,9 @@ void Logger::setEnabled(bool enabled)
 void Logger::setFileName(const QString &filename)
 {
   Q_D(Logger);
+  if (d->file.isOpen()) {
+    d->file.close();
+  }
   d->file.setFileName(filename);
   d->file.open(QIODevice::WriteOnly | QIODevice::Append);
   log(QString("Logger writing to %1").arg(filename));
