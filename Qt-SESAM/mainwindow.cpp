@@ -1396,6 +1396,7 @@ void MainWindow::onImportPasswordSafeFile(void)
       d->domains.append(ds);
     }
     DomainSettings currentDomainSettings = d->domains.at(ui->domainsComboBox->currentText());
+    saveAllDomainDataToSettings();
     makeDomainComboBox();
     if (!currentDomainSettings.isEmpty()) {
       copyDomainSettingsToGUI(currentDomainSettings);
