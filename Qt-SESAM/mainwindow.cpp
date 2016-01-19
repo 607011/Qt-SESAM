@@ -2844,6 +2844,7 @@ void MainWindow::lockApplication(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::lockApplication() triggered by" << (sender() == Q_NULLPTR ? sender()->objectName() : "NONE");
+  Logger::instance().log("MainWindow::lockApplication()");
   if (d->interactionSemaphore.available() == 0) {
     restartInvalidationTimer();
     return;
