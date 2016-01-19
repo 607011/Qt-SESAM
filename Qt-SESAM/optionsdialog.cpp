@@ -346,6 +346,18 @@ int OptionsDialog::maxBackupFileAge(void) const
 }
 
 
+void OptionsDialog::setLoggingEnabled(bool enabled)
+{
+  ui->enabledLoggingCheckBox->setChecked(enabled);
+}
+
+
+bool OptionsDialog::loggingEnabled(void) const
+{
+  return ui->enabledLoggingCheckBox->isChecked();
+}
+
+
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
 {
   return ui->masterPasswordInvalidationTimeMinsSpinBox->value();
