@@ -21,7 +21,6 @@
 #define PASSWORDSAFEREADER_H
 
 #include <QScopedPointer>
-#include <QDomElement>
 #include <QString>
 
 #include "domainsettingslist.h"
