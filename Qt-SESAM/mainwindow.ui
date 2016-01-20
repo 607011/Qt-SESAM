@@ -832,7 +832,7 @@
      <x>0</x>
      <y>0</y>
      <width>343</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1078,6 +1078,9 @@
   <action name="actionPasswordSafeFile">
    <property name="text">
     <string>PasswordSafe file...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I, Ctrl+P</string>
    </property>
   </action>
  </widget>
