@@ -143,7 +143,7 @@ private slots:
     pwd.generate("foobar");
     QVERIFY(pwd.hexKey() == "cb0ae7b2b7fc969770a9bfc1eef3a9afd02d2b28d6d8e9cb324f41a31392a0f800ea7e2e43e847537ceb863a16a869d5e4dd6822cf3be0206440eff97dc2001c");
     QVERIFY(pwd.password() == "wLUwoQvKzBaYXbme");
-    QVERIFY(pwd.remixed() == "wLUwoQvKzBaYXbme");
+    QVERIFY(pwd.remix() == "wLUwoQvKzBaYXbme");
   }
 
   void pwdgen_simple_password_3_tpl(void)
@@ -158,7 +158,7 @@ private slots:
     pwd.generate("foobar");
     QVERIFY(pwd.hexKey() == "cb0ae7b2b7fc969770a9bfc1eef3a9afd02d2b28d6d8e9cb324f41a31392a0f800ea7e2e43e847537ceb863a16a869d5e4dd6822cf3be0206440eff97dc2001c");
     QVERIFY(pwd.password() == "wLUwoQvKzBaYXbme");
-    QVERIFY(pwd.remixed() == "wLUwoQvKzBaYXbme");
+    QVERIFY(pwd.remix() == "wLUwoQvKzBaYXbme");
     QVERIFY(pwd() == "wLUwoQvKzBaYXbme");
   }
 
