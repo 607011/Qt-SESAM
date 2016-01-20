@@ -86,6 +86,9 @@ bool PasswordSafeReader::parse(void)
       ds.groupHierarchy = hierarchy.join(QChar(';'));
       ds.domainName = domainName;
       ds.userName = fields.at(1);
+      if (!ds.userName.isEmpty()) {
+        ds.domainName.append(QString(" [%1]").arg(ds.userName));
+      }
       ds.legacyPassword = fields.at(2);
       ds.url = fields.at(3);
       ds.createdDate = QDateTime::fromString(fields.at(5), "yyyy/MM/dd hh:mm:ss");
