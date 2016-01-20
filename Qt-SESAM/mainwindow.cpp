@@ -2454,7 +2454,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   applyComplexity(complexity);
   setTemplateAndUsedCharacters();
   d->password.setDomainSettings(collectedDomainSettings());
-  const SecureString &pwd = d->password.remixed();
+  const SecureString &pwd = d->password.remix();
   ui->generatedPasswordLineEdit->setText(pwd);
   ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(length));
   d->pwdLabelOpacityEffect->setOpacity(pwd.isEmpty() ? 0.5 : 1.0);
