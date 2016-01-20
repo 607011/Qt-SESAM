@@ -61,7 +61,8 @@ SOURCES += main.cpp \
     keepass2xmlreader.cpp \
     hackhelper.cpp \
     expandablegroupbox.cpp \
-    logger.cpp
+    logger.cpp \
+    passwordsafereader.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -78,7 +79,8 @@ HEADERS  += \
     tcpclient.h \
     keepass2xmlreader.h \
     expandablegroupbox.h \
-    logger.h
+    logger.h \
+    passwordsafereader.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \

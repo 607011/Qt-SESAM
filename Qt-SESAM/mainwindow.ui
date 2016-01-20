@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
+    <width>343</width>
     <height>612</height>
    </rect>
   </property>
@@ -831,7 +831,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>332</width>
+     <width>343</width>
      <height>21</height>
     </rect>
    </property>
@@ -844,6 +844,7 @@
       <string>Import</string>
      </property>
      <addaction name="actionKeePassXmlFile"/>
+     <addaction name="actionPasswordSafeFile"/>
     </widget>
     <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
@@ -1072,6 +1073,14 @@
   <action name="actionExportAllLoginDataAsClearText">
    <property name="text">
     <string>All login data as clear text ...</string>
+   </property>
+  </action>
+  <action name="actionPasswordSafeFile">
+   <property name="text">
+    <string>PasswordSafe file...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I, Ctrl+P</string>
    </property>
   </action>
  </widget>

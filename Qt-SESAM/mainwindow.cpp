@@ -84,6 +84,7 @@
 #include "tcpclient.h"
 #include "exporter.h"
 #include "keepass2xmlreader.h"
+#include "passwordsafereader.h"
 
 #include "qrencode.h"
 
@@ -335,6 +336,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
   QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
   QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
+  QObject::connect(ui->actionPasswordSafeFile, SIGNAL(triggered(bool)), SLOT(onImportPasswordSafeFile()));
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(closing()), SLOT(onMasterPasswordClosing()), Qt::DirectConnection);
@@ -1347,6 +1349,72 @@ void MainWindow::onImportKeePass2XmlFile(void)
     }
     else {
       msgBoxText = tr("<p>%1 domains have been imported successfully from the KeePass 2 XML file.</p>")
+        .arg(reader.domains().count());
+    }
+    if (renamed.count() > 0) {
+      if (renamed.count() == 1) {
+        msgBoxText += tr("<p>%1 domain had to be renamed:</p>").arg(renamed.count());
+      }
+      else {
+        msgBoxText += tr("<p>%1 domains had to be renamed:</p>").arg(renamed.count());
+      }
+      msgBoxText += "<ul>";
+      foreach (StringPair r, renamed) {
+        msgBoxText += "<li>" + r.first + " >> " + r.second + "</li>";
+      }
+      msgBoxText += "</ul>";
+    }
+    QMessageBox::information(this, tr("Import successful"), msgBoxText);
+  }
+}
+
+
+void MainWindow::onImportPasswordSafeFile(void)
+{
+  Q_D(MainWindow);
+  const QString &psFilename = QFileDialog::getOpenFileName(this, tr("Import PasswordSafe file"), QString(), "PasswordSafe (*.txt)");
+  if (psFilename.isEmpty())
+    return;
+  QFileInfo fi(psFilename);
+  if (fi.isReadable() && fi.isFile()) {
+    PasswordSafeReader reader(psFilename);
+    if (!reader.isValid()) {
+      if (!reader.dataErrorString().isEmpty()) {
+      QMessageBox::warning(this,
+                           tr("Invalid PasswordSafe file"),
+                           tr("The selected PasswordSafe file doesn't contain valid data: %1 (line %2, column: %3)")
+                           .arg(reader.dataErrorString()).arg(reader.errorLine()).arg(reader.errorColumn()));
+      }
+      else {
+        QMessageBox::warning(this,
+                             tr("Cannot read PasswordSafe file"),
+                             tr("The selected PasswordSafe file cannot be read: %1")
+                             .arg(reader.errorString()));
+      }
+      return;
+    }
+    typedef QPair<QString, QString> StringPair;
+    QList<StringPair> renamed;
+    foreach (DomainSettings ds, reader.domains()) {
+      QString newDomainName = selectAlternativeDomainNameFor(ds.domainName);
+      if (newDomainName != ds.domainName)
+        renamed.append(qMakePair(ds.domainName, newDomainName));
+      ds.domainName = newDomainName;
+      d->domains.append(ds);
+    }
+    DomainSettings currentDomainSettings = d->domains.at(ui->domainsComboBox->currentText());
+    saveAllDomainDataToSettings();
+    makeDomainComboBox();
+    if (!currentDomainSettings.isEmpty()) {
+      copyDomainSettingsToGUI(currentDomainSettings);
+    }
+    QString msgBoxText;
+    if (reader.domains().count() == 1) {
+      msgBoxText = tr("<p>%1 domain has been imported successfully from the PasswordSafe file.</p>")
+        .arg(reader.domains().count());
+    }
+    else {
+      msgBoxText = tr("<p>%1 domains have been imported successfully from the PasswordSafe file.</p>")
         .arg(reader.domains().count());
     }
     if (renamed.count() > 0) {
