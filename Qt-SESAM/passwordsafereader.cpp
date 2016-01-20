@@ -83,7 +83,7 @@ bool PasswordSafeReader::parse(void)
       QString domainName = hierarchy.last();
       domainName.replace("»", ".");
       hierarchy.pop_back();
-      ds.group = hierarchy.join(QChar(';'));
+      ds.groupHierarchy = hierarchy.join(QChar(';'));
       ds.domainName = domainName;
       ds.userName = fields.at(1);
       ds.legacyPassword = fields.at(2);
@@ -93,8 +93,8 @@ bool PasswordSafeReader::parse(void)
       ds.expiryDate = QDateTime::fromString(fields.at(8), "yyyy/MM/dd hh:mm:ss");
       ds.notes = fields.at(16);
       if (ds.notes.at(0) == '"') {
-        ds.notes = ds.notes.remove(0, 1); // remove start quote
-        ds.notes.chop(1);                 // remove end quote
+        ds.notes.chop(1);      // remove end quote
+        ds.notes.remove(0, 1); // remove start quote
         ds.notes.replace("»", "\n");
       }
       d->domains.append(ds);

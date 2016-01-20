@@ -126,7 +126,7 @@ void KeePass2XmlReader::parseXml(const QDomElement &e, int level)
           QDomElement entry = findChildByTagName(e, "Entry");
           if (!entry.isNull()) {
             DomainSettings ds;
-            ds.group = groupHierarchy(level);
+            ds.groupHierarchy = groupHierarchy(level);
             QDomNode child = entry.firstChild();
             while (!child.isNull()) {
               QDomElement eChild = child.toElement();

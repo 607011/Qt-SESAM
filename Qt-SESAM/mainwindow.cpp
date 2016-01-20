@@ -2498,8 +2498,8 @@ struct DomainSettingsToTextConverter
         if (!notes.isEmpty()) {
           data.append(SecureString("notes = %1\n").arg(notes).toUtf8());
         }
-        if (!ds.group.isEmpty()) {
-          data.append(QString("group = %1\n").arg(ds.group).toUtf8());
+        if (!ds.groupHierarchy.isEmpty()) {
+          data.append(QString("group = %1\n").arg(ds.groupHierarchy).toUtf8());
         }
       }
     }

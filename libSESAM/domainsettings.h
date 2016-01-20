@@ -93,7 +93,7 @@ public:
   QByteArray passwordTemplate;
 
   static const QString GROUP;
-  QString group;
+  QString groupHierarchy;
 
   static const QString EXPIRY_DATE;
   QDateTime expiryDate;
