@@ -34,7 +34,7 @@ class SecureString : public QString
 {
 public:
   SecureString(void);
-  SecureString(const QChar *unicode, int size = -1);
+  explicit SecureString(const QChar *unicode, int size = -1);
   SecureString(QChar ch);
   SecureString(int size, QChar ch);
   SecureString(QLatin1String str);
