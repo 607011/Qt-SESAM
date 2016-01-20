@@ -17,8 +17,8 @@
 
 */
 
-#ifndef PASSWORDSAFEREADER_H
-#define PASSWORDSAFEREADER_H
+#ifndef __PASSWORDSAFEREADER_H_
+#define __PASSWORDSAFEREADER_H_
 
 #include <QScopedPointer>
 #include <QString>
@@ -30,26 +30,26 @@ class PasswordSafeReaderPrivate;
 class PasswordSafeReader
 {
 public:
-    PasswordSafeReader(const QString &filename);
-    ~PasswordSafeReader();
-    bool isOpen(void) const;
-    bool isValid(void) const;
-    QString errorString(void) const;
-    QString dataErrorString(void) const;
-    int errorColumn(void) const;
-    int errorLine(void) const;
-    DomainSettingsList domains(void) const;
+  PasswordSafeReader(const QString &filename);
+  ~PasswordSafeReader();
+  bool isOpen(void) const;
+  bool isValid(void) const;
+  const QString &errorString(void) const;
+  const QString &dataErrorString(void) const;
+  int errorColumn(void) const;
+  int errorLine(void) const;
+  const DomainSettingsList &domains(void) const;
 
-  private:
-    QScopedPointer<PasswordSafeReaderPrivate> d_ptr;
-    Q_DECLARE_PRIVATE(PasswordSafeReader)
-    Q_DISABLE_COPY(PasswordSafeReader)
+private:
+  QScopedPointer<PasswordSafeReaderPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(PasswordSafeReader)
+  Q_DISABLE_COPY(PasswordSafeReader)
 
 private: // methods
-    bool parse();
+  bool parse(void);
 };
 
-#endif // PASSWORDSAFEREADER_H
+#endif // __PASSWORDSAFEREADER_H_
 
 
 
