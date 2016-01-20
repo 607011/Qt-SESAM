@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2016 Egbert van der Haring
+    Copyright (c) 2016 Egbert van der Haring, Oliver Lau
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,125 +29,118 @@
 
 class PasswordSafeReaderPrivate {
 public:
-    PasswordSafeReaderPrivate(void)
-        : ok(true)
-        , errorLine(-1)
-        , errorColumn(-1)
-        , groupNames(10)
-    { /* ... */ }
-    ~PasswordSafeReaderPrivate()
-    { /* ... */ }
-    QFile dataFile;
-    bool ok;
-    int errorLine;
-    int errorColumn;
-    QString dataErrorString;
-    QString errorString;
-    DomainSettingsList domains;
-    QVector<QString> groupNames;
+  PasswordSafeReaderPrivate(void)
+    : ok(true)
+    , errorLine(-1)
+    , errorColumn(-1)
+  { /* ... */ }
+  ~PasswordSafeReaderPrivate()
+  { /* ... */ }
+  QFile dataFile;
+  bool ok;
+  int errorLine;
+  int errorColumn;
+  QString dataErrorString;
+  QString errorString;
+  DomainSettingsList domains;
 };
 
 
 PasswordSafeReader::PasswordSafeReader(const QString &filename)
-    : d_ptr(new PasswordSafeReaderPrivate)
+  : d_ptr(new PasswordSafeReaderPrivate)
 {
-    Q_D(PasswordSafeReader);
-    d->dataFile.setFileName(filename);
-    d->ok = d->dataFile.open(QIODevice::ReadOnly);
-    d->errorString = d->ok ? QString() : d->dataFile.errorString();
-    if (d->ok) {
-        d->ok = parse();
-    }
-    d->dataFile.close();
+  Q_D(PasswordSafeReader);
+  d->dataFile.setFileName(filename);
+  d->ok = d->dataFile.open(QIODevice::ReadOnly);
+  d->errorString = d->ok ? QString() : d->dataFile.errorString();
+  if (d->ok) {
+    d->ok = parse();
+  }
+  d->dataFile.close();
 }
 
 
 PasswordSafeReader::~PasswordSafeReader()
 {
-    /* ... */
+  /* ... */
 }
 
 
-bool PasswordSafeReader::parse()
+bool PasswordSafeReader::parse(void)
 {
-    Q_D(PasswordSafeReader);
-    bool valid = true;
-    bool firstLine = true;
-    static const int MaxLineSize = 2048;
-    char buf[MaxLineSize];
-    while (valid && (!d->dataFile.atEnd())) {
-        DomainSettings ds;
-        const qint64 bytesRead = d->dataFile.readLine(buf, MaxLineSize);
-        const QString line = QByteArray(buf, bytesRead).trimmed();
-        QStringList fields = line.split('\t');
-        if (firstLine) {
-            // skip first line
-            firstLine = false;
-        } else {
-            ds.group = fields[0];
-            ds.domainName = fields[0];
-            ds.domainName.append(" [");
-            ds.domainName.append(fields[1]);
-            ds.domainName.append("]");
-            ds.userName = fields[1];
-            ds.url = fields[3];
-            ds.createdDate = QDateTime::fromString(fields[5],"yyyy/MM/dd hh:mm:ss");
-            ds.modifiedDate = QDateTime::fromString(fields[6],"yyyy/MM/dd hh:mm:ss");
-            if (ds.modifiedDate.isNull()) {
-                ds.modifiedDate = ds.createdDate;
-            }
-            ds.expiryDate = QDateTime::fromString(fields[8],"yyyy/MM/dd hh:mm:ss");
-            ds.notes = fields[16];
-            if (ds.notes[0] == '"') {
-                ds.notes = ds.notes.remove(0,1); // remove start quote
-                ds.notes.chop(1);                // remove end quote
-                ds.notes.replace("»", "\n");
-            }
-            ds.legacyPassword.append(fields[2]); // = doesn't work
-            d->domains.append(ds);
-        }
+  Q_D(PasswordSafeReader);
+  bool valid = true;
+  bool firstLine = true;
+  while (valid && !d->dataFile.atEnd()) {
+    DomainSettings ds;
+    const QString &line = d->dataFile.readLine().trimmed();
+    QStringList fields = line.split('\t');
+    if (firstLine) { // skip first line
+      firstLine = false;
     }
-    return valid;
+    else {
+      QStringList hierarchy = fields.at(0).split(QChar('.'), QString::KeepEmptyParts);
+      QString domainName = hierarchy.last();
+      domainName.replace("»", ".");
+      hierarchy.pop_back();
+      ds.group = hierarchy.join(QChar(';'));
+      ds.domainName = domainName;
+      ds.userName = fields.at(1);
+      ds.legacyPassword = fields.at(2);
+      ds.url = fields.at(3);
+      ds.createdDate = QDateTime::fromString(fields.at(5), "yyyy/MM/dd hh:mm:ss");
+      ds.modifiedDate = QDateTime::fromString(fields.at(6), "yyyy/MM/dd hh:mm:ss");
+      ds.expiryDate = QDateTime::fromString(fields.at(8), "yyyy/MM/dd hh:mm:ss");
+      ds.notes = fields.at(16);
+      if (ds.notes.at(0) == '"') {
+        ds.notes = ds.notes.remove(0, 1); // remove start quote
+        ds.notes.chop(1);                 // remove end quote
+        ds.notes.replace("»", "\n");
+      }
+      d->domains.append(ds);
+    }
+  }
+  return valid;
 }
 
 
 bool PasswordSafeReader::isOpen(void) const
 {
-    return d_ptr->dataFile.isOpen();
+  return d_ptr->dataFile.isOpen();
 }
 
 
 bool PasswordSafeReader::isValid(void) const
 {
-    return d_ptr->ok;
+  return d_ptr->ok;
 }
 
 
-QString PasswordSafeReader::errorString(void) const
+const QString &PasswordSafeReader::errorString(void) const
 {
-    return d_ptr->errorString;
+  return d_ptr->errorString;
 }
 
 
-QString PasswordSafeReader::dataErrorString(void) const
+const QString &PasswordSafeReader::dataErrorString(void) const
 {
-    return d_ptr->dataErrorString;
+  return d_ptr->dataErrorString;
 }
 
 
 int PasswordSafeReader::errorLine(void) const
 {
-    return d_ptr->errorLine;
+  return d_ptr->errorLine;
 }
 
 
 int PasswordSafeReader::errorColumn(void) const
 {
-    return d_ptr->errorColumn;
+  return d_ptr->errorColumn;
 }
 
 
-DomainSettingsList PasswordSafeReader::domains(void) const
+const DomainSettingsList &PasswordSafeReader::domains(void) const
 {
-    return d_ptr->domains;
+  return d_ptr->domains;
 }
