@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QtConcurrent>
 #include <QFuture>
+#include <string>
 
 #include "securebytearray.h"
 #include "securestring.h"
@@ -215,7 +216,7 @@ const SecureString &Password::remix(void)
   if (d->domainSettings.passwordTemplate.isEmpty() && !d->domainSettings.usedCharacters.isEmpty()) {
     // v2 method
     const int nChars = d->domainSettings.usedCharacters.count();
-    const BigInt::Rossi Modulus(QString::number(nChars, 16).toStdString(), BigInt::HEX_DIGIT);
+    const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
     int n = d->domainSettings.passwordLength;
     while (v > Zero && n-- > 0) {
       const BigInt::Rossi &mod = v % Modulus;
@@ -253,7 +254,7 @@ const SecureString &Password::remix(void)
         }
         if (!charSet.isEmpty()) {
           const int nChars = charSet.count();
-          const BigInt::Rossi Modulus(QString::number(nChars, 16).toStdString(), BigInt::HEX_DIGIT);
+          const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
           const BigInt::Rossi &mod = v % Modulus;
           d->password += charSet.at(int(mod.toUlong()));
           v = v / Modulus;
