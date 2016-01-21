@@ -48,4 +48,6 @@ private:
 
 };
 
+#define _LOG Logger::instance().log
+
 #endif // __LOGGER_H_
