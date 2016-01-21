@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QtConcurrent>
 #include <QFuture>
+#include <string>
 
 #include "securebytearray.h"
 #include "securestring.h"
@@ -201,21 +202,21 @@ void Password::generate(const SecureByteArray &key)
                      QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()),
                      d->domainSettings.iterations,
                      QCryptographicHash::Sha512);
-  remixed();
+  remix();
   emit generated();
 }
 
 
-const SecureString &Password::remixed(void)
+const SecureString &Password::remix(void)
 {
   Q_D(Password);
   d->password.clear();
   static const BigInt::Rossi Zero(0);
   BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  if (d->domainSettings.passwordTemplate.isEmpty() && !d->domainSettings.usedCharacters.isEmpty()) { // v2 method
+  if (d->domainSettings.passwordTemplate.isEmpty() && !d->domainSettings.usedCharacters.isEmpty()) {
+    // v2 method
     const int nChars = d->domainSettings.usedCharacters.count();
-    const QString strModulus = QString("%1").arg(nChars);
-    const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
+    const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
     int n = d->domainSettings.passwordLength;
     while (v > Zero && n-- > 0) {
       const BigInt::Rossi &mod = v % Modulus;
@@ -223,42 +224,43 @@ const SecureString &Password::remixed(void)
       v = v / Modulus;
     }
   }
-  else { // v3 method
+  else {
+    // v3 method
     QByteArray templ;
     const QList<QByteArray> &templateParts = d->domainSettings.passwordTemplate.split(';');
-    if (templateParts.count() != 2)
-      return SecureString();
-    templ = templateParts.at(1);
-    int n = 0;
-    while (v > Zero && n < templ.length()) {
-      const char m = templ.at(n);
-      QString charSet;
-      switch (m) {
-      case 'x':
-        charSet = d->domainSettings.usedCharacters;
-        break;
-      case 'o':
-        charSet = d->domainSettings.extraCharacters;
-        break;
-      case 'a':
-        // fall-through
-      case 'A':
-        // fall-through
-      case 'n':
-        charSet = TemplateCharacters[m];
-        break;
-      default:
-        qWarning() << "Invalid template character:" << m;
-        break;
+    if (templateParts.count() == 2) {
+      templ = templateParts.at(1);
+      int n = 0;
+      while (v > Zero && n < templ.length()) {
+        const char m = templ.at(n);
+        QString charSet;
+        switch (m) {
+        case 'x':
+          charSet = d->domainSettings.usedCharacters;
+          break;
+        case 'o':
+          charSet = d->domainSettings.extraCharacters;
+          break;
+        case 'a':
+          // fall-through
+        case 'A':
+          // fall-through
+        case 'n':
+          charSet = TemplateCharacters[m];
+          break;
+        default:
+          qWarning() << "Invalid template character:" << m;
+          break;
+        }
+        if (!charSet.isEmpty()) {
+          const int nChars = charSet.count();
+          const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
+          const BigInt::Rossi &mod = v % Modulus;
+          d->password += charSet.at(int(mod.toUlong()));
+          v = v / Modulus;
+        }
+        ++n;
       }
-      if (!charSet.isEmpty()) {
-        const QString strModulus = QString("%1").arg(charSet.count());
-        const BigInt::Rossi Modulus(strModulus.toStdString(), BigInt::DEC_DIGIT);
-        const BigInt::Rossi &mod = v % Modulus;
-        d->password += charSet.at(int(mod.toUlong()));
-        v = v / Modulus;
-      }
-      ++n;
     }
   }
   return d->password;

@@ -2522,7 +2522,7 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   applyComplexity(complexity);
   setTemplateAndUsedCharacters();
   d->password.setDomainSettings(collectedDomainSettings());
-  const SecureString &pwd = d->password.remixed();
+  const SecureString &pwd = d->password.remix();
   ui->generatedPasswordLineEdit->setText(pwd);
   ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(length));
   d->pwdLabelOpacityEffect->setOpacity(pwd.isEmpty() ? 0.5 : 1.0);
@@ -2566,8 +2566,8 @@ struct DomainSettingsToTextConverter
         if (!notes.isEmpty()) {
           data.append(SecureString("notes = %1\n").arg(notes).toUtf8());
         }
-        if (!ds.group.isEmpty()) {
-          data.append(QString("group = %1\n").arg(ds.group).toUtf8());
+        if (!ds.groupHierarchy.isEmpty()) {
+          data.append(QString("group = %1\n").arg(ds.groupHierarchy).toUtf8());
         }
       }
     }

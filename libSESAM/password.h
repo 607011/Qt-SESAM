@@ -65,7 +65,7 @@ public:
   SecureString operator()(void) const;
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
-  const SecureString &remixed(void);
+  const SecureString &remix(void);
   void waitForFinished(void);
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
