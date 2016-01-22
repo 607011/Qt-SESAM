@@ -19,10 +19,11 @@ VERSION = -$${QTSESAM_VERSION}
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += \
+    libqrencode \
     libSESAM \
-    UnitTests \
+    SESAM2Chrome \
     Qt-SESAM \
-    SESAM2Chrome
+    UnitTests
 
 OTHER_FILES += \
     extensions\chrome\background.js \

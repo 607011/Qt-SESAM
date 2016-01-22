@@ -118,7 +118,9 @@ void MasterPasswordDialog::showEvent(QShowEvent*)
 
 void MasterPasswordDialog::closeEvent(QCloseEvent *e)
 {
-  e->ignore();
+  if (e->spontaneous()) {
+    emit closing();
+  }
 }
 
 

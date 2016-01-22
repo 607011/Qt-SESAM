@@ -17,25 +17,37 @@
 
 */
 
-#ifndef __GLOBAL_H_
-#define __GLOBAL_H_
+#ifndef __LOGGER_H_
+#define __LOGGER_H_
 
-#include <QString>
-#include <QStringList>
 #include <QtGlobal>
+#include <QString>
+#include <QFile>
+#include <QScopedPointer>
 
-extern const QString AppCompanyName;
-extern const QString AppCompanyDomain;
-extern const QString AppName;
-extern const QString AppVersion;
-extern const QString AppURL;
-extern const QString AppAuthor;
-extern const QString AppAuthorMail;
-extern const QString AppUserAgent;
-extern const QStringList BackupFilenameFilters;
+class LoggerPrivate;
 
-extern void checkPortable(void);
-extern bool isPortable(void);
-extern bool isRunning(qint64 pid);
+class Logger
+{
+public:
+  static Logger &instance(void);
+  void log(const QString &);
+  void setEnabled(bool);
+  void setFileName(const QString &);
 
-#endif // __GLOBAL_H_
+  Logger(const Logger &) = delete;
+  void operator=(Logger const &) = delete;
+
+private:
+  Logger(void);
+  ~Logger();
+
+
+  QScopedPointer<LoggerPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(Logger)
+
+};
+
+#define _LOG Logger::instance().log
+
+#endif // __LOGGER_H_

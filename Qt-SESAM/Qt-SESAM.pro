@@ -65,7 +65,8 @@ SOURCES += main.cpp \
     groupnode.cpp \
     abstracttreenode.cpp \
     domaintreemodel.cpp \
-    lockfile.cpp
+    logger.cpp \
+    passwordsafereader.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -86,7 +87,7 @@ HEADERS  += \
     groupnode.h \
     abstracttreenode.h \
     domaintreemodel.h \
-    lockfile.h
+    passwordsafereader.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \
@@ -142,3 +143,16 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libS
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/release/SESAM.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/debug/SESAM.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libSESAM/libSESAM.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libqrencode/release/ -lqrencode
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libqrencode/debug/ -lqrencode
+else:unix: LIBS += -L$$OUT_PWD/../libqrencode/ -lqrencode
+
+INCLUDEPATH += $$PWD/../libqrencode
+DEPENDPATH += $$PWD/../libqrencode
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libqrencode/release/libqrencode.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libqrencode/debug/libqrencode.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libqrencode/release/qrencode.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libqrencode/debug/qrencode.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libqrencode/libqrencode.a

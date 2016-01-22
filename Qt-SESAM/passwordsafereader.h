@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+    Copyright (c) 2016 Egbert van der Haring
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,35 +17,39 @@
 
 */
 
+#ifndef __PASSWORDSAFEREADER_H_
+#define __PASSWORDSAFEREADER_H_
 
-#ifndef __LOCKFILE_H_
-#define __LOCKFILE_H_
-
-#include <QString>
 #include <QScopedPointer>
+#include <QString>
 
-class LockFilePrivate;
+#include "domainsettingslist.h"
 
-class LockFile
+class PasswordSafeReaderPrivate;
+
+class PasswordSafeReader
 {
 public:
-  LockFile(const QString &lockFilename);
-  ~LockFile();
-
-  bool lock(void);
-  void unlock(void);
-  bool isLocked(void) const;
-  int applicationId(void);
-  QString applicationName(void);
+  PasswordSafeReader(const QString &filename);
+  ~PasswordSafeReader();
+  bool isOpen(void) const;
+  bool isValid(void) const;
+  const QString &errorString(void) const;
+  const QString &dataErrorString(void) const;
+  int errorColumn(void) const;
+  int errorLine(void) const;
+  const DomainSettingsList &domains(void) const;
 
 private:
-  QScopedPointer<LockFilePrivate> d_ptr;
-  Q_DECLARE_PRIVATE(LockFile)
-  Q_DISABLE_COPY(LockFile)
+  QScopedPointer<PasswordSafeReaderPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(PasswordSafeReader)
+  Q_DISABLE_COPY(PasswordSafeReader)
 
 private: // methods
-  void checkExtractInfo(void);
-  void extractInfo(void);
+  bool parse(void);
 };
 
-#endif // __LOCKFILE_H_
+#endif // __PASSWORDSAFEREADER_H_
+
+
+

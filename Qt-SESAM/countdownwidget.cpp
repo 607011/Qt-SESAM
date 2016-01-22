@@ -62,12 +62,13 @@ CountdownWidget::~CountdownWidget()
 void CountdownWidget::start(int timeoutMs)
 {
   Q_D(CountdownWidget);
+  // qDebug() << "CountdownWidget::start(" << timeoutMs << ")";
   d->timeoutMs = timeoutMs;
-  stop();
+  d->countdown.stop();
+  d->masterPasswordInvalidationTimer.stop();
   d->countdown.setInterval(UpdateIntervalMs);
   d->countdown.start();
   d->masterPasswordInvalidationTimer.setSingleShot(true);
-  d->masterPasswordInvalidationTimer.setTimerType(Qt::VeryCoarseTimer);
   d->masterPasswordInvalidationTimer.start(d->timeoutMs);
   tick();
 }
@@ -76,8 +77,12 @@ void CountdownWidget::start(int timeoutMs)
 void CountdownWidget::stop(void)
 {
   Q_D(CountdownWidget);
-  d->countdown.stop();
-  d->masterPasswordInvalidationTimer.stop();
+  // qDebug() << "CountdownWidget::stop()" << d->masterPasswordInvalidationTimer.isActive();
+  if (d->masterPasswordInvalidationTimer.isActive()) {
+    d->countdown.stop();
+    d->masterPasswordInvalidationTimer.stop();
+    tick();
+  }
   update();
 }
 
@@ -90,11 +95,15 @@ int CountdownWidget::remainingTime(void) const
 
 void CountdownWidget::tick(void)
 {
-  const int secs = remainingTime() / 1000;
-  const QString &t = (secs <= 60)
-      ? tr("%1 seconds").arg(secs)
-      : tr("<%1 minutes").arg(1 + secs / 60);
-  const QString &msg = tr("Application will be locked in %1.").arg(t);
+  Q_D(CountdownWidget);
+  QString msg;
+  if (d->masterPasswordInvalidationTimer.isActive()) {
+    const int secs = remainingTime() / 1000;
+    const QString &t = (secs <= 60)
+        ? tr("%1 seconds").arg(secs)
+        : tr("<%1 minutes").arg(1 + secs / 60);
+    msg = tr("Application will be locked in %1.").arg(t);
+  }
   setToolTip(msg);
   setWhatsThis(msg);
   redrawImage(size());
@@ -118,22 +127,24 @@ void CountdownWidget::redrawImage(const QSize &sz)
     d->image = QImage(sz, QImage::Format_ARGB32_Premultiplied);
   }
   d->image.fill(Qt::transparent);
-  QPainter p(&d->image);
-  p.setOpacity(0.6);
-  p.setRenderHint(QPainter::Antialiasing);
-  p.setCompositionMode(QPainter::CompositionMode_Source);
-  p.setBrush(Qt::transparent);
-  static const int OneMinute = 60 * 1000;
-  static const QRect boundingRect(2, 2, 12, 12);
-  p.setPen(QPen(QBrush(remainingTime() < OneMinute ? Qt::red : Qt::black), 1.0));
-  const int spanAngle = 360 * remainingTime() / d->timeoutMs;
-  if (spanAngle > (360 - 10)) {
-    p.drawEllipse(boundingRect);
+  if (d->masterPasswordInvalidationTimer.isActive()) {
+    QPainter p(&d->image);
+    p.setOpacity(0.6);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setCompositionMode(QPainter::CompositionMode_Source);
+    p.setBrush(Qt::transparent);
+    static const int OneMinute = 60 * 1000;
+    static const QRect boundingRect(2, 2, 12, 12);
+    p.setPen(QPen(QBrush(remainingTime() < OneMinute ? Qt::red : Qt::black), 1.0));
+    const int spanAngle = 360 * remainingTime() / d->timeoutMs;
+    if (spanAngle > (360 - 10)) {
+      p.drawEllipse(boundingRect);
+    }
+    else {
+      p.drawPie(boundingRect, 16 * 90, -16 * spanAngle);
+    }
+    p.end();
   }
-  else {
-    p.drawPie(boundingRect, 16 * 90, -16 * spanAngle);
-  }
-  p.end();
   update();
 }
 

@@ -62,7 +62,7 @@ void DomainSettingsList::remove(const QString &domainName)
 void DomainSettingsList::updateWith(const DomainSettings &src)
 {
   bool found = false;
-  for (DomainSettingsList::iterator d = begin(); d != end() && !found; ++d) {
+  for (auto d = begin(); d != end() && !found; ++d) {
     if (d->domainName == src.domainName) {
       *d = src;
       found = true;

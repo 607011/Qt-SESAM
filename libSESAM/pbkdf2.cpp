@@ -68,8 +68,9 @@ PBKDF2::~PBKDF2()
 
 auto xorbuf = [](QByteArray &dst, const QByteArray &src) {
   Q_ASSERT_X(dst.size() == src.size(), "xorbuf()", "size of source and destination buffers must be equal");
-  for (int i = 0; i < dst.size(); ++i)
+  for (int i = 0; i < dst.size(); ++i) {
     dst[i] = dst.at(i) ^ src.at(i);
+  }
 };
 
 

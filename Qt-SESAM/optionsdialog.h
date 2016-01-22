@@ -93,6 +93,9 @@ public:
   void setMaxBackupFileAge(int days);
   int maxBackupFileAge(void) const;
 
+  void setLoggingEnabled(bool);
+  bool loggingEnabled(void) const;
+
 #ifdef WIN32
   void setSmartLogin(bool);
   bool smartLogin(void) const;

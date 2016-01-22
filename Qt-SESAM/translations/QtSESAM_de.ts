@@ -219,7 +219,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="vanished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
@@ -547,7 +547,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Master password cleared for security</source>
-        <translation>Master-Passwort aus Sicherheitsgründen invalidiert</translation>
+        <translation type="vanished">Master-Passwort aus Sicherheitsgründen invalidiert</translation>
     </message>
     <message>
         <source>Reading from the sync server failed. status: %1, error: %2</source>
@@ -652,7 +652,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; is a domain specific password generator. See &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; for more info.&lt;/p&gt;&lt;p&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;You should have received a copy of the GNU General Public License along with this program. If not, see &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;&lt;p&gt;This program uses the Crypto++ library. Crypto++ is licensed under the Boost Software License, Version 1.0.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
 &lt;p&gt;Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.&lt;/p&gt;
 &lt;p&gt;Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe  &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;
@@ -726,7 +726,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Export KGK ...</source>
-        <translation>KGK exportieren ...</translation>
+        <translation type="vanished">KGK exportieren ...</translation>
     </message>
     <message>
         <source>Security hint</source>
@@ -734,7 +734,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Import KGK ...</source>
-        <translation>KGK importieren ...</translation>
+        <translation type="vanished">KGK importieren ...</translation>
     </message>
     <message>
         <source>Export KGK to ...</source>
@@ -1072,15 +1072,95 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>%1 can run only once</source>
-        <translation>%1 - Kein Mehrfachstart möglich</translation>
+        <translation type="vanished">%1 - Kein Mehrfachstart möglich</translation>
     </message>
     <message>
         <source>Only one instance of %1 can run at a time. But currently there&apos;s another instance running with pid %2.</source>
-        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2.</translation>
+        <translation type="vanished">Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2.</translation>
     </message>
     <message>
         <source>Deleted %1 outdated backup files.</source>
         <translation>%1 veraltete Backup-Dateien gelöscht.</translation>
+    </message>
+    <message>
+        <source>%1 cannot run concurrently</source>
+        <translation>%1 kann nicht mehrfach laufen</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time. Another instance is running with process ID %2. Please stop that process before starting a new one.</source>
+        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Momentan läuft eine andere Instanz mit der Prozess-ID %2. Bitte beende erst den anderen Prozess bevor du Qt-SESAM erneut startest.</translation>
+    </message>
+    <message>
+        <source>Only one instance of %1 can run at a time. But a lock file is present in %2 telling that currently there&apos;s another instance running with process ID %3. Do you want to override this lock? Please only answer with YES if really no other instance is running at the moment. This might be the case if the system crashed leaving an stale lock file behind.</source>
+        <translation>Von %1 kann nur eine Instanz zur Zeit laufen. Ein Lock-File (%2) deutet darauf hin, dass %1 bereits in einem Prozess mit der ID %3 läuft. Möchtest du die Sperre umgehen? Bitte antworte nur mit JA, wenn du dir sicher bist, dass %1 nicht läuft. Das könnte der Fall sein, wenn der Computer kürzlich abgestürzt ist und ein ungültiges Lock-File hinterlassen hat.</translation>
+    </message>
+    <message>
+        <source>Really create new domain?</source>
+        <translation>Wirklich eine neue Domain erstellen?</translation>
+    </message>
+    <message>
+        <source>You selected to add a new domain but the current settings have been altered. Do you want to save the settings before continuing?</source>
+        <translation>Du hast ausgewählt, dass du eine neue Domain anlegen willst. Allerdings wurden die aktuellen Einstellungen noch nicht gespeichert. Möchtest du die Einstellungen speichern, bevor du fortfährst?</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportieren</translation>
+    </message>
+    <message>
+        <source>Current settings as QR code ...</source>
+        <translation type="vanished">Aktuelle Einstellungen als QR-Code ...</translation>
+    </message>
+    <message>
+        <source>Export current settings as QR code</source>
+        <translation>Aktuelle Einstellungen als QR-Code exportieren</translation>
+    </message>
+    <message>
+        <source>Cannot lock due to pending changes</source>
+        <translation>Kann die Anwendung wegen ungespeicherter Änderunegn nicht sperren</translation>
+    </message>
+    <message>
+        <source>You&apos;ve made changes to the current domain settings. The application cannot be locked unless the changes have been saved.</source>
+        <translation>Du hast die aktuellen Einstellungen verändert. Die Anwendung kann nicht gesperrt werden, bevor du die Änderungen gespeichert hast.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; is a domain specific password generator. See &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; for more info.&lt;/p&gt;&lt;p&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.&lt;/p&gt;&lt;p&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;You should have received a copy of the GNU General Public License along with this program. If not, see &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;&lt;p&gt; This program uses the Crypto++ library and libqrencode by Kentaro Fukuchi.  Crypto++ is licensed under the Boost Software License, Version 1.0.  libqrencode is licensed under the GNU Lesser General Public License 2.1 or later.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; ist ein Domain-spezifischer Passwortgenerator. Siehe &lt;a href=&quot;%2&quot; title=&quot;%1 project homepage&quot;&gt;%2&lt;/a&gt; für mehr Informationen.&lt;/p&gt;
+&lt;p&gt;Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.&lt;/p&gt;
+&lt;p&gt;Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe  &lt;a href=&quot;http://www.gnu.org/licenses/gpl-3.0&quot;&gt;http://www.gnu.org/licenses&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Copyright &amp;copy; 2015 %3 &amp;lt;%4&amp;gt;, Heise Medien GmbH &amp;amp; Co. KG.&lt;/p&gt;
+&lt;p&gt;Dieses Programm verwendet die Crypto++-Bibliothek und  libqrencode von Kentaro Fukuchi. Crypto++ steht unter der Boost Software License, Version 1.0. libqrencode steht unter der GNU Lesser General Public License 2.1 oder neuer.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Die Software wurde zu Lehr-, Lern- und Demonstrationszwecken geschaffen und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und die Heise Medien GmbH &amp;amp; Co. KG  haften nicht für Schäden, die aus der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.&lt;/strong&gt;&lt;/p&gt;
+</translation>
+    </message>
+    <message>
+        <source>Export current settings as QR code ...</source>
+        <translation type="vanished">Aktuelle Domain-Einstellungen als QR-Code exportieren ...</translation>
+    </message>
+    <message>
+        <source>KGK ...</source>
+        <translation>KGK ...</translation>
+    </message>
+    <message>
+        <source>Current domain settings as QR code ...</source>
+        <translation>Aktuelle Domain-Daten als QR-Code ...</translation>
+    </message>
+    <message>
+        <source>All login data as clear text ...</source>
+        <translation>Alle Logins im Klartext ...</translation>
+    </message>
+    <message>
+        <source>Export all login data as clear text</source>
+        <translation>All Login-Daten im Klartext exportieren</translation>
+    </message>
+    <message>
+        <source>Exporting logins
+in %1 thread%2 ...</source>
+        <translation>Exportieren der Logins
+in %1 Thread%2 ...</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation>s</translation>
     </message>
 </context>
 <context>
@@ -1713,6 +1793,18 @@ auf deinem Computer: %3</translation>
     <message>
         <source>KGK file (*.pem *.kgk)</source>
         <translation>KGK-Datei (*.pem *.kgk)</translation>
+    </message>
+    <message>
+        <source>QR code file (*.png)</source>
+        <translation>QR-Code-Datei (*.png)</translation>
+    </message>
+    <message>
+        <source>Login data file (*.csv *.sesam)</source>
+        <translation type="vanished">Login-Daten (*.csv *.sesam)</translation>
+    </message>
+    <message>
+        <source>Login data file (*.csv)</source>
+        <translation>Login-Daten-Datei (*.csv)</translation>
     </message>
 </context>
 <context>

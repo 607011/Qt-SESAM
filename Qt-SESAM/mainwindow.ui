@@ -849,7 +849,9 @@
       <string>Import</string>
      </property>
      <addaction name="actionKeePassXmlFile"/>
+     <addaction name="actionPasswordSafeFile"/>
     </widget>
+    <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
     <addaction name="separator"/>
@@ -872,14 +874,28 @@
      <property name="title">
       <string>Expert actions</string>
      </property>
+     <widget class="QMenu" name="menuExport">
+      <property name="title">
+       <string>Export</string>
+      </property>
+      <addaction name="actionExportKGK"/>
+      <addaction name="actionExportCurrentSettingsAsQRCode"/>
+      <addaction name="actionExportAllLoginDataAsClearText"/>
+     </widget>
+     <widget class="QMenu" name="menuImport_2">
+      <property name="title">
+       <string>Import</string>
+      </property>
+      <addaction name="actionImportKGK"/>
+     </widget>
      <addaction name="actionHackLegacyPassword"/>
      <addaction name="actionRegenerateSaltKeyIV"/>
      <addaction name="actionClearAllSettings"/>
      <addaction name="actionForcedPush"/>
      <addaction name="actionMigrateDomainToV3"/>
      <addaction name="separator"/>
-     <addaction name="actionExportKGK"/>
-     <addaction name="actionImportKGK"/>
+     <addaction name="menuImport_2"/>
+     <addaction name="menuExport"/>
      <addaction name="separator"/>
      <addaction name="actionDeleteOldBackupFiles"/>
     </widget>
@@ -1099,12 +1115,12 @@
   </action>
   <action name="actionExportKGK">
    <property name="text">
-    <string>Export KGK ...</string>
+    <string>KGK ...</string>
    </property>
   </action>
   <action name="actionImportKGK">
    <property name="text">
-    <string>Import KGK ...</string>
+    <string>KGK ...</string>
    </property>
   </action>
   <action name="actionKeePassXmlFile">
@@ -1124,6 +1140,24 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E, Ctrl+D, Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionExportCurrentSettingsAsQRCode">
+   <property name="text">
+    <string>Current domain settings as QR code ...</string>
+   </property>
+  </action>
+  <action name="actionExportAllLoginDataAsClearText">
+   <property name="text">
+    <string>All login data as clear text ...</string>
+   </property>
+  </action>
+  <action name="actionPasswordSafeFile">
+   <property name="text">
+    <string>PasswordSafe file...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I, Ctrl+P</string>
    </property>
   </action>
  </widget>

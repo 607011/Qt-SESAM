@@ -46,6 +46,9 @@ public:
 public slots:
   virtual void reject(void);
 
+signals:
+  void closing(void);
+
 protected:
   void showEvent(QShowEvent*);
   void closeEvent(QCloseEvent*);

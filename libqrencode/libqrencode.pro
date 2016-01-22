@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Oliver Lau <ola@ct.de>
+# Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,26 +13,51 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-QTSESAM_VERSION = 2.1.0-BETA14
+QT -= gui
+QT += concurrent
 
-DEFINES += CRYPTOPP_DISABLE_X86ASM CRYPTOPP_DISABLE_SSSE3
+include(../Qt-SESAM.pri)
+DEFINES += QTSESAM_VERSION=\\\"$${QTSESAM_VERSION}\\\" HAVE_CONFIG_H
 
-contains(QT_ARCH, i386) {
-    DEFINES += PLATFORM=32
-} else {
-    DEFINES += PLATFORM=64
-}
+VER_MAJ = 1
+VER_MIN = 0
+VER_PAT = 0
 
-unix:QMAKE_CXXFLAGS += -std=c++11
+TARGET = qrencode
+TEMPLATE = lib
 
-macx:QMAKE_CXXFLAGS += -Wmacro-redefined
-
-CONFIG += c++11
+CONFIG += staticlib warn_off
 
 win32-msvc* {
+    QMAKE_CXXFLAGS += /wd4100
     DEFINES += _SCL_SECURE_NO_WARNINGS
-    QMAKE_CXXFLAGS_DEBUG += /sdl
-    QMAKE_CXXFLAGS_RELEASE += /GA /GL /Ox
-    QMAKE_LFLAGS += /LTCG
+    LIBS += User32.lib
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
+    DEFINES -= UNICODE
 }
+
+
+SOURCES += \
+    bitstream.c \
+    mask.c \
+    mmask.c \
+    mqrspec.c \
+    qrencode.c \
+    qrinput.c \
+    qrspec.c \
+    rscode.c \
+    split.c
+
+HEADERS +=\
+    bitstream.h \
+    config.h \
+    mask.h \
+    mmask.h \
+    mqrspec.h \
+    qrencode.h \
+    qrencode_inner.h \
+    qrinput.h \
+    qrspec.h \
+    rscode.h \
+    split.h
+

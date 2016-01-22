@@ -83,7 +83,9 @@ EasySelectorWidget::EasySelectorWidget(QWidget *parent)
 
 EasySelectorWidget::~EasySelectorWidget()
 {
-  /* ... */
+  Q_D(EasySelectorWidget);
+  onSpeedTestAbort();
+  d->speedTestFuture.waitForFinished();
 }
 
 
@@ -434,7 +436,7 @@ void EasySelectorWidget::speedTest(void)
   t.start();
   qint64 n = 0;
   while (!d->doAbortSpeedTest && t.elapsed() < 5000) {
-    for (QByteArray::iterator d = data.begin(); d != data.end(); ++d) {
+    for (auto d = data.begin(); d != data.end(); ++d) {
       *d = qrand() & 0xff;
     }
     hash.addData(data);

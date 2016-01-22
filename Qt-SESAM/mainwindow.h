@@ -43,11 +43,14 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QModelIndex>
+#include <QJsonDocument>
+#include <QImage>
 
 #include "global.h"
 #include "domainsettings.h"
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
+#include "securebytearray.h"
 
 namespace Ui {
 class MainWindow;
@@ -105,8 +108,11 @@ private slots:
   void onDomainTextChanged(const QString &);
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
+  void onExportAllLoginDataAsClearText(void);
+  void onExportCurrentSettingsAsQRCode(void);
   void onPasswordTemplateChanged(const QString &);
   void masterPasswordInvalidationTimeMinsChanged(int);
+  void onNewDomain(void);
   void onRevert(void);
   void renewSalt(void);
   void onRenewSalt(void);
@@ -128,9 +134,10 @@ private slots:
   void aboutQt(void);
   void enterMasterPassword(void);
   void onMasterPasswordEntered(void);
+  void onMasterPasswordClosing(void);
   void clearAllSettings(void);
   void lockApplication(void);
-  void invalidatePassword(bool reenter = true);
+  void invalidateMasterPassword(bool reenter = true);
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
@@ -144,10 +151,11 @@ private slots:
   void hackLegacyPassword(void);
 #endif
   QFuture<void> &generateSaltKeyIV(void);
-  void onGenerateSaltKeyIV(void);
+  void onGeneratedSaltKeyIV(void);
   void onExportKGK(void);
   void onImportKGK(void);
   void onImportKeePass2XmlFile(void);
+  void onImportPasswordSafeFile(void);
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
 
@@ -214,6 +222,8 @@ private: // methods
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
   void removeOutdatedBackupFilesThread(void);
+  QImage currentDomainSettings2QRCode(void) const;
+  bool validCredentials(void) const;
 };
 
 #endif // __MAINWINDOW_H_
