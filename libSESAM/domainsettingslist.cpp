@@ -83,8 +83,9 @@ QByteArray DomainSettingsList::toJson(void) const
 QJsonDocument DomainSettingsList::toJsonDocument(void) const
 {
   QVariantMap domains;
-  for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d)
+  for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d) {
     domains[d->domainName] = d->toVariantMap();
+  }
   return QJsonDocument::fromVariant(domains);
 }
 
@@ -92,8 +93,9 @@ QJsonDocument DomainSettingsList::toJsonDocument(void) const
 QStringList DomainSettingsList::keys(void) const
 {
   QStringList names;
-  for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d)
+  for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d) {
     names << d->domainName;
+  }
   return names;
 }
 
@@ -104,8 +106,9 @@ DomainSettingsList DomainSettingsList::fromQJsonDocument(const QJsonDocument &js
   const QVariantMap &map = json.toVariant().toMap();
   foreach(QString key, map.keys()) {
     DomainSettings ds = DomainSettings::fromVariantMap(map[key].toMap());
-    if (key.size() > 0)
+    if (key.size() > 0) {
       dl << ds;
+    }
   }
   return dl;
 }
