@@ -2551,10 +2551,14 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 void MainWindow::onDomainSelected(QString domain)
 {
   Q_D(MainWindow);
-  _LOG(QString("MainWindow::onDomainSelected(\"%1\") d->lastCleanDomainSettings.domainName = \"%2\", SENDER = %3")
-       .arg(domain)
-       .arg(d->lastCleanDomainSettings.domainName)
-       .arg((sender() != Q_NULLPTR ? sender()->objectName() : "NONE")));
+//  _LOG(QString("MainWindow::onDomainSelected(\"%1\") d->lastCleanDomainSettings.domainName = \"%2\", SENDER = %3")
+//       .arg(domain)
+//       .arg(d->lastCleanDomainSettings.domainName)
+//       .arg((sender() != Q_NULLPTR ? sender()->objectName() : "NONE")));
+//  qDebug() << QString("MainWindow::onDomainSelected(\"%1\") d->lastCleanDomainSettings.domainName = \"%2\", SENDER = %3")
+//              .arg(domain)
+//              .arg(d->lastCleanDomainSettings.domainName)
+//              .arg((sender() != Q_NULLPTR ? sender()->objectName() : "NONE"));
   if (!domainComboboxContains(domain))
     return;
   if (domain == d->lastCleanDomainSettings.domainName)
