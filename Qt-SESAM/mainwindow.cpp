@@ -841,8 +841,8 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
   AbstractTreeNode *node = d->treeModel.node(modelIndex);
   if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
     DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
-    onDomainSelected(domainNode->data(0).toString());
-    ui->domainsComboBox->setCurrentText(domainNode->data(0).toString());
+    const int idx = ui->domainsComboBox->findText(domainNode->data(0).toString());
+    ui->domainsComboBox->setCurrentIndex(idx);
   }
 }
 
