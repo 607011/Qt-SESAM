@@ -148,6 +148,7 @@ private slots:
   void onExportKGK(void);
   void onImportKGK(void);
   void onImportKeePass2XmlFile(void);
+  void onImportPasswordSafeFile(void);
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
 

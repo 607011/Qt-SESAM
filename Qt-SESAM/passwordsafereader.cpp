@@ -79,13 +79,15 @@ bool PasswordSafeReader::parse(void)
       firstLine = false;
     }
     else {
-      QStringList hierarchy = fields.at(0).split(QChar('.'), QString::KeepEmptyParts);
-      QString domainName = hierarchy.last();
+      ds.groupHierarchy = fields.at(0).split(QChar('.'), QString::KeepEmptyParts);
+      QString domainName = ds.groupHierarchy.last();
       domainName.replace("»", ".");
-      hierarchy.pop_back();
-      ds.groupHierarchy = hierarchy.join(QChar(';'));
+      ds.groupHierarchy.pop_back();
       ds.domainName = domainName;
       ds.userName = fields.at(1);
+      if (!ds.userName.isEmpty()) {
+        ds.domainName.append(QString(" [%1]").arg(ds.userName));
+      }
       ds.legacyPassword = fields.at(2);
       ds.url = fields.at(3);
       ds.createdDate = QDateTime::fromString(fields.at(5), "yyyy/MM/dd hh:mm:ss");

@@ -65,7 +65,8 @@ SOURCES += main.cpp \
     groupnode.cpp \
     abstracttreenode.cpp \
     domaintreemodel.cpp \
-    lockfile.cpp
+    lockfile.cpp \
+    passwordsafereader.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -86,7 +87,8 @@ HEADERS  += \
     groupnode.h \
     abstracttreenode.h \
     domaintreemodel.h \
-    lockfile.h
+    lockfile.h \
+    passwordsafereader.h
 
 FORMS += mainwindow.ui \
     optionsdialog.ui \
