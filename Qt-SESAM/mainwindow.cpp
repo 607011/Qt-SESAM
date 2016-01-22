@@ -390,7 +390,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(d->trayMenu);
   d->trayIcon.show();
 
-  ui->domainView->setModel(&d->treeModel);
   QObject::connect(ui->addGroupPushButton, SIGNAL(pressed()), SLOT(onAddGroup()));
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
@@ -2899,6 +2898,7 @@ void MainWindow::onMasterPasswordEntered(void)
     if (ok) {
       ok = restoreDomainDataFromSettings();
       if (ok) {
+        ui->domainView->setModel(&d->treeModel);
         generateSaltKeyIV().waitForFinished();
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();
