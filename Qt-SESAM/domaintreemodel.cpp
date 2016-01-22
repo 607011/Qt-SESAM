@@ -54,16 +54,18 @@ GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node) {
 
 
 GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode *node) {
-  GroupNode *nextNode = node;
+  GroupNode *parentNode = node;
   foreach (QString groupName, groups) {
-    nextNode = findChild(groupName, nextNode);
-    if (nextNode == Q_NULLPTR) {
-      nextNode = new GroupNode(groupName, node);
-      node->appendChild(nextNode);
-      node = nextNode;
+    GroupNode *childNode = findChild(groupName, parentNode);
+    if (childNode == Q_NULLPTR) {
+      childNode = new GroupNode(groupName, parentNode);
+      parentNode->appendChild(childNode);
+      parentNode = childNode;
+    } else {
+      parentNode = childNode;
     }
   }
-  return nextNode;
+  return parentNode;
 }
 
 
