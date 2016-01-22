@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
+    <width>574</width>
     <height>610</height>
    </rect>
   </property>
@@ -836,8 +836,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>540</width>
-     <height>21</height>
+     <width>574</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -849,6 +849,7 @@
       <string>Import</string>
      </property>
      <addaction name="actionKeePassXmlFile"/>
+     <addaction name="actionPasswordSafeFile"/>
     </widget>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
@@ -1124,6 +1125,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E, Ctrl+D, Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionPasswordSafeFile">
+   <property name="text">
+    <string>PasswordSafe file...</string>
    </property>
   </action>
  </widget>

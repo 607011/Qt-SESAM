@@ -56,6 +56,7 @@ SecureString::SecureString(QLatin1String str)
 
 
 SecureString::SecureString(const QString &other)
+  : QString(other)
 {
   /* ... */
 }
