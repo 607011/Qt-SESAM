@@ -219,7 +219,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>SHA512 hash (hex)</source>
@@ -1148,6 +1148,58 @@ in %1 Thread%2 ...</translation>
         <source>s</source>
         <translation>s</translation>
     </message>
+    <message>
+        <source>PasswordSafe file...</source>
+        <translation>PasswordSafe-Datei</translation>
+    </message>
+    <message>
+        <source>Ctrl+I, Ctrl+P</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>All domain settings as JSON ...</source>
+        <translation>Alle Domain-Einstellungen als JSON speichern ...</translation>
+    </message>
+    <message>
+        <source>Import PasswordSafe file</source>
+        <translation>PasswordSafe-Datei importieren</translation>
+    </message>
+    <message>
+        <source>Invalid PasswordSafe file</source>
+        <translation>Ungültige PasswordSafe-Datei</translation>
+    </message>
+    <message>
+        <source>The selected PasswordSafe file doesn&apos;t contain valid data: %1 (line %2, column: %3)</source>
+        <translation>Die gewählte PasswordSafe-Datei enthält ungültige Daten: %1 (Zeile %2, Spalte: %3)</translation>
+    </message>
+    <message>
+        <source>Cannot read PasswordSafe file</source>
+        <translation>Kann PasswordSafe-Datei nicht lesen</translation>
+    </message>
+    <message>
+        <source>The selected PasswordSafe file cannot be read: %1</source>
+        <translation>Die gewählte PasswordSafe-Datei kann nicht gelesen werden: %1</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domain has been imported successfully from the PasswordSafe file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domain wurde erfolgreich aus der PasswordSafe-Datei importiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;%1 domains have been imported successfully from the PasswordSafe file.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;%1 Domains wurden erfolgreich aus der PasswordSafe-Datei importiert.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Export all domain settings as JSON</source>
+        <translation>Alle Domain-Einstellungen als JSON exportieren</translation>
+    </message>
+    <message>
+        <source>All login data exported</source>
+        <translation>Alle Logins exportiert</translation>
+    </message>
+    <message>
+        <source>Successfully exported %1 logins.</source>
+        <translation>Erfolgreich %1 Logins exportiert.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1572,6 +1624,10 @@ in %1 Thread%2 ...</translation>
         <source>Extensive wipe-out of backup files</source>
         <translation>Ausgiebiges Löschen veralteter Backup-Dateien</translation>
     </message>
+    <message>
+        <source>Enable logging</source>
+        <translation>Logging einschalten</translation>
+    </message>
 </context>
 <context>
     <name>PasswordChecker</name>
@@ -1790,7 +1846,15 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Login data file (*.csv)</source>
-        <translation>Login-Daten-Datei (*.csv)</translation>
+        <translation type="vanished">Login-Daten-Datei (*.csv)</translation>
+    </message>
+    <message>
+        <source>JSON file (*.json *.txt)</source>
+        <translation>JSON-Datei (*.json *.txt)</translation>
+    </message>
+    <message>
+        <source>Login data file (*.txt *.sesam)</source>
+        <translation>Login-Daten-Datei (*.txt *.sesam)</translation>
     </message>
 </context>
 <context>
