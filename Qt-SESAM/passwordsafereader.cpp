@@ -79,11 +79,10 @@ bool PasswordSafeReader::parse(void)
       firstLine = false;
     }
     else {
-      QStringList hierarchy = fields.at(0).split(QChar('.'), QString::KeepEmptyParts);
-      QString domainName = hierarchy.last();
+      ds.groupHierarchy = fields.at(0).split(QChar('.'), QString::KeepEmptyParts);
+      QString domainName = ds.groupHierarchy.last();
       domainName.replace("»", ".");
-      hierarchy.pop_back();
-      ds.groupHierarchy = hierarchy;
+      ds.groupHierarchy.pop_back();
       ds.domainName = domainName;
       ds.userName = fields.at(1);
       if (!ds.userName.isEmpty()) {
