@@ -881,6 +881,7 @@
       <addaction name="actionExportKGK"/>
       <addaction name="actionExportCurrentSettingsAsQRCode"/>
       <addaction name="actionExportAllLoginDataAsClearText"/>
+      <addaction name="actionExportAllDomainSettingsAsJSON"/>
      </widget>
      <widget class="QMenu" name="menuImport_2">
       <property name="title">
@@ -1158,6 +1159,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I, Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionExportAllDomainSettingsAsJSON">
+   <property name="text">
+    <string>All domain settings as JSON ...</string>
    </property>
   </action>
  </widget>

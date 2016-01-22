@@ -339,6 +339,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionAbout, SIGNAL(triggered(bool)), SLOT(about()));
   QObject::connect(ui->actionAboutQt, SIGNAL(triggered(bool)), SLOT(aboutQt()));
   QObject::connect(ui->actionOptions, SIGNAL(triggered(bool)), SLOT(showOptionsDialog()));
+  QObject::connect(ui->actionExportAllDomainSettingsAsJSON, SIGNAL(triggered(bool)), SLOT(onExportAllDomainSettingAsJSON()));
   QObject::connect(ui->actionExportAllLoginDataAsClearText, SIGNAL(triggered(bool)), SLOT(onExportAllLoginDataAsClearText()));
   QObject::connect(ui->actionExportCurrentSettingsAsQRCode, SIGNAL(triggered(bool)), SLOT(onExportCurrentSettingsAsQRCode()));
   QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
@@ -2625,6 +2626,28 @@ void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
   d->pwdLabelOpacityEffect->setOpacity(pwd.isEmpty() ? 0.5 : 1.0);
   setDirty();
   restartInvalidationTimer();
+}
+
+
+static const QString JSONFileExtension = QObject::tr("JSON file (*.json *.txt)");
+
+void MainWindow::onExportAllDomainSettingAsJSON(void)
+{
+  Q_D(MainWindow);
+  QString filename =
+      QFileDialog::getSaveFileName(this,
+                                   tr("Export all domain settings as JSON"),
+                                   QString(),
+                                   JSONFileExtension);
+  if (!filename.isEmpty()) {
+    QFile f(filename);
+    f.open(QIODevice::Truncate | QIODevice::WriteOnly);
+    if (f.isOpen()) {
+      QByteArray data = d->domains.toJsonDocument().toJson(QJsonDocument::Indented);
+      f.write(data);
+      f.close();
+    }
+   }
 }
 
 

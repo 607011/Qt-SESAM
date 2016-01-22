@@ -108,6 +108,7 @@ private slots:
   void onDomainTextChanged(const QString &);
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
+  void onExportAllDomainSettingAsJSON(void);
   void onExportAllLoginDataAsClearText(void);
   void onExportCurrentSettingsAsQRCode(void);
   void onPasswordTemplateChanged(const QString &);
