@@ -60,11 +60,8 @@ GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode 
     if (childNode == Q_NULLPTR) {
       childNode = new GroupNode(groupName, parentNode);
       parentNode->appendChild(childNode);
-      parentNode = childNode;
     }
-    else {
-      parentNode = childNode;
-    }
+    parentNode = childNode;
   }
   return parentNode;
 }
