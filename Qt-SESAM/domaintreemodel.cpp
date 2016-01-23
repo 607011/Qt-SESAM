@@ -118,8 +118,9 @@ QVariant DomainTreeModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
 {
+  const Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
   return index.isValid()
-      ? QAbstractItemModel::flags(index)
+      ? Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags
       : Qt::NoItemFlags;
 }
 
@@ -183,4 +184,10 @@ int DomainTreeModel::rowCount(const QModelIndex &parent) const
   else
     parentItem = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
   return parentItem->childCount();
+}
+
+
+Qt::DropActions DomainTreeModel::supportedDropActions(void) const
+{
+  return Qt::MoveAction;
 }

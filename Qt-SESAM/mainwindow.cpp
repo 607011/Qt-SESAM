@@ -393,6 +393,10 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(d->trayMenu);
   d->trayIcon.show();
 
+  ui->domainView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  ui->domainView->setDragEnabled(true);
+  ui->domainView->setAcceptDrops(true);
+  ui->domainView->setDropIndicatorShown(true);
   QObject::connect(ui->addGroupPushButton, SIGNAL(pressed()), SLOT(onAddGroup()));
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));

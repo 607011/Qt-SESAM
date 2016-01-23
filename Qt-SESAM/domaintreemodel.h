@@ -46,6 +46,7 @@ public:
   int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   AbstractTreeNode *node(const QModelIndex &index);
+  Qt::DropActions supportedDropActions(void) const Q_DECL_OVERRIDE;
 
 private:
   static GroupNode *findChild(const QString &name, GroupNode *node);
