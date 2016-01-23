@@ -37,7 +37,7 @@ public:
   explicit DomainTreeModel(QObject *parent = Q_NULLPTR);
   ~DomainTreeModel();
 
-  void setData(const DomainSettingsList &);
+  void populate(const DomainSettingsList &);
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
   Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;

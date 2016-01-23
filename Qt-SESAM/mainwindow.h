@@ -88,6 +88,7 @@ private slots:
   void onIterationsChanged(int);
   void onGroupChanged(QString);
   void onTagChanged(QString);
+  void onCustomContextMenu(const QPoint &point);
   void onAddGroup(void);
   void onDomainViewClicked(const QModelIndex &);
   void onDomainViewDoubleClicked(const QModelIndex &);
@@ -95,6 +96,7 @@ private slots:
   void onDeleteChanged(bool);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
+  void copyPasswordToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
   void onOptionsAccepted(void);

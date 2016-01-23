@@ -70,7 +70,7 @@ GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode 
 }
 
 
-void DomainTreeModel::setData(const DomainSettingsList &domainSettingsList)
+void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 {
   SafeRenew<GroupNode*>(mRootItem, new GroupNode);
   foreach (DomainSettings ds, domainSettingsList) {
@@ -84,18 +84,20 @@ void DomainTreeModel::setData(const DomainSettingsList &domainSettingsList)
 
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
-  if (parent.isValid())
+  if (parent.isValid()) {
     return reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount();
-  else
+  }
+  else {
     return mRootItem->columnCount();
+  }
 }
 
 
 AbstractTreeNode *DomainTreeModel::node(const QModelIndex &index)
 {
-  if (!index.isValid())
-    return Q_NULLPTR;
-  return reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+  return index.isValid()
+      ? reinterpret_cast<AbstractTreeNode*>(index.internalPointer())
+      : Q_NULLPTR;
 }
 
 
@@ -116,9 +118,9 @@ QVariant DomainTreeModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
 {
-  if (!index.isValid())
-    return 0;
-  return QAbstractItemModel::flags(index);
+  return index.isValid()
+      ? QAbstractItemModel::flags(index)
+      : Qt::NoItemFlags;
 }
 
 

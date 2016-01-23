@@ -119,6 +119,7 @@ public:
     , progressDialog(new ProgressDialog(parent))
     , countdownWidget(new CountdownWidget)
     , trayMenu(Q_NULLPTR)
+    , contextMenu(Q_NULLPTR)
     , actionShow(Q_NULLPTR)
     , actionLockApplication(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
@@ -170,6 +171,7 @@ public:
   ProgressDialog *progressDialog;
   CountdownWidget *countdownWidget;
   QMenu *trayMenu;
+  QMenu *contextMenu;
   QAction *actionShow;
   QAction *actionLockApplication;
   QString lastDomainBeforeLock;
@@ -394,6 +396,18 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->addGroupPushButton, SIGNAL(pressed()), SLOT(onAddGroup()));
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
+
+  // make a context menu for domain view
+  d->contextMenu = new QMenu(ui->domainView);
+  QAction *actionCopyUserName = new QAction(tr("Copy username"), d->contextMenu);
+  QAction *actionCopyPassword = new QAction(tr("Copy password"), d->contextMenu);
+  d->contextMenu->addAction(actionCopyUserName);
+  d->contextMenu->addAction(actionCopyPassword);
+  connect(actionCopyUserName, SIGNAL(triggered()), this, SLOT(copyUsernameToClipboard()));
+  connect(actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
+  // connect menu to domain view
+  ui->domainView->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->domainView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenu(const QPoint &)));
 
   d->pwdLabelOpacityEffect = new QGraphicsOpacityEffect(ui->passwordLengthLabel);
   d->pwdLabelOpacityEffect->setOpacity(0.5);
@@ -859,6 +873,19 @@ void MainWindow::onDomainViewDoubleClicked(const QModelIndex &modelIndex)
   }
 }
 
+
+void MainWindow::onCustomContextMenu(const QPoint &point)
+{
+    Q_D(MainWindow);
+    QModelIndex index = ui->domainView->indexAt(point);
+    if (index.isValid()) {
+        onDomainViewClicked(index);
+        AbstractTreeNode *node = d->treeModel.node(index);
+        if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
+            d->contextMenu->exec(QCursor::pos());
+        }
+    }
+}
 
 void MainWindow::onTagChanged(QString)
 {
@@ -1518,6 +1545,16 @@ void MainWindow::copyUsernameToClipboard(void)
 }
 
 
+void MainWindow::copyPasswordToClipboard(void)
+{
+  if (!ui->legacyPasswordLineEdit->text().isEmpty()) {
+      copyLegacyPasswordToClipboard();
+  } else if (!ui->generatedPasswordLineEdit->text().isEmpty()) {
+      copyGeneratedPasswordToClipboard();
+  }
+}
+
+
 void MainWindow::copyGeneratedPasswordToClipboard(void)
 {
   QApplication::clipboard()->setText(ui->generatedPasswordLineEdit->text());
@@ -1639,7 +1676,7 @@ void MainWindow::makeDomainComboBox(void)
   ui->domainsComboBox->setCompleter(d->completer);
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->blockSignals(false);
-  d->treeModel.setData(d->domains);
+  d->treeModel.populate(d->domains);
 }
 
 
