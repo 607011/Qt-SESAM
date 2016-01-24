@@ -17,6 +17,8 @@
 
 */
 
+#include <QDataStream>
+
 #include "groupnode.h"
 #include "domainnode.h"
 #include "domaintreemodel.h"
@@ -81,19 +83,16 @@ void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
-  if (parent.isValid()) {
-    return reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount();
-  }
-  else {
-    return mRootItem->columnCount();
-  }
+  return parent.isValid()
+      ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount()
+      : mRootItem->columnCount();
 }
 
 
-AbstractTreeNode *DomainTreeModel::node(const QModelIndex &index)
+DomainNode *DomainTreeModel::node(const QModelIndex &index) const
 {
   return index.isValid()
-      ? reinterpret_cast<AbstractTreeNode*>(index.internalPointer())
+      ? reinterpret_cast<DomainNode*>(index.internalPointer())
       : Q_NULLPTR;
 }
 
@@ -118,7 +117,7 @@ Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
   const Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
   return index.isValid()
       ? Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags
-      : Qt::NoItemFlags;
+      : Qt::ItemIsDropEnabled | defaultFlags;
 }
 
 
@@ -126,16 +125,21 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     switch (section) {
-    case 0:
+    case 0: {
       return tr("Domain");
-    case 1:
+    }
+    case 1: {
       return tr("User");
-    case 2:
+    }
+    case 2: {
       return tr("URL");
-    case 3:
+    }
+    case 3: {
       return tr("Group");
-    default:
+    }
+    default: {
       break;
+    }
     }
   }
   return QVariant();
@@ -144,30 +148,29 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
 
 QModelIndex DomainTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-  if (!hasIndex(row, column, parent))
-    return QModelIndex();
-  AbstractTreeNode *parentItem;
-  if (!parent.isValid())
-    parentItem = mRootItem;
-  else
-    parentItem = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
-  AbstractTreeNode *childItem = parentItem->child(row);
-  if (childItem)
-    return createIndex(row, column, childItem);
-  else
-    return QModelIndex();
+  if (hasIndex(row, column, parent)) {
+    AbstractTreeNode *parentItem = parent.isValid()
+        ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())
+        : parentItem = mRootItem;
+    AbstractTreeNode *childItem = parentItem->child(row);
+    return childItem != Q_NULLPTR
+        ? createIndex(row, column, childItem)
+        : QModelIndex();
+  }
+  return QModelIndex();
 }
 
 
 QModelIndex DomainTreeModel::parent(const QModelIndex &index) const
 {
-  if (!index.isValid())
-    return QModelIndex();
-  AbstractTreeNode *childItem = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
-  AbstractTreeNode *parentItem = childItem->parentItem();
-  if (parentItem == mRootItem)
-    return QModelIndex();
-  return createIndex(parentItem->row(), 0, parentItem);
+  if (index.isValid()) {
+    AbstractTreeNode *childItem = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    AbstractTreeNode *parentItem = childItem->parentItem();
+    return parentItem == mRootItem
+        ? QModelIndex()
+        : createIndex(parentItem->row(), 0, parentItem);
+  }
+  return QModelIndex();
 }
 
 
@@ -176,10 +179,12 @@ int DomainTreeModel::rowCount(const QModelIndex &parent) const
   AbstractTreeNode *parentItem;
   if (parent.column() > 0)
     return 0;
-  if (!parent.isValid())
+  if (!parent.isValid()) {
     parentItem = mRootItem;
-  else
+  }
+  else {
     parentItem = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
+  }
   return parentItem->childCount();
 }
 
@@ -187,4 +192,78 @@ int DomainTreeModel::rowCount(const QModelIndex &parent) const
 Qt::DropActions DomainTreeModel::supportedDropActions(void) const
 {
   return Qt::MoveAction;
+}
+
+
+QStringList DomainTreeModel::mimeTypes(void) const
+{
+  static const QStringList MimeTypes = (QStringList() << "application/json");
+  return MimeTypes;
+}
+
+
+QMimeData *DomainTreeModel::mimeData(const QModelIndexList &indexes) const
+{
+  QMimeData *mimeData = new QMimeData;
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+  foreach (const QModelIndex &index, indexes) {
+    if (index.isValid()) {
+      const DomainNode *const n = node(index);
+      stream << n->itemData().toJson();
+    }
+  }
+  mimeData->setData("application/json", encodedData);
+  return mimeData;
+}
+
+
+bool DomainTreeModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+  Q_UNUSED(action);
+  Q_UNUSED(row);
+  Q_UNUSED(parent);
+  if (!data->hasFormat("application/json"))
+    return false;
+  if (column > 0)
+    return false;
+  return true;
+}
+
+
+bool DomainTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+  if (!canDropMimeData(data, action, row, column, parent))
+    return false;
+  if (action == Qt::IgnoreAction)
+    return true;
+  int beginRow;
+  if (row != -1) {
+    beginRow = row;
+  }
+  else if (parent.isValid()) {
+    beginRow = parent.row();
+  }
+  else {
+    beginRow = rowCount(QModelIndex());
+  }
+  QByteArray encodedData = data->data("application/json");
+  qDebug() << encodedData;
+
+//  QDataStream stream(&encodedData, QIODevice::ReadOnly);
+//  QStringList newItems;
+//  int rows = 0;
+//  while (!stream.atEnd()) {
+//    QString text;
+//    stream >> text;
+//    newItems << text;
+//    ++rows;
+//  }
+//  insertRows(beginRow, rows, QModelIndex());
+//  foreach (const QString &text, newItems) {
+//    QModelIndex idx = index(beginRow, 0, QModelIndex());
+//    setData(idx, text);
+//    ++beginRow;
+//  }
+  return true;
 }

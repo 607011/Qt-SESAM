@@ -50,3 +50,9 @@ QVariant DomainNode::data(int column) const
   }
   return QString("<invalid>");
 }
+
+
+const DomainSettings &DomainNode::itemData(void) const
+{
+  return mItemData;
+}

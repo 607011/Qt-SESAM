@@ -32,8 +32,9 @@ public:
   virtual ~DomainNode();
 
   virtual QVariant data(int column) const;
-
   virtual NodeType type(void) const { return LeafType; }
+
+  const DomainSettings &itemData(void) const;
 
 private:
   DomainSettings mItemData;
