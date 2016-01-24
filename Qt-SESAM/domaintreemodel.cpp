@@ -97,7 +97,7 @@ void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
   return parent.isValid()
-      ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount()
+      ? reinterpret_cast<DomainNode*>(parent.internalPointer())->columnCount()
       : d_ptr->rootItem->columnCount();
 }
 

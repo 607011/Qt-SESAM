@@ -52,3 +52,9 @@ QVariant GroupNode::data(int column) const
   }
   return QVariant();
 }
+
+
+AbstractTreeNode::NodeType GroupNode::type(void) const
+{
+  return GroupType;
+}

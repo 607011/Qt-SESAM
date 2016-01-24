@@ -21,7 +21,7 @@
 #define __GROUPNODE_H_
 
 #include <QString>
-#include "abstracttreenode.h"
+#include "domainnode.h"
 
 class GroupNode : public AbstractTreeNode
 {
@@ -31,12 +31,12 @@ public:
 
   const QString &name(void) const;
   virtual QVariant data(int column) const;
-  virtual NodeType type(void) const { return GroupType; }
+  virtual NodeType type(void) const;
 
 protected:
   QString mName;
-  AbstractTreeNode *mParentItem;
-  QList<AbstractTreeNode*> mChildItems;
+  DomainNode *mParentItem;
+  QList<DomainNode*> mChildItems;
 
 private:
 };
