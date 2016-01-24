@@ -25,6 +25,9 @@
 #include <QVariant>
 #include <QString>
 #include <QStringList>
+#include <QMimeData>
+
+#include "domainnode.h"
 #include "domainsettingslist.h"
 
 class AbstractTreeNode;
@@ -38,6 +41,8 @@ public:
   ~DomainTreeModel();
 
   void populate(const DomainSettingsList &);
+  DomainNode *node(const QModelIndex &index) const;
+
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
   Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
@@ -45,8 +50,11 @@ public:
   QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
   int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-  AbstractTreeNode *node(const QModelIndex &index);
   Qt::DropActions supportedDropActions(void) const Q_DECL_OVERRIDE;
+  QStringList mimeTypes(void) const Q_DECL_OVERRIDE;
+  QMimeData *mimeData(const QModelIndexList &indexes) const Q_DECL_OVERRIDE;
+  bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const Q_DECL_OVERRIDE;
+  bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) Q_DECL_OVERRIDE;
 
 private:
   static GroupNode *findChild(const QString &name, GroupNode *node);
