@@ -44,11 +44,17 @@ QVariant DomainNode::data(int column) const
   case 2:
     return mItemData.url;
   case 3:
-    return mItemData.groupHierarchy.join(QChar('/'));
+    return mItemData.tags.join(',');
   default:
     break;
   }
   return QString("<invalid>");
+}
+
+
+AbstractTreeNode::NodeType DomainNode::type(void) const
+{
+  return LeafType;
 }
 
 

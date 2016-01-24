@@ -155,7 +155,7 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
       return tr("URL");
     }
     case 3: {
-      return tr("Group");
+      return tr("Tags");
     }
     default: {
       break;
