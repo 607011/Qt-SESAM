@@ -38,6 +38,13 @@ void AbstractTreeNode::appendChild(AbstractTreeNode *item)
 }
 
 
+void AbstractTreeNode::removeChild(AbstractTreeNode *item)
+{
+
+  mChildItems.append(item);
+}
+
+
 AbstractTreeNode *AbstractTreeNode::child(int row)
 {
   return mChildItems.at(row);
@@ -58,9 +65,9 @@ AbstractTreeNode *AbstractTreeNode::parentItem(void)
 
 int AbstractTreeNode::row(void) const
 {
-  if (mParentItem != Q_NULLPTR)
-    return mParentItem->mChildItems.indexOf(const_cast<AbstractTreeNode*>(this));
-  return 0;
+  return (mParentItem == Q_NULLPTR)
+      ? 0
+      : mParentItem->mChildItems.indexOf(const_cast<AbstractTreeNode*>(this));
 }
 
 

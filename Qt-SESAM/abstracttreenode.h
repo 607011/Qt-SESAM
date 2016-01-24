@@ -32,10 +32,11 @@ public:
   explicit AbstractTreeNode(AbstractTreeNode *parentItem = Q_NULLPTR);
   virtual ~AbstractTreeNode();
 
-  void appendChild(AbstractTreeNode *child);
-  AbstractTreeNode *child(int row);
-  int childCount(void) const;
-  int columnCount(void) const;
+  virtual void appendChild(AbstractTreeNode *child);
+  virtual void removeChild(AbstractTreeNode *item);
+  virtual AbstractTreeNode *child(int row);
+  virtual int childCount(void) const;
+  virtual int columnCount(void) const;
   virtual QVariant data(int column) const;
   int row(void) const;
   AbstractTreeNode *parentItem(void);
