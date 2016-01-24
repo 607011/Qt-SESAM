@@ -226,6 +226,9 @@ public:
 };
 
 
+static const QString LockFileName = ".qt-sesam.lck";
+
+
 MainWindow::MainWindow(bool forceStart, QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
@@ -233,10 +236,11 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 {
   Q_D(MainWindow);
 
-  // Logger::instance().setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
   _LOG("MainWindow::MainWindow()");
   d->forceStart = forceStart;
-  const QString lockfilePath = QDir::homePath() + "/.qt-sesam.lck";
+  const QString &lockfilePath = QString("%1/%2")
+      .arg(QDir::homePath())
+      .arg(LockFileName);
   d->lockFile = new QLockFile(lockfilePath);
   if (!d->lockFile->tryLock()) {
     _LOG(QString("Lock file detected at %1").arg(lockfilePath));
