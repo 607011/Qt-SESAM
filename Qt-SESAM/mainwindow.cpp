@@ -958,7 +958,9 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.url = ui->urlLineEdit->text();
   ds.deleted = ui->deleteCheckBox->isChecked();
   ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
-  ds.modifiedDate = d_ptr->modifiedDate.isValid() ? d_ptr->modifiedDate : QDateTime::currentDateTime();
+  if (d_ptr->modifiedDate.isValid()) {
+    ds.modifiedDate = d_ptr->modifiedDate;
+  }
   ds.userName = ui->userLineEdit->text();
   ds.notes = ui->notesPlainTextEdit->toPlainText();
   ds.salt_base64 = ui->saltBase64LineEdit->text();
