@@ -968,8 +968,8 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.passwordLength = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ds.groupHierarchy = ui->groupLineEdit->text().split(QChar(';'));
-  ds.tags = ui->tagLineEdit->text().split(QChar(';'));
+  ds.groupHierarchy = ui->groupLineEdit->text().split(QChar(';'), QString::SkipEmptyParts);
+  ds.tags = ui->tagLineEdit->text().split(QChar(';'), QString::SkipEmptyParts);
   // v3
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text().toUtf8();
