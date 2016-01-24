@@ -27,6 +27,8 @@
 #include <QStringList>
 #include <QVariantMap>
 #include <QDateTime>
+#include <QByteArray>
+#include <QJsonDocument>
 
 #include "securestring.h"
 
@@ -37,10 +39,13 @@ public:
 
   bool expired(void) const;
   QVariantMap toVariantMap(void) const;
+  QJsonDocument toJsonDocument(void) const;
+  QByteArray toJson(void) const;
   bool isEmpty(void) const;
   void clear(void);
 
   static DomainSettings fromVariantMap(const QVariantMap &);
+  static DomainSettings fromJson(const QByteArray &);
 
   static const QByteArray DefaultSalt;
   static const QByteArray DefaultSalt_base64;

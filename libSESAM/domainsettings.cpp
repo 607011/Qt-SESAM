@@ -150,6 +150,18 @@ QVariantMap DomainSettings::toVariantMap(void) const
 }
 
 
+QJsonDocument DomainSettings::toJsonDocument(void) const
+{
+  return QJsonDocument::fromVariant(toVariantMap());
+}
+
+
+QByteArray DomainSettings::toJson(void) const
+{
+  return toJsonDocument().toJson();
+}
+
+
 DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
 {
   DomainSettings ds;
@@ -172,6 +184,17 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
   ds.tags = map[TAGS].toString().split(TagSeparator, QString::SkipEmptyParts);
   return ds;
+}
+
+
+DomainSettings DomainSettings::fromJson(const QByteArray &data)
+{
+  QJsonParseError jsonError;
+  DomainSettings ds = DomainSettings::fromVariantMap(QJsonDocument::fromJson(data, &jsonError).toVariant().toMap());
+  return jsonError.error == QJsonParseError::NoError
+      ? ds
+      : DomainSettings();
+  // TODO: propagate parse errors
 }
 
 
