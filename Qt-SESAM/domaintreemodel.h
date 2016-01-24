@@ -26,12 +26,15 @@
 #include <QString>
 #include <QStringList>
 #include <QMimeData>
+#include <QScopedPointer>
+
 
 #include "domainnode.h"
 #include "domainsettingslist.h"
 
 class AbstractTreeNode;
 class GroupNode;
+class DomainTreeModelPrivate;
 
 class DomainTreeModel : public QAbstractItemModel
 {
@@ -44,6 +47,7 @@ public:
   DomainNode *node(const QModelIndex &index) const;
 
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+  bool setData(const QModelIndex &index, const QVariant &value, int role) Q_DECL_OVERRIDE;
   Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -61,7 +65,10 @@ private:
   static GroupNode *addToHierarchy(const QStringList &groups, GroupNode *node);
 
 private: // member variables
-  GroupNode *mRootItem;
+  QScopedPointer<DomainTreeModelPrivate> d_ptr;
+  Q_DECLARE_PRIVATE(DomainTreeModel)
+  Q_DISABLE_COPY(DomainTreeModel)
+
 };
 
 #endif // __TREEMODEL_H_

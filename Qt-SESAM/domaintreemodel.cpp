@@ -24,10 +24,22 @@
 #include "domaintreemodel.h"
 #include "util.h"
 
+class DomainTreeModelPrivate {
+public:
+  DomainTreeModelPrivate(void)
+    : rootItem(Q_NULLPTR)
+  { /* ... */ }
+  ~DomainTreeModelPrivate()
+  {
+    SafeDelete(rootItem);
+  }
+  GroupNode *rootItem;
+};
+
 
 DomainTreeModel::DomainTreeModel(QObject *parent)
   : QAbstractItemModel(parent)
-  , mRootItem(Q_NULLPTR)
+  , d_ptr(new DomainTreeModelPrivate)
 {
   /* ... */
 }
@@ -35,7 +47,7 @@ DomainTreeModel::DomainTreeModel(QObject *parent)
 
 DomainTreeModel::~DomainTreeModel()
 {
-  SafeDelete(mRootItem);
+  { /* ... */ }
 }
 
 
@@ -71,10 +83,11 @@ GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode 
 
 void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 {
-  SafeRenew<GroupNode*>(mRootItem, new GroupNode);
+  Q_D(DomainTreeModel);
+  SafeRenew<GroupNode*>(d->rootItem, new GroupNode);
   foreach (DomainSettings ds, domainSettingsList) {
     if (!ds.deleted) {
-      GroupNode *node = addToHierarchy(ds.groupHierarchy, mRootItem);
+      GroupNode *node = addToHierarchy(ds.groupHierarchy, d->rootItem);
       node->appendChild(new DomainNode(ds, node));
     }
   }
@@ -85,7 +98,7 @@ int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
   return parent.isValid()
       ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())->columnCount()
-      : mRootItem->columnCount();
+      : d_ptr->rootItem->columnCount();
 }
 
 
@@ -99,16 +112,23 @@ DomainNode *DomainTreeModel::node(const QModelIndex &index) const
 
 QVariant DomainTreeModel::data(const QModelIndex &index, int role) const
 {
-  if (!index.isValid())
+  if (!index.isValid() || role != Qt::DisplayRole) {
     return QVariant();
-  if (role != Qt::DisplayRole)
-    return QVariant();
+  }
   AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
-  if (item->type() == AbstractTreeNode::LeafType)
+  if (item->type() == AbstractTreeNode::LeafType) {
     return item->data(index.column());
-  if (index.column() == 0)
+  }
+  if (index.column() == 0) {
     return item->data(0);
+  }
   return QVariant();
+}
+
+
+bool DomainTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+  return QAbstractItemModel::setData(index, value, role);
 }
 
 
@@ -151,7 +171,7 @@ QModelIndex DomainTreeModel::index(int row, int column, const QModelIndex &paren
   if (hasIndex(row, column, parent)) {
     AbstractTreeNode *parentItem = parent.isValid()
         ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())
-        : parentItem = mRootItem;
+        : parentItem = d_ptr->rootItem;
     AbstractTreeNode *childItem = parentItem->child(row);
     return childItem != Q_NULLPTR
         ? createIndex(row, column, childItem)
@@ -166,7 +186,7 @@ QModelIndex DomainTreeModel::parent(const QModelIndex &index) const
   if (index.isValid()) {
     AbstractTreeNode *childItem = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
     AbstractTreeNode *parentItem = childItem->parentItem();
-    return parentItem == mRootItem
+    return parentItem == d_ptr->rootItem
         ? QModelIndex()
         : createIndex(parentItem->row(), 0, parentItem);
   }
@@ -176,15 +196,12 @@ QModelIndex DomainTreeModel::parent(const QModelIndex &index) const
 
 int DomainTreeModel::rowCount(const QModelIndex &parent) const
 {
-  AbstractTreeNode *parentItem;
-  if (parent.column() > 0)
+  if (parent.column() > 0) {
     return 0;
-  if (!parent.isValid()) {
-    parentItem = mRootItem;
   }
-  else {
-    parentItem = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
-  }
+  AbstractTreeNode *parentItem = parent.isValid()
+      ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())
+      : d_ptr->rootItem;
   return parentItem->childCount();
 }
 
@@ -223,20 +240,18 @@ bool DomainTreeModel::canDropMimeData(const QMimeData *data, Qt::DropAction acti
   Q_UNUSED(action);
   Q_UNUSED(row);
   Q_UNUSED(parent);
-  if (!data->hasFormat("application/json"))
-    return false;
-  if (column > 0)
-    return false;
-  return true;
+  return data->hasFormat("application/json") || column == 0;
 }
 
 
 bool DomainTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-  if (!canDropMimeData(data, action, row, column, parent))
+  if (!canDropMimeData(data, action, row, column, parent)) {
     return false;
-  if (action == Qt::IgnoreAction)
+  }
+  if (action == Qt::IgnoreAction) {
     return true;
+  }
   int beginRow;
   if (row != -1) {
     beginRow = row;
@@ -248,17 +263,15 @@ bool DomainTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     beginRow = rowCount(QModelIndex());
   }
   QByteArray encodedData = data->data("application/json");
-  qDebug() << encodedData;
-
-//  QDataStream stream(&encodedData, QIODevice::ReadOnly);
-//  QStringList newItems;
-//  int rows = 0;
-//  while (!stream.atEnd()) {
-//    QString text;
-//    stream >> text;
-//    newItems << text;
-//    ++rows;
-//  }
+  QDataStream stream(&encodedData, QIODevice::ReadOnly);
+  int rows = 0;
+  while (!stream.atEnd()) {
+    QByteArray data;
+    stream >> data;
+    DomainSettings ds = DomainSettings::fromJson(data);
+    qDebug() << ds;
+    ++rows;
+  }
 //  insertRows(beginRow, rows, QModelIndex());
 //  foreach (const QString &text, newItems) {
 //    QModelIndex idx = index(beginRow, 0, QModelIndex());
