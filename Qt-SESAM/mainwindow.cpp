@@ -397,22 +397,21 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(d->trayMenu);
   d->trayIcon.show();
 
-  // ui->domainView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   QObject::connect(ui->addGroupPushButton, SIGNAL(pressed()), SLOT(onAddGroup()));
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
 
   // make a context menu for domain view
   d->contextMenu = new QMenu(ui->domainView);
-  QAction *actionCopyUserName = new QAction(tr("Copy username"), d->contextMenu);
-  QAction *actionCopyPassword = new QAction(tr("Copy password"), d->contextMenu);
+  QAction *actionCopyUserName = new QAction(tr("Copy username to clipboard"), d->contextMenu);
+  QAction *actionCopyPassword = new QAction(tr("Copy password to clipboard"), d->contextMenu);
   d->contextMenu->addAction(actionCopyUserName);
   d->contextMenu->addAction(actionCopyPassword);
-  connect(actionCopyUserName, SIGNAL(triggered()), this, SLOT(copyUsernameToClipboard()));
-  connect(actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
+  QObject::connect(actionCopyUserName, SIGNAL(triggered()), this, SLOT(copyUsernameToClipboard()));
+  QObject::connect(actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
   // connect menu to domain view
   ui->domainView->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->domainView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenu(const QPoint &)));
+  QObject::connect(ui->domainView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenu(const QPoint &)));
 
   d->pwdLabelOpacityEffect = new QGraphicsOpacityEffect(ui->passwordLengthLabel);
   d->pwdLabelOpacityEffect->setOpacity(0.5);
@@ -2099,8 +2098,9 @@ bool MainWindow::restoreSettings(void)
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   restoreState(d->settings.value("mainwindow/state").toByteArray());
   ui->domainViewerDockWidget->restoreGeometry(d->settings.value("domainViewerDock/geometry").toByteArray());
-  for (int column = 0; column < d->treeModel.columnCount(); ++column)
-    ui->domainView->setColumnWidth(column, d->settings.value(QString("domainView/column/%1/width").arg(column), -1).toInt());
+//  for (int column = 0; column < d->treeModel.columnCount(); ++column) {
+//    ui->domainView->setColumnWidth(column, d->settings.value(QString("domainView/column/%1/width").arg(column), -1).toInt());
+//  }
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
