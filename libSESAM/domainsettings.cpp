@@ -121,13 +121,13 @@ QVariantMap DomainSettings::toVariantMap(void) const
       map[NOTES] = notes;
     }
     if (!groupHierarchy.isEmpty()) {
-      map[GROUP] = groupHierarchy;
+      map[GROUP] = groupHierarchy.join(GroupSeparator);
     }
     if (!expiryDate.isNull()) {
       map[EXPIRY_DATE] = expiryDate;
     }
     if (!tags.isEmpty()) {
-      map[TAGS] = tags.join(QChar('\t'));
+      map[TAGS] = tags.join(TagSeparator);
     }
     if (legacyPassword.isEmpty()) {
       map[SALT] = salt_base64;
@@ -190,7 +190,9 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
 DomainSettings DomainSettings::fromJson(const QByteArray &data)
 {
   QJsonParseError jsonError;
-  DomainSettings ds = DomainSettings::fromVariantMap(QJsonDocument::fromJson(data, &jsonError).toVariant().toMap());
+  DomainSettings ds = DomainSettings::fromVariantMap(QJsonDocument::fromJson(data, &jsonError)
+                                                     .toVariant()
+                                                     .toMap());
   return jsonError.error == QJsonParseError::NoError
       ? ds
       : DomainSettings();
@@ -222,13 +224,13 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
       debug.nospace() << "  " << DomainSettings::NOTES << ": " << ds.notes << ",\n";
     }
     if (!ds.groupHierarchy.isEmpty()) {
-      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.groupHierarchy << ",\n";
+      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.groupHierarchy.join(DomainSettings::GroupSeparator) << ",\n";
     }
     if (!ds.expiryDate.isNull()) {
       debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
     }
     if (!ds.tags.isEmpty()) {
-      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(';') << ",\n";
+      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(DomainSettings::TagSeparator) << ",\n";
     }
     if (!ds.legacyPassword.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";
@@ -248,7 +250,7 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
     }
   }
   else {
-    debug.nospace() << "  " << DomainSettings::DELETED << ": true,\n";
+    debug.nospace() << "  " << DomainSettings::DELETED << ": true\n";
   }
   debug.nospace() << "}";
   return debug;

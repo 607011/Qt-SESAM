@@ -106,9 +106,10 @@ public:
   static const QString TAGS;
   QStringList tags;
 
-private:
   static const QChar TagSeparator;
   static const QChar GroupSeparator;
+
+private:
 
 };
 
