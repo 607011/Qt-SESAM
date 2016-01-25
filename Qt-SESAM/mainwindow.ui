@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
+    <width>574</width>
     <height>610</height>
    </rect>
   </property>
@@ -138,16 +138,6 @@
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="groupLineEdit">
-      <property name="visible">
-       <bool>false</bool>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
     </item>
     <item>
      <widget class="QLineEdit" name="tagLineEdit">
@@ -836,8 +826,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>561</width>
-     <height>22</height>
+     <width>574</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
