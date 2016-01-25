@@ -26,6 +26,38 @@
       <item row="2" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
+         <widget class="QPushButton" name="shuffleUsernamePushButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Generate new password</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="QtSESAM.qrc">
+            <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLineEdit" name="userLineEdit">
           <property name="placeholderText">
            <string>may be empty</string>
