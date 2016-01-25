@@ -191,6 +191,12 @@ SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArr
 }
 
 
+int Crypter::rnd(void)
+{
+  return gRandomDevice();
+}
+
+
 /*!
  * \brief Crypter::randomBytes
  *
