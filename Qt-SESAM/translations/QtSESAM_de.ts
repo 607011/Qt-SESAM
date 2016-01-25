@@ -1200,6 +1200,10 @@ in %1 Thread%2 ...</translation>
         <source>Successfully exported %1 logins.</source>
         <translation>Erfolgreich %1 Logins exportiert.</translation>
     </message>
+    <message>
+        <source>Shuffle a random username</source>
+        <translation>Einen zufälligen Benutzernamen auswählen</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

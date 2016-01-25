@@ -43,7 +43,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Generate new password</string>
+           <string>Shuffle a random username</string>
           </property>
           <property name="text">
            <string/>
