@@ -892,9 +892,12 @@ void MainWindow::onCustomContextMenu(const QPoint &point)
             if (node->type() == AbstractTreeNode::LeafType) {
               d->contextMenuDomain->exec(QCursor::pos());
             } else if (node->type() == AbstractTreeNode::GroupType) {
-                d->contextMenuGroup->exec(QCursor::pos());
+              d->contextMenuGroup->exec(QCursor::pos());
             }
         }
+    } else {
+      // only valid option would be 'Add group'
+      d->contextMenuGroup->exec(QCursor::pos());
     }
 }
 
