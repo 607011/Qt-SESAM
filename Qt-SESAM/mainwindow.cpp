@@ -119,7 +119,8 @@ public:
     , progressDialog(new ProgressDialog(parent))
     , countdownWidget(new CountdownWidget)
     , trayMenu(Q_NULLPTR)
-    , contextMenu(Q_NULLPTR)
+    , contextMenuGroup(Q_NULLPTR)
+    , contextMenuDomain(Q_NULLPTR)
     , actionShow(Q_NULLPTR)
     , actionLockApplication(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
@@ -171,7 +172,8 @@ public:
   ProgressDialog *progressDialog;
   CountdownWidget *countdownWidget;
   QMenu *trayMenu;
-  QMenu *contextMenu;
+  QMenu *contextMenuGroup;
+  QMenu *contextMenuDomain;
   QAction *actionShow;
   QAction *actionLockApplication;
   QString lastDomainBeforeLock;
@@ -401,15 +403,19 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
 
-  // make a context menu for domain view
-  d->contextMenu = new QMenu(ui->domainView);
-  QAction *actionCopyUserName = new QAction(tr("Copy username to clipboard"), d->contextMenu);
-  QAction *actionCopyPassword = new QAction(tr("Copy password to clipboard"), d->contextMenu);
-  d->contextMenu->addAction(actionCopyUserName);
-  d->contextMenu->addAction(actionCopyPassword);
+  // make a context menu for a group in treeview
+  d->contextMenuGroup = new QMenu(ui->domainView);
+  QAction *actionAddGroup = new QAction(tr("Add group"), d->contextMenuGroup);
+  d->contextMenuGroup->addAction(actionAddGroup);
+  // make a context menu for a domain in treeview
+  d->contextMenuDomain = new QMenu(ui->domainView);
+  QAction *actionCopyUserName = new QAction(tr("Copy username to clipboard"), d->contextMenuDomain);
+  QAction *actionCopyPassword = new QAction(tr("Copy password to clipboard"), d->contextMenuDomain);
+  d->contextMenuDomain->addAction(actionCopyUserName);
+  d->contextMenuDomain->addAction(actionCopyPassword);
   QObject::connect(actionCopyUserName, SIGNAL(triggered()), this, SLOT(copyUsernameToClipboard()));
   QObject::connect(actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
-  // connect menu to domain view
+  // set context menu policy for domain view
   ui->domainView->setContextMenuPolicy(Qt::CustomContextMenu);
   QObject::connect(ui->domainView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenu(const QPoint &)));
 
@@ -843,10 +849,7 @@ void MainWindow::onAddGroup(void)
   qDebug() << "MainWindow::onAddGroup()";
   AbstractTreeNode *node = d->treeModel.node(ui->domainView->currentIndex());
   if (node != Q_NULLPTR) {
-    if (node->type() == AbstractTreeNode::LeafType) {
-      qDebug() << "... to group" << reinterpret_cast<GroupNode*>(node->parentItem())->name();
-    }
-    else {
+    if (node->type() == AbstractTreeNode::GroupType) {
       qDebug() << "... to group" << reinterpret_cast<GroupNode*>(node)->name();
     }
   }
@@ -885,8 +888,12 @@ void MainWindow::onCustomContextMenu(const QPoint &point)
     if (index.isValid()) {
         onDomainViewClicked(index);
         AbstractTreeNode *node = d->treeModel.node(index);
-        if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
-            d->contextMenu->exec(QCursor::pos());
+        if (node != Q_NULLPTR) {
+            if (node->type() == AbstractTreeNode::LeafType) {
+              d->contextMenuDomain->exec(QCursor::pos());
+            } else if (node->type() == AbstractTreeNode::GroupType) {
+                d->contextMenuGroup->exec(QCursor::pos());
+            }
         }
     }
 }
