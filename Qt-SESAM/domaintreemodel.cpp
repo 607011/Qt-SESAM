@@ -252,13 +252,36 @@ bool DomainTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
   if (action == Qt::IgnoreAction) {
     return true;
   }
+
+  int beginRow;
+  if (row != -1) {
+    beginRow = row;
+  }
+  else if (parent.isValid()) {
+    beginRow = parent.row();
+  }
+  else {
+    beginRow = rowCount(QModelIndex());
+  }
+
+  DomainSettingsList newItems;
+  int rows = 0;
   QByteArray encodedData = data->data("application/json");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
   while (!stream.atEnd()) {
     QByteArray data;
     stream >> data;
-    DomainSettings ds = DomainSettings::fromJson(data);
-    qDebug() << ds;
+    newItems << DomainSettings::fromJson(data);
+    qDebug() << newItems.last();
+    ++rows;
   }
+
+  insertRows(beginRow, rows, QModelIndex());
+  foreach (DomainSettings ds, newItems) {
+    QModelIndex idx = index(beginRow, 0, QModelIndex());
+    setData(idx, ds.toJson());
+    ++beginRow;
+  }
+
   return true;
 }
