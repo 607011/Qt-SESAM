@@ -96,11 +96,31 @@ void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 
 void DomainTreeModel::addNewGroup(const QModelIndex &index)
 {
-    GroupNode *parentNode = reinterpret_cast<GroupNode*>(index.internalPointer());
+    AbstractTreeNode *parentNode = this->node(index);
     if (parentNode != Q_NULLPTR) {
       GroupNode *groupNode = new GroupNode("New group", parentNode);
       parentNode->appendChild(groupNode);
     }
+}
+
+
+QStringList DomainTreeModel::getGroupHierarchy(const QModelIndex &index)
+{
+    QStringList groups = QStringList();
+    if (index.isValid()) {
+        GroupNode *groupNode = NULL;
+        AbstractTreeNode *currentNode = this->node(index);
+        if (currentNode->type() == AbstractTreeNode::LeafType) {
+            groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
+        } else {
+            groupNode = reinterpret_cast<GroupNode*> (currentNode);
+        }
+        while (groupNode) {
+            groups.prepend(groupNode->name());
+            groupNode = reinterpret_cast<GroupNode*> (groupNode->parentItem());
+        }
+    }
+    return groups;
 }
 
 

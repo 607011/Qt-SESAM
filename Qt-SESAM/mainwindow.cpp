@@ -398,14 +398,15 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->trayIcon.setContextMenu(d->trayMenu);
   d->trayIcon.show();
 
-  QObject::connect(ui->addGroupPushButton, SIGNAL(pressed()), SLOT(onAddGroup()));
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
 
   // make a context menu for a group in treeview
   d->contextMenuGroup = new QMenu(ui->domainView);
   QAction *actionAddGroup = new QAction(tr("Add group"), d->contextMenuGroup);
+  QAction *actionEditGroup = new QAction(tr("Edit group"), d->contextMenuGroup);
   d->contextMenuGroup->addAction(actionAddGroup);
+  d->contextMenuGroup->addAction(actionEditGroup);
   QObject::connect(actionAddGroup, SIGNAL(triggered()), this, SLOT(onAddGroup()));
 
   // make a context menu for a domain in treeview
@@ -893,11 +894,13 @@ void MainWindow::onCustomContextMenu(const QPoint &point)
             if (node->type() == AbstractTreeNode::LeafType) {
               d->contextMenuDomain->exec(QCursor::pos());
             } else if (node->type() == AbstractTreeNode::GroupType) {
+              d->contextMenuGroup->actions().at(1)->setEnabled(true); // enable 'Edit group'
               d->contextMenuGroup->exec(QCursor::pos());
             }
         }
     } else {
       // only valid option would be 'Add group'
+      d->contextMenuGroup->actions().at(1)->setDisabled(true); // disable 'Edit group'
       d->contextMenuGroup->exec(QCursor::pos());
     }
 }
@@ -982,7 +985,10 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.passwordLength = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
-  ds.groupHierarchy = QStringList(); // get domain hierarchy from domaintreemodel
+  ds.groupHierarchy = d_ptr->treeModel.getGroupHierarchy(ui->domainView->currentIndex());
+
+  qDebug() << ds.groupHierarchy.join('/');
+
   ds.tags = ui->tagLineEdit->text().split(QChar(';'), QString::SkipEmptyParts);
   // v3
   ds.extraCharacters = ui->extraLineEdit->text();

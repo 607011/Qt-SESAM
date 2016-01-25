@@ -198,7 +198,7 @@ private: // methods
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
   void generateSaltKeyIVThread(void);
-  DomainSettings collectedDomainSettings(void) const;
+  DomainSettings collectedDomainSettings() const;
   QByteArray cryptedRemoteDomains(void);
   void mergeLocalAndRemoteData(void);
   void writeToRemote(SyncPeer syncPeer);
