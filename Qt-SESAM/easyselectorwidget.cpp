@@ -112,6 +112,14 @@ void EasySelectorWidget::setMousePos(const QPoint &pos)
 }
 
 
+void EasySelectorWidget::setTemplate(const QString &templ)
+{
+  Q_D(EasySelectorWidget);
+  d->passwordTemplate = templ;
+  update();
+}
+
+
 void EasySelectorWidget::setLength(int length)
 {
   Q_D(EasySelectorWidget);
@@ -147,9 +155,9 @@ int EasySelectorWidget::complexity(void) const
 }
 
 
-void EasySelectorWidget::setExtraCharacterCount(int n)
+void EasySelectorWidget::setExtraCharacters(const QString &extraChars)
 {
-  d_ptr->extraCharCount = n;
+  d_ptr->extraCharCount = extraChars.count();
   redrawBackground();
   update();
 }
@@ -339,9 +347,9 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
 }
 
 
-qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec) const
+qreal EasySelectorWidget::sha1Secs(const QString &passwordTemplate, qreal sha1PerSec) const
 {
-  const QBitArray &ba = Password::deconstructedComplexity(complexity);
+  const QBitArray &ba = Password::deconstructedTemplate(passwordTemplate);
   int charCount = 0;
   if (ba.at(Password::TemplateDigits)) {
     charCount += Password::Digits.count();
@@ -363,15 +371,15 @@ qreal EasySelectorWidget::sha1Secs(int length, int complexity, qreal sha1PerSec)
 }
 
 
-qreal EasySelectorWidget::tianhe2Secs(int length, int complexity) const
+qreal EasySelectorWidget::tianhe2Secs(const QString &passwordTemplate) const
 {
-  return sha1Secs(length, complexity, 767896613647.0);
+  return sha1Secs(passwordTemplate, 767896613647.0);
 }
 
 
-qreal EasySelectorWidget::mySecs(int length, int complexity) const
+qreal EasySelectorWidget::mySecs(const QString &passwordTemplate, int complexity) const
 {
-  return sha1Secs(length, complexity, d_ptr->hashesPerSec);
+  return sha1Secs(passwordTemplate, d_ptr->hashesPerSec);
 }
 
 

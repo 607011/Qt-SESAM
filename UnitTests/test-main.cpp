@@ -213,14 +213,14 @@ private slots:
 
   void complexity_0b(void)
   {
-    const QBitArray &ba = Password::deconstructedComplexity(Password::NoComplexity);
+    const QBitArray &ba = Password::deconstructedTemplate(Password::NoComplexity);
     QVERIFY(ba == QBitArray(4, false));
   }
 
   void complexity_1(void)
   {
     for (int complexity = 0; complexity < Password::MaxComplexity; ++complexity) {
-      const QBitArray &ba = Password::deconstructedComplexity(complexity);
+      const QBitArray &ba = Password::deconstructedTemplate(complexity);
       const int reComplexity = Password::constructedComplexity(ba);
       QVERIFY(complexity == reComplexity);
     }

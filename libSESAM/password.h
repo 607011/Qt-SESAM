@@ -55,7 +55,6 @@ public:
   static const QString UpperChars;
   static const QString Digits;
   static const QString ExtraChars;
-  static const QString AllChars;
   static const int DefaultMaxLength;
   static const int DefaultLength;
   static const int DefaultComplexity;
@@ -70,7 +69,7 @@ public:
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
 
-  static QBitArray deconstructedComplexity(int complexity);
+  static QBitArray deconstructedTemplate(const QString &templ);
   static int constructedComplexity(const QBitArray &);
   static const QString &charSetFor(char);
 

@@ -69,12 +69,6 @@ public:
   static const QString ITERATIONS;
   int iterations;
 
-  static const QString PASSWORD_LENGTH;
-  int passwordLength;
-
-  static const QString USED_CHARACTERS;
-  QString usedCharacters;
-
   static const QString CDATE;
   QDateTime createdDate;
 
@@ -83,8 +77,6 @@ public:
 
   static const QString DELETED;
   bool deleted;
-
-  // v3 settings
 
   static const QString EXTRA_CHARACTERS;
   QString extraCharacters;

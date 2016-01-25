@@ -119,7 +119,6 @@ private slots:
   void setDirty(bool dirty = true);
   void openURL(void);
   void onForcedPush(void);
-  void onMigrateDomainSettingsToExpert(void);
   void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void onExpandableCheckBoxStateChanged(void);
@@ -204,10 +203,10 @@ private: // methods
   int findDomainInComboBox(const QString &domain) const;
   int findDomainInComboBox(const QString &domain, int lo, int hi) const;
   bool domainComboboxContains(const QString &domain) const;
-  void applyComplexity(int complexity);
+  void applyComplexity(const QString &templ);
   void setTemplateAndUsedCharacters(void);
   QString usedCharacters(void);
-  void applyTemplateStringToGUI(const QByteArray &);
+  void applyTemplateStringToGUI(const QString &);
   void updateCheckableLabel(QLabel *, bool checked);
   QString selectAlternativeDomainNameFor(const QString &domainName);
   void warnAboutDifferingKGKs(void);

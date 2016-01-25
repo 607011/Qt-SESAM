@@ -40,6 +40,7 @@ public:
   SecureString password;
   DomainSettings domainSettings;
   QFuture<void> future;
+  QString allCharacters;
 };
 
 
@@ -48,8 +49,9 @@ static QBitArray toQBitArray(const QString &s)
   QBitArray ba(s.count(), false);
   int i = 0;
   foreach (QChar d, s) {
-    if (d == '1')
+    if (d == '1') {
       ba.setBit(i);
+    }
     ++i;
   }
   return ba;
@@ -73,7 +75,6 @@ const QString Password::LowerChars = QString("abcdefghijklmnopqrstuvwxyz");
 const QString Password::UpperChars = Password::LowerChars.toUpper();
 const QString Password::Digits = QString("0123456789");
 const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8(); // default: !"$%&?!<>()[]{}\|/~`´#'=-_+*~.,;:^°
-const QString Password::AllChars = Password::LowerChars + Password::UpperChars + Password::Digits + Password::ExtraChars;
 const int Password::DefaultLength = 13;
 const int Password::DefaultMaxLength = 2 * Password::DefaultLength;
 const int Password::MaxComplexity = 7;
@@ -117,60 +118,20 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
-QBitArray Password::deconstructedComplexity(int complexity)
+QBitArray Password::deconstructedTemplate(const QString &templ)
 {
   QBitArray ba(4, false);
-  switch (complexity) {
-  case 7:
-    ba[TemplateDigits] = false;
-    ba[TemplateLowercase] = false;
-    ba[TemplateUppercase] = false;
+  if (templ.contains('n')) {
+    ba[TemplateDigits] = true;
+  }
+  if (templ.contains('a')) {
+    ba[TemplateLowercase] = true;
+  }
+  if (templ.contains('A')) {
+    ba[TemplateUppercase] = true;
+  }
+  if (templ.contains('o')) {
     ba[TemplateExtra] = true;
-    break;
-  case 6:
-    ba[TemplateDigits] = true;
-    ba[TemplateLowercase] = true;
-    ba[TemplateUppercase] = true;
-    ba[TemplateExtra] = true;
-    break;
-  case 5:
-    ba[TemplateDigits] = true;
-    ba[TemplateLowercase] = true;
-    ba[TemplateUppercase] = true;
-    ba[TemplateExtra] = false;
-    break;
-  case 4:
-    ba[TemplateDigits] = false;
-    ba[TemplateLowercase] = true;
-    ba[TemplateUppercase] = true;
-    ba[TemplateExtra] = false;
-    break;
-  case 3:
-    ba[TemplateDigits] = true;
-    ba[TemplateLowercase] = true;
-    ba[TemplateUppercase] = false;
-    ba[TemplateExtra] = false;
-    break;
-  case 2:
-    ba[TemplateDigits] = false;
-    ba[TemplateLowercase] = false;
-    ba[TemplateUppercase] = true;
-    ba[TemplateExtra] = false;
-    break;
-  case 1:
-    ba[TemplateDigits] = false;
-    ba[TemplateLowercase] = true;
-    ba[TemplateUppercase] = false;
-    ba[TemplateExtra] = false;
-    break;
-  case 0:
-    ba[TemplateDigits] = true;
-    ba[TemplateLowercase] = false;
-    ba[TemplateUppercase] = false;
-    ba[TemplateExtra] = false;
-    break;
-  default:
-    break;
   }
   return ba;
 }
@@ -213,54 +174,40 @@ const SecureString &Password::remix(void)
   d->password.clear();
   static const BigInt::Rossi Zero(0);
   BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  if (d->domainSettings.passwordTemplate.isEmpty() && !d->domainSettings.usedCharacters.isEmpty()) {
-    // v2 method
-    const int nChars = d->domainSettings.usedCharacters.count();
-    const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
-    int n = d->domainSettings.passwordLength;
-    while (v > Zero && n-- > 0) {
-      const BigInt::Rossi &mod = v % Modulus;
-      d->password += d->domainSettings.usedCharacters.at(int(mod.toUlong()));
-      v = v / Modulus;
-    }
-  }
-  else {
-    // v3 method
-    QByteArray templ;
-    const QList<QByteArray> &templateParts = d->domainSettings.passwordTemplate.split(';');
-    if (templateParts.count() == 2) {
-      templ = templateParts.at(1);
-      int n = 0;
-      while (v > Zero && n < templ.length()) {
-        const char m = templ.at(n);
-        QString charSet;
-        switch (m) {
-        case 'x':
-          charSet = d->domainSettings.usedCharacters;
-          break;
-        case 'o':
-          charSet = d->domainSettings.extraCharacters;
-          break;
-        case 'a':
-          // fall-through
-        case 'A':
-          // fall-through
-        case 'n':
-          charSet = TemplateCharacters[m];
-          break;
-        default:
-          qWarning() << "Invalid template character:" << m;
-          break;
-        }
-        if (!charSet.isEmpty()) {
-          const int nChars = charSet.count();
-          const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
-          const BigInt::Rossi &mod = v % Modulus;
-          d->password += charSet.at(int(mod.toUlong()));
-          v = v / Modulus;
-        }
-        ++n;
+  QByteArray templ;
+  const QList<QByteArray> &templateParts = d->domainSettings.passwordTemplate.split(';');
+  if (templateParts.count() == 2) {
+    templ = templateParts.at(1);
+    int n = 0;
+    while (v > Zero && n < templ.length()) {
+      const char m = templ.at(n);
+      QString charSet;
+      switch (m) {
+      case 'x':
+        charSet = d->allCharacters;
+        break;
+      case 'o':
+        charSet = d->domainSettings.extraCharacters;
+        break;
+      case 'a':
+        // fall-through
+      case 'A':
+        // fall-through
+      case 'n':
+        charSet = TemplateCharacters[m];
+        break;
+      default:
+        qWarning() << "Invalid template character:" << m;
+        break;
       }
+      if (!charSet.isEmpty()) {
+        const int nChars = charSet.count();
+        const BigInt::Rossi Modulus(std::to_string(nChars), BigInt::DEC_DIGIT);
+        const BigInt::Rossi &mod = v % Modulus;
+        d->password += charSet.at(int(mod.toUlong()));
+        v = v / Modulus;
+      }
+      ++n;
     }
   }
   return d->password;

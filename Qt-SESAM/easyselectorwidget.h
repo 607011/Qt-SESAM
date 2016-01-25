@@ -25,6 +25,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QString>
 #include <QPoint>
 #include <QScopedPointer>
 
@@ -39,11 +40,8 @@ public:
 
   void setMousePos(const QPoint &);
 
-  void setLength(int);
-  int length(void) const;
-  void setComplexity(int);
-  int complexity(void) const;
-  void setExtraCharacterCount(int);
+  void setTemplate(const QString &);
+  void setExtraCharacters(const QString &extraChars);
 
 protected:
   void mouseMoveEvent(QMouseEvent*) Q_DECL_OVERRIDE;
@@ -77,10 +75,10 @@ private: // methods
   void speedTest(void);
   void redrawBackground(void);
   bool tooltipTextAt(const QPoint &pos, QString &helpText) const;
-  qreal tianhe2Secs(int length, int complexity) const;
+  qreal tianhe2Secs(const QString &passwordTemplate) const;
   qreal passwordStrength(int length, int complexity) const;
-  qreal sha1Secs(int length, int complexity, qreal sha1PerSec) const;
-  qreal mySecs(int length, int complexity) const;
+  qreal sha1Secs(const QString &passwordTemplate, qreal sha1PerSec) const;
+  qreal mySecs(const QString &passwordTemplate, int complexity) const;
 };
 
 #endif // __EASYSELECTORWIDGET_H_
