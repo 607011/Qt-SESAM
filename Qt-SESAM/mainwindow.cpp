@@ -407,6 +407,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->contextMenuGroup = new QMenu(ui->domainView);
   QAction *actionAddGroup = new QAction(tr("Add group"), d->contextMenuGroup);
   d->contextMenuGroup->addAction(actionAddGroup);
+  QObject::connect(actionAddGroup, SIGNAL(triggered()), this, SLOT(onAddGroup()));
+
   // make a context menu for a domain in treeview
   d->contextMenuDomain = new QMenu(ui->domainView);
   QAction *actionCopyUserName = new QAction(tr("Copy username to clipboard"), d->contextMenuDomain);
@@ -415,6 +417,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->contextMenuDomain->addAction(actionCopyPassword);
   QObject::connect(actionCopyUserName, SIGNAL(triggered()), this, SLOT(copyUsernameToClipboard()));
   QObject::connect(actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
+
   // set context menu policy for domain view
   ui->domainView->setContextMenuPolicy(Qt::CustomContextMenu);
   QObject::connect(ui->domainView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenu(const QPoint &)));
@@ -847,10 +850,13 @@ void MainWindow::onAddGroup(void)
 {
   Q_D(MainWindow);
   qDebug() << "MainWindow::onAddGroup()";
-  AbstractTreeNode *node = d->treeModel.node(ui->domainView->currentIndex());
+  QModelIndex index = ui->domainView->currentIndex();
+  AbstractTreeNode *node = d->treeModel.node(index);
   if (node != Q_NULLPTR) {
     if (node->type() == AbstractTreeNode::GroupType) {
-      qDebug() << "... to group" << reinterpret_cast<GroupNode*>(node)->name();
+      ui->domainView->setExpanded(index, false);
+      d->treeModel.addNewGroup(index);
+      ui->domainView->expand(index);
     }
   }
 }

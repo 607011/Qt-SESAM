@@ -94,6 +94,16 @@ void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 }
 
 
+void DomainTreeModel::addNewGroup(const QModelIndex &index)
+{
+    GroupNode *parentNode = reinterpret_cast<GroupNode*>(index.internalPointer());
+    if (parentNode != Q_NULLPTR) {
+      GroupNode *groupNode = new GroupNode("New group", parentNode);
+      parentNode->appendChild(groupNode);
+    }
+}
+
+
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
   return parent.isValid()
