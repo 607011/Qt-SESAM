@@ -375,6 +375,9 @@
             <height>17</height>
            </size>
           </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
           <property name="title">
            <string>Advanced settings</string>
           </property>
@@ -592,20 +595,29 @@
            <item>
             <widget class="QLineEdit" name="passwordTemplateLineEdit">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="toolTip">
               <string>Password template (FYI)</string>
+             </property>
+             <property name="inputMask">
+              <string notr="true"/>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QLineEdit" name="saltBase64LineEdit">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="toolTip">
               <string>Base64 encoded salt (FYI)</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>

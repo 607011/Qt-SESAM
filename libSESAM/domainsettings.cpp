@@ -160,8 +160,8 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.notes = map[NOTES].toString();
   ds.salt_base64 = map[SALT].toByteArray();
   ds.iterations = map[ITERATIONS].toInt();
-  ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::DateFormat::ISODate);
-  ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
+  ds.createdDate = QDateTime::fromString(map[CDATE].toString(), Qt::ISODate);
+  ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::ISODate);
   ds.deleted = map[DELETED].toBool();
   ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
 #ifndef OMIT_V2_CODE
@@ -170,7 +170,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
   ds.groupHierarchy = map[GROUP].toString();
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
-  ds.tags = map[TAGS].toString().split(QChar('\t'));
+  ds.tags = map[TAGS].toString().split(QChar('\t'), QString::SkipEmptyParts);
   return ds;
 }
 
@@ -183,10 +183,10 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
       << "DomainSettings {\n"
       << "  " << DomainSettings::DOMAIN_NAME << ": " << ds.domainName << ",\n";
   if (ds.createdDate.isValid()) {
-    debug.nospace() << "  " << DomainSettings::CDATE << ": " << ds.createdDate << ",\n";
+    debug.nospace() << "  " << DomainSettings::CDATE << ": " << ds.createdDate.toString(Qt::ISODate) << ",\n";
   }
   if (ds.modifiedDate.isValid()) {
-    debug.nospace() << "  " << DomainSettings::MDATE << ": " << ds.modifiedDate << ",\n";
+    debug.nospace() << "  " << DomainSettings::MDATE << ": " << ds.modifiedDate.toString(Qt::ISODate) << ",\n";
   }
   if (!ds.deleted) {
     if (!ds.userName.isEmpty()) {
@@ -205,7 +205,7 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
       debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
     }
     if (!ds.tags.isEmpty()) {
-      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(';') << ",\n";
+      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(',') << ",\n";
     }
     if (!ds.legacyPassword.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";

@@ -2439,6 +2439,7 @@ void MainWindow::onDomainSelected(QString domain)
     }
   }
   d->lastCleanDomainSettings = d->domains.at(domain);
+//  qDebug() << d->lastCleanDomainSettings;
   copyDomainSettingsToGUI(d->lastCleanDomainSettings);
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   setDirty(false);

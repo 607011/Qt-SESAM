@@ -148,7 +148,7 @@ private slots:
 
   // TODO: add tests to check password generation from different templates
 
-  void pwdgen_pin4(void)
+  void pwdgen_pin(void)
   {
     DomainSettings ds;
     ds.domainName = "Bank";

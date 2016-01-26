@@ -102,7 +102,7 @@ signals:
   void generationAborted(void);
 
 private: // methods
-  const QString &usedCharacters(const QString &templ) const;
+  QString usedCharacters(const QString &templ) const;
 
 private:
   QScopedPointer<PasswordPrivate> d_ptr;

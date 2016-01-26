@@ -22,6 +22,7 @@
 #include <QFuture>
 #include <string>
 
+#include "domainsettings.h"
 #include "securebytearray.h"
 #include "securestring.h"
 #include "password.h"
@@ -194,6 +195,7 @@ const SecureString &Password::remix(void)
   d->password.clear();
   static const BigInt::Rossi Zero(0);
   BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
+#ifndef OMIT_V2_CODE
   const QStringList &templateParts = d->domainSettings.passwordTemplate.split(';', QString::KeepEmptyParts);
   QString templ;
   if (templateParts.count() == 1) {
@@ -202,7 +204,13 @@ const SecureString &Password::remix(void)
   else if (templateParts.count() == 2) {
     templ = templateParts.at(1);
   }
-  const QString used = usedCharacters(templ);
+#else
+  const QString &templ = d->domainSettings.passwordTemplate;
+#endif
+  const QString &used = usedCharacters(templ);
+  if (used.isEmpty()) {
+    return "*** CANNOT COMPUTE PASSWORD ***";
+  }
   if (!templ.isEmpty()) {
     int n = 0;
     while (v > Zero && n < templ.length()) {
@@ -211,14 +219,15 @@ const SecureString &Password::remix(void)
       switch (m) {
       case 'x':
         charSet = used;
+        if (charSet.isEmpty()) {
+          qWarning() << "character set must not be empty for template character 'x'";
+        }
         break;
       case 'o':
         charSet = d->domainSettings.extraCharacters;
         break;
-      case 'a':
-        // fall-through
-      case 'A':
-        // fall-through
+      case 'a': // fall-through
+      case 'A': // fall-through
       case 'n':
         charSet = TemplateCharacters[m];
         break;
@@ -226,15 +235,21 @@ const SecureString &Password::remix(void)
         qWarning() << "Invalid template character:" << m;
         break;
       }
-      if (!charSet.isEmpty()) {
-        const int nChars = charSet.count();
+      const int nChars = charSet.count();
+      if (nChars > 0) {
         const BigInt::Rossi Modulus(QString("%1").arg(nChars).toStdString(), BigInt::DEC_DIGIT);
         const BigInt::Rossi &mod = v % Modulus;
-        d->password += charSet.at(int(mod.toUlong()));
+        d->password.append(charSet.at(int(mod.toUlong())));
         v = v / Modulus;
+      }
+      else {
+        qWarning() << "character set is empty";
       }
       ++n;
     }
+  }
+  else {
+    qWarning() << "password template is empty";
   }
   return d->password;
 }
@@ -272,7 +287,7 @@ void Password::abortGeneration(void)
 }
 
 
-const QString &Password::usedCharacters(const QString &templ) const
+QString Password::usedCharacters(const QString &templ) const
 {
   QString used;
   if (templ.contains('n')) {
