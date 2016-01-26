@@ -107,9 +107,9 @@ private slots:
   {
     DomainSettings ds;
     ds.domainName = "ct.de";
-    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ0123456789#!\"§$%&/()[]{}=-_+*<>;:.";
+    ds.extraCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ0123456789#!\"§$%&/()[]{}=-_+*<>;:.";
     ds.iterations = 4096;
-    ds.passwordLength = 10;
+    ds.passwordTemplate = "oxxxxxxxxx";
     ds.salt_base64 = QString("pepper").toUtf8().toBase64();
     Password pwd(ds);
     pwd.generate("test");
@@ -121,9 +121,9 @@ private slots:
   {
     DomainSettings ds;
     ds.domainName = "MyFavoriteDomain";
-    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
+    ds.extraCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
     ds.iterations = 8192;
-    ds.passwordLength = 16;
+    ds.passwordTemplate = "oxxxxxxxxxxxxxxx";
     ds.salt_base64 = QString("pepper").toUtf8().toBase64();
     Password pwd(ds);
     pwd.generate("foobar");
@@ -135,9 +135,9 @@ private slots:
   {
     DomainSettings ds;
     ds.domainName = "MyFavoriteDomain";
-    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
+    ds.extraCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
     ds.iterations = 8192;
-    ds.passwordLength = 16;
+    ds.passwordTemplate = "oxxxxxxxxxxxxxxx";
     ds.salt_base64 = QString("pepper").toUtf8().toBase64();
     Password pwd(ds);
     pwd.generate("foobar");
@@ -150,9 +150,9 @@ private slots:
   {
     DomainSettings ds;
     ds.domainName = "MyFavoriteDomain";
-    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
+    ds.extraCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
     ds.iterations = 8192;
-    ds.passwordTemplate = "6;xxxxxxxxxxxxxxxx";
+    ds.passwordTemplate = "oxxxxxxxxxxxxxxx";
     ds.salt_base64 = QString("pepper").toUtf8().toBase64();
     Password pwd(ds);
     pwd.generate("foobar");
@@ -162,27 +162,13 @@ private slots:
     QVERIFY(pwd() == "wLUwoQvKzBaYXbme");
   }
 
-  void pwdgen_simple_password_4_tpl(void)
-  {
-    DomainSettings ds;
-    ds.domainName = "WT*?#@!";
-    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ0123456789!\"$%&?!<>()[]{}\\|/~`´#'=-_+*~.,;:^°";
-    ds.iterations = 2048;
-    ds.passwordTemplate = "6;xxAxxxnooxxxxxxxxxxaaAxx";
-    ds.salt_base64 = QByteArray::fromHex("40865647f99e2d8c1ed8").toBase64();
-    Password pwd(ds);
-    pwd.generate("mast3r-PA55WORD");
-    QVERIFY(pwd.hexKey() == "95439766e6653ece428e2b1d76eb28ad4098b50d1c6fb55094cce85b12a941cee34ca00d214cf2b31aa1e2753c08b287223239a2c0b883ff184f71d7cd3c42b3");
-    QVERIFY(pwd.password() == "´uHE7E0#_(J~r#~XCifHq´");
-  }
-
   void pwdgen_pin4(void)
   {
     DomainSettings ds;
     ds.domainName = "Bank";
-    ds.usedCharacters = "0123456789";
+    ds.extraCharacters = "0123456789";
     ds.iterations = 1;
-    ds.passwordLength = 4;
+    ds.passwordTemplate = "oxxx";
     ds.salt_base64 = QString("pepper").toUtf8().toBase64();
     Password pwd(ds);
     pwd.generate("reallysafe");
@@ -190,39 +176,12 @@ private slots:
     QVERIFY(pwd.password() == "7809");
   }
 
-  void pwdgen_binary_salt_and_password(void)
+  void complexity(void)
   {
-    DomainSettings ds;
-    ds.domainName = "Foo";
-    ds.usedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ";
-    ds.iterations = 1024;
-    ds.passwordLength = 32;
-    static uchar salt[256] = { 219, 234, 34, 57, 151, 182, 99, 40, 180, 243, 133, 33, 191, 250, 4, 226, 107, 19, 132, 160, 29, 73, 184, 194, 38, 109, 104, 126, 43, 108, 215, 45, 253, 44, 204, 83, 229, 220, 146, 136, 110, 0, 232, 25, 212, 23, 205, 157, 91, 179, 200, 248, 102, 17, 101, 164, 113, 130, 27, 141, 79, 177, 47, 123, 36, 210, 183, 65, 64, 140, 72, 134, 207, 100, 233, 35, 211, 131, 75, 186, 70, 156, 105, 21, 66, 216, 241, 169, 15, 144, 111, 122, 181, 135, 118, 39, 228, 37, 188, 26, 14, 147, 49, 95, 2, 244, 119, 154, 171, 218, 77, 187, 3, 127, 217, 22, 129, 69, 185, 206, 152, 5, 115, 106, 6, 96, 227, 255, 125, 155, 18, 240, 238, 55, 32, 128, 84, 89, 252, 172, 28, 67, 225, 214, 121, 237, 93, 148, 59, 139, 87, 97, 158, 199, 98, 94, 68, 247, 41, 86, 13, 142, 196, 197, 195, 82, 78, 116, 60, 209, 7, 9, 174, 189, 150, 221, 175, 224, 213, 145, 92, 231, 170, 208, 81, 254, 76, 246, 198, 71, 203, 192, 124, 167, 137, 222, 31, 249, 58, 190, 11, 20, 10, 168, 46, 235, 88, 245, 114, 74, 176, 163, 1, 223, 8, 193, 30, 54, 166, 52, 24, 85, 90, 162, 117, 236, 120, 178, 143, 63, 159, 173, 161, 61, 48, 42, 103, 80, 251, 56, 202, 53, 153, 201, 51, 230, 242, 112, 149, 239, 138, 165, 16, 62, 12, 50 };
-    static uchar password[256] = { 136, 152, 37, 207, 212, 209, 100, 16, 137, 118, 4, 205, 115, 26, 21, 19, 99, 30, 156, 31, 102, 35, 130, 114, 22, 191, 32, 248, 155, 60, 120, 44, 167, 107, 197, 123, 27, 138, 171, 133, 186, 69, 122, 58, 70, 147, 51, 62, 164, 236, 61, 81, 72, 3, 218, 11, 134, 24, 230, 227, 54, 43, 124, 168, 113, 84, 144, 217, 9, 184, 163, 64, 195, 34, 173, 5, 8, 192, 91, 63, 40, 12, 6, 140, 74, 125, 52, 196, 110, 46, 229, 198, 220, 247, 131, 202, 177, 216, 246, 106, 161, 219, 146, 41, 226, 154, 28, 148, 117, 238, 18, 92, 135, 231, 180, 75, 211, 141, 94, 67, 185, 160, 23, 105, 187, 47, 53, 253, 95, 232, 242, 169, 240, 181, 172, 139, 116, 1, 179, 178, 80, 143, 20, 7, 243, 101, 252, 176, 228, 48, 224, 0, 206, 50, 249, 104, 89, 88, 199, 78, 17, 33, 200, 194, 132, 83, 97, 57, 56, 222, 183, 214, 68, 250, 73, 108, 237, 71, 29, 221, 251, 98, 204, 45, 245, 121, 255, 193, 182, 79, 14, 254, 190, 15, 153, 127, 215, 119, 111, 2, 225, 90, 223, 233, 213, 36, 151, 59, 210, 49, 159, 241, 10, 86, 188, 162, 109, 65, 42, 235, 103, 128, 234, 157, 189, 77, 201, 25, 82, 166, 203, 239, 96, 38, 244, 175, 39, 142, 112, 170, 55, 93, 165, 76, 13, 208, 150, 126, 85, 66, 158, 87, 145, 129, 174, 149 };
-    ds.salt_base64 = QByteArray(reinterpret_cast<char*>(salt), 256).toBase64();
-    Password pwd(ds);
-    pwd.generate(SecureByteArray(reinterpret_cast<char*>(password), 256));
-    QVERIFY(pwd.hexKey() == "e217c512b32d61f94bccad89b9c79012d073f4c0960854803a6115aa928f5b823d3bcd167872d4df102450f4dc26d82c6fa6666f749f82b2ec12593edb6ba2b0");
-    QVERIFY(pwd.password() == "XQCjlTFKFWBAsmgYgzTwJdbFPjCyykCl");
-  }
-
-  void complexity_0a(void)
-  {
-    QVERIFY(Password::NoComplexity == Password::constructedComplexity(QBitArray(4, false)));
-  }
-
-  void complexity_0b(void)
-  {
-    const QBitArray &ba = Password::deconstructedTemplate(Password::NoComplexity);
-    QVERIFY(ba == QBitArray(4, false));
-  }
-
-  void complexity_1(void)
-  {
-    for (int complexity = 0; complexity < Password::MaxComplexity; ++complexity) {
-      const QBitArray &ba = Password::deconstructedTemplate(complexity);
-      const int reComplexity = Password::constructedComplexity(ba);
-      QVERIFY(complexity == reComplexity);
+    for (int complexityValue = 0; complexityValue < Password::MaxComplexityValue; ++complexityValue) {
+      const Password::Complexity c = Password::Complexity::fromValue(complexityValue);
+      const int reComplexity = c.value();
+      QVERIFY(complexityValue == reComplexity);
     }
   }
 

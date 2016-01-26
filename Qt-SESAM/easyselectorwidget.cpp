@@ -45,9 +45,7 @@ public:
   EasySelectorWidgetPrivate(void)
     : buttonDown(false)
     , length((EasySelectorWidget::DefaultMaxLength - EasySelectorWidget::DefaultMinLength) / 2)
-    , complexity(Password::MaxComplexity / 2)
     , oldLength(length)
-    , oldComplexity(complexity)
     , minLength(EasySelectorWidget::DefaultMinLength)
     , maxLength(EasySelectorWidget::DefaultMaxLength)
     , extraCharCount(Password::ExtraChars.count())
@@ -58,12 +56,13 @@ public:
   { /* ... */ }
   bool buttonDown;
   int length;
-  int complexity;
   int oldLength;
+  int complexity;
   int oldComplexity;
   int minLength;
   int maxLength;
   int extraCharCount;
+  QString passwordTemplate;
   QPixmap bgPixmap;
   bool doAbortSpeedTest;
   QFuture<void> speedTestFuture;
@@ -100,22 +99,22 @@ void EasySelectorWidget::setMousePos(const QPoint &pos)
   Q_D(EasySelectorWidget);
   if (!d->bgPixmap.isNull()) {
     const int nX = d->maxLength - d->minLength + 1;
-    const int nY = Password::MaxComplexity + 1;
+    const int nY = Password::MaxComplexityValue + 1;
     const int xs = d->bgPixmap.width() / nX;
     const int ys = d->bgPixmap.height() / nY;
     const int clampedX = clamp(pos.x(), 0, d->bgPixmap.width() - xs);
     const int clampedY = clamp(pos.y(), 0, d->bgPixmap.height() - ys);
     d->length = d->minLength + clampedX / xs;
-    d->complexity = Password::MaxComplexity - clampedY / ys;
+    d->complexity = Password::MaxComplexityValue - clampedY / ys;
     update();
   }
 }
 
 
-void EasySelectorWidget::setTemplate(const QString &templ)
+void EasySelectorWidget::setExtraCharacters(const QString &extraChars)
 {
-  Q_D(EasySelectorWidget);
-  d->passwordTemplate = templ;
+  d_ptr->extraCharCount = extraChars.count();
+  redrawBackground();
   update();
 }
 
@@ -135,31 +134,23 @@ void EasySelectorWidget::setLength(int length)
 }
 
 
+void EasySelectorWidget::setComplexityValue(int complexityValue)
+{
+  Q_D(EasySelectorWidget);
+  d->complexity = complexityValue;
+  update();
+}
+
+
 int EasySelectorWidget::length(void) const
 {
   return d_ptr->length;
 }
 
 
-void EasySelectorWidget::setComplexity(int complexity)
-{
-  Q_D(EasySelectorWidget);
-  d->complexity = complexity;
-  update();
-}
-
-
-int EasySelectorWidget::complexity(void) const
+int EasySelectorWidget::complexityValue(void) const
 {
   return d_ptr->complexity;
-}
-
-
-void EasySelectorWidget::setExtraCharacters(const QString &extraChars)
-{
-  d_ptr->extraCharCount = extraChars.count();
-  redrawBackground();
-  update();
 }
 
 
@@ -211,7 +202,7 @@ void EasySelectorWidget::paintEvent(QPaintEvent *)
   Q_D(EasySelectorWidget);
   if (!d->bgPixmap.isNull()) {
     const int nX = d->maxLength - d->minLength + 1;
-    const int nY = Password::MaxComplexity + 1;
+    const int nY = Password::MaxComplexityValue + 1;
     const int xs = d->bgPixmap.width() / nX;
     const int ys = d->bgPixmap.height() / nY;
     QPainter p(this);
@@ -274,7 +265,7 @@ void EasySelectorWidget::redrawBackground(void)
     return;
   }
   const int nX = d->maxLength - d->minLength + 1;
-  const int nY = Password::MaxComplexity + 1;
+  const int nY = Password::MaxComplexityValue + 1;
   const int xs = (width() - 2) / nX;
   const int ys = (height() - 2) / nY;
   d->bgPixmap = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
@@ -332,9 +323,9 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
   if (d_ptr->bgPixmap.isNull())
     return false;
   const int xs = d_ptr->bgPixmap.width() / (d_ptr->maxLength - d_ptr->minLength + 1);
-  const int ys = d_ptr->bgPixmap.height() / (Password::MaxComplexity + 1);
+  const int ys = d_ptr->bgPixmap.height() / (Password::MaxComplexityValue + 1);
   const int length = pos.x() / xs + d_ptr->minLength;
-  const int complexity = Password::MaxComplexity - pos.y() / ys;
+  const int complexity = Password::MaxComplexityValue - pos.y() / ys;
   QString crackDuration = makeCrackDuration(tianhe2Secs(length, complexity));
   QString myCrackDuration = makeCrackDuration(mySecs(length, complexity));
   helpText = tr("%1 characters,\n"
@@ -347,20 +338,20 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
 }
 
 
-qreal EasySelectorWidget::sha1Secs(const QString &passwordTemplate, qreal sha1PerSec) const
+qreal EasySelectorWidget::sha1Secs(int length, int complexityValue, qreal sha1PerSec) const
 {
-  const QBitArray &ba = Password::deconstructedTemplate(passwordTemplate);
   int charCount = 0;
-  if (ba.at(Password::TemplateDigits)) {
+  Password::Complexity complexity = Password::Complexity::fromValue(complexityValue);
+  if (complexity.digits) {
     charCount += Password::Digits.count();
   }
-  if (ba.at(Password::TemplateLowercase)) {
+  if (complexity.lowercase) {
     charCount += Password::LowerChars.count();
   }
-  if (ba.at(Password::TemplateUppercase)) {
+  if (complexity.uppercase) {
     charCount += Password::UpperChars.count();
   }
-  if (ba.at(Password::TemplateExtra)) {
+  if (complexity.extra) {
     charCount += d_ptr->extraCharCount;
   }
   static const int Iterations = 1;
@@ -371,21 +362,21 @@ qreal EasySelectorWidget::sha1Secs(const QString &passwordTemplate, qreal sha1Pe
 }
 
 
-qreal EasySelectorWidget::tianhe2Secs(const QString &passwordTemplate) const
+qreal EasySelectorWidget::tianhe2Secs(int length, int complexityValue) const
 {
-  return sha1Secs(passwordTemplate, 767896613647.0);
+  return sha1Secs(length, complexityValue, 767896613647.0);
 }
 
 
-qreal EasySelectorWidget::mySecs(const QString &passwordTemplate, int complexity) const
+qreal EasySelectorWidget::mySecs(int length, int complexityValue) const
 {
-  return sha1Secs(passwordTemplate, d_ptr->hashesPerSec);
+  return sha1Secs(length, complexityValue, d_ptr->hashesPerSec);
 }
 
 
-qreal EasySelectorWidget::passwordStrength(int length, int complexity) const
+qreal EasySelectorWidget::passwordStrength(int length, int complexityValue) const
 {
-  const qreal t2y = tianhe2Secs(length, complexity) / 60 / 60 / 24 / 365.25;
+  const qreal t2y = tianhe2Secs(length, complexityValue) / 60 / 60 / 24 / 365.25;
   return t2y * 1e8;
 }
 

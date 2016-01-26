@@ -20,6 +20,7 @@
 #ifndef __PASSWORD_H_
 #define __PASSWORD_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QScopedPointer>
@@ -40,26 +41,42 @@ class Password : public QObject
   Q_OBJECT
 public:
   typedef QMap<char, QString> TemplateCharacterMap;
-  enum {
-    TemplateDigits = 0,
-    TemplateLowercase,
-    TemplateUppercase,
-    TemplateExtra }
-  TemplatePlaceholder;
 
   Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
 
-  static const QVector<QBitArray> ComplexityMapping;
+  class Complexity {
+  public:
+    Complexity(void);
+    Complexity(const Complexity &o);
+    Complexity(bool digits, bool lowercase, bool uppercase, bool extra);
+    bool digits;
+    bool lowercase;
+    bool uppercase;
+    bool extra;
+
+    bool operator==(const Complexity &o);
+    bool operator!=(const Complexity &o);
+    int value(void) const;
+
+    static Complexity fromValue(int c);
+    static Complexity fromTemplate(const QString &templ);
+
+  private:
+    static const QVector<Complexity> Mapping;
+  };
+
+
+
   static const QString LowerChars;
   static const QString UpperChars;
   static const QString Digits;
   static const QString ExtraChars;
   static const int DefaultMaxLength;
   static const int DefaultLength;
-  static const int DefaultComplexity;
-  static const int MaxComplexity;
-  static const int NoComplexity;
+  static const int DefaultComplexityValue;
+  static const int MaxComplexityValue;
+  static const int NoComplexityValue;
 
   SecureString operator()(void) const;
   const SecureString &password(void) const;
@@ -69,8 +86,6 @@ public:
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
 
-  static QBitArray deconstructedTemplate(const QString &templ);
-  static int constructedComplexity(const QBitArray &);
   static const QString &charSetFor(char);
 
   void generate(const SecureByteArray &key);
@@ -86,6 +101,9 @@ signals:
   void generationStarted(void);
   void generationAborted(void);
 
+private: // methods
+  const QString &usedCharacters(const QString &templ) const;
+
 private:
   QScopedPointer<PasswordPrivate> d_ptr;
   Q_DECLARE_PRIVATE(Password)
@@ -93,5 +111,8 @@ private:
 
   static const TemplateCharacterMap TemplateCharacters;
 };
+
+extern QDebug operator<<(QDebug debug, const Password::Complexity &);
+
 
 #endif // __PASSWORD_H_

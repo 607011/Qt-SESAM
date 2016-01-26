@@ -30,6 +30,8 @@
 
 #include "securestring.h"
 
+#define OMIT_V2_CODE
+
 class DomainSettings {
 public:
   DomainSettings(void);
@@ -81,8 +83,13 @@ public:
   static const QString EXTRA_CHARACTERS;
   QString extraCharacters;
 
+#ifndef OMIT_V2_CODE
+  static const QString USED_CHARACTERS; // v2
+  QString usedCharacters;
+#endif
+
   static const QString PASSWORD_TEMPLATE;
-  QByteArray passwordTemplate;
+  QString passwordTemplate;
 
   static const QString GROUP;
   QString groupHierarchy;

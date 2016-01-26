@@ -41,6 +41,9 @@ const QString DomainSettings::CDATE = "cDate";
 const QString DomainSettings::MDATE = "mDate";
 const QString DomainSettings::DELETED = "deleted";
 const QString DomainSettings::EXTRA_CHARACTERS = "extras";
+#ifndef OMIT_V2_CODE
+const QString DomainSettings::USED_CHARACTERS = "usedCharacters";
+#endif
 const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
 const QString DomainSettings::GROUP = "group";
 const QString DomainSettings::EXPIRY_DATE = "expiryDate";
@@ -66,6 +69,9 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , modifiedDate(o.modifiedDate)
   , deleted(o.deleted)
   , extraCharacters(o.extraCharacters)
+#ifndef OMIT_V2_CODE
+  , usedCharacters(o.usedCharacters)
+#endif
   , passwordTemplate(o.passwordTemplate)
   , groupHierarchy(o.groupHierarchy)
   , expiryDate(o.expiryDate)
@@ -127,6 +133,11 @@ QVariantMap DomainSettings::toVariantMap(void) const
       if (!extraCharacters.isEmpty()) {
         map[EXTRA_CHARACTERS] = extraCharacters;
       }
+#ifndef OMIT_V2_CODE
+      if (!usedCharacters.isEmpty()) { // v2
+        map[USED_CHARACTERS] = usedCharacters;
+      }
+#endif
       if (!passwordTemplate.isEmpty()) {
         map[PASSWORD_TEMPLATE] = passwordTemplate;
       }
@@ -153,6 +164,9 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.modifiedDate = QDateTime::fromString(map[MDATE].toString(), Qt::DateFormat::ISODate);
   ds.deleted = map[DELETED].toBool();
   ds.extraCharacters = map[EXTRA_CHARACTERS].toString();
+#ifndef OMIT_V2_CODE
+  ds.usedCharacters = map[USED_CHARACTERS].toString();
+#endif
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
   ds.groupHierarchy = map[GROUP].toString();
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
@@ -199,10 +213,14 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
     else {
       debug.nospace() << "  " << DomainSettings::SALT << ": " << ds.salt_base64 << ",\n";
       debug.nospace() << "  " << DomainSettings::ITERATIONS << ": " << ds.iterations << ",\n";
-      // v3 settings
       if (!ds.extraCharacters.isEmpty()) {
         debug.nospace() << "  " << DomainSettings::EXTRA_CHARACTERS << ": " << ds.extraCharacters << ",\n";
       }
+#ifndef OMIT_V2_CODE
+      if (!ds.usedCharacters.isEmpty()) {
+        debug.nospace() << "  " << DomainSettings::USED_CHARACTERS << ": " << ds.usedCharacters << ",\n";
+      }
+#endif
       if (!ds.passwordTemplate.isEmpty()) {
         debug.nospace() << "  " << DomainSettings::PASSWORD_TEMPLATE << ": " << ds.passwordTemplate << ",\n";
       }
