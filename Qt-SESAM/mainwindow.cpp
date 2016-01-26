@@ -1080,7 +1080,9 @@ void MainWindow::nextChangeMasterPasswordStep(void)
 }
 
 
-auto makeHMS = [](qint64 ms) {
+#if HACKING_MODE_ENABLED
+static QString makeHMS(qint64 ms)
+{
   QString sign;
   if (ms < 0) {
     sign = "-";
@@ -1093,9 +1095,13 @@ auto makeHMS = [](qint64 ms) {
   qint64 hrs = secs / 60 / 60;
   qint64 mins = (secs / 60 - hrs * 60);
   secs -= 60 * (hrs * 60 + mins);
-  return QString("%1%2h%3'%4\"").arg(sign).arg(hrs).arg(mins, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0'));
-};
-
+  return QString("%1%2h%3'%4\"")
+      .arg(sign)
+      .arg(hrs)
+      .arg(mins, 2, 10, QChar('0'))
+      .arg(secs, 2, 10, QChar('0'));
+}
+#endif
 
 void MainWindow::onPasswordGenerated(void)
 {
@@ -1103,8 +1109,8 @@ void MainWindow::onPasswordGenerated(void)
 #if HACKING_MODE_ENABLED
   if (!d->hackingMode) {
 #endif
-    ui->generatedPasswordLineEdit->setText(d->password());
-    ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(d->password().length()));
+    ui->generatedPasswordLineEdit->setText(d->password.password());
+    ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(d->password.password().length()));
     d->pwdLabelOpacityEffect->setOpacity(1);
     if (!d->password.isAborted()) {
       ui->statusBar->showMessage(tr("generation time: %1 ms")
@@ -1486,7 +1492,6 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   d->createdDate = ds.createdDate;
   d->modifiedDate = ds.modifiedDate;
   ui->deleteCheckBox->setChecked(false);
-  // v3
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
   ui->extraLineEdit->blockSignals(false);
@@ -1496,12 +1501,16 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 
   if (ds.legacyPassword.isEmpty()) {
     ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
-    ui->actionHackLegacyPassword->setEnabled(false);
     applyTemplateStringToGUI(ds.passwordTemplate);
+#if HACKING_MODE_ENABLED
+    ui->actionHackLegacyPassword->setEnabled(false);
+#endif
   }
   else {
     ui->tabWidget->setCurrentIndex(TabLegacyPassword);
+#if HACKING_MODE_ENABLED
     ui->actionHackLegacyPassword->setEnabled(true);
+#endif
   }
 
   updatePassword();
@@ -1565,7 +1574,7 @@ void MainWindow::saveDomainSettings(DomainSettings ds)
     ds.createdDate = QDateTime::currentDateTime();
     ds.modifiedDate = QDateTime();
     if (!ds.deleted) {
-      domainList << ds.domainName;
+      domainList.append(ds.domainName);
     }
   }
   d->domains.updateWith(ds);
@@ -1625,6 +1634,7 @@ bool MainWindow::wipeFile(const QString &filename)
         for (int j = 0; j < N; ++j) {
           f.write(&b, 1);
         }
+        f.flush();
       }
       static const int NumTriplets = 6;
       static const unsigned char Triplets[NumTriplets][3] = {
@@ -1637,6 +1647,7 @@ bool MainWindow::wipeFile(const QString &filename)
         for (int j = 0; j < N / 3; ++j) {
           f.write(b, 3);
         }
+        f.flush();
       }
     }
     f.seek(0);
@@ -1749,16 +1760,6 @@ void MainWindow::onBackupFilesRemoved(int n)
 void MainWindow::writeBackupFile(void)
 {
   Q_D(MainWindow);
-  /* From the Qt docs: "QStandardPaths::DataLocation returns the
-   * same value as AppLocalDataLocation. This enumeration value
-   * is deprecated. Using AppDataLocation is preferable since on
-   * Windows, the roaming path is recommended."
-   *
-   * AppLocalDataLocation was introduced in Qt 5.4. To maintain
-   * compatibility to Qt 5.3 (which is found in many reasonably
-   * current Linux distributions this code still uses the
-   * deprecated value DataLocation.
-   */
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   const QString &backupFilename = QString("%1/%2-%3-backup.txt")
       .arg(backupFilePath)

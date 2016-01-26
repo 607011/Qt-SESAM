@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>343</width>
-    <height>612</height>
+    <height>739</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -593,33 +593,54 @@
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="passwordTemplateLineEdit">
-             <property name="enabled">
-              <bool>true</bool>
+            <layout class="QFormLayout" name="formLayout_2">
+             <property name="topMargin">
+              <number>0</number>
              </property>
-             <property name="toolTip">
-              <string>Password template (FYI)</string>
-             </property>
-             <property name="inputMask">
-              <string notr="true"/>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="saltBase64LineEdit">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="toolTip">
-              <string>Base64 encoded salt (FYI)</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="passwordTemplateLineEdit">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="toolTip">
+                <string>Password template (FYI)</string>
+               </property>
+               <property name="inputMask">
+                <string notr="true"/>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="saltBase64LineEdit">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="toolTip">
+                <string>Base64 encoded salt (FYI)</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Template</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Salt</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -786,7 +807,7 @@
      <x>0</x>
      <y>0</y>
      <width>343</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

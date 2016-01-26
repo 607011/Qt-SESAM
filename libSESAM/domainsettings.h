@@ -84,7 +84,7 @@ public:
   QString extraCharacters;
 
 #ifndef OMIT_V2_CODE
-  static const QString USED_CHARACTERS; // v2
+  static const QString USED_CHARACTERS;
   QString usedCharacters;
 #endif
 
@@ -102,7 +102,7 @@ public:
 };
 
 
-extern QDebug operator<<(QDebug debug, const DomainSettings &ds);
+QDebug operator<<(QDebug debug, const DomainSettings &);
 
 
 #endif // __DOMAINSETTINGS_H_

@@ -114,7 +114,7 @@ private slots:
     Password pwd(ds);
     pwd.generate("test");
     QVERIFY(pwd.hexKey() == "f4d54b303b21ee3d8bff9c1eae6f66d90db58c0a5cc770eee322cc59d4dec65793bf8f5dec717fd1404bbfacf59befa68c4ad9168bfeaa6a9e28b326a76a82bb");
-    QVERIFY(pwd() == "YBVUH=sN/3");
+    QVERIFY(pwd.password() == "YBVUH=sN/3");
   }
 
   void pwdgen_simple_password_2(void)

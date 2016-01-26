@@ -55,8 +55,8 @@ public:
     bool uppercase;
     bool extra;
 
-    bool operator==(const Complexity &o);
-    bool operator!=(const Complexity &o);
+    bool operator==(const Complexity &);
+    bool operator!=(const Complexity &);
     int value(void) const;
 
     static Complexity fromValue(int c);
@@ -68,9 +68,9 @@ public:
 
 
 
+  static const QString Digits;
   static const QString LowerChars;
   static const QString UpperChars;
-  static const QString Digits;
   static const QString ExtraChars;
   static const int DefaultMaxLength;
   static const int DefaultLength;
@@ -78,7 +78,6 @@ public:
   static const int MaxComplexityValue;
   static const int NoComplexityValue;
 
-  SecureString operator()(void) const;
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
   const SecureString &remix(void);
@@ -101,9 +100,6 @@ signals:
   void generationStarted(void);
   void generationAborted(void);
 
-private: // methods
-  QString usedCharacters(const QString &templ) const;
-
 private:
   QScopedPointer<PasswordPrivate> d_ptr;
   Q_DECLARE_PRIVATE(Password)
@@ -112,7 +108,8 @@ private:
   static const TemplateCharacterMap TemplateCharacters;
 };
 
-extern QDebug operator<<(QDebug debug, const Password::Complexity &);
+
+QDebug operator<<(QDebug debug, const Password::Complexity &);
 
 
 #endif // __PASSWORD_H_
