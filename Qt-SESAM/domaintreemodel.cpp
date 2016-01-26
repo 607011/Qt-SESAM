@@ -51,7 +51,8 @@ DomainTreeModel::~DomainTreeModel()
 }
 
 
-GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node) {
+GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node)
+{
   GroupNode *foundChild = Q_NULLPTR;
   for (int row = 0; row < node->childCount(); ++row) {
     AbstractTreeNode *child = node->child(row);
@@ -67,7 +68,8 @@ GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node) {
 }
 
 
-GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode *node) {
+GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode *node)
+{
   GroupNode *parentNode = node;
   foreach (QString groupName, groups) {
     GroupNode *childNode = findChild(groupName, parentNode);
@@ -106,6 +108,7 @@ void DomainTreeModel::addNewGroup(const QModelIndex &index)
 
 QStringList DomainTreeModel::getGroupHierarchy(const QModelIndex &index)
 {
+    Q_D(DomainTreeModel);
     QStringList groups = QStringList();
     if (index.isValid()) {
         GroupNode *groupNode = NULL;
@@ -115,12 +118,32 @@ QStringList DomainTreeModel::getGroupHierarchy(const QModelIndex &index)
         } else {
             groupNode = reinterpret_cast<GroupNode*> (currentNode);
         }
-        while (groupNode) {
+        while ((groupNode) && (groupNode != d->rootItem)) {
             groups.prepend(groupNode->name());
             groupNode = reinterpret_cast<GroupNode*> (groupNode->parentItem());
         }
     }
     return groups;
+}
+
+
+void DomainTreeModel::removeDomain(const QModelIndex &index)
+{
+    if (index.isValid()) {
+        AbstractTreeNode *currentNode = this->node(index);
+        if (currentNode->type() == AbstractTreeNode::LeafType) {
+            GroupNode *groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
+            groupNode->removeChild(currentNode);
+        }
+    }
+}
+
+
+void DomainTreeModel::addDomain(const DomainSettings &ds)
+{
+    Q_D(DomainTreeModel);
+    GroupNode *node = addToHierarchy(ds.groupHierarchy, d->rootItem);
+    node->appendChild(new DomainNode(ds, node));
 }
 
 

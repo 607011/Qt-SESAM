@@ -866,6 +866,8 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
     DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
     const int idx = ui->domainsComboBox->findText(domainNode->data(0).toString());
     ui->domainsComboBox->setCurrentIndex(idx);
+  } else {
+    resetAllFields();
   }
 }
 
@@ -986,9 +988,6 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.passwordLength = ui->passwordLengthSpinBox->value();
   ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
   ds.groupHierarchy = d_ptr->treeModel.getGroupHierarchy(ui->domainView->currentIndex());
-
-  qDebug() << ds.groupHierarchy.join('/');
-
   ds.tags = ui->tagLineEdit->text().split(QChar(';'), QString::SkipEmptyParts);
   // v3
   ds.extraCharacters = ui->extraLineEdit->text();
@@ -1696,7 +1695,6 @@ void MainWindow::makeDomainComboBox(void)
   ui->domainsComboBox->setCompleter(d->completer);
   ui->domainsComboBox->setCurrentIndex(-1);
   ui->domainsComboBox->blockSignals(false);
-  d->treeModel.populate(d->domains);
 }
 
 
@@ -1746,6 +1744,17 @@ void MainWindow::saveCurrentDomainSettings(void)
     }
     else {
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+
+      // first update tree view
+      QModelIndex index = ui->domainView->currentIndex();
+      if (ds.deleted) {
+        d->treeModel.removeDomain(index);
+      } else {
+        d->treeModel.addDomain(ds);
+      }
+      ui->domainView->setExpanded(index.parent(), false);
+      ui->domainView->expand(index.parent());
+
       saveDomainSettings(ds);
       if (ds.deleted) {
         resetAllFields();
@@ -2006,6 +2015,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     }
   }
   d->domains = DomainSettingsList::fromQJsonDocument(json);
+  d->treeModel.populate(d->domains);
   makeDomainComboBox();
   return true;
 }
