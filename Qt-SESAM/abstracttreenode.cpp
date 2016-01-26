@@ -41,7 +41,7 @@ void AbstractTreeNode::appendChild(AbstractTreeNode *item)
 void AbstractTreeNode::removeChild(AbstractTreeNode *item)
 {
 
-  mChildItems.append(item);
+  mChildItems.removeOne(item);
 }
 
 
