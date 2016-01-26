@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>574</width>
+    <width>595</width>
     <height>610</height>
    </rect>
   </property>
@@ -152,13 +152,6 @@
     <item>
      <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
       <item>
-       <widget class="QCheckBox" name="deleteCheckBox">
-        <property name="text">
-         <string>delete</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -201,6 +194,16 @@
         </property>
         <property name="text">
          <string>Login</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="deletePushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Delete</string>
         </property>
        </widget>
       </item>
@@ -826,7 +829,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>574</width>
+     <width>595</width>
      <height>19</height>
     </rect>
    </property>
@@ -1165,7 +1168,6 @@
   <tabstop>iterationsSpinBox</tabstop>
   <tabstop>usedCharactersPlainTextEdit</tabstop>
   <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>deleteCheckBox</tabstop>
   <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
   <tabstop>legacyPasswordLineEdit</tabstop>
   <tabstop>extraLineEdit</tabstop>

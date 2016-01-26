@@ -139,11 +139,13 @@ void DomainTreeModel::removeDomain(const QModelIndex &index)
 }
 
 
-void DomainTreeModel::addDomain(const DomainSettings &ds)
+int DomainTreeModel::addDomain(const DomainSettings &ds)
 {
     Q_D(DomainTreeModel);
-    GroupNode *node = addToHierarchy(ds.groupHierarchy, d->rootItem);
-    node->appendChild(new DomainNode(ds, node));
+    GroupNode *nodeGroup = addToHierarchy(ds.groupHierarchy, d->rootItem);
+    DomainNode *nodeDomain = new DomainNode(ds, nodeGroup);
+    nodeGroup->appendChild(nodeDomain);
+    return nodeDomain->row();
 }
 
 

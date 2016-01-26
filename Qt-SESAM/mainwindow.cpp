@@ -320,7 +320,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(onExtraCharactersChanged(QString)));
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(onPasswordLengthChanged(int)));
   ui->passwordLengthSpinBox->installEventFilter(this);
-  QObject::connect(ui->deleteCheckBox, SIGNAL(toggled(bool)), SLOT(onDeleteChanged(bool)));
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(onIterationsChanged(int)));
   QObject::connect(ui->tagLineEdit, SIGNAL(textChanged(QString)), SLOT(onTagChanged(QString)));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(onSaltChanged(QString)));
@@ -332,6 +331,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->renewSaltPushButton, SIGNAL(clicked()), SLOT(onRenewSalt()));
   QObject::connect(ui->revertPushButton, SIGNAL(clicked(bool)), SLOT(onRevert()));
   QObject::connect(ui->savePushButton, SIGNAL(clicked(bool)), SLOT(saveCurrentDomainSettings()));
+  QObject::connect(ui->deletePushButton, SIGNAL(clicked(bool)), SLOT(deleteCurrentDomainSettings()));
   QObject::connect(ui->loginPushButton, SIGNAL(clicked(bool)), SLOT(onLogin()));
   QObject::connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(onNewDomain()));
@@ -627,10 +627,6 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
   ui->usedCharactersPlainTextEdit->blockSignals(false);
 
-  ui->deleteCheckBox->blockSignals(true);
-  ui->deleteCheckBox->setChecked(false);
-  ui->deleteCheckBox->blockSignals(false);
-
   ui->generatedPasswordLineEdit->setText(QString());
 
   ui->createdLabel->setText(QString());
@@ -647,6 +643,8 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->easySelectorWidget->setComplexity(Password::DefaultComplexity);
   ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
   ui->easySelectorWidget->blockSignals(false);
+
+  ui->deletePushButton->setEnabled(false);
 
   applyComplexity(ui->easySelectorWidget->complexity());
 }
@@ -921,13 +919,6 @@ void MainWindow::onSaltChanged(QString)
 }
 
 
-void MainWindow::onDeleteChanged(bool)
-{
-  setDirty();
-  restartInvalidationTimer();
-}
-
-
 void MainWindow::restartInvalidationTimer(void)
 {
   Q_D(MainWindow);
@@ -975,7 +966,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   DomainSettings ds;
   ds.domainName = ui->domainsComboBox->currentText();
   ds.url = ui->urlLineEdit->text();
-  ds.deleted = ui->deleteCheckBox->isChecked();
+  ds.deleted = false; // is default
   ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
   if (d_ptr->modifiedDate.isValid()) {
     ds.modifiedDate = d_ptr->modifiedDate;
@@ -1625,7 +1616,6 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
   d->createdDate = ds.createdDate;
   d->modifiedDate = ds.modifiedDate;
-  ui->deleteCheckBox->setChecked(false);
   // v3
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
@@ -1658,7 +1648,7 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
     ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
   }
-
+  ui->deletePushButton->setEnabled(true);
   updatePassword();
 }
 
@@ -1746,19 +1736,57 @@ void MainWindow::saveCurrentDomainSettings(void)
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
 
       // first update tree view
+      QModelIndex newIndex;
+      QModelIndex parentIndex;
       QModelIndex index = ui->domainView->currentIndex();
-      if (ds.deleted) {
-        d->treeModel.removeDomain(index);
-      } else {
-        d->treeModel.addDomain(ds);
+      AbstractTreeNode *node = d->treeModel.node(index);
+      if (node != Q_NULLPTR) {
+          if (node->type() == AbstractTreeNode::LeafType) {
+              parentIndex = index.parent();
+          } else if (node->type() == AbstractTreeNode::GroupType) {
+              parentIndex = index;
+          }
       }
+
+      int row = d->treeModel.addDomain(ds);
+      newIndex = parentIndex.child(row, 0);
+      ui->domainView->setExpanded(parentIndex, false);
+      ui->domainView->expand(parentIndex);
+
+      saveDomainSettings(ds);
+      ui->domainView->setCurrentIndex(newIndex);
+      ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
+      d->lastCleanDomainSettings = ds;
+      ui->deletePushButton->setEnabled(true);
+    }
+  }
+}
+
+
+void MainWindow::deleteCurrentDomainSettings(void)
+{
+  Q_D(MainWindow);
+  // qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
+  if (!ui->domainsComboBox->currentText().isEmpty()) {
+    restartInvalidationTimer();
+    DomainSettings ds = collectedDomainSettings();
+    ds.deleted = true;
+    if (ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
+      QMessageBox::warning(this, tr("Empty character table"), tr("You forgot to fill in some characters into the field \"used characters\""));
+    }
+    else {
+      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+
+      // first update tree view
+      QModelIndex index = ui->domainView->currentIndex();
+      QModelIndex newIndex;
+      d->treeModel.removeDomain(index);
       ui->domainView->setExpanded(index.parent(), false);
       ui->domainView->expand(index.parent());
 
       saveDomainSettings(ds);
-      if (ds.deleted) {
-        resetAllFields();
-      }
+      resetAllFields();
+      ui->domainView->setCurrentIndex(index.parent());
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
       d->lastCleanDomainSettings = ds;
     }
