@@ -11,15 +11,31 @@ html, body {
   color: #222;
 }
 
+a {
+  color: #e90101;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #e13c3c;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #ea4747;
+}
+
 section {
-  margin: 3ex auto;
-  padding: 0 1em;
+  margin: 3ex auto 0 auto;
+  padding: 1ex 1em;
 }
 
 video {
   max-width: 640px;
   margin: 0 auto;
   display: block;
+  padding: 2px;
+  background-color: white;
 }
 
 h1 {
@@ -45,5 +61,8 @@ p.subheading {
 }
 
 .disclaimer {
-  font-size: 62%;
+  margin-top: 10ex;
+  font-size: smaller;
+  color: #eee !important;
+  background-color: #222 !important;
 }

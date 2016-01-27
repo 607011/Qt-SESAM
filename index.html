@@ -10,11 +10,13 @@
 </head>
 <body>
   <section>
+    <p><img src="img/app-icon.png" width="512" height="253" alt="Qt-SESAM" title="Qt-SESAM app icon"/></p>
     <h1>Qt-SESAM</h1>
     <p class="subheading"><span class="capitals">SESAM</span> &mdash; Super Easy & Secure Authentication Management</p>
-    <p>Qt-SESAM is a user-friendly application that enables you to generate strong passwords. 
-      You can use them for all the services you're using, e.g. web sites, accounts, or apps.
-      The passwords are generated in realtime from service name, user name, a randomly shuffled salt and the master password.
+    <p>Qt-SESAM is a user-friendly application that enables you to generate and manage strong passwords &mdash; safely and securely.</p>
+    <p>You can use the passwords for any services, e.g. websites, accounts, or apps.
+      The passwords are generated in realtime from your master password and some service specific settings.
+      You can generate more than one password for a service.
       For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.</p>
   </section>
 
@@ -24,14 +26,17 @@
       Thus the overall security of the application and your data solely depends on the security of the master password.
       So choose is wisely: not too hard to remember, but complex enough nobody else can guess it.
       A master password of at least 10 characters is recommended.
-      To make sure you've entered the master password correctly you've got to enter it twice.</p>
+      To make sure you've entered the master password correctly you've got to enter it twice:</p>
     <p>
       <video controls="controls" poster="img/master-password-entry-1.png">
         <source src="screencasts/master-password-entry-1.webm" type="video/webm">
         <source src="screencasts/master-password-entry-1.mp4" type="video/mp4">
       </video>
     </p>
-    <p></p>
+    <p>As you type the dialog tells you how strong the chosen master password is.
+      Ratings range from "useless" over "you can do better", "mediocre" and "very good" to "supercalifragilisticexpialidocious".
+      The OK button is activated after you've entered the same master password again.
+    </p>
   </section>
 
   <!--
@@ -67,15 +72,13 @@
   </section>
 
   <section class="disclaimer">
-    <p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
-    <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/gpl-3.0" target="_blank">GNU General Public License</a> for more details.</p>
-    <p>Copyright &copy; 2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, Heise Medien GmbH &amp; Co. KG.</p>
-    <p>This program uses the <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> library,
+    <p>Qt-SESAM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. Qt-SESAM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/gpl-3.0" target="_blank">GNU General Public License</a> for more details.</p>
+    <p>Copyright &copy; 2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, Heise Medien GmbH &amp; Co. KG</p>
+    <p>Qt-SESAM uses the <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> library,
       and <a href="https://github.com/fukuchi/libqrencode" target="_blank">libqrencode</a> by Kentaro Fukuchi.
       Crypto++ is licensed under the <a href="http://www.boost.org/users/license.html" target="_blank">Boost Software License</a>, Version 1.0. 
       libqrencode is licensed under the <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html" target="_blank">GNU Lesser General Public License 2.1</a> or later.
     </p>
-
   </section>
 </body>
 </html>
