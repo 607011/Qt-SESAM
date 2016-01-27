@@ -2803,9 +2803,8 @@ void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
   bool dirty = d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty();
-  setWindowTitle(QString("%1 %2%3 (%4)%5")
+  setWindowTitle(QString("%1 %2 (%3)%4")
                  .arg(AppName)
-                 .arg(AppVersion)
                  .arg(dirty ? "*" : "")
 #if PLATFORM == 64
                  .arg("x64")
