@@ -43,3 +43,7 @@ p.subheading {
   text-transform: uppercase;
   letter-spacing: 0.21em;
 }
+
+.disclaimer {
+  font-size: 62%;
+}
