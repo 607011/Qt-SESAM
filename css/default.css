@@ -43,6 +43,7 @@ h1 {
   margin: 10px auto 0 auto;
   padding: 0;
   font-size: 666%;
+  color: black;
 }
 
 p {
@@ -54,6 +55,7 @@ p.subheading {
   font-weight: bold;
   font-size: 116%;
   margin-bottom: 4ex;
+  color: black;
 }
 
 .capitals {
