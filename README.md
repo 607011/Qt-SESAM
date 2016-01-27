@@ -1,6 +1,6 @@
 # Qt-SESAM
 
-**SESAM - Super Easy & Secure Authentication Management**
+**SESAM — Super Easy & Secure Authentication Management**
 
 Qt-SESAM is a user-friendly application that enables you to generate strong passwords that you can use for all services you are using. The passwords are generated in realtime from service name, user name, a randomly shuffled salt and the master password. For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.
 
