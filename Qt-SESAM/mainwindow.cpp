@@ -1384,6 +1384,10 @@ void MainWindow::onImportKeePass2XmlFile(void)
       return;
     }
     d->domains.append(reader.domains());
+    saveAllDomainDataToSettings();
+    d->treeModel.populate(d->domains);
+    ui->domainView->reset();
+
     QString msgBoxText;
     if (reader.domains().count() == 1) {
       msgBoxText = tr("<p>%1 domain has been imported successfully from the KeePass 2 XML file.</p>")
@@ -1423,6 +1427,10 @@ void MainWindow::onImportPasswordSafeFile(void)
       return;
     }
     d->domains.append(reader.domains());
+    saveAllDomainDataToSettings();
+    d->treeModel.populate(d->domains);
+    ui->domainView->reset();
+
     QString msgBoxText;
     if (reader.domains().count() == 1) {
       msgBoxText = tr("<p>%1 domain has been imported successfully from the PasswordSafe file.</p>")
