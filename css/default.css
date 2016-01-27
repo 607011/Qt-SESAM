@@ -1,4 +1,4 @@
-@charset 'utf-8';
+﻿@charset 'utf-8';
 
 * {
   margin: 0;
@@ -7,10 +7,39 @@
 
 html, body {
   background-color: white;
+  font-family: Lato, sans-serif;
   color: #222;
 }
 
 section {
-  margin: 3ex 0;
+  margin: 3ex auto;
+  padding: 0 1em;
 }
 
+video {
+  max-width: 640px;
+  margin: 0 auto;
+  display: block;
+}
+
+h1 {
+  max-width: 810px;
+  margin: 10px auto 30px auto;
+  padding: 0;
+  font-size: 324%;
+}
+
+p {
+  margin: 1ex auto;
+  max-width: 820px;
+}
+
+p.subheading {
+  font-weight: bold;
+  font-size: 112%;
+}
+
+.capitals {
+  text-transform: uppercase;
+  letter-spacing: 0.21em;
+}
