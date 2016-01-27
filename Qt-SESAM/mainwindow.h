@@ -186,7 +186,7 @@ private: // methods
   void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
-  void copyDomainSettingsToGUI(const DomainSettings &ds);
+  void copyDomainSettingsToGUI(DomainSettings ds);
   void copyDomainSettingsToGUI(const QString &domain);
   void updateWindowTitle(void);
   void makeDomainComboBox(void);

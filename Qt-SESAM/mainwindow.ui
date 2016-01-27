@@ -593,14 +593,14 @@
             </spacer>
            </item>
            <item>
-            <layout class="QFormLayout" name="formLayout_2">
+            <layout class="QFormLayout" name="extraInfoFormLayout">
              <property name="topMargin">
               <number>0</number>
              </property>
              <item row="0" column="1">
               <widget class="QLineEdit" name="passwordTemplateLineEdit">
                <property name="enabled">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <property name="toolTip">
                 <string>Password template (FYI)</string>
@@ -616,7 +616,7 @@
              <item row="1" column="1">
               <widget class="QLineEdit" name="saltBase64LineEdit">
                <property name="enabled">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <property name="toolTip">
                 <string>Base64 encoded salt (FYI)</string>
@@ -807,7 +807,7 @@
      <x>0</x>
      <y>0</y>
      <width>343</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

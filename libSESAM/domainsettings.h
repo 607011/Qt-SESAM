@@ -43,6 +43,9 @@ public:
   void clear(void);
 
   static DomainSettings fromVariantMap(const QVariantMap &);
+#ifndef OMIT_V2_CODE
+  static bool isV2Template(const QString &);
+#endif
 
   static const QByteArray DefaultSalt;
   static const QByteArray DefaultSalt_base64;

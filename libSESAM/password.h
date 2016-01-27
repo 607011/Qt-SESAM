@@ -115,5 +115,4 @@ private:
 
 QDebug operator<<(QDebug debug, const Password::Complexity &);
 
-
 #endif // __PASSWORD_H_

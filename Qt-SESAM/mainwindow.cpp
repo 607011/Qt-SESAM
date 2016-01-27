@@ -853,6 +853,11 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text();
+#ifndef OMIT_V2_CODE
+  if (DomainSettings::isV2Template(ds.passwordTemplate)) {
+    ds.usedCharacters = ui->extraLineEdit->text();
+  }
+#endif
   return ds;
 }
 
@@ -1466,7 +1471,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 }
 
 
-void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
+void MainWindow::copyDomainSettingsToGUI(DomainSettings ds)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
@@ -1492,6 +1497,25 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   d->createdDate = ds.createdDate;
   d->modifiedDate = ds.modifiedDate;
   ui->deleteCheckBox->setChecked(false);
+#ifndef OMIT_V2_CODE
+  if (!ds.deleted) {
+    QString templ;
+    const QStringList &templateParts = ds.passwordTemplate.split(';', QString::KeepEmptyParts);
+    if (templateParts.size() == 1) {
+      templ = templateParts.at(0);
+    }
+    else if (templateParts.size() == 2) {
+      // v2 complexity value at index 0 ignored
+      templ = templateParts.at(1);
+    }
+    if (ds.legacyPassword.isEmpty() && DomainSettings::isV2Template(ds.passwordTemplate)) {
+      ds.extraCharacters = ds.usedCharacters;
+      ds.usedCharacters.clear();
+      templ[0] = 'o';
+    }
+    ds.passwordTemplate = templ;
+  }
+#endif
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
   ui->extraLineEdit->blockSignals(false);
@@ -1846,10 +1870,6 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     }
   }
   d->domains = DomainSettingsList::fromQJsonDocument(json);
-  foreach (DomainSettings ds, d->domains) {
-    if (ds.domainName == "Google")
-      qDebug() << ds;
-  }
   makeDomainComboBox();
   return true;
 }

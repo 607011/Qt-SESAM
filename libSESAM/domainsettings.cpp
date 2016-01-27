@@ -175,6 +175,18 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
 }
 
 
+#ifndef OMIT_V2_CODE
+bool DomainSettings::isV2Template(const QString &templ)
+{
+  return !templ.isEmpty()
+      && !templ.contains('n')
+      && !templ.contains('a')
+      && !templ.contains('A')
+      && !templ.contains('o');
+}
+#endif
+
+
 QDebug operator<<(QDebug debug, const DomainSettings &ds)
 {
   QDebugStateSaver saver(debug);

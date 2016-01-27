@@ -121,11 +121,9 @@ public:
   { /* ... */ }
   ~PasswordPrivate()
   { /* ... */ }
+  DomainSettings ds;
   PBKDF2 pbkdf2;
   SecureString password;
-  DomainSettings domainSettings;
-  QString usedCharacters;
-  QString passwordTemplate;
   int error;
   QString errorString;
   QFuture<void> future;
@@ -169,45 +167,19 @@ Password::~Password()
 void Password::setDomainSettings(const DomainSettings &ds)
 {
   Q_D(Password);
-  qDebug() << ds;
-  d->domainSettings = ds;
-#ifndef OMIT_V2_CODE
-  const QStringList &templateParts = d->domainSettings.passwordTemplate.split(';', QString::KeepEmptyParts);
-  d->passwordTemplate.clear();
-  if (templateParts.count() == 1) {
-    d->passwordTemplate = templateParts.at(0);
+  d->ds = ds;
+  d->ds.usedCharacters.clear();
+  if (d->ds.passwordTemplate.contains('n')) {
+    d->ds.usedCharacters.append(Password::Digits);
   }
-  else if (templateParts.count() == 2) {
-    d->passwordTemplate = templateParts.at(1);
+  if (d->ds.passwordTemplate.contains('a')) {
+    d->ds.usedCharacters.append(Password::LowerChars);
   }
-  else {
-    d->error = InvalidTemplateError;
-    d->errorString = QString("malformed template: %1").arg(d->domainSettings.passwordTemplate);
-    return;
+  if (d->ds.passwordTemplate.contains('A')) {
+    d->ds.usedCharacters.append(Password::UpperChars);
   }
-  if (!d->passwordTemplate.contains('n')
-      && !d->passwordTemplate.contains('a')
-      && !d->passwordTemplate.contains('A')
-      && !d->passwordTemplate.contains('o')) {
-    d->domainSettings.extraCharacters = d->domainSettings.usedCharacters;
-    d->passwordTemplate[0] = 'o';
-  }
-  qDebug() << ds.domainName << ds.passwordTemplate << d->passwordTemplate << d->domainSettings.extraCharacters;
-#else
-  d->passwordTemplate = d->domainSettings.passwordTemplate;
-#endif
-  d->usedCharacters.clear();
-  if (d->passwordTemplate.contains('n')) {
-    d->usedCharacters.append(Password::Digits);
-  }
-  if (d->passwordTemplate.contains('a')) {
-    d->usedCharacters.append(Password::LowerChars);
-  }
-  if (d->passwordTemplate.contains('A')) {
-    d->usedCharacters.append(Password::UpperChars);
-  }
-  if (d->passwordTemplate.contains('o')) {
-    d->usedCharacters.append(d_ptr->domainSettings.extraCharacters);
+  if (d->ds.passwordTemplate.contains('o')) {
+    d->ds.usedCharacters.append(d_ptr->ds.extraCharacters);
   }
 }
 
@@ -216,12 +188,12 @@ const SecureString &Password::remix(void)
 {
   Q_D(Password);
   d->password.clear();
-  if (d->usedCharacters.isEmpty()) {
+  if (d->ds.usedCharacters.isEmpty()) {
     d->error = EmptyCharacterSetError;
     d->errorString = "used character set must not be empty";
     return SecureString();
   }
-  if (d->passwordTemplate.isEmpty()) {
+  if (d->ds.passwordTemplate.isEmpty()) {
     d->error = EmptyTemplateError;
     d->errorString = "password template is empty";
     return SecureString();
@@ -229,15 +201,16 @@ const SecureString &Password::remix(void)
   d->error = NoError;
   d->errorString.clear();
   BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  for (int i = 0; i < d->passwordTemplate.length(); ++i) {
+  const QString &templ = d->ds.passwordTemplate;
+  for (int i = 0; i < templ.length(); ++i) {
     QString charSet;
-    const char m = d->passwordTemplate.at(i).toLatin1();
+    const char m = templ.at(i).toLatin1();
     switch (m) {
     case 'x':
-      charSet = d->usedCharacters;
+      charSet = d->ds.usedCharacters;
       break;
     case 'o':
-      charSet = d->domainSettings.extraCharacters;
+      charSet = d->ds.extraCharacters;
       break;
     case 'a': // fall-through
     case 'A': // fall-through
@@ -268,12 +241,12 @@ void Password::generate(const SecureByteArray &key)
 {
   Q_D(Password);
   const SecureByteArray &pwd =
-      d->domainSettings.domainName.toUtf8() +
-      d->domainSettings.userName.toUtf8() +
+      d->ds.domainName.toUtf8() +
+      d->ds.userName.toUtf8() +
       key;
   d->pbkdf2.generate(pwd,
-                     QByteArray::fromBase64(d->domainSettings.salt_base64.toUtf8()),
-                     d->domainSettings.iterations,
+                     QByteArray::fromBase64(d->ds.salt_base64.toUtf8()),
+                     d->ds.iterations,
                      QCryptographicHash::Sha512);
   remix();
   emit generated();
