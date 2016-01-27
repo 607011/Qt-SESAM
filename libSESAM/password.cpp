@@ -31,21 +31,6 @@
 
 #include "3rdparty/bigint/bigInt.h"
 
-class PasswordPrivate {
-public:
-  PasswordPrivate(void)
-  { /* ... */ }
-  ~PasswordPrivate()
-  { /* ... */ }
-  PBKDF2 pbkdf2;
-  SecureString password;
-  DomainSettings domainSettings;
-  QString usedCharacters;
-  QString passwordTemplate;
-  QFuture<void> future;
-};
-
-
 Password::Complexity::Complexity(void)
   : digits(false)
   , lowercase(true)
@@ -129,10 +114,28 @@ const QVector<Password::Complexity> Password::Complexity::Mapping =
 };
 
 
+class PasswordPrivate {
+public:
+  PasswordPrivate(void)
+    : error(Password::NoError)
+  { /* ... */ }
+  ~PasswordPrivate()
+  { /* ... */ }
+  PBKDF2 pbkdf2;
+  SecureString password;
+  DomainSettings domainSettings;
+  QString usedCharacters;
+  QString passwordTemplate;
+  int error;
+  QString errorString;
+  QFuture<void> future;
+};
+
+
 const QString Password::Digits = "0123456789";
 const QString Password::LowerChars = "abcdefghijklmnopqrstuvwxyz";
 const QString Password::UpperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const QString Password::ExtraChars = QString("!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°").toUtf8();
+const QString Password::ExtraChars = "!\\|\"$%/&?!<>()[]{}~`´#'=-_+*~.,;:^°";
 const int Password::DefaultLength = 13;
 const int Password::DefaultMaxLength = 2 * Password::DefaultLength;
 const int Password::MaxComplexityValue = 7;
@@ -166,6 +169,7 @@ Password::~Password()
 void Password::setDomainSettings(const DomainSettings &ds)
 {
   Q_D(Password);
+  qDebug() << ds;
   d->domainSettings = ds;
 #ifndef OMIT_V2_CODE
   const QStringList &templateParts = d->domainSettings.passwordTemplate.split(';', QString::KeepEmptyParts);
@@ -176,6 +180,19 @@ void Password::setDomainSettings(const DomainSettings &ds)
   else if (templateParts.count() == 2) {
     d->passwordTemplate = templateParts.at(1);
   }
+  else {
+    d->error = InvalidTemplateError;
+    d->errorString = QString("malformed template: %1").arg(d->domainSettings.passwordTemplate);
+    return;
+  }
+  if (!d->passwordTemplate.contains('n')
+      && !d->passwordTemplate.contains('a')
+      && !d->passwordTemplate.contains('A')
+      && !d->passwordTemplate.contains('o')) {
+    d->domainSettings.extraCharacters = d->domainSettings.usedCharacters;
+    d->passwordTemplate[0] = 'o';
+  }
+  qDebug() << ds.domainName << ds.passwordTemplate << d->passwordTemplate << d->domainSettings.extraCharacters;
 #else
   d->passwordTemplate = d->domainSettings.passwordTemplate;
 #endif
@@ -195,6 +212,58 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
+const SecureString &Password::remix(void)
+{
+  Q_D(Password);
+  d->password.clear();
+  if (d->usedCharacters.isEmpty()) {
+    d->error = EmptyCharacterSetError;
+    d->errorString = "used character set must not be empty";
+    return SecureString();
+  }
+  if (d->passwordTemplate.isEmpty()) {
+    d->error = EmptyTemplateError;
+    d->errorString = "password template is empty";
+    return SecureString();
+  }
+  d->error = NoError;
+  d->errorString.clear();
+  BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
+  for (int i = 0; i < d->passwordTemplate.length(); ++i) {
+    QString charSet;
+    const char m = d->passwordTemplate.at(i).toLatin1();
+    switch (m) {
+    case 'x':
+      charSet = d->usedCharacters;
+      break;
+    case 'o':
+      charSet = d->domainSettings.extraCharacters;
+      break;
+    case 'a': // fall-through
+    case 'A': // fall-through
+    case 'n':
+      charSet = TemplateCharacters[m];
+      break;
+    default:
+      d->error = EmptyTemplateError;
+      d->errorString = QString("invalid template character: %1").arg(m);
+      return SecureString();
+    }
+    const int nChars = charSet.count();
+    if (nChars == 0) {
+      d->error = EmptyCharacterSetError;
+      d->errorString = QString("character set for template character %1 must not be empty").arg(m);
+      return SecureString();
+    }
+    const BigInt::Rossi Modulus(QString("%1").arg(nChars).toStdString(), BigInt::DEC_DIGIT);
+    const BigInt::Rossi &mod = v % Modulus;
+    d->password.append(charSet.at(int(mod.toUlong())));
+    v = v / Modulus;
+  }
+  return d->password;
+}
+
+
 void Password::generate(const SecureByteArray &key)
 {
   Q_D(Password);
@@ -208,56 +277,6 @@ void Password::generate(const SecureByteArray &key)
                      QCryptographicHash::Sha512);
   remix();
   emit generated();
-}
-
-
-const SecureString &Password::remix(void)
-{
-  Q_D(Password);
-  d->password.clear();
-  static const BigInt::Rossi Zero(0);
-  BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  if (d->usedCharacters.isEmpty()) {
-    return "*** CANNOT COMPUTE PASSWORD ***";
-  }
-  if (!d->passwordTemplate.isEmpty()) {
-    int n = 0;
-    while (v > Zero && n < d->passwordTemplate.length()) {
-      const char m = d->passwordTemplate.at(n).toLatin1();
-      QString charSet;
-      switch (m) {
-      case 'x':
-        charSet = d->usedCharacters;
-        break;
-      case 'o':
-        charSet = d->domainSettings.extraCharacters;
-        break;
-      case 'a': // fall-through
-      case 'A': // fall-through
-      case 'n':
-        charSet = TemplateCharacters[m];
-        break;
-      default:
-        qWarning() << "Invalid template character:" << m;
-        break;
-      }
-      const int nChars = charSet.count();
-      if (nChars > 0) {
-        const BigInt::Rossi Modulus(QString("%1").arg(nChars).toStdString(), BigInt::DEC_DIGIT);
-        const BigInt::Rossi &mod = v % Modulus;
-        d->password.append(charSet.at(int(mod.toUlong())));
-        v = v / Modulus;
-      }
-      else {
-        qWarning() << "character set must not be empty";
-      }
-      ++n;
-    }
-  }
-  else {
-    qWarning() << "password template is empty";
-  }
-  return d->password;
 }
 
 
@@ -311,11 +330,16 @@ void Password::waitForFinished(void)
 }
 
 
-const QString &Password::charSetFor(char ch)
+int Password::error(void) const
 {
-  return TemplateCharacters[ch];
+  return d_ptr->error;
 }
 
+
+QString Password::errorString(void) const
+{
+  return d_ptr->errorString;
+}
 
 
 QDebug operator<<(QDebug debug, const Password::Complexity &complexity)

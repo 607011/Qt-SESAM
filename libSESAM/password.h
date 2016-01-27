@@ -48,7 +48,7 @@ public:
   class Complexity {
   public:
     Complexity(void);
-    Complexity(const Complexity &o);
+    Complexity(const Complexity &);
     Complexity(bool digits, bool lowercase, bool uppercase, bool extra);
     bool digits;
     bool lowercase;
@@ -66,7 +66,12 @@ public:
     static const QVector<Complexity> Mapping;
   };
 
-
+  enum PasswordError {
+    NoError,
+    EmptyCharacterSetError,
+    EmptyTemplateError,
+    InvalidTemplateError
+  };
 
   static const QString Digits;
   static const QString LowerChars;
@@ -82,10 +87,9 @@ public:
   const SecureString &hexKey(void) const;
   const SecureString &remix(void);
   void waitForFinished(void);
+  int error(void) const;
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
-
-  static const QString &charSetFor(char);
 
   void generate(const SecureByteArray &key);
   void generateAsync(const SecureByteArray &key, const DomainSettings &domainSettings = DomainSettings());

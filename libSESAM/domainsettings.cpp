@@ -134,7 +134,7 @@ QVariantMap DomainSettings::toVariantMap(void) const
         map[EXTRA_CHARACTERS] = extraCharacters;
       }
 #ifndef OMIT_V2_CODE
-      if (!usedCharacters.isEmpty()) { // v2
+      if (!usedCharacters.isEmpty()) {
         map[USED_CHARACTERS] = usedCharacters;
       }
 #endif

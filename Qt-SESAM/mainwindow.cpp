@@ -981,7 +981,7 @@ void MainWindow::onUpgradeToV3(void)
       else if (templateParts.size() == 2) {
         templ = templateParts.at(1);
       }
-      if (!ds.passwordTemplate.contains('n') && !ds.passwordTemplate.contains('a') && !ds.passwordTemplate.contains('A') && !ds.passwordTemplate.contains('o')) {
+      if (!templ.contains('n') && !templ.contains('a') && !templ.contains('A') && !templ.contains('o')) {
         ds.extraCharacters = ds.usedCharacters;
         ds.usedCharacters.clear();
         templ[0] = 'o';
@@ -997,8 +997,8 @@ void MainWindow::onUpgradeToV3(void)
   else {
     d->domains = newDs;
     QMessageBox::information(this, tr("Conversion complete"), tr("%1 domain settings have been converted to v3.").arg(nUpgraded));
+    saveAllDomainDataToSettings();
   }
-  saveAllDomainDataToSettings();
 }
 #endif
 
@@ -1846,6 +1846,10 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     }
   }
   d->domains = DomainSettingsList::fromQJsonDocument(json);
+  foreach (DomainSettings ds, d->domains) {
+    if (ds.domainName == "Google")
+      qDebug() << ds;
+  }
   makeDomainComboBox();
   return true;
 }

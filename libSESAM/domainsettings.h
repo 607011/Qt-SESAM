@@ -30,7 +30,7 @@
 
 #include "securestring.h"
 
-#define OMIT_V2_CODE
+// #define OMIT_V2_CODE
 
 class DomainSettings {
 public:
