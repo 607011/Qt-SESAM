@@ -4,11 +4,15 @@
 
 Qt-SESAM is a user-friendly application that enables you to generate strong passwords that you can use for all services you are using. The passwords are generated in realtime from service name, user name, a randomly shuffled salt and the master password. For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.
 
-Qt-SESAM has a unique feature which lets you choose the complexity and length of the password in a colored widget which tells you how long the Tianhe-2 supercomputer and your computer would need to crack a password with the selected settings:
+Qt-SESAM has a unique feature which lets you choose the complexity and length of the password in a colored widget:
 
 ![EasySelectorWidget](https://raw.githubusercontent.com/ola-ct/Qt-SESAM/master/doc/qt-sesam-screenshot.png)
 
-You can share Qt-SESAM's settings across your computers via a [dedicated synchronisation server](https://github.com/ola-ct/ctSESAM-server) and a file located on a cloud drive like Google Drive, Microsoft OneDrive or Dropbox.
+The widget tells you how long the [Tianhe-2 supercomputer](https://en.wikipedia.org/wiki/Tianhe-2) and your computer would need to crack a password with the selected settings.
+
+You can share Qt-SESAM's settings across your computers via a [dedicated synchronisation server](https://github.com/ola-ct/ctSESAM-server) and a file located on a cloud drive like [OwnCloud](https://owncloud.org/), [Google Drive](https://www.google.com/drive/), [Microsoft OneDrive](https://onedrive.live.com/about/) or [Dropbox](https://www.dropbox.com/).
+
+This is secure because all of your settings are [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)-encrypted with a 256 bit long [key](https://en.wikipedia.org/wiki/Key_(cryptography)) and a 128 bit long [IV](https://en.wikipedia.org/wiki/Initialization_vector) derived from your master password with [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2).
 
 Qt-SESAM supports Windows, Linux and Mac OS X. An [Android app](https://github.com/pinae/ctSESAM-android) compatible to Qt-SESAM is to be advancing.
 
