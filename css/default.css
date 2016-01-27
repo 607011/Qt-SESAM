@@ -32,18 +32,21 @@ section {
 
 video {
   max-width: 640px;
-  margin: 0 auto;
-  display: block;
+  margin: 16px 0;
   padding: 2px;
   background-color: white;
 }
 
-h1 {
+h1, h2, h3, h4 {
   max-width: 810px;
   margin: 10px auto 0 auto;
-  padding: 0;
+  text-indent: -0.25em;
+}
+
+h1 {
   font-size: 666%;
   color: black;
+  text-indent: -0.05em;
 }
 
 p {
