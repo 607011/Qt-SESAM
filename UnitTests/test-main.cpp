@@ -146,7 +146,59 @@ private slots:
     QVERIFY(pwd.remix() == "wLUwoQvKzBaYXbme");
   }
 
-  // TODO: add tests to check password generation from different templates
+  void pwdgen_simple_password_1_tpl(void)
+  {
+    DomainSettings ds;
+    ds.domainName = "FooBar";
+    ds.extraCharacters = "#!\"$%&/()[]{}=-_+*<>;:.";
+    ds.iterations = 4096;
+    ds.passwordTemplate = "xxoxAxxxxxxxxxaxx";
+    ds.salt_base64 = QString("blahfasel").toUtf8().toBase64();
+    Password pwd(ds);
+    pwd.generate("test");
+    QVERIFY(pwd.hexKey() == "4e9e2503556bda7ad06cf45cab4490213becd3473845a868900fb61fa17d1c448496d11987c4446d8007562029cce7f176eda4157604012a44e42add594a524e");
+    QVERIFY(pwd.password() == "pU)VUfgJ-Ws*wgzzE");
+  }
+
+  void pwdgen_simple_password_2_tpl(void)
+  {
+    DomainSettings ds;
+    ds.domainName = "FooBar";
+    ds.iterations = 8192;
+    ds.passwordTemplate = "xxaxxx";
+    ds.salt_base64 = QString("blahfasel").toUtf8().toBase64();
+    Password pwd(ds);
+    pwd.generate("test");
+    QVERIFY(pwd.hexKey() == "309d504d68dc921dcece9d10c14b406673715f15782032d64229b4b42336c8ec860cd9b945104824ce43720b3a088828843df4029fdb8b2314f8b5129c815949");
+    QVERIFY(pwd.password() == "baeloh");
+  }
+
+  void pwdgen_simple_password_3_tpl(void)
+  {
+    DomainSettings ds;
+    ds.domainName = "FooBar";
+    ds.iterations = 8192;
+    ds.passwordTemplate = "xxAxxx";
+    ds.salt_base64 = QString("blahfasel").toUtf8().toBase64();
+    Password pwd(ds);
+    pwd.generate("test");
+    QVERIFY(pwd.hexKey() == "309d504d68dc921dcece9d10c14b406673715f15782032d64229b4b42336c8ec860cd9b945104824ce43720b3a088828843df4029fdb8b2314f8b5129c815949");
+    QVERIFY(pwd.password() == "BAELOH");
+  }
+
+  void pwdgen_simple_password_4_tpl(void)
+  {
+    DomainSettings ds;
+    ds.domainName = "FooBar";
+    ds.iterations = 8192;
+    ds.extraCharacters = "0123456789abcdef";
+    ds.passwordTemplate = "xxxxxxxxxxxxxxxxxxxxxxxoxxxx";
+    ds.salt_base64 = QString("SALT").toUtf8().toBase64();
+    Password pwd(ds);
+    pwd.generate("MY_T0P_5ecr57_PA55W0RD ;-)");
+    QVERIFY(pwd.hexKey() == "4993fd21600977c6f56b833eed223dda9b1bd34294afd1db4925553099cce402abda7000a22d2cfda152afcf8a3a142e55ce57a9597434a39d05ccd93a853626");
+    QVERIFY(pwd.password() == "626358a39dcc50d93a4347959a75");
+  }
 
   void pwdgen_pin(void)
   {
@@ -164,10 +216,10 @@ private slots:
 
   void complexity(void)
   {
-    for (int complexityValue = 0; complexityValue < Password::MaxComplexityValue; ++complexityValue) {
-      const Password::Complexity c = Password::Complexity::fromValue(complexityValue);
-      const int reComplexity = c.value();
-      QVERIFY(complexityValue == reComplexity);
+    for (int cv = 0; cv < Password::MaxComplexityValue; ++cv) {
+      const Password::Complexity c = Password::Complexity::fromValue(cv);
+      const int reCV = c.value();
+      QVERIFY(cv == reCV);
     }
   }
 
