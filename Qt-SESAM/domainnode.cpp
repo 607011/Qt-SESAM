@@ -63,3 +63,9 @@ const DomainSettings &DomainNode::itemData(void) const
 {
   return mItemData;
 }
+
+void DomainNode::changeDomainSettings(const DomainSettings &data)
+{
+  mItemData = data;
+}
+

@@ -108,7 +108,6 @@ private slots:
   void deleteCurrentDomainSettings(void);
   void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
-  void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int, int);
   void onExportAllDomainSettingAsJSON(void);
   void onExportAllLoginDataAsClearText(void);
@@ -185,17 +184,15 @@ private:
 
 private: // methods
   QMessageBox::StandardButton saveYesNoCancel(void);
-  void resetAllFieldsExceptDomainComboBox(void);
+  void resetAllFieldsExceptDomainName(void);
   void resetAllFields(void);
   bool restoreSettings(void);
   void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
   void copyDomainSettingsToGUI(const DomainSettings &ds);
-  void copyDomainSettingsToGUI(const QString &domain);
   void generatePassword(void);
   void updateWindowTitle(void);
-  void makeDomainComboBox(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
   void generateSaltKeyIVThread(void);
@@ -209,18 +206,13 @@ private: // methods
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
-  int findDomainInComboBox(const QString &domain) const;
-  int findDomainInComboBox(const QString &domain, int lo, int hi) const;
-  bool domainComboboxContains(const QString &domain) const;
   void applyComplexity(int complexity);
   void setTemplateAndUsedCharacters(void);
   QString usedCharacters(void);
   void applyTemplateStringToGUI(const QByteArray &);
   void updateCheckableLabel(QLabel *, bool checked);
-  QString selectAlternativeDomainNameFor(const QString &domainName);
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
-  QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
   QString collectedSyncData(void);
   bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);

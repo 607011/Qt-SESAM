@@ -162,12 +162,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="domainsComboBox">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="domainLineEdit"/>
       </item>
      </layout>
     </item>
@@ -1188,7 +1184,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>domainsComboBox</tabstop>
   <tabstop>userLineEdit</tabstop>
   <tabstop>urlLineEdit</tabstop>
   <tabstop>notesPlainTextEdit</tabstop>

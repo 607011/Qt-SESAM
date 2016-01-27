@@ -177,8 +177,7 @@ public:
   QAction *actionShow;
   QAction *actionLockApplication;
   QString lastDomainBeforeLock;
-  DomainSettings lastCleanDomainSettings;
-  DomainSettings domainSettingsBeforceSync;
+  DomainSettings currentDomainSettings;
   QSettings settings;
   DomainSettingsList domains;
   DomainSettingsList remoteDomains;
@@ -303,9 +302,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(this, SIGNAL(backupFilesDeleted(int)), SLOT(onBackupFilesRemoved(int)));
   resetAllFields();
 
-  QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
-  QObject::connect(ui->domainsComboBox, SIGNAL(currentIndexChanged(QString)), SLOT(onDomainSelected(QString)));
-  ui->domainsComboBox->installEventFilter(this);
+  QObject::connect(ui->domainLineEdit, SIGNAL(textChanged(QString)), SLOT(onDomainTextChanged(QString)));
+  ui->domainLineEdit->installEventFilter(this);
   QObject::connect(ui->userLineEdit, SIGNAL(textChanged(QString)), SLOT(onUserChanged(QString)));
   ui->userLineEdit->installEventFilter(this);
   QObject::connect(ui->urlLineEdit, SIGNAL(textChanged(QString)), SLOT(onURLChanged(QString)));
@@ -515,7 +513,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
   cancelPasswordGeneration();
   d->backupFileDeletionFuture.waitForFinished();
 
-  if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
+  if (d->parameterSetDirty && !ui->domainLineEdit->text().isEmpty()) {
     QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
     case QMessageBox::Yes:
@@ -587,10 +585,10 @@ bool MainWindow::event(QEvent *e)
 }
 
 
-void MainWindow::resetAllFieldsExceptDomainComboBox(void)
+void MainWindow::resetAllFieldsExceptDomainName(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::resetAllFieldsExceptDomainComboBox()";
+  // qDebug() << "MainWindow::resetAllFieldsExceptDomainName()";
 
   ui->userLineEdit->blockSignals(true);
   ui->userLineEdit->setText(QString());
@@ -654,41 +652,11 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
 void MainWindow::resetAllFields(void)
 {
   Q_D(MainWindow);
-  resetAllFieldsExceptDomainComboBox();
-  ui->domainsComboBox->setEditable(true);
-  ui->domainsComboBox->setCompleter(d->completer);
-  ui->domainsComboBox->setCurrentIndex(-1);
-  ui->domainsComboBox->setFocus();
+  resetAllFieldsExceptDomainName();
+  ui->domainLineEdit->blockSignals(true);
+  ui->domainLineEdit->setText(QString());
+  ui->domainLineEdit->blockSignals(false);
   setDirty(false);
-}
-
-
-int MainWindow::findDomainInComboBox(const QString &domain, int lo, int hi) const
-{
-  if (hi < lo) {
-    return NotFound;
-  }
-  const int idx = (lo + hi) / 2;
-  const int c = ui->domainsComboBox->itemText(idx).compare(domain, Qt::CaseInsensitive);
-  if (c > 0) {
-    return findDomainInComboBox(domain, lo, idx - 1);
-  }
-  else if (c < 0) {
-    return findDomainInComboBox(domain, idx + 1, hi);
-  }
-  return idx;
-}
-
-
-int MainWindow::findDomainInComboBox(const QString &domain) const
-{
-  return findDomainInComboBox(domain, 0, ui->domainsComboBox->count());
-}
-
-
-bool MainWindow::domainComboboxContains(const QString &domain) const
-{
-  return findDomainInComboBox(domain, 0, ui->domainsComboBox->count()) != NotFound;
 }
 
 
@@ -702,18 +670,15 @@ void MainWindow::renewSalt(void)
 
 void MainWindow::onRenewSalt(void)
 {
-  int button = QMessageBox::Yes;
-  if (domainComboboxContains(ui->domainsComboBox->currentText())) {
-    button = QMessageBox::question(
-          this,
-          tr("Really regenerate?"),
-          tr("Your password is about to be regenerated. "
-             "This is useful if you suspect that your credential have been compromised. "
-             "You cannot undo this action. "
-             "Are you sure you want to generate a new password?"),
-          QMessageBox::Yes,
-          QMessageBox::No);
-  }
+  int button = QMessageBox::question(
+        this,
+        tr("Really regenerate?"),
+        tr("Your password is about to be regenerated. "
+           "This is useful if you suspect that your credential have been compromised. "
+           "You cannot undo this action. "
+           "Are you sure you want to generate a new password?"),
+        QMessageBox::Yes,
+        QMessageBox::No);
   if (button == QMessageBox::Yes) {
     renewSalt();
   }
@@ -754,16 +719,12 @@ void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
   d->parameterSetDirty = dirty;
-  ui->shuffleUsernamePushButton->setVisible(!dirty && ui->domainsComboBox->currentText().isEmpty());
+  //ui->shuffleUsernamePushButton->setVisible(!dirty && ui->domainLineEdit->text().isEmpty());
   if (d->parameterSetDirty) {
     d->countdownWidget->stop();
   }
   else {
     restartInvalidationTimer();
-  }
-  if (!ui->domainsComboBox->currentText().isEmpty() && domainComboboxContains(ui->domainsComboBox->currentText())) {
-    ui->domainsComboBox->setEditable(!d->parameterSetDirty);
-    ui->domainsComboBox->setCompleter(d->parameterSetDirty ? Q_NULLPTR : d->completer);
   }
   ui->savePushButton->setEnabled(d->parameterSetDirty);
   ui->revertPushButton->setEnabled(d->parameterSetDirty);
@@ -864,8 +825,8 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
   AbstractTreeNode *node = d->treeModel.node(modelIndex);
   if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
     DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
-    const int idx = ui->domainsComboBox->findText(domainNode->data(0).toString());
-    ui->domainsComboBox->setCurrentIndex(idx);
+    d->currentDomainSettings = domainNode->itemData();
+    copyDomainSettingsToGUI(d->currentDomainSettings);
   } else {
     resetAllFields();
   }
@@ -966,7 +927,7 @@ void MainWindow::updatePassword(void)
 DomainSettings MainWindow::collectedDomainSettings(void) const
 {
   DomainSettings ds;
-  ds.domainName = ui->domainsComboBox->currentText();
+  ds.domainName = ui->domainLineEdit->text();
   ds.url = ui->urlLineEdit->text();
   ds.deleted = false; // is default
   ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
@@ -1398,30 +1359,6 @@ void MainWindow::onImportKGK(void)
 }
 
 
-QString MainWindow::selectAlternativeDomainNameFor(const QString &domainName)
-{
-  Q_D(MainWindow);
-  QString newDomainName = domainName;
-  int idx = 0;
-  while (findDomainInComboBox(newDomainName) != NotFound) {
-    newDomainName = QString("%1 (%2)").arg(domainName).arg(++idx);
-  }
-  return newDomainName;
-}
-
-
-QString MainWindow::selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList)
-{
-  QString newDomainName;
-  int idx = 0;
-  do {
-    newDomainName = QString("%1 (%2)").arg(domainName).arg(++idx);
-  }
-  while (domainNameList.contains(newDomainName));
-  return newDomainName;
-}
-
-
 void MainWindow::onImportKeePass2XmlFile(void)
 {
   Q_D(MainWindow);
@@ -1446,20 +1383,7 @@ void MainWindow::onImportKeePass2XmlFile(void)
       }
       return;
     }
-    typedef QPair<QString, QString> StringPair;
-    QList<StringPair> renamed;
-    foreach (DomainSettings ds, reader.domains()) {
-      QString newDomainName = selectAlternativeDomainNameFor(ds.domainName);
-      if (newDomainName != ds.domainName)
-        renamed.append(qMakePair(ds.domainName, newDomainName));
-      ds.domainName = newDomainName;
-      d->domains.append(ds);
-    }
-    DomainSettings currentDomainSettings = d->domains.at(ui->domainsComboBox->currentText());
-    makeDomainComboBox();
-    if (!currentDomainSettings.isEmpty()) {
-      copyDomainSettingsToGUI(currentDomainSettings);
-    }
+    d->domains.append(reader.domains());
     QString msgBoxText;
     if (reader.domains().count() == 1) {
       msgBoxText = tr("<p>%1 domain has been imported successfully from the KeePass 2 XML file.</p>")
@@ -1468,19 +1392,6 @@ void MainWindow::onImportKeePass2XmlFile(void)
     else {
       msgBoxText = tr("<p>%1 domains have been imported successfully from the KeePass 2 XML file.</p>")
         .arg(reader.domains().count());
-    }
-    if (renamed.count() > 0) {
-      if (renamed.count() == 1) {
-        msgBoxText += tr("<p>%1 domain had to be renamed:</p>").arg(renamed.count());
-      }
-      else {
-        msgBoxText += tr("<p>%1 domains had to be renamed:</p>").arg(renamed.count());
-      }
-      msgBoxText += "<ul>";
-      foreach (StringPair r, renamed) {
-        msgBoxText += "<li>" + r.first + " >> " + r.second + "</li>";
-      }
-      msgBoxText += "</ul>";
     }
     QMessageBox::information(this, tr("Import successful"), msgBoxText);
   }
@@ -1511,21 +1422,7 @@ void MainWindow::onImportPasswordSafeFile(void)
       }
       return;
     }
-    typedef QPair<QString, QString> StringPair;
-    QList<StringPair> renamed;
-    foreach (DomainSettings ds, reader.domains()) {
-      QString newDomainName = selectAlternativeDomainNameFor(ds.domainName);
-      if (newDomainName != ds.domainName)
-        renamed.append(qMakePair(ds.domainName, newDomainName));
-      ds.domainName = newDomainName;
-      d->domains.append(ds);
-    }
-    DomainSettings currentDomainSettings = d->domains.at(ui->domainsComboBox->currentText());
-    saveAllDomainDataToSettings();
-    makeDomainComboBox();
-    if (!currentDomainSettings.isEmpty()) {
-      copyDomainSettingsToGUI(currentDomainSettings);
-    }
+    d->domains.append(reader.domains());
     QString msgBoxText;
     if (reader.domains().count() == 1) {
       msgBoxText = tr("<p>%1 domain has been imported successfully from the PasswordSafe file.</p>")
@@ -1534,19 +1431,6 @@ void MainWindow::onImportPasswordSafeFile(void)
     else {
       msgBoxText = tr("<p>%1 domains have been imported successfully from the PasswordSafe file.</p>")
         .arg(reader.domains().count());
-    }
-    if (renamed.count() > 0) {
-      if (renamed.count() == 1) {
-        msgBoxText += tr("<p>%1 domain had to be renamed:</p>").arg(renamed.count());
-      }
-      else {
-        msgBoxText += tr("<p>%1 domains had to be renamed:</p>").arg(renamed.count());
-      }
-      msgBoxText += "<ul>";
-      foreach (StringPair r, renamed) {
-        msgBoxText += "<li>" + r.first + " >> " + r.second + "</li>";
-      }
-      msgBoxText += "</ul>";
     }
     QMessageBox::information(this, tr("Import successful"), msgBoxText);
   }
@@ -1588,9 +1472,9 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
-  ui->domainsComboBox->blockSignals(true);
-  ui->domainsComboBox->setCurrentText(ds.domainName);
-  ui->domainsComboBox->blockSignals(false);
+  ui->domainLineEdit->blockSignals(true);
+  ui->domainLineEdit->setText(ds.domainName);
+  ui->domainLineEdit->blockSignals(false);
   ui->urlLineEdit->setText(ds.url);
   ui->userLineEdit->blockSignals(true);
   ui->userLineEdit->setText(ds.userName);
@@ -1652,41 +1536,7 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   }
   ui->deletePushButton->setEnabled(true);
   updatePassword();
-}
-
-
-void MainWindow::copyDomainSettingsToGUI(const QString &domain)
-{
-  Q_D(MainWindow);
-  // qDebug() << "MainWindow::copyDomainSettingsToGUI(" << domain << ")";
-  copyDomainSettingsToGUI(d->domains.at(domain));
-}
-
-
-void MainWindow::makeDomainComboBox(void)
-{
-  Q_D(MainWindow);
-  // qDebug() << "MainWindow::makeDomainComboBox()";
-  ui->domainsComboBox->blockSignals(true);
-  ui->domainsComboBox->clear();
-  QStringList domainNames;
-  foreach(DomainSettings ds, d->domains) {
-    if (!ds.deleted) {
-      domainNames.append(ds.domainName);
-    }
-  }
-  domainNames.sort(Qt::CaseInsensitive);
-  ui->domainsComboBox->addItems(domainNames);
-  if (d->completer != Q_NULLPTR) {
-    QObject::disconnect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
-    delete d->completer;
-  }
-  d->completer = new QCompleter(domainNames);
-  d->completer->setCaseSensitivity(Qt::CaseInsensitive);
-  QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
-  ui->domainsComboBox->setCompleter(d->completer);
-  ui->domainsComboBox->setCurrentIndex(-1);
-  ui->domainsComboBox->blockSignals(false);
+  setDirty(false);
 }
 
 
@@ -1696,29 +1546,19 @@ void MainWindow::saveDomainSettings(DomainSettings ds)
   // qDebug() << "MainWindow::saveDomainSettings(...) for domain" << ds.domainName;
   ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
-  const QString currentDomain = ui->domainsComboBox->currentText();
-  QStringList domainList;
-  for (int i = 0; i < ui->domainsComboBox->count(); ++i) {
-    domainList.append(ui->domainsComboBox->itemText(i));
-  }
-  if (domainList.contains(ds.domainName, Qt::CaseInsensitive)) {
+  const QString currentDomain = ui->domainLineEdit->text();
+
+  if (ds.domainName == currentDomain) {
     ds.modifiedDate = QDateTime::currentDateTime();
     if (ds.deleted) {
-      domainList.removeOne(ds.domainName);
       resetAllFields();
     }
   }
   else {
     ds.createdDate = QDateTime::currentDateTime();
     ds.modifiedDate = ds.createdDate;
-    if (!ds.deleted)
-      domainList << ds.domainName;
   }
   d->domains.updateWith(ds);
-  makeDomainComboBox();
-  ui->domainsComboBox->blockSignals(true);
-  ui->domainsComboBox->setCurrentText(currentDomain);
-  ui->domainsComboBox->blockSignals(false);
   saveAllDomainDataToSettings();
   setDirty(false);
 }
@@ -1727,8 +1567,8 @@ void MainWindow::saveDomainSettings(DomainSettings ds)
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
-  if (!ui->domainsComboBox->currentText().isEmpty()) {
+  // qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainLineEdit-text() =" << ui->domainsComboBox->currentText();
+  if (!ui->domainLineEdit->text().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
     if (ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
@@ -1737,29 +1577,32 @@ void MainWindow::saveCurrentDomainSettings(void)
     else {
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
 
-      // first update tree view
       QModelIndex newIndex;
       QModelIndex parentIndex;
-      QModelIndex index = ui->domainView->currentIndex();
-      AbstractTreeNode *node = d->treeModel.node(index);
+      QModelIndex currentIndex = ui->domainView->currentIndex();
+      AbstractTreeNode *node = d->treeModel.node(currentIndex);
       if (node != Q_NULLPTR) {
-          if (node->type() == AbstractTreeNode::LeafType) {
-              parentIndex = index.parent();
-          } else if (node->type() == AbstractTreeNode::GroupType) {
-              parentIndex = index;
-          }
+        if (node->type() == AbstractTreeNode::LeafType) {
+          parentIndex = currentIndex.parent();
+        } else if (node->type() == AbstractTreeNode::GroupType) {
+          parentIndex = currentIndex;
+        }
+        saveDomainSettings(ds);
+        if (ds.domainName == d->currentDomainSettings.domainName) { // save changes to current domain
+          DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
+          domainNode->changeDomainSettings(ds);
+          newIndex = currentIndex;
+        } else { // add a new domain
+          int row = d->treeModel.addDomain(ds);
+          newIndex = parentIndex.child(row, 0);
+        }
+        ui->domainView->setExpanded(parentIndex, false);
+        ui->domainView->expand(parentIndex);
+        ui->domainView->setCurrentIndex(newIndex);
+        ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
+        ui->deletePushButton->setEnabled(true);
+        d->currentDomainSettings = ds;
       }
-
-      int row = d->treeModel.addDomain(ds);
-      newIndex = parentIndex.child(row, 0);
-      ui->domainView->setExpanded(parentIndex, false);
-      ui->domainView->expand(parentIndex);
-
-      saveDomainSettings(ds);
-      ui->domainView->setCurrentIndex(newIndex);
-      ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
-      d->lastCleanDomainSettings = ds;
-      ui->deletePushButton->setEnabled(true);
     }
   }
 }
@@ -1769,7 +1612,7 @@ void MainWindow::deleteCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
-  if (!ui->domainsComboBox->currentText().isEmpty()) {
+  if (!ui->domainLineEdit->text().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
     ds.deleted = true;
@@ -1790,7 +1633,7 @@ void MainWindow::deleteCurrentDomainSettings(void)
       resetAllFields();
       ui->domainView->setCurrentIndex(index.parent());
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
-      d->lastCleanDomainSettings = ds;
+      d->currentDomainSettings.clear();
     }
   }
 }
@@ -2046,7 +1889,6 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   }
   d->domains = DomainSettingsList::fromQJsonDocument(json);
   d->treeModel.populate(d->domains);
-  makeDomainComboBox();
   return true;
 }
 
@@ -2313,7 +2155,7 @@ void MainWindow::onSync(void)
 {
   Q_D(MainWindow);
   restartInvalidationTimer();
-  d->domainSettingsBeforceSync = d->domains.at(ui->domainsComboBox->currentText());
+  // d->domainSettingsBeforceSync = d->domains.at(ui->domainsComboBox->currentText());
   if (d->optionsDialog->useSyncFile() && !d->optionsDialog->syncFilename().isEmpty()) {
     ui->statusBar->showMessage(tr("Syncing with file ..."));
     QFileInfo fi(d->optionsDialog->syncFilename());
@@ -2441,8 +2283,6 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     restoreDomainDataFromSettings();
     d->domains.setDirty(false);
   }
-
-  copyDomainSettingsToGUI(d->domainSettingsBeforceSync);
 }
 
 
@@ -2508,7 +2348,6 @@ void MainWindow::mergeLocalAndRemoteData(void)
       else if (remoteDomainSetting.modifiedDate < localDomainSetting.modifiedDate) {
         if (d->doConvertLocalToLegacy && !localDomainSetting.deleted) {
           convertToLegacyPassword(localDomainSetting);
-          localDomainSetting.domainName = selectAlternativeDomainNameFor(domainName, d->domains.keys());
         }
         d->remoteDomains.updateWith(localDomainSetting);
       }
@@ -2646,67 +2485,28 @@ void MainWindow::onMigrateDomainSettingsToExpert(void)
 }
 
 
-void MainWindow::onDomainSelected(QString domain)
-{
-  Q_D(MainWindow);
-//  _LOG(QString("MainWindow::onDomainSelected(\"%1\") d->lastCleanDomainSettings.domainName = \"%2\", SENDER = %3")
-//       .arg(domain)
-//       .arg(d->lastCleanDomainSettings.domainName)
-//       .arg((sender() != Q_NULLPTR ? sender()->objectName() : "NONE")));
-//  qDebug() << QString("MainWindow::onDomainSelected(\"%1\") d->lastCleanDomainSettings.domainName = \"%2\", SENDER = %3")
-//              .arg(domain)
-//              .arg(d->lastCleanDomainSettings.domainName)
-//              .arg((sender() != Q_NULLPTR ? sender()->objectName() : "NONE"));
-  if (!domainComboboxContains(domain))
-    return;
-  if (domain == d->lastCleanDomainSettings.domainName)
-    return;
-  if (d->parameterSetDirty) {
-    ui->domainsComboBox->blockSignals(true);
-    ui->domainsComboBox->setCurrentText(d->lastCleanDomainSettings.domainName);
-    ui->domainsComboBox->blockSignals(false);
-    QMessageBox::StandardButton button = saveYesNoCancel();
-    switch (button) {
-    case QMessageBox::Yes:
-      saveCurrentDomainSettings();
-      break;
-    case QMessageBox::No:
-      break;
-    case QMessageBox::Cancel:
-      return;
-      break;
-    default:
-      break;
-    }
-  }
-  d->lastCleanDomainSettings = d->domains.at(domain);
-  copyDomainSettingsToGUI(d->lastCleanDomainSettings);
-  ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-  setDirty(false);
-}
-
-
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
-  _LOG(QString("MainWindow::onDomainTextChanged(\"%1\") d->lastCleanDomainSettings.domainName = \"%2\"")
+  _LOG(QString("MainWindow::onDomainTextChanged(\"%1\") d->currentDomainSettings.domainName = \"%2\"")
        .arg(domain)
-       .arg(d->lastCleanDomainSettings.domainName));
-  int idx = findDomainInComboBox(domain);
-  if (idx == NotFound) {
-    if (!d->lastCleanDomainSettings.isEmpty()) {
+       .arg(d->currentDomainSettings.domainName));
+  if (domain == d->currentDomainSettings.domainName) {
+    copyDomainSettingsToGUI(d->currentDomainSettings);
+  } else {
+    if (!d->currentDomainSettings.isEmpty()) {
       ui->tabWidgetVersions->setCurrentIndex(TabExpert);
       ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
-      resetAllFieldsExceptDomainComboBox();
+      resetAllFieldsExceptDomainName();
     }
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
     setTemplateAndUsedCharacters();
     updatePassword();
-    d->lastCleanDomainSettings.clear();
     ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
     ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
     ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
     ui->tabWidgetVersions->setCurrentIndex(TabExpert);
+    setDirty();
   }
 }
 
@@ -2965,7 +2765,7 @@ void MainWindow::onNewDomain(void)
 void MainWindow::onRevert(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onRevert()" << d->lastCleanDomainSettings.domainName;
+  // qDebug() << "MainWindow::onRevert()" << d->currentDomainSettings.domainName;
   d->interactionSemaphore.acquire();
   QMessageBox::StandardButton button = QMessageBox::question(
         this,
@@ -2976,8 +2776,7 @@ void MainWindow::onRevert(void)
   d->interactionSemaphore.release();
   switch (button) {
   case QMessageBox::Yes:
-    copyDomainSettingsToGUI(d->lastCleanDomainSettings);
-    setDirty(false);
+    copyDomainSettingsToGUI(d->currentDomainSettings);
     break;
   case QMessageBox::Cancel:
     // fall-through
@@ -2990,7 +2789,7 @@ void MainWindow::onRevert(void)
 void MainWindow::updateWindowTitle(void)
 {
   Q_D(MainWindow);
-  bool dirty = d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty();
+  bool dirty = d->parameterSetDirty && !ui->domainLineEdit->text().isEmpty();
   setWindowTitle(QString("%1 %2%3 (%4)%5")
                  .arg(AppName)
                  .arg(AppVersion)
@@ -3039,8 +2838,6 @@ void MainWindow::onMasterPasswordEntered(void)
         generateSaltKeyIV().waitForFinished();
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();
-        ui->domainsComboBox->setCurrentText(d->lastDomainBeforeLock);
-        ui->domainsComboBox->setFocus();
         d->masterPasswordDialog->hide();
         show();
         if (d->optionsDialog->autoDeleteBackupFiles()) {
@@ -3092,7 +2889,6 @@ void MainWindow::clearAllSettings(void)
   if (button == QMessageBox::Yes) {
     resetAllFields();
     d->masterPasswordDialog->setRepeatPassword(true);
-    ui->domainsComboBox->clear();
     d->settings.setValue("mainwindow/masterPasswordEntered", false);
     d->settings.remove("sync");
     d->settings.sync();
@@ -3162,7 +2958,7 @@ void MainWindow::lockApplication(void)
     restartInvalidationTimer();
     return;
   }
-  d->lastDomainBeforeLock = ui->domainsComboBox->currentText();
+  //d->lastDomainBeforeLock = ui->domainsComboBox->currentText();
   saveSettings();
   invalidateMasterPassword(true);
 }

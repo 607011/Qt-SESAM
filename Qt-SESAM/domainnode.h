@@ -35,6 +35,7 @@ public:
   virtual NodeType type(void) const;
 
   const DomainSettings &itemData(void) const;
+  void changeDomainSettings(const DomainSettings &data);
 
 private:
   DomainSettings mItemData;
