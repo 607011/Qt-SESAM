@@ -4,9 +4,9 @@
 
 Qt-SESAM is a user-friendly application that enables you to generate strong passwords that you can use for all services you are using. The passwords are generated in realtime from service name, user name, a randomly shuffled salt and the master password. For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.
 
-Qt-SESAM has a unique feature which lets you choose the complexity and length of the password in a colored widget.
+Qt-SESAM has a unique feature which lets you choose the complexity and length of the password in a colored widget which tells you how long the Tianhe-2 supercomputer and your computer would need to crack a password with the selected settings:
 
-![EasySelectorWidget]()
+![EasySelectorWidget](https://raw.githubusercontent.com/ola-ct/Qt-SESAM/master/doc/qt-sesam-screenshot.png)
 
 You can share Qt-SESAM's settings across your computers via a [dedicated synchronisation server](https://github.com/ola-ct/ctSESAM-server) and a file located on a cloud drive like Google Drive, Microsoft OneDrive or Dropbox.
 
