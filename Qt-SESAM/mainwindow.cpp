@@ -334,6 +334,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->deletePushButton, SIGNAL(clicked(bool)), SLOT(deleteCurrentDomainSettings()));
   QObject::connect(ui->loginPushButton, SIGNAL(clicked(bool)), SLOT(onLogin()));
   QObject::connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
+  QObject::connect(ui->shuffleUsernamePushButton, SIGNAL(clicked(bool)), SLOT(onShuffleUsername()));
   QObject::connect(ui->actionNewDomain, SIGNAL(triggered(bool)), SLOT(onNewDomain()));
   QObject::connect(ui->actionSave, SIGNAL(triggered(bool)), SLOT(saveCurrentDomainSettings()));
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
@@ -753,6 +754,7 @@ void MainWindow::setDirty(bool dirty)
 {
   Q_D(MainWindow);
   d->parameterSetDirty = dirty;
+  ui->shuffleUsernamePushButton->setVisible(!dirty && ui->domainsComboBox->currentText().isEmpty());
   if (d->parameterSetDirty) {
     d->countdownWidget->stop();
   }
@@ -2910,6 +2912,22 @@ void MainWindow::masterPasswordInvalidationTimeMinsChanged(int timeoutMins)
   else {
     d->countdownWidget->stop();
   }
+}
+
+
+void MainWindow::onShuffleUsername(void)
+{
+  Q_D(MainWindow);
+  QString username;
+  const int N = Password::LowerChars.length();
+  for (int i = 0; i < 8; ++i) {
+    const unsigned int r = static_cast<unsigned int>(Crypter::rnd());
+    const QChar &ch = Password::LowerChars.at(r % N);
+    username.append(ch);
+  }
+  ui->userLineEdit->blockSignals(true);
+  ui->userLineEdit->setText(username);
+  ui->userLineEdit->blockSignals(false);
 }
 
 

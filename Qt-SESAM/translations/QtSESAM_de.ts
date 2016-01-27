@@ -1232,6 +1232,7 @@ in %1 Thread%2 ...</translation>
         <translation>Erfolgreich %1 Logins exportiert.</translation>
     </message>
     <message>
+<<<<<<< HEAD
         <source>Add group</source>
         <translation>Gruppe hinzufügen</translation>
     </message>
@@ -1242,6 +1243,10 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Copy password</source>
         <translation>Passwort in Zwischenablage kopieren</translation>
+=======
+        <source>Shuffle a random username</source>
+        <translation>Einen zufälligen Benutzernamen auswählen</translation>
+>>>>>>> master
     </message>
 </context>
 <context>

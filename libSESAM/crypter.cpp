@@ -184,9 +184,16 @@ SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArr
           )
         );
   Q_UNUSED(s); // just to please the compiler
-  if (padding == CryptoPP::StreamTransformationFilter::PKCS_PADDING)
+  if (padding == CryptoPP::StreamTransformationFilter::PKCS_PADDING) {
     plain.resize(plain.size() - plain.at(plain.size() - 1));
+  }
   return plain;
+}
+
+
+int Crypter::rnd(void)
+{
+  return gRandomDevice();
 }
 
 
@@ -201,8 +208,9 @@ SecureByteArray Crypter::decrypt(const SecureByteArray &key, const SecureByteArr
 QByteArray Crypter::randomBytes(const int size)
 {
   QByteArray buf(size, static_cast<char>(0));
-  for (int i = 0; i < size; ++i)
+  for (int i = 0; i < size; ++i) {
     buf[i] = static_cast<char>(gRandomDevice());
+  }
   return buf;
 }
 

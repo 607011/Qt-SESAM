@@ -93,7 +93,6 @@ private slots:
   void onDomainViewClicked(const QModelIndex &);
   void onDomainViewDoubleClicked(const QModelIndex &);
   void onSaltChanged(QString);
-  void onDeleteChanged(bool);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
   void copyPasswordToClipboard(void);
@@ -116,6 +115,7 @@ private slots:
   void onExportCurrentSettingsAsQRCode(void);
   void onPasswordTemplateChanged(const QString &);
   void masterPasswordInvalidationTimeMinsChanged(int);
+  void onShuffleUsername(void);
   void onNewDomain(void);
   void onRevert(void);
   void renewSalt(void);
