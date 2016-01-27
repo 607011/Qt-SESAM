@@ -828,6 +828,7 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
     d->currentDomainSettings = domainNode->itemData();
     copyDomainSettingsToGUI(d->currentDomainSettings);
   } else {
+    d->currentDomainSettings.clear();
     resetAllFields();
   }
 }
