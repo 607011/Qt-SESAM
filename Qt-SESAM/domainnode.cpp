@@ -39,13 +39,21 @@ QVariant DomainNode::data(int column) const
 {
   switch (column) {
   case 0:
-    return mItemData.domainName;
+  {
+    QString text = mItemData.domainName;
+    if (!mItemData.userName.isEmpty()) {
+      text.append(QString(" [%1]").arg(mItemData.userName));
+    }
+    return text;
+  }
+    /*
   case 1:
     return mItemData.userName;
   case 2:
     return mItemData.url;
   case 3:
     return mItemData.tags.join(',');
+    */
   default:
     break;
   }

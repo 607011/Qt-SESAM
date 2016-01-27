@@ -108,52 +108,56 @@ void DomainTreeModel::addNewGroup(const QModelIndex &index)
 
 QStringList DomainTreeModel::getGroupHierarchy(const QModelIndex &index)
 {
-    Q_D(DomainTreeModel);
-    QStringList groups = QStringList();
-    if (index.isValid()) {
-        GroupNode *groupNode = NULL;
-        AbstractTreeNode *currentNode = this->node(index);
-        if (currentNode->type() == AbstractTreeNode::LeafType) {
-            groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
-        } else {
-            groupNode = reinterpret_cast<GroupNode*> (currentNode);
-        }
-        while ((groupNode) && (groupNode != d->rootItem)) {
-            groups.prepend(groupNode->name());
-            groupNode = reinterpret_cast<GroupNode*> (groupNode->parentItem());
-        }
+  Q_D(DomainTreeModel);
+  QStringList groups = QStringList();
+  if (index.isValid()) {
+    GroupNode *groupNode = NULL;
+    AbstractTreeNode *currentNode = this->node(index);
+    if (currentNode->type() == AbstractTreeNode::LeafType) {
+      groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
+    } else {
+      groupNode = reinterpret_cast<GroupNode*> (currentNode);
     }
-    return groups;
+    while ((groupNode) && (groupNode != d->rootItem)) {
+      groups.prepend(groupNode->name());
+      groupNode = reinterpret_cast<GroupNode*> (groupNode->parentItem());
+    }
+  }
+  return groups;
 }
 
 
 void DomainTreeModel::removeDomain(const QModelIndex &index)
 {
-    if (index.isValid()) {
-        AbstractTreeNode *currentNode = this->node(index);
-        if (currentNode->type() == AbstractTreeNode::LeafType) {
-            GroupNode *groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
-            groupNode->removeChild(currentNode);
-        }
+  if (index.isValid()) {
+    AbstractTreeNode *currentNode = this->node(index);
+    if (currentNode->type() == AbstractTreeNode::LeafType) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
+      groupNode->removeChild(currentNode);
     }
+  }
 }
 
 
 int DomainTreeModel::addDomain(const DomainSettings &ds)
 {
-    Q_D(DomainTreeModel);
-    GroupNode *nodeGroup = addToHierarchy(ds.groupHierarchy, d->rootItem);
-    DomainNode *nodeDomain = new DomainNode(ds, nodeGroup);
-    nodeGroup->appendChild(nodeDomain);
-    return nodeDomain->row();
+  Q_D(DomainTreeModel);
+  GroupNode *nodeGroup = addToHierarchy(ds.groupHierarchy, d->rootItem);
+  DomainNode *nodeDomain = new DomainNode(ds, nodeGroup);
+  nodeGroup->appendChild(nodeDomain);
+  return nodeDomain->row();
 }
 
 
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
+  // don't know where this is set, but I only want one column
+  return 1;
+  /*
   return parent.isValid()
       ? reinterpret_cast<DomainNode*>(parent.internalPointer())->columnCount()
       : d_ptr->rootItem->columnCount();
+      */
 }
 
 
@@ -203,6 +207,7 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
     case 0: {
       return tr("Domain");
     }
+      /*
     case 1: {
       return tr("User");
     }
@@ -212,6 +217,7 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
     case 3: {
       return tr("Tags");
     }
+    */
     default: {
       break;
     }
