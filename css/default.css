@@ -17,6 +17,22 @@ article {
   max-width: 810px;
 }
 
+article.no-float {
+  max-width: unset;
+}
+
+article.no-float > section {
+  margin: 3ex auto 0 auto;
+  max-width: 810px;
+  padding: 1ex 1em;
+  font-size: smaller;
+}
+
+article.dark {
+  color: #eee !important;
+  background-color: #222 !important;
+}
+
 a {
   color: #e90101;
   text-decoration: none;
@@ -47,14 +63,9 @@ h1 {
   color: black;
 }
 
-h2, h3 {
+h2, h3, h4 {
   margin: 20px 0 0 0;
   font-weight: 900;
-}
-
-h4, h5 {
-  margin: 15px 0 0 0;
-  font-weight: 700;
 }
 
 p {
@@ -71,7 +82,7 @@ p.subheading {
 
 p.figure {
   text-align: center;
-  margin-bottom: 7ex;
+  margin: 4ex 0 5ex 0;
 }
 
 p.figure .title {
@@ -93,16 +104,4 @@ ul > li {
 .capitals {
   text-transform: uppercase;
   letter-spacing: 0.21em;
-}
-
-.disclaimer {
-  margin-top: 10ex;
-  font-size: smaller;
-  color: #eee !important;
-  background-color: #222 !important;
-}
-
-.disclaimer p {
-  line-height: normal;
-  margin: 2ex auto 2ex auto;
 }

@@ -1,134 +1,169 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Qt-SESAM - Super Easy &amp; Secure Authentication Management</title>
+  <title>Qt-SESAM - Super Easy &amp; Secure Authentication Management</title>
   <meta charset="UTF-8">
   <link href="https://fonts.googleapis.com/css?family=Lato:400,700,900" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" href="css/default.css" />
 </head>
 <body>
   <article>
-  <section>
-    <p><img src="img/app-icon.png" width="512" height="253" alt="Qt-SESAM" title="Qt-SESAM app icon"/></p>
-    <h1>Qt-SESAM</h1>
-    <p class="subheading"><span class="capitals">SESAM</span> &mdash; Super Easy &amp; Secure Authentication Management</p>
-    <p><strong>Qt-SESAM enables you to generate and manage strong passwords &mdash; safely, securely and for free.</strong></p>
-    <p>You can use the passwords for any service, e.g. websites, accounts, or apps.
+    <section>
+      <p>
+        <img src="img/app-icon.png" width="512" height="253" alt="Qt-SESAM" title="Qt-SESAM app icon" />
+      </p>
+      <h1>Qt-SESAM</h1>
+      <p class="subheading"><span class="capitals">SESAM</span> &mdash; Super Easy &amp; Secure Authentication Management</p>
+      <p><strong>Qt-SESAM enables you to generate and manage strong passwords &mdash; safely, securely and for free.</strong></p>
+      <p>
+        You can use the passwords for any service, e.g. websites, accounts, or apps.
       The passwords are generated in realtime from your master password and some service specific settings.
       You can generate more than one password for a service.
-      For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.</p>
-    <p>You can share Qt-SESAM's settings across your computers via a <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">dedicated synchronisation server</a> and/or a file located on a cloud drive like OwnCloud, Dropbox, Google Drive, or Microsoft OneDrive.</p>
-    <p>This is secure because all of your settings are <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a>-encrypted with a 256&nbsp;bit <a href="https://en.wikipedia.org/wiki/Key_(cryptography)" target="_blank">key</a> and a 128&nbsp;bit <a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank">IV</a> <a href="#encryption">derived from your master password</a> with <a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>.</p>
-    <p>Qt-SESAM supports Windows, Linux and Mac&nbsp;OS&nbsp;X. An <a href="https://github.com/pinae/ctSESAM-android" target="_blank">Android app compatible to Qt-SESAM</a> is underway.</p>
+      For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.
+      </p>
+      <p>You can share Qt-SESAM's settings across your computers via a <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">dedicated synchronisation server</a> and/or a file located on a cloud drive like OwnCloud, Dropbox, Google Drive, or Microsoft OneDrive.</p>
+      <p>This is secure because all of your settings are <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a>-encrypted with a 256&nbsp;bit <a href="https://en.wikipedia.org/wiki/Key_(cryptography)" target="_blank">key</a> and a 128&nbsp;bit <a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank">IV</a> <a href="#encryption">derived from your master password</a> with <a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>.</p>
+      <p>Qt-SESAM supports Windows, Linux and Mac&nbsp;OS&nbsp;X. An <a href="https://github.com/pinae/ctSESAM-android" target="_blank">Android app compatible to Qt-SESAM</a> is underway.</p>
 
-    <h3>Get Qt-SESAM</h3>
-    <ul>
-      <li><a href="https://github.com/ola-ct/Qt-SESAM/releases" target="_blank">Download binaries for Windows and Mac&nbsp;OS&nbsp;X</a></li>
-      <li>Linux users have to compile Qt-SESAM from the <a href="https://github.com/ola-ct/Qt-SESAM">source code</a>. <a href="https://github.com/ola-ct/Qt-SESAM/issues/19">Help is wanted to build packages for Debian</a>.</li>
-    </ul>
-  </section>
+      <h3>Get Qt-SESAM</h3>
+      <ul>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/releases" target="_blank">Download binaries for Windows and Mac&nbsp;OS&nbsp;X</a></li>
+        <li>Linux users have to compile Qt-SESAM from the <a href="https://github.com/ola-ct/Qt-SESAM">source code</a>. <a href="https://github.com/ola-ct/Qt-SESAM/issues/19">Help is wanted to build packages for Debian</a>.</li>
+      </ul>
+    </section>
 
-  <section>
-    <h2>Make ready!</h2>
-    <p>On first start Qt-SESAM wants to know your master password. 
+    <section>
+      <h2>Make ready!</h2>
+      <p>
+        On first start Qt-SESAM wants to know your master password. 
       All the generated passwords and the keys to encrypt your settings are derived from that secret.
       Therefore the overall security of the application and your data solely depends on the security of the master password.
       So choose is wisely: not too hard to remember, but complex enough nobody else can guess it.
       A master password of at least 10 characters is recommended.
-      To make sure you've entered the master password correctly you've got to enter it twice:</p>
-    <p>
-      <video controls="controls" poster="img/master-password-entry-1.png">
-        <source src="screencasts/master-password-entry-1.webm" type="video/webm">
-        <source src="screencasts/master-password-entry-1.mp4" type="video/mp4">
-      </video>
-    </p>
-    <p>While you type, the dialog tells you how strong the chosen master password is.
+      To make sure you've entered the master password correctly you've got to enter it twice:
+      </p>
+      <p>
+        <video controls="controls" poster="img/master-password-entry-1.png">
+          <source src="screencasts/master-password-entry-1.webm" type="video/webm">
+          <source src="screencasts/master-password-entry-1.mp4" type="video/mp4">
+        </video>
+      </p>
+      <p>
+        While you type, the dialog tells you how strong the chosen master password is.
       Ratings range from "useless" over "you can do better", "mediocre", "good", "very good", and "fabulous" to "supercalifragilisticexpialidocious".
       The OK button is activated only after you've entered the same master password again.
-    </p>
-  </section>
+      </p>
+    </section>
 
-  <section>
-    <h2>First steps</h2>
-    <p>Enter a new domain by typing its name into the combobox. You'll notice that the generated password changes while you type.
+    <section>
+      <h2>First steps</h2>
+      <p>
+        Enter a new domain by typing its name into the combobox. You'll notice that the generated password changes while you type.
       That's because the algorithm for password generation weaves the domain name into the eventually generated password.
       The same is true for the user name so you can have multiple logins with different user names and passwords for the same service.
-    </p>
-    <p>
-      <video controls="controls" poster="img/enter-settings-1.png">
-        <source src="screencasts/enter-settings-1.mp4" type="video/mp4">
-        <source src="screencasts/enter-settings-1.webm" type="video/webm">
-      </video>
-    </p>
-  </section>
+      </p>
+      <p>
+        <video controls="controls" poster="img/enter-settings-1.png">
+          <source src="screencasts/enter-settings-1.mp4" type="video/mp4">
+          <source src="screencasts/enter-settings-1.webm" type="video/webm">
+        </video>
+      </p>
+    </section>
 
-  <section>
-    <h2>Unique and Easy</h2>
-    <p>Most of time the default settings for password generation will suffice.
+    <section>
+      <h2>Unique and Easy</h2>
+      <p>
+        Most of time the default settings for password generation will suffice.
       If you need more control over how the password is being generated, try out Qt-SESAM's unique feature: the easy selection widget. It lets you choose the complexity and length of the password with a single click.
       Move the marker horizontally to change password length, and vertically to change the set of characters the password is composed of.
       A set for digits as well as lowercase and uppercase characters is predefined.
       You can choose an own set by typing it into the field below the easy selection widget.
-    </p>
-    <p>
-      <video controls="controls" poster="img/enter-settings-2.png">
-        <source src="screencasts/enter-settings-2.mp4" type="video/mp4">
-        <source src="screencasts/enter-settings-2.webm" type="video/webm">
-      </video>
-    </p>
-    <p>Very neat: the widget tells you how long the <a href="https://en.wikipedia.org/wiki/Tianhe-2" target="_blank">Tianhe-2 supercomputer</a> and your computer would need to crack a password with the selected settings.</p>
-  </section>
+      </p>
+      <p>
+        <video controls="controls" poster="img/enter-settings-2.png">
+          <source src="screencasts/enter-settings-2.mp4" type="video/mp4">
+          <source src="screencasts/enter-settings-2.webm" type="video/webm">
+        </video>
+      </p>
+      <p>Very neat: the widget tells you how long the <a href="https://en.wikipedia.org/wiki/Tianhe-2" target="_blank">Tianhe-2 supercomputer</a> and your computer would need to crack a password with the selected settings.</p>
+    </section>
 
 
-  <section>
-    <h2>Not only for experts</h2>
-    <p>Iterations</p>
-    <p>Template</p>
-    <p>Salt</p>
+    <section>
+      <h2>Not only for experts</h2>
+      <p>Iterations</p>
+      <p>Template</p>
+      <p>Salt</p>
 
-  </section>
+    </section>
 
-  <section>
+    <section>
+    </section>
+    <section>
+    </section>
 
-  </section>
-  <section>
+    <section>
+      <h2>Internals</h2>
 
-  </section>
+      <h3 id="basics">Basics</h3>
 
-  <section>
-    <h2>Internals</h2>
+      <h4>Key Generation Key</h4>
 
-    <h3 id="password-generation">Password generation</h3>
+      <p>The crucial element of the Qt-SESAM's encryption/decryption/generation processes is the <strong>key generation key (KGK)</strong>.
+        The KGK is a 512 bit value <a href="https://en.wikipedia.org/wiki/Randomness" target="_blank">randomly</a> chosen the first time you start Qt-SESAM on your computer. 
+        It's used to derive the generated passwords and to generate a key to encrypt and decrypt the program settings.
+      </p>
 
-    <h3 id="encryption">Encryption</h3>    
-    
-    <p class="figure"><img src="img/algo01-generate-kgk.png" width="426" height="69" title="KGK generation" />
-      <span class="title">KGK generation</span>
-    </p>
-    <p class="figure"><img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
-      <span class="title">Salt generation</span>
-    </p>
-    <p class="figure"><img src="img/algo03-make-key-iv.png" width="477" height="142" title="makeKeyIVFromPassword" />
-      <span class="title">The AES key and initialization vector is extracted from the SHA-384 hash produced by PBKDF2.</span>
-    </p>
-    <p class="figure"><img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
-      <span class="title">…</span>
-    </p>
-    <p class="figure"><img src="img/algo05-decode.png" width="764" height="946" title="decoding" />
-      <span class="title">…</span>
-    </p>
+      <p class="figure">
+        <img src="img/algo01-generate-kgk.png" width="426" height="69" title="KGK generation" />
+      </p>
 
-  </section>
 
-  <section>
-    <h2>Important infos</h2>
-    <ul>
-      <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/FAQ-%5Bde%5D">FAQ in German</a></li>
-      <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux">Build instructions for Linux</a></li>
-      <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Windows">Build instructions for Windows</a></li>
-      <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Contribute">How to contribute to Qt-SESAM</a></li>
-    </ul>
-    <h2>Further reading</h2>
+      <h4>Salt</h4>
+
+      <p>The <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)" target="_blank">salt</a> is also random data. It's used to protect the generated passwords and cryptographic keys against <a href="https://en.wikipedia.org/wiki/Dictionary_attack" target="_blank">dictionary attacks</a> and <a href="https://en.wikipedia.org/wiki/Rainbow_table" target="_blank">rainbow table attacks</a>.</p>
+
+      <p class="figure">
+        <img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
+      </p>
+
+      <h4>Key computation</h4>
+
+      <p>Any time Qt-SESAM saves the settings to a file or transfers them over the net to the synchronisation server the settings are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> in <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a> mode. The Advanced Encryption Standard is regarded as safe.</p>
+      <p>Like any symmetric cipher AES employs a key to encrypt or decrypt data. Qt-SESAM uses the strongest AES encryption with a 256 bit key. At the beginning of an encryption or decryption process AES has to be initialized with a block of 16&nbsp;bytes. This initialization vector (IV) is computed along with the key from your master password through a process called <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">key derivation</a>. A well-tested manifestation is the Password-Based Key Derivation Function&nbsp;2 (<a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>) which scrambles an input (your master password) with the salt just generated. It does this by repeatedly (32768 times) running the inputs through a hash-based message authentication code (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code" target="_blank">HMAC</a>).</p>
+      <p>The repeated hashing adds a lot of computational work to derive the key from the password. That makes it especially hard for an attacker to find the password for a known hash by <a href="https://en.wikipedia.org/wiki/Brute-force_attack" target="_blank">brute-force</a> methods. The HMAC used by Qt-SESAM utilizes the hashing algorithm <a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a> because it provides a 384&nbsp;bit result needed to yield the 256&nbsp;bit AES key and 128&nbsp;bit IV.
+      </p>
+
+      <p class="figure">
+        <img src="img/algo03-make-key-iv.png" width="477" height="142" title="makeKeyIVFromPassword" />
+        <span class="title">The AES key and initialization vector is extracted from the SHA-384 hash produced by PBKDF2.</span>
+      </p>
+
+
+      <h3 id="password-generation">Password generation</h3>
+
+      <h3 id="encryption">Encryption</h3>
+
+      <p class="figure">
+        <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
+        <span class="title">…</span>
+      </p>
+      <p class="figure">
+        <img src="img/algo05-decode.png" width="764" height="946" title="decoding" />
+        <span class="title">…</span>
+      </p>
+
+    </section>
+
+    <section>
+      <h2>Important infos</h2>
+      <ul>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/FAQ-%5Bde%5D">FAQ in German</a></li>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux">Build instructions for Linux</a></li>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Windows">Build instructions for Windows</a></li>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Contribute">How to contribute to Qt-SESAM</a></li>
+      </ul>
+      <h2>Further reading</h2>
       <p>In German:</p>
       <ul>
         <li><a href="http://heise.de/-3045112">Johannes Merkert, Fensterbeschwörung, PySide: grafische Programme mit Python und Qt, c't&nbsp;1/16, S.&nbsp;178</a></li>
@@ -138,12 +173,14 @@
         <li><a href="http://heise.de/-2767841">Johannes Merkert, Schlangenbeschwörung für Einsteiger, Programmieren lernen mit Python, c't&nbsp;18/15, S.&nbsp;118</a></li>
         <li><a href="http://heise.de/-2753149">Oliver Lau, Aus kurz wird lang, Passwörter sicher speichern mit Hilfe von PBKDF2, c't&nbsp;17/15, S.&nbsp;180</a></li>
         <li><a href="http://heise.de/-2284364">Jürgen Schmidt, Eines für alle, Ein neues Konzept für den Umgang mit Passwörtern, c't&nbsp;18/14, S.&nbsp;82</a></li>
-      </ul>    
-  </section>
-
-  <section class="disclaimer">
-    <p>Qt-SESAM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version&nbsp;3 of the License, or (at your option) any later version. Qt-SESAM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/gpl-3.0" target="_blank">GNU General Public License</a> for more details.</p>
-    <p>Copyright &copy;&nbsp;2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, Heise Medien GmbH &amp;&nbsp;Co.&nbsp;KG.
+      </ul>
+    </section>
+  </article>
+  <article class="no-float dark">
+    <section>
+      <p>Qt-SESAM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version&nbsp;3 of the License, or (at your option) any later version. Qt-SESAM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/gpl-3.0" target="_blank">GNU General Public License</a> for more details.</p>
+      <p>
+        Copyright &copy;&nbsp;2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, Heise Medien GmbH &amp;&nbsp;Co.&nbsp;KG.
     With contributions by
     <a href="https://github.com/egbrt" target="_blank">Egbert van der Haring</a>,
     <a href="https://github.com/stefanb2" target="_blank">Stefan Becker</a>,
@@ -151,13 +188,22 @@
     and
     <a href="https://github.com/cyberfuzzie" target="_blank">Sascha Riemer</a>.
     Many thanks to <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> for lots of valuable ideas and wonderful discussions about c't SESAM in toto. A special appreciation goes to <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> for reporting bugs. 
-    </p>
-    <p>Qt-SESAM uses the <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> library,
+      </p>
+      <p>
+        Qt-SESAM uses the <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> library,
       and <a href="https://github.com/fukuchi/libqrencode" target="_blank">libqrencode</a> by Kentaro Fukuchi.
       Crypto++ is licensed under the <a href="http://www.boost.org/users/license.html" target="_blank">Boost Software License</a>, Version&nbsp;1.0. 
       libqrencode is licensed under the <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html" target="_blank">GNU Lesser General Public License&nbsp;2.1</a> or later.
-    </p>
-  </section>
+      </p>
+    </section>
+  </article>
+  <article>
+    <section>
+      <p style="text-align: center; font-size: smaller; font-weight: 900; margin-top: 32px;">Made with</p>
+      <p style="text-align: center;">
+        <img src="img/Qt-logo-small.png" width="49" height="64" title="Qt" alt="Qt" />
+      </p>
+    </section>
   </article>
 </body>
 </html>
