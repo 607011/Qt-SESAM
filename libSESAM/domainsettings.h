@@ -44,6 +44,9 @@ public:
   bool isEmpty(void) const;
   void clear(void);
 
+  // returns the unique name for the domain settings
+  QString getUniqueName(void) const;
+
   static DomainSettings fromVariantMap(const QVariantMap &);
   static DomainSettings fromJson(const QByteArray &);
 

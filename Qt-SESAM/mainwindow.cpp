@@ -827,6 +827,7 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
     DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
     d->currentDomainSettings = domainNode->itemData();
     copyDomainSettingsToGUI(d->currentDomainSettings);
+    //qDebug() << d->currentDomainSettings.getUniqueName();
   } else {
     d->currentDomainSettings.clear();
     resetAllFields();

@@ -63,7 +63,7 @@ void DomainSettingsList::updateWith(const DomainSettings &src)
 {
   bool found = false;
   for (auto d = begin(); d != end() && !found; ++d) {
-    if (d->domainName == src.domainName) {
+    if (d->getUniqueName() == src.getUniqueName()) {
       *d = src;
       found = true;
     }
@@ -84,7 +84,7 @@ QJsonDocument DomainSettingsList::toJsonDocument(void) const
 {
   QVariantMap domains;
   for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d) {
-    domains[d->domainName] = d->toVariantMap();
+    domains[d->getUniqueName()] = d->toVariantMap();
   }
   return QJsonDocument::fromVariant(domains);
 }
@@ -94,7 +94,7 @@ QStringList DomainSettingsList::keys(void) const
 {
   QStringList names;
   for (DomainSettingsList::const_iterator d = constBegin(); d != constEnd(); ++d) {
-    names << d->domainName;
+    names << d->getUniqueName();
   }
   return names;
 }

@@ -99,6 +99,25 @@ void DomainSettings::clear(void)
 }
 
 
+const QChar UniqueSeparator = QChar('/');
+
+// returns the unique name for the domain settings
+QString DomainSettings::getUniqueName(void) const
+{
+  QString uniqueName;
+  if (!groupHierarchy.isEmpty()) {
+    uniqueName = groupHierarchy.join(UniqueSeparator);
+    uniqueName.append(UniqueSeparator);
+  }
+  uniqueName.append(domainName);
+  if (!userName.isEmpty()) {
+    uniqueName.append(UniqueSeparator);
+    uniqueName.append(userName);
+  }
+  return uniqueName;
+}
+
+
 QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
