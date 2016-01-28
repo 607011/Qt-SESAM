@@ -661,6 +661,8 @@ void MainWindow::renewSalt(void)
 
 void MainWindow::onRenewSalt(void)
 {
+  if (ui->domainsComboBox->currentText().isEmpty())
+    return;
   int button = QMessageBox::Yes;
   if (domainComboboxContains(ui->domainsComboBox->currentText())) {
     button = QMessageBox::question(
