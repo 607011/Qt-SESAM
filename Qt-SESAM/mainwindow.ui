@@ -1190,25 +1190,29 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>userLineEdit</tabstop>
-  <tabstop>urlLineEdit</tabstop>
-  <tabstop>notesPlainTextEdit</tabstop>
-  <tabstop>savePushButton</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>openURLPushButton</tabstop>
-  <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>iterationsSpinBox</tabstop>
-  <tabstop>usedCharactersPlainTextEdit</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
-  <tabstop>legacyPasswordLineEdit</tabstop>
-  <tabstop>extraLineEdit</tabstop>
-  <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>revertPushButton</tabstop>
-  <tabstop>renewSaltPushButton</tabstop>
-  <tabstop>tabWidgetVersions</tabstop>
   <tabstop>domainView</tabstop>
+  <tabstop>domainLineEdit</tabstop>
+  <tabstop>shuffleUsernamePushButton</tabstop>
+  <tabstop>userLineEdit</tabstop>
+  <tabstop>copyUsernameToClipboardPushButton</tabstop>
+  <tabstop>urlLineEdit</tabstop>
+  <tabstop>openURLPushButton</tabstop>
+  <tabstop>savePushButton</tabstop>
+  <tabstop>revertPushButton</tabstop>
+  <tabstop>loginPushButton</tabstop>
+  <tabstop>deletePushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>renewSaltPushButton</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>iterationsSpinBox</tabstop>
+  <tabstop>tabWidgetVersions</tabstop>
+  <tabstop>extraLineEdit</tabstop>
+  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
+  <tabstop>passwordLengthSpinBox</tabstop>
+  <tabstop>usedCharactersPlainTextEdit</tabstop>
+  <tabstop>legacyPasswordLineEdit</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>
