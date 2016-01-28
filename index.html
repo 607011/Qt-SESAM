@@ -135,12 +135,22 @@
       </p>
 
       <p class="figure">
-        <img src="img/algo03-make-key-iv.png" width="477" height="142" title="makeKeyIVFromPassword" />
-        <span class="title">The AES key and initialization vector is extracted from the SHA-384 hash produced by PBKDF2.</span>
+        <img src="img/algo03a-make-key-iv.png" width="477" height="142" title="makeKeyIVFromPassword" />
+        <span class="title"><a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp"><code>Crypter::&shy;make&shy;Key&shy;And&shy;IV&shy;From&shy;Password()</code></a></span>
       </p>
 
 
       <h3 id="password-generation">Password generation</h3>
+
+      <p>A similar method comes into effect when deriving a key from the KGK. The key is later on used to calcalute the generated password. 
+        
+      </p>
+      <p class="figure">
+        <img src="img/algo03b-make-key.png" width="477" height="142" title="makeKeyFromPassword" />
+        <span class="title"><a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp"><code>Password::&shy;generate()</code></a></span>
+      </p>
+
+
 
       <h3 id="encryption">Encryption</h3>
 

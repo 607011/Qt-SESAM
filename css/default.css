@@ -105,3 +105,17 @@ ul > li {
   text-transform: uppercase;
   letter-spacing: 0.21em;
 }
+
+code {
+  font-family: monospace;
+  font-size: 12pt;
+  background-color: #e2dfdf;
+  padding: 0 0.5em;
+  color: black !important;
+  -moz-hyphens: manual;
+  -ms-hyphens: manual;
+  -webkit-hyphens: manual;
+  hyphens: manual;
+  -ms-word-break: break-word;
+  word-break: break-word;
+}
