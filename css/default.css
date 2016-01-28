@@ -11,6 +11,11 @@ html, body {
   color: #222;
 }
 
+article {
+  margin: 3ex auto 0 auto;
+  max-width: 810px;
+}
+
 a {
   color: #e90101;
   text-decoration: none;
@@ -26,7 +31,6 @@ a:hover {
 }
 
 section {
-  margin: 3ex auto 0 auto;
   padding: 1ex 1em;
 }
 
@@ -38,20 +42,16 @@ video {
 }
 
 h1, h2, h3, h4 {
-  max-width: 810px;
-  margin: 10px auto 0 auto;
-  text-indent: -0.25em;
+  margin: 10px 0 0 0;
 }
 
 h1 {
   font-size: 666%;
   color: black;
-  text-indent: -0.05em;
 }
 
 p {
-  margin: 1ex auto;
-  max-width: 820px;
+  margin: 1ex 0;
 }
 
 p.subheading {
