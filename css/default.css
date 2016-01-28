@@ -9,6 +9,7 @@ html, body {
   background-color: white;
   font-family: Lato, sans-serif;
   color: #222;
+  font-size: 12pt;
 }
 
 article {
@@ -47,6 +48,7 @@ h1, h2, h3, h4 {
 
 h1 {
   font-size: 666%;
+  font-weight: 900;
   color: black;
 }
 
@@ -55,10 +57,15 @@ p {
 }
 
 p.subheading {
-  font-weight: bold;
   font-size: 116%;
   margin-bottom: 4ex;
   color: black;
+  font-weight: 700;
+}
+
+ul {
+  list-style-type: square;
+  margin: 1ex 0 1ex 2em;
 }
 
 .capitals {
