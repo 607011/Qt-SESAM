@@ -47,7 +47,7 @@ h1, h2, h3, h4 {
 }
 
 h1 {
-  font-size: 666%;
+  font-size: 660%;
   font-weight: 900;
   color: black;
 }
@@ -57,7 +57,7 @@ p {
 }
 
 p.subheading {
-  font-size: 116%;
+  font-size: 112%;
   margin-bottom: 4ex;
   color: black;
   font-weight: 700;
