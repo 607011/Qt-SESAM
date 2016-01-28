@@ -123,7 +123,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Min. iterations</source>
-        <translation>Min. Iterationen</translation>
+        <translation type="vanished">Min. Iterationen</translation>
     </message>
     <message>
         <source>Password length</source>
@@ -1203,6 +1203,46 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Shuffle a random username</source>
         <translation>Einen zufälligen Benutzernamen auswählen</translation>
+    </message>
+    <message>
+        <source>Password template (FYI)</source>
+        <translation>Passwort-Vorlage (FYI)</translation>
+    </message>
+    <message>
+        <source>Base64 encoded salt (FYI)</source>
+        <translation>Base64-kodiertes Salt (FYI)</translation>
+    </message>
+    <message>
+        <source>Upgrade v2 settings to v3 ...</source>
+        <translation>Upgraden von v2- auf v3-Einstellungen ...</translation>
+    </message>
+    <message>
+        <source>No conversion necessary</source>
+        <translation>Keine Konvertierung nötig</translation>
+    </message>
+    <message>
+        <source>There were no domain settings which had to be converted to v3.</source>
+        <translation>Keine der Domain-Einstellungen musste nach v3 konvertiert werden.</translation>
+    </message>
+    <message>
+        <source>Conversion complete</source>
+        <translation>Konvertierung abgeschlossen</translation>
+    </message>
+    <message>
+        <source>%1 domain settings have been converted to v3.</source>
+        <translation>%1 Domain-Einstellungen wurden nach v3 konvertiert.</translation>
+    </message>
+    <message>
+        <source>Iterations</source>
+        <translation>Iterationen</translation>
+    </message>
+    <message>
+        <source>Template</source>
+        <translation>Vorlage</translation>
+    </message>
+    <message>
+        <source>Salt</source>
+        <translation>Salt</translation>
     </message>
 </context>
 <context>
