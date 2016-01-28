@@ -9,7 +9,7 @@ html, body {
   background-color: white;
   font-family: Lato, sans-serif;
   color: #222;
-  font-size: 12pt;
+  font-size: 13pt;
 }
 
 article {
@@ -36,36 +36,58 @@ section {
 }
 
 video {
-  max-width: 640px;
   margin: 16px 0;
   padding: 2px;
   background-color: white;
 }
 
-h1, h2, h3, h4 {
-  margin: 10px 0 0 0;
-}
-
 h1 {
-  font-size: 660%;
+  font-size: 610%;
   font-weight: 900;
   color: black;
 }
 
+h2, h3 {
+  margin: 20px 0 0 0;
+  font-weight: 900;
+}
+
+h4, h5 {
+  margin: 15px 0 0 0;
+  font-weight: 700;
+}
+
 p {
   margin: 1ex 0;
+  line-height: 18pt;
 }
 
 p.subheading {
-  font-size: 114%;
+  font-size: 105%;
   margin-bottom: 4ex;
   color: black;
   font-weight: 900;
 }
 
+p.figure {
+  text-align: center;
+  margin-bottom: 7ex;
+}
+
+p.figure .title {
+  margin-top: 17pt;
+  font-weight: 700;
+  font-size: smaller;
+  display: block;
+}
+
 ul {
   list-style-type: square;
   margin: 1ex 0 1ex 2em;
+}
+
+ul > li {
+  padding: 0.2ex 0;
 }
 
 .capitals {
@@ -78,4 +100,9 @@ ul {
   font-size: smaller;
   color: #eee !important;
   background-color: #222 !important;
+}
+
+.disclaimer p {
+  line-height: normal;
+  margin: 2ex auto 2ex auto;
 }
