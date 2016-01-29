@@ -54,7 +54,7 @@ section {
 a.download {
   display: inline-block;
   height: 44px;
-  background-color: #e00;
+  background-color: #d80000;
   -moz-border-radius: 12px;
   -webkit-border-radius: 12px;
   border-radius: 12px;
@@ -66,10 +66,6 @@ a.download {
   letter-spacing: 0.1em;
   padding: 0 1em;
   margin: 2ex 3em 2ex 0;
-  text-shadow: 1px 1px 1px #000;
-  -moz-box-shadow: #000 1px 1px 1px;
-  -webkit-box-shadow: #000 1px 1px 1px;
-  box-shadow: #000 1px 1px 5px;
 }
 
   a.download:hover {
@@ -77,11 +73,12 @@ a.download {
   }
 
   a.download:active {
-    -moz-transform: translate(1px, 1px);
-    -ms-transform: translate(1px, 1px);
-    -o-transform: translate(1px, 1px);
-    -webkit-transform: translate(1px, 1px);
-    transform: translate(1px, 1px);
+    -moz-transform: translate(0, 1px);
+    -ms-transform: translate(0, 1px);
+    -o-transform: translate(0, 1px);
+    -webkit-transform: translate(0, 1px);
+    transform: translate(0, 1px);
+    background-color: #f33;
   }
 
 video {
@@ -141,8 +138,19 @@ p {
   margin: 6px 6px 6px 0;
 }
 
+.quote {
+}
+
+  .quote::before {
+    content: "“";
+  }
+
+  .quote::after {
+    content: "”";
+  }
+
+
 .gui {
-  font-style: italic;
 }
 
   .gui::before {
