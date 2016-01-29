@@ -117,6 +117,17 @@ QString DomainSettings::getUniqueName(void) const
   return uniqueName;
 }
 
+// replaces old with new group name
+void DomainSettings::replaceGroupName(QString oldName, QString newName)
+{
+  for (int i = 0; i < groupHierarchy.count(); i++) {
+    if (groupHierarchy.at(i) == oldName) {
+      groupHierarchy[i] = newName;
+    }
+  }
+}
+
+
 
 QVariantMap DomainSettings::toVariantMap(void) const
 {

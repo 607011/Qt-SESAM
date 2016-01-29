@@ -179,7 +179,6 @@ public:
   QString lastDomainBeforeLock;
   DomainSettings currentDomainSettings;
   QSettings settings;
-  DomainSettingsList domains;
   DomainSettingsList remoteDomains;
   bool customCharacterSetDirty;
   bool parameterSetDirty;
@@ -400,6 +399,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->domainView, SIGNAL(clicked(QModelIndex)), SLOT(onDomainViewClicked(QModelIndex)));
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
 
+  QObject::connect(&d->treeModel, SIGNAL(groupNameChanged()), this, SLOT(onGroupNameChanged()));
+
   // make a context menu for a group in treeview
   d->contextMenuGroup = new QMenu(ui->domainView);
   QAction *actionAddGroup = new QAction(tr("Add group"), d->contextMenuGroup);
@@ -407,6 +408,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->contextMenuGroup->addAction(actionAddGroup);
   d->contextMenuGroup->addAction(actionEditGroup);
   QObject::connect(actionAddGroup, SIGNAL(triggered()), this, SLOT(onAddGroup()));
+  QObject::connect(actionEditGroup, SIGNAL(triggered()), this, SLOT(onEditGroup()));
 
   // make a context menu for a domain in treeview
   d->contextMenuDomain = new QMenu(ui->domainView);
@@ -494,7 +496,7 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::prepareExit()";
+  //qDebug() << "MainWindow::prepareExit()";
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
@@ -797,12 +799,6 @@ void MainWindow::onIterationsChanged(int)
 }
 
 
-void MainWindow::onGroupChanged(QString)
-{
-  setDirty();
-}
-
-
 void MainWindow::onAddGroup(void)
 {
   Q_D(MainWindow);
@@ -816,6 +812,28 @@ void MainWindow::onAddGroup(void)
       ui->domainView->expand(index);
     }
   }
+}
+
+
+void MainWindow::onEditGroup(void)
+{
+  Q_D(MainWindow);
+  qDebug() << "MainWindow::onEditGroup()";
+  QModelIndex index = ui->domainView->currentIndex();
+  AbstractTreeNode *node = d->treeModel.node(index);
+  if (node != Q_NULLPTR) {
+    if (node->type() == AbstractTreeNode::GroupType) {
+      qDebug() << d->treeModel.flags(index);
+      ui->domainView->edit(index);
+    }
+  }
+}
+
+
+void MainWindow::onGroupNameChanged()
+{
+  //qDebug() << "on group name changed";
+  saveAllDomainDataToSettings();
 }
 
 
@@ -1385,9 +1403,10 @@ void MainWindow::onImportKeePass2XmlFile(void)
       }
       return;
     }
-    d->domains.append(reader.domains());
+    DomainSettingsList domains = d->treeModel.getAllDomains();
+    domains.append(reader.domains());
     saveAllDomainDataToSettings();
-    d->treeModel.populate(d->domains);
+    d->treeModel.populate(domains);
     ui->domainView->reset();
 
     QString msgBoxText;
@@ -1428,9 +1447,10 @@ void MainWindow::onImportPasswordSafeFile(void)
       }
       return;
     }
-    d->domains.append(reader.domains());
+    DomainSettingsList domains = d->treeModel.getAllDomains();
+    domains.append(reader.domains());
     saveAllDomainDataToSettings();
-    d->treeModel.populate(d->domains);
+    d->treeModel.populate(domains);
     ui->domainView->reset();
 
     QString msgBoxText;
@@ -1550,30 +1570,6 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 }
 
 
-void MainWindow::saveDomainSettings(DomainSettings ds)
-{
-  Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveDomainSettings(...) for domain" << ds.domainName;
-  ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
-  ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
-  const QString currentDomain = ui->domainLineEdit->text();
-
-  if (ds.domainName == currentDomain) {
-    ds.modifiedDate = QDateTime::currentDateTime();
-    if (ds.deleted) {
-      resetAllFields();
-    }
-  }
-  else {
-    ds.createdDate = QDateTime::currentDateTime();
-    ds.modifiedDate = ds.createdDate;
-  }
-  d->domains.updateWith(ds);
-  saveAllDomainDataToSettings();
-  setDirty(false);
-}
-
-
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
@@ -1586,6 +1582,8 @@ void MainWindow::saveCurrentDomainSettings(void)
     }
     else {
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+      ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
+      ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
 
       QModelIndex newIndex;
       QModelIndex parentIndex;
@@ -1597,12 +1595,15 @@ void MainWindow::saveCurrentDomainSettings(void)
         } else if (node->type() == AbstractTreeNode::GroupType) {
           parentIndex = currentIndex;
         }
-        saveDomainSettings(ds);
-        if (ds.domainName == d->currentDomainSettings.domainName) { // save changes to current domain
+
+       if (ds.domainName == d->currentDomainSettings.domainName) { // save changes to current domain
           DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
+          ds.modifiedDate = QDateTime::currentDateTime();
           domainNode->changeDomainSettings(ds);
           newIndex = currentIndex;
         } else { // add a new domain
+          ds.createdDate = QDateTime::currentDateTime();
+          ds.modifiedDate = ds.createdDate;
           int row = d->treeModel.addDomain(ds);
           newIndex = parentIndex.child(row, 0);
         }
@@ -1611,7 +1612,9 @@ void MainWindow::saveCurrentDomainSettings(void)
         ui->domainView->setCurrentIndex(newIndex);
         ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
         ui->deletePushButton->setEnabled(true);
+        saveAllDomainDataToSettings();
         d->currentDomainSettings = ds;
+        setDirty(false);
       }
     }
   }
@@ -1631,15 +1634,17 @@ void MainWindow::deleteCurrentDomainSettings(void)
     }
     else {
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+      ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
+      ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
+      ds.modifiedDate = QDateTime::currentDateTime();
 
       // first update tree view
       QModelIndex index = ui->domainView->currentIndex();
-      QModelIndex newIndex;
       d->treeModel.removeDomain(index);
       ui->domainView->setExpanded(index.parent(), false);
       ui->domainView->expand(index.parent());
 
-      saveDomainSettings(ds);
+      saveAllDomainDataToSettings();
       resetAllFields();
       ui->domainView->setCurrentIndex(index.parent());
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
@@ -1834,12 +1839,13 @@ void MainWindow::saveAllDomainDataToSettings(void)
   // qDebug() << "MainWindow::saveAllDomainDataToSettings()";
   if (!d->masterKey.isEmpty()) {
     QByteArray cipher;
+    DomainSettingsList domains = d->treeModel.getAllDomains();
     {
       QMutexLocker locker(&d->keyGenerationMutex);
       try {
         d->keyGenerationFuture.waitForFinished();
         if (validCredentials()) {
-          cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
+          cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), domains.toJson(), CompressionEnabled);
         }
         else {
           _LOG(QString("ERROR in MainWindow::saveAllDomainDataToSettings(): invalid credentials"));
@@ -1875,11 +1881,11 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::restoreDomainDataFromSettings()", "d->masterPassword must not be empty");
   QJsonDocument json;
   QStringList domainList;
-  const QByteArray &domains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
-  if (!domains.isEmpty()) {
+  const QByteArray &encodedDomains = QByteArray::fromBase64(d->settings.value("sync/domains").toByteArray());
+  if (!encodedDomains.isEmpty()) {
     QByteArray recovered;
     try {
-      recovered = Crypter::decode(d->masterPassword.toUtf8(), domains, CompressionEnabled, d->KGK);
+      recovered = Crypter::decode(d->masterPassword.toUtf8(), encodedDomains, CompressionEnabled, d->KGK);
     }
     catch (CryptoPP::Exception &e) {
       wrongPasswordWarning((int)e.GetErrorType(), e.what());
@@ -1897,8 +1903,8 @@ bool MainWindow::restoreDomainDataFromSettings(void)
                            .arg(parseError.errorString()), QMessageBox::Ok);
     }
   }
-  d->domains = DomainSettingsList::fromQJsonDocument(json);
-  d->treeModel.populate(d->domains);
+  DomainSettingsList domains = DomainSettingsList::fromQJsonDocument(json);
+  d->treeModel.populate(domains);
   return true;
 }
 
@@ -2244,7 +2250,7 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
       SecureByteArray KGK;
       baDomains = Crypter::decode(d->masterPassword.toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
       if (d->KGK != KGK) {
-        d->doConvertLocalToLegacy = !d->domains.isEmpty();
+        d->doConvertLocalToLegacy = !d->treeModel.getAllDomains().isEmpty();
         d->KGK = KGK;
       }
     }
@@ -2259,7 +2265,7 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
       try {
         SecureByteArray KGK;
         baDomains = Crypter::decode(d->changeMasterPasswordDialog->newPassword().toUtf8(), remoteDomainsEncoded, CompressionEnabled, KGK);
-        if (d->KGK != KGK && !d->domains.isEmpty()) {
+        if (d->KGK != KGK && !d->treeModel.getAllDomains().isEmpty()) {
           d->doConvertLocalToLegacy = true;
           d->KGK = KGK;
         }
@@ -2280,7 +2286,7 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     }
   }
 
-  d->domains.setDirty(false);
+  //d->domains.setDirty(false);
   d->remoteDomains = DomainSettingsList::fromQJsonDocument(remoteJSON);
   mergeLocalAndRemoteData();
 
@@ -2288,11 +2294,11 @@ void MainWindow::syncWith(SyncPeer syncPeer, const QByteArray &remoteDomainsEnco
     writeToRemote(syncPeer);
   }
 
-  if (d->domains.isDirty()) {
+  //if (d->domains.isDirty()) {
     saveAllDomainDataToSettings();
     restoreDomainDataFromSettings();
-    d->domains.setDirty(false);
-  }
+    //d->domains.setDirty(false);
+  //}
 }
 
 
@@ -2346,14 +2352,15 @@ void MainWindow::convertToLegacyPassword(DomainSettings &ds)
 void MainWindow::mergeLocalAndRemoteData(void)
 {
   Q_D(MainWindow);
-  QStringList allDomainNames = d->remoteDomains.keys() + d->domains.keys();
+  DomainSettingsList localDomains = d->treeModel.getAllDomains();
+  QStringList allDomainNames = d->remoteDomains.keys() + localDomains.keys();
   allDomainNames.removeDuplicates();
   foreach(QString domainName, allDomainNames) {
     const DomainSettings &remoteDomainSetting = d->remoteDomains.at(domainName);
-    DomainSettings localDomainSetting = d->domains.at(domainName);
+    DomainSettings localDomainSetting = localDomains.at(domainName);
     if (!localDomainSetting.isEmpty() && !remoteDomainSetting.isEmpty()) {
       if (remoteDomainSetting.modifiedDate > localDomainSetting.modifiedDate) {
-        d->domains.updateWith(remoteDomainSetting);
+        localDomains.updateWith(remoteDomainSetting);
       }
       else if (remoteDomainSetting.modifiedDate < localDomainSetting.modifiedDate) {
         if (d->doConvertLocalToLegacy && !localDomainSetting.deleted) {
@@ -2370,11 +2377,11 @@ void MainWindow::mergeLocalAndRemoteData(void)
         d->remoteDomains.updateWith(localDomainSetting);
       }
       else {
-        d->domains.remove(domainName);
+        localDomains.remove(domainName);
       }
     }
     else {
-      d->domains.updateWith(remoteDomainSetting);
+      localDomains.updateWith(remoteDomainSetting);
     }
   }
 }
@@ -2444,12 +2451,13 @@ void MainWindow::onForcedPush(void)
 {
   Q_D(MainWindow);
   QByteArray cipher;
+  DomainSettingsList domains = d->treeModel.getAllDomains();
   {
     QMutexLocker(&d->keyGenerationMutex);
     try {
       d->keyGenerationFuture.waitForFinished();
       if (validCredentials()) {
-        cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), d->domains.toJson(), CompressionEnabled);
+        cipher = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), domains.toJson(), CompressionEnabled);
       }
       else {
         _LOG("ERROR in MainWindow::onForcedPush(): invalid credentials");
@@ -2551,7 +2559,7 @@ void MainWindow::onExportAllDomainSettingAsJSON(void)
     QFile f(filename);
     f.open(QIODevice::Truncate | QIODevice::WriteOnly);
     if (f.isOpen()) {
-      QByteArray data = d->domains.toJsonDocument().toJson(QJsonDocument::Indented);
+      QByteArray data = d->treeModel.getAllDomains().toJsonDocument().toJson(QJsonDocument::Indented);
       f.write(data);
       f.close();
     }
@@ -2626,7 +2634,7 @@ void MainWindow::onExportAllLoginDataAsClearText(void)
     QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int, int)), &progressDialog, SLOT(setRange(int, int)));
     QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
     QFuture<SecureByteArray> future = QtConcurrent::mappedReduced<SecureByteArray>(
-          d->domains,
+          d->treeModel.getAllDomains(),
           DomainSettingsToTextConverter(d->KGK),
           [](SecureByteArray &all, const SecureByteArray &intermediate)
           {
@@ -2645,7 +2653,7 @@ void MainWindow::onExportAllLoginDataAsClearText(void)
         outFile.write(future.result());
         outFile.close();
       }
-      QMessageBox::information(this, tr("All login data exported"), tr("Successfully exported %1 logins.").arg(d->domains.count()));
+      QMessageBox::information(this, tr("All login data exported"), tr("Successfully exported %1 logins.").arg(d->treeModel.getAllDomains().count()));
     }
   }
 }

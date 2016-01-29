@@ -86,12 +86,13 @@ private slots:
   void onExtraCharactersChanged(QString);
   void onPasswordLengthChanged(int);
   void onIterationsChanged(int);
-  void onGroupChanged(QString);
   void onTagChanged(QString);
   void onCustomContextMenu(const QPoint &point);
   void onAddGroup(void);
+  void onEditGroup(void);
   void onDomainViewClicked(const QModelIndex &);
   void onDomainViewDoubleClicked(const QModelIndex &);
+  void onGroupNameChanged();
   void onSaltChanged(QString);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
@@ -187,7 +188,6 @@ private: // methods
   void resetAllFieldsExceptDomainName(void);
   void resetAllFields(void);
   bool restoreSettings(void);
-  void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
   void copyDomainSettingsToGUI(const DomainSettings &ds);

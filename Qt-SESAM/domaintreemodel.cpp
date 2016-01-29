@@ -149,6 +149,47 @@ int DomainTreeModel::addDomain(const DomainSettings &ds)
 }
 
 
+void DomainTreeModel::appendDomains(GroupNode *groupNode, DomainSettingsList *domains)
+{
+  for (int row = 0; row < groupNode->childCount(); ++row) {
+    AbstractTreeNode *child = groupNode->child(row);
+    if (child->type() == AbstractTreeNode::GroupType) {
+      appendDomains(reinterpret_cast<GroupNode*> (child), domains);
+    }
+    else if (child->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode*> (child);
+      DomainSettings ds = domainNode->itemData();
+      domains->append(ds);
+    }
+  }
+}
+
+
+DomainSettingsList DomainTreeModel::getAllDomains()
+{
+  Q_D(DomainTreeModel);
+  DomainSettingsList domains;
+  appendDomains(d->rootItem, &domains);
+  return domains;
+}
+
+
+void DomainTreeModel::replaceGroupName(QString oldName, QString newName, GroupNode *node)
+{
+  for (int row = 0; row < node->childCount(); ++row) {
+    AbstractTreeNode *child = node->child(row);
+    if (child->type() == AbstractTreeNode::GroupType) {
+      replaceGroupName(oldName, newName, reinterpret_cast<GroupNode*> (child));
+    }
+    else if (child->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode*> (child);
+      DomainSettings ds = domainNode->itemData();
+      ds.replaceGroupName(oldName, newName);
+      domainNode->changeDomainSettings(ds);
+    }
+  }
+}
+
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
   // don't know where this is set, but I only want one column
@@ -171,32 +212,57 @@ DomainNode *DomainTreeModel::node(const QModelIndex &index) const
 
 QVariant DomainTreeModel::data(const QModelIndex &index, int role) const
 {
-  if (!index.isValid() || role != Qt::DisplayRole) {
-    return QVariant();
+  QVariant data = QVariant();
+  if (index.isValid()) {
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    if (role == Qt::DisplayRole) {
+      if (item->type() == AbstractTreeNode::LeafType) {
+        data = item->data(index.column());
+      }
+      if (index.column() == 0) {
+        data = item->data(0);
+      }
+    }
+    else if ((role == Qt::EditRole) && (item->type() == AbstractTreeNode::GroupType)) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*> (item);
+      data = groupNode->name();
+    }
   }
-  AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
-  if (item->type() == AbstractTreeNode::LeafType) {
-    return item->data(index.column());
-  }
-  if (index.column() == 0) {
-    return item->data(0);
-  }
-  return QVariant();
+  return data;
 }
 
 
 bool DomainTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-  return QAbstractItemModel::setData(index, value, role);
+  bool result = false;
+  if (role == Qt::EditRole) {
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    if (item->type() == AbstractTreeNode::GroupType) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*> (item);
+      QString newName = value.toString();
+      if (groupNode->name() != newName) {
+        replaceGroupName(groupNode->name(), newName, groupNode);
+        groupNode->setName(value.toString());
+        emit groupNameChanged();
+        result = true;
+      }
+    }
+  }
+  return result;
 }
 
 
 Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
 {
-  const Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
-  return index.isValid()
-      ? Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags
-      : Qt::ItemIsDropEnabled | defaultFlags;
+  Qt::ItemFlags itemFlags = QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
+  if (index.isValid()) {
+    itemFlags = itemFlags | Qt::ItemIsDragEnabled;
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    if (item->type() == AbstractTreeNode::GroupType) {
+      itemFlags = itemFlags | Qt::ItemIsEditable;
+    }
+  }
+  return itemFlags;
 }
 
 
