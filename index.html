@@ -14,14 +14,18 @@
       </p>
       <h1>Qt-SESAM</h1>
       <p class="subheading"><span class="capitals">SESAM</span> &mdash; Super Easy &amp; Secure Authentication Management</p>
-      <p><strong>Qt-SESAM enables you to generate and manage strong passwords &mdash; safely, securely and for free.</strong></p>
+      <p><strong>Qt-SESAM generates and manages strong passwords &mdash; safely, securely and for free.</strong></p>
+      <p>
+        <a class="download" target="_blank" href="https://github.com/ola-ct/Qt-SESAM/releases">Download binaries</a>
+        <a class="download" target="_blank" href="https://github.com/ola-ct/Qt-SESAM">Get source code</a>
+      </p>
       <p>
         You can use the passwords for any service, e.g. websites, accounts, or apps.
-      The passwords are generated in realtime from your master password and some service specific settings.
+      The passwords are generated in real-time from your master password and some service specific settings.
       You can generate more than one password for a service.
       For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.
       </p>
-      <p>You can share Qt-SESAM's settings across your computers via a <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">dedicated synchronisation server</a> and/or a file located on a cloud drive like OwnCloud, Dropbox, Google Drive, or Microsoft OneDrive.</p>
+      <p>You can share Qt-SESAM's settings across your computers via a <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">dedicated synchronization server</a> and/or a file located on a cloud drive like OwnCloud, Dropbox, Google Drive, or Microsoft OneDrive.</p>
       <p>This is secure because all of your settings are <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a>-encrypted with a 256&nbsp;bit <a href="https://en.wikipedia.org/wiki/Key_(cryptography)" target="_blank">key</a> and a 128&nbsp;bit <a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank">IV</a> <a href="#encryption">derived from your master password</a> with <a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>.</p>
       <p>Qt-SESAM supports Windows, Linux and Mac&nbsp;OS&nbsp;X. An <a href="https://github.com/pinae/ctSESAM-android" target="_blank">Android app compatible to Qt-SESAM</a> is underway.</p>
 
@@ -58,7 +62,7 @@
     <section>
       <h2>First steps</h2>
       <p>
-        Enter a new domain by typing its name into the combobox. You'll notice that the generated password changes while you type.
+        Enter a new domain by typing its name into the combo box. You'll notice that the generated password changes while you type.
       That's because the algorithm for password generation weaves the domain name into the eventually generated password.
       The same is true for the user name so you can have multiple logins with different user names and passwords for the same service.
       </p>
@@ -129,38 +133,48 @@
 
       <h4>Key computation</h4>
 
-      <p>Any time Qt-SESAM saves the settings to a file or transfers them over the net to the synchronisation server the settings are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> in <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a> mode. The Advanced Encryption Standard is regarded as safe.</p>
+      <p>Any time Qt-SESAM saves the settings to a file or transfers them over the net to the synchronisation server the settings are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> in <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a> mode. The Advanced Encryption Standard is regarded as 100% secure.</p>
       <p>Like any symmetric cipher AES employs a key to encrypt or decrypt data. Qt-SESAM uses the strongest AES encryption with a 256 bit key. At the beginning of an encryption or decryption process AES has to be initialized with a block of 16&nbsp;bytes. This initialization vector (IV) is computed along with the key from your master password through a process called <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">key derivation</a>. A well-tested manifestation is the Password-Based Key Derivation Function&nbsp;2 (<a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>) which scrambles an input (your master password) with the salt just generated. It does this by repeatedly (32768 times) running the inputs through a hash-based message authentication code (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code" target="_blank">HMAC</a>).</p>
       <p>The repeated hashing adds a lot of computational work to derive the key from the password. That makes it especially hard for an attacker to find the password for a known hash by <a href="https://en.wikipedia.org/wiki/Brute-force_attack" target="_blank">brute-force</a> methods. The HMAC used by Qt-SESAM utilizes the hashing algorithm <a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a> because it provides a 384&nbsp;bit result needed to yield the 256&nbsp;bit AES key and 128&nbsp;bit IV.
       </p>
 
       <p class="figure">
-        <img src="img/algo03a-make-key-iv.png" width="477" height="142" title="makeKeyIVFromPassword" />
-        <span class="title"><a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp"><code>Crypter::&shy;make&shy;Key&shy;And&shy;IV&shy;From&shy;Password()</code></a></span>
+        <img src="img/algo03a-make-key-iv.png" width="477" height="142" title="Crypter::makeKeyIVFromPassword()" />
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::&shy;make&shy;Key&shy;And&shy;IV&shy;From&shy;Password()</a></span>
       </p>
 
 
       <h3 id="password-generation">Password generation</h3>
 
-      <p>A similar method comes into effect when deriving a key from the KGK. The key is later on used to calcalute the generated password. 
-        
+      <p>A similar method comes into effect when generating a password. First, the KGK is appended to the domain and user name to form the input to PBKDF2 together with a salt.</p>
+      <p>The salt is shuffled the moment you create the entry for the domain or renew the generated password by pressing the "renew" button left to the password field. You can set the length of the salt via <span class="gui">Options/Misc/Salt length</span>. The default (and reasonable) length is 16 bytes. The longer the better, with 64 bytes being the sensible upper limit.</p>
+      <p>You can determine the number of iterations by selecting the value in the corresponding spinbox (first expand the <span class="gui">Advanced settings</span> section). </p>
+      <p>The result of the operation is a 512 bit long "key".</p>
+      <p class="figure"> adapt image to textual description 
+        <img src="img/algo03b-make-key.png" width="456" height="154" title="Password::generate()" />
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp">Password::&shy;generate()</a></span>
       </p>
-      <p class="figure">
-        <img src="img/algo03b-make-key.png" width="477" height="142" title="makeKeyFromPassword" />
-        <span class="title"><a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp"><code>Password::&shy;generate()</code></a></span>
-      </p>
-
+      <p>Eventually, the password is calculated from this key (see <a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp" class="code" target="_blank">Password::mix()</a>).</p>
 
 
       <h3 id="encryption">Encryption</h3>
 
+      <p>That's all Qt-SESAM needs to encrypt data. The whole encryption process looks very complicated but in fact is quite straightforward.</p>
+      <p>Because Qt-SESAM needs the KGK to generate your service passwords the KGK has to be store along with the domain settings.  CONTINUE HERE </p>
+      <p>A second pair of salt and IV is generated.</p>
+
       <p class="figure">
         <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
-        <span class="title">…</span>
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></span>
       </p>
+
+
+      <h3 id="decryption">Encryption</h3>
+
+      <p>Decrypting data works the other way round.</p>
       <p class="figure">
         <img src="img/algo05-decode.png" width="764" height="946" title="decoding" />
-        <span class="title">…</span>
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
       </p>
 
     </section>
@@ -211,7 +225,7 @@
     <section>
       <p style="text-align: center; font-size: smaller; font-weight: 900; margin-top: 32px;">Made with</p>
       <p style="text-align: center;">
-        <img src="img/Qt-logo-small.png" width="49" height="64" title="Qt" alt="Qt" />
+        <a href="http://qt.io/" target="_blank"><img border="0" src="img/Qt-logo-small.png" width="49" height="64" title="Qt" alt="Qt" />
       </p>
     </section>
   </article>

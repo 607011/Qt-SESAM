@@ -51,6 +51,26 @@ section {
   padding: 1ex 1em;
 }
 
+a.download {
+  display: inline-block;
+  height: 44px;
+  background-color: #e00;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+  text-transform: uppercase;
+  font: bold 14px/44px Lato, sans-serif;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  padding: 0 1em;
+  margin-right: 2em;
+}
+
+a.download:hover {
+  background-color: #f11;
+  color: white;
+}
+
 video {
   margin: 16px 0;
   padding: 2px;
@@ -92,6 +112,10 @@ p.figure .title {
   display: block;
 }
 
+.gui {
+  font-style: italic;
+}
+
 ul {
   list-style-type: square;
   margin: 1ex 0 1ex 2em;
@@ -106,11 +130,11 @@ ul > li {
   letter-spacing: 0.21em;
 }
 
-code {
+.code, code {
   font-family: monospace;
   font-size: 12pt;
   background-color: #e2dfdf;
-  padding: 0 0.5em;
+  padding: 0 0.25em;
   color: black !important;
   -moz-hyphens: manual;
   -ms-hyphens: manual;
