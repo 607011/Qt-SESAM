@@ -131,7 +131,7 @@
         <img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
       </p>
 
-      <h4>Key computation</h4>
+      <h4 id="key-computation">Key computation</h4>
 
       <p>Any time Qt-SESAM saves the settings to a file or transfers them over the net to the synchronization server the settings are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> in <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a> mode. The Advanced Encryption Standard is regarded as 100% secure.</p>
       <p>Like any symmetric cipher AES employs a key to encrypt or decrypt data. Qt-SESAM uses the strongest possible AES encryption with a 256 bit key. At the beginning of an encryption or decryption process AES has to be initialized with a block of 16&nbsp;bytes. This initialization vector (IV) is computed along with the key from your master password through a process called <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">key derivation</a>. A well-tested manifestation is the Password-Based Key Derivation Function&nbsp;2 (<a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>) which scrambles an input (your master password) with the salt just generated. It does this by repeatedly (32768 times) running the inputs through a hash-based message authentication code (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code" target="_blank">HMAC</a>).</p>
@@ -159,9 +159,33 @@
 
       <h3 id="encryption">Encryption</h3>
 
-      <p>That's all Qt-SESAM needs to encrypt data. The whole encryption process looks very complicated but in fact is quite straightforward.</p>
-      <p>Because Qt-SESAM needs the KGK to generate your service passwords the KGK has to be stored together with the domain settings.</p>
-      <p>A second pair of salt and IV is generated.</p>
+      <p>That's all Qt-SESAM needs to encrypt data (KGK, domain settings).
+        The encryption process looks very complicated but in fact is quite straightforward.</p>
+      <p>
+        <span class="step">1</span>
+        Because Qt-SESAM needs the KGK to generate your service passwords the KGK has to be stored together with the domain settings.
+        And because the KGK is needed to encrypt/decrypt the domain settings it has to be encrypted separately.
+        A second pair of salt and IV is generated and prepended to the KGK.
+        The encryption process applies the key and IV returned by <code>Crypter::­make­Key­And­IV­From­Password()</code> in the previous steps.
+        </p>
+      <p>
+        <span class="step">2</span>
+        The freshly generated salt from step&nbsp;1 is used to protect the AES encryption key (1024&nbsp; times spun through PBKDF2) against dictionary and rainbow-table attacks.
+      </p>
+      <p>
+        <span class="step">3</span>
+        The domain settings are formatted in <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a>. This is a rather verbose format for data representation and is easily compressed to a fraction of the original size.
+        But compression not only saves space, it also adds computational effort for an adversary who has seized the encrypted data and tries to decrypt it with brute-force methods.
+      </p>
+      <p>
+        <span class="step">4</span>
+        This key together with the IV from step&nbsp;1 is used to encrypt the domain settings after they have been compressed.
+      </p>
+      <p>
+        <span class="step">5</span>
+        Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the salt that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1 and the encrypted data from step&nbsp;4. 
+        This package can be stored anywhere without the fear of being compromised, even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password and how well you keep it away from unauthorized people.
+      </p>
 
       <p class="figure">
         <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
@@ -173,7 +197,7 @@
 
       <p>Decrypting data works the other way round.</p>
       <p class="figure">
-        <img src="img/algo05-decode.png" width="764" height="946" title="decoding" />
+        <img src="img/algo05-decode.png" width="764" height="902" title="decoding" />
         <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
       </p>
 
