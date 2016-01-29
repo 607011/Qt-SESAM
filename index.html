@@ -165,7 +165,12 @@
       <h3 id="encryption">Encryption</h3>
 
       <p>That's all Qt-SESAM needs to encrypt data (KGK, domain settings).
-        The encryption process looks very complicated but in fact is quite straightforward.</p>
+        The encryption process looks very complicated but in fact is quite straightforward:</p>
+      <p class="figure">
+        <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></span>
+      </p>
+
       <p>
         <span class="step">1</span>
         Because Qt-SESAM needs the KGK to generate your service passwords, the KGK has to be stored together with the domain settings.
@@ -192,20 +197,29 @@
         This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password, and how well you keep the password away from unauthorized people.
       </p>
 
-      <p class="figure">
-        <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></span>
-      </p>
-
 
       <h3 id="decryption">Decryption</h3>
 
       <p>Decrypting data works the other way round. As you can see, only the master password is needed for decryption.
-        All the other intermediately needed secrets and other bits of data are extracted piece by piece.
+        All the other intermediately needed secrets and other bits of data are extracted piece by piece:
       </p>
+
       <p class="figure">
         <img src="img/algo05-decode.png" width="764" height="958" title="decoding" />
         <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
+      </p>
+
+      <p>
+        <span class="step">1</span>
+        After checking that the version number is <code>0x01</code> the encrypted package is deconstructed into its three parts.
+      </p>
+      <p>
+        <span class="step">2</span> The master password together with the extracted gives the key and IV 
+        <span class="step inline">3</span> needed to decrypt the encrypted KGK. 
+      </p>
+      <p>
+        <span class="step">4</span> Now that the salt is available it can be used to calculate the decryption key 
+        <span class="step inline">5</span> together with the IV from step&nbsp;3 the encrypted data can be decrypted, then uncompressed.
       </p>
 
     </section>
