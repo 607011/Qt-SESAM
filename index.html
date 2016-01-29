@@ -144,7 +144,7 @@
       <h4 id="key-computation">Key computation</h4>
 
       <p>Any time Qt-SESAM saves the settings to a file or transfers them over the net to the synchronization server the settings are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> in <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a> mode. Qt-SESAM uses the strongest possible AES encryption with a 256 bit key.</p>
-      <p>Like any symmetric cipher AES employs a key to encrypt or decrypt data. At the beginning of an encryption or decryption process AES has to be initialized with a block of 16&nbsp;bytes. This initialization vector (<a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank">IV</a>) is computed along with the key from your master password through a process called <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">key derivation</a>. A well-tested manifestation is the Password-Based Key Derivation Function&nbsp;2 (<a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>) which scrambles an input (your master password) with the salt just generated. It does this by repeatedly (32768 times) running the inputs through a hash-based message authentication code (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code" target="_blank">HMAC</a>).</p>
+      <p>Like any symmetric cipher AES employs a key to encrypt or decrypt data. At the beginning of an encryption or decryption process AES has to be initialized with a block of 16&nbsp;bytes. This initialization vector (<a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank">IV</a>) is computed along with the key from your master password through a process called <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">key derivation</a>. A well-tested manifestation is the Password-Based Key Derivation Function&nbsp;2 (<a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>) which scrambles your master password with the salt just generated. It does this by repeatedly (32768 times) running the inputs through a hash-based message authentication code (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code" target="_blank">HMAC</a>).</p>
       <p>The repeated hashing adds a lot of computational work to derive the key from the password. That makes it especially hard for an attacker to find the password for a known hash by <a href="https://en.wikipedia.org/wiki/Brute-force_attack" target="_blank">brute-force</a> methods. The HMAC used by Qt-SESAM utilizes the hashing algorithm <a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a> because it provides a 384&nbsp;bit result needed to yield the 256&nbsp;bit AES key and 128&nbsp;bit IV.
       </p>
 
@@ -156,8 +156,8 @@
 
       <h3 id="password-generation">Password generation</h3>
 
-      <p>A similar method comes into effect when generating a password. First, the KGK is appended to the domain and user name to form the input to PBKDF2 together with a salt.</p>
-      <p>The salt is shuffled the moment you create the entry for the domain or renew the generated password by pressing the button left to the password field. You can set the length of the salt via <span class="gui">Options/Misc/Salt length</span>. The default (and reasonable) length is 16 bytes. The longer the better, with 64 bytes being the sensible upper limit.</p>
+      <p>A similar method comes into effect when generating a password. First, the KGK is appended to the domain and user name to form the input to PBKDF2, spiced with a salt.</p>
+      <p>The salt is shuffled the moment you create the entry for the domain or renew the generated password by pressing the button left to the password field. You can set the length of the salt via <span class="gui">Options/Misc/Salt length</span>. The default (and reasonable) length is 16&nbsp;byte. The longer the better, with 64&nbsp;bytes being the sensible upper limit.</p>
       <p>You can determine the number of iterations by selecting the value in the corresponding spinbox (first expand the <span class="gui">Advanced settings</span> section). </p>
       <p>The result of the operation is a 512 bit long <span class="quote">key</span>.</p>
       <p class="figure">
@@ -169,33 +169,33 @@
 
       <h3 id="encryption">Encryption</h3>
 
-      <p>That's all Qt-SESAM needs to encrypt data (KGK, domain settings).
+      <p>That's all Qt-SESAM needs to encrypt data, i.e. KGK and domain settings.
         The encryption process looks very complicated but in fact is quite straightforward:</p>
 
       <p>
         <span class="step">1</span>
-        Because Qt-SESAM needs the KGK to generate your service passwords, the KGK has to be stored together with the domain settings.
+        Because Qt-SESAM requires the KGK to generate your service passwords, the KGK has to be stored together with the domain settings.
         And because the KGK is needed to encrypt/decrypt the domain settings, it has to be encrypted separately.
         A second pair of salt and IV is generated for later use, and prepended to the KGK.
         The encryption process applies the <a href="#key-computation">key and IV returned by <code>Crypter::­make­Key­And­IV­From­Password()</code></a> in the previous steps. This means that the data is effectively encrypted with your master password.
         </p>
       <p>
         <span class="step">2</span>
-        The freshly generated salt from step&nbsp;1 is used to protect the AES encryption key (1024&nbsp; times spun through PBKDF2) against dictionary and rainbow-table attacks.
+        The freshly generated salt from step&nbsp;1 is used to protect the AES encryption key (1024&nbsp;times spun through PBKDF2) against dictionary and rainbow-table attacks.
       </p>
       <p>
         <span class="step">3</span>
-        The domain settings are formatted in <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a>. This is a rather verbose format for data representation and is easily compressed to a fraction of the original size.
-        But compression not only saves space, it also adds computational effort for an adversary who has seized the encrypted data and tries to decrypt it with brute-force methods.
+        The domain settings are formatted in <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a>. This is a rather verbose format for data representation and is easily compressed to a fraction of its original size.
+        But compression does not only save space, it also adds computational effort for an adversary who has seized the encrypted data and tries to decrypt it by brute force.
       </p>
       <p>
         <span class="step">4</span>
-        This key together with the IV from step&nbsp;1 is used to encrypt the domain settings after they've been compressed.
+        The key from step&nbsp;2 together with the IV shuffled for step&nbsp;1 is used to encrypt the domain settings after they've been compressed.
       </p>
       <p>
         <span class="step">5</span>
-        Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the <a href="#salt-generation">salt</a> that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1, and the result from step&nbsp;4. 
-        This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password, and how well you keep the password away from unauthorized people.
+        Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the <a href="#salt-generation">salt</a> that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1, and the result of step&nbsp;4. 
+        This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password &mdash; and how well you hide the password from overly prying eyes.
       </p>
 
       <p class="figure">
@@ -214,12 +214,12 @@
         After checking that the version number is <code>0x01</code> the encrypted package is deconstructed into its three parts.
       </p>
       <p>
-        <span class="step inline">2</span> The master password together with the extracted gives the key and IV 
-        needed to <span class="step inline">3</span> decrypt the encrypted KGK. 
+        <span class="step inline">2</span> The master password together with the extracted salt gives the key and IV 
+        needed to <span class="step inline">3</span> decrypt the encrypted KGK, salt, and IV.
       </p>
       <p>
         <span class="step inline">4</span> Now that the salt is available it can be used to calculate the decryption key.
-        <span class="step inline">5</span> The encrypted data can be decrypted with that key and the IV from step&nbsp;3, then uncompressed.
+        <span class="step inline">5</span> The encrypted data can then be decrypted with that key and the IV from step&nbsp;3. After deflation the data is ready for use.
       </p>
 
       <p class="figure">
@@ -261,7 +261,7 @@
     <a href="https://github.com/fernsehkind" target="_blank">Ralph Haussmann</a>,
     and
     <a href="https://github.com/cyberfuzzie" target="_blank">Sascha Riemer</a>.
-    Many thanks to <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> for lots of valuable ideas and wonderful discussions about c't SESAM in toto. A special appreciation goes to <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> for reporting bugs. 
+    Many thanks to <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> for lots of valuable ideas and wonderful discussions about the SESAM project in toto. A special appreciation goes to <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> for reporting bugs.
       </p>
       <p>
         Qt-SESAM uses the <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> library,
