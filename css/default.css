@@ -127,16 +127,16 @@ p {
 
 .step {
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 32px;
+  height: 32px;
   color: white;
   text-align: center;
-  -moz-border-radius: 11px;
-  -webkit-border-radius: 11px;
-  border-radius: 11px;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+  border-radius: 16px;
   background: red;
   background: linear-gradient(rgb(206, 59, 55), rgb(203, 61, 58), rgb(155, 45, 42));
-  font: bold 12px/22px Lato, sans-serif;
+  font: bold 16px/32px Lato, sans-serif;
   float: left;
   margin: 6px 6px 6px 0;
 }

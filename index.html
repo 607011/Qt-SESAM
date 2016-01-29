@@ -183,8 +183,8 @@
       </p>
       <p>
         <span class="step">5</span>
-        Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the salt that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1 and the encrypted data from step&nbsp;4. 
-        This package can be stored anywhere without the fear of being compromised, even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password and how well you keep it away from unauthorized people.
+        Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the salt that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1 and the result from step&nbsp;4. 
+        This package can be stored anywhere without the fear of being compromised, even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password and how well you keep the password away from unauthorized people.
       </p>
 
       <p class="figure">
@@ -193,9 +193,11 @@
       </p>
 
 
-      <h3 id="decryption">Encryption</h3>
+      <h3 id="decryption">Decryption</h3>
 
-      <p>Decrypting data works the other way round.</p>
+      <p>Decrypting data works the other way round. As you can see, only the master password is needed for decryption.
+        All the other intermediately needed secrets and other bits of data are extracted piece by piece.
+      </p>
       <p class="figure">
         <img src="img/algo05-decode.png" width="764" height="902" title="decoding" />
         <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
