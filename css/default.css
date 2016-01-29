@@ -17,35 +17,35 @@ article {
   max-width: 810px;
 }
 
-article.no-float {
-  max-width: unset;
-}
+  article.no-float {
+    max-width: unset;
+  }
 
-article.no-float > section {
-  margin: 3ex auto 0 auto;
-  max-width: 810px;
-  padding: 1ex 1em;
-  font-size: smaller;
-}
+    article.no-float > section {
+      margin: 3ex auto 0 auto;
+      max-width: 810px;
+      padding: 1ex 1em;
+      font-size: smaller;
+    }
 
-article.dark {
-  color: #eee !important;
-  background-color: #222 !important;
-}
+  article.dark {
+    color: #eee !important;
+    background-color: #222 !important;
+  }
 
 a {
   color: #e90101;
   text-decoration: none;
 }
 
-a:visited {
-  color: #e13c3c;
-}
+  a:visited {
+    color: #e13c3c;
+  }
 
-a:hover {
-  text-decoration: underline;
-  color: #ea4747;
-}
+  a:hover {
+    text-decoration: underline;
+    color: #ea4747;
+  }
 
 section {
   padding: 1ex 1em;
@@ -55,6 +55,8 @@ a.download {
   display: inline-block;
   height: 44px;
   background-color: #e00;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
   border-radius: 12px;
   color: white;
   text-align: center;
@@ -63,13 +65,24 @@ a.download {
   text-decoration: none;
   letter-spacing: 0.1em;
   padding: 0 1em;
-  margin-right: 2em;
+  margin: 2ex 3em 2ex 0;
+  text-shadow: 1px 1px 1px #000;
+  -moz-box-shadow: #000 1px 1px 1px;
+  -webkit-box-shadow: #000 1px 1px 1px;
+  box-shadow: #000 1px 1px 5px;
 }
 
-a.download:hover {
-  background-color: #f11;
-  color: white;
-}
+  a.download:hover {
+    background-color: #f11;
+  }
+
+  a.download:active {
+    -moz-transform: translate(1px, 1px);
+    -ms-transform: translate(1px, 1px);
+    -o-transform: translate(1px, 1px);
+    -webkit-transform: translate(1px, 1px);
+    transform: translate(1px, 1px);
+  }
 
 video {
   margin: 16px 0;
@@ -93,37 +106,45 @@ p {
   line-height: 18pt;
 }
 
-p.subheading {
-  font-size: 105%;
-  margin-bottom: 4ex;
-  color: black;
-  font-weight: 900;
-}
+  p.subheading {
+    font-size: 105%;
+    margin-bottom: 4ex;
+    color: black;
+    font-weight: 900;
+  }
 
-p.figure {
-  text-align: center;
-  margin: 4ex 0 5ex 0;
-}
+  p.figure {
+    text-align: center;
+    margin: 4ex 0 5ex 0;
+  }
 
-p.figure .title {
-  margin-top: 17pt;
-  font-weight: 700;
-  font-size: smaller;
-  display: block;
-}
+    p.figure .title {
+      margin-top: 17pt;
+      font-weight: 700;
+      font-size: smaller;
+      display: block;
+    }
 
 .gui {
   font-style: italic;
 }
+
+  .gui::before {
+    content: "»";
+  }
+
+  .gui::after {
+    content: "«";
+  }
 
 ul {
   list-style-type: square;
   margin: 1ex 0 1ex 2em;
 }
 
-ul > li {
-  padding: 0.2ex 0;
-}
+  ul > li {
+    padding: 0.2ex 0;
+  }
 
 .capitals {
   text-transform: uppercase;
