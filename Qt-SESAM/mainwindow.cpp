@@ -1586,7 +1586,7 @@ void MainWindow::saveCurrentDomainSettings(void)
       ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
 
       QModelIndex newIndex;
-      QModelIndex parentIndex;
+      QModelIndex parentIndex = QModelIndex();
       QModelIndex currentIndex = ui->domainView->currentIndex();
       AbstractTreeNode *node = d->treeModel.node(currentIndex);
       if (node != Q_NULLPTR) {
@@ -1604,11 +1604,15 @@ void MainWindow::saveCurrentDomainSettings(void)
         } else { // add a new domain
           ds.createdDate = QDateTime::currentDateTime();
           ds.modifiedDate = ds.createdDate;
-          int row = d->treeModel.addDomain(ds);
-          newIndex = parentIndex.child(row, 0);
+          newIndex = d->treeModel.addDomain(parentIndex, ds);
         }
-        ui->domainView->setExpanded(parentIndex, false);
-        ui->domainView->expand(parentIndex);
+        if (parentIndex.isValid()) {
+          ui->domainView->setExpanded(parentIndex, false);
+          ui->domainView->expand(parentIndex);
+        }
+        else {
+          ui->domainView->reset();
+        }
         ui->domainView->setCurrentIndex(newIndex);
         ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
         ui->deletePushButton->setEnabled(true);
@@ -1617,11 +1621,11 @@ void MainWindow::saveCurrentDomainSettings(void)
         setDirty(false);
       }
       else { // first domain settings
-        int row = d->treeModel.addDomain(ds);
-        newIndex = parentIndex.child(row, 0);
+        newIndex = d->treeModel.addDomain(parentIndex, ds);
         saveAllDomainDataToSettings();
         d->currentDomainSettings = ds;
         ui->domainView->reset();
+        ui->domainView->setCurrentIndex(newIndex);
         setDirty(false);
       }
     }
@@ -1914,20 +1918,8 @@ bool MainWindow::restoreDomainDataFromSettings(void)
   }
   DomainSettingsList domains = DomainSettingsList::fromQJsonDocument(json);
   QModelIndex index = d->treeModel.populate(domains);
+  ui->domainView->setModel(&d->treeModel);
   ui->domainView->setCurrentIndex(index);
-
-  AbstractTreeNode *node = d->treeModel.node(index);
-  if (node != Q_NULLPTR) {
-    if (node->type() == AbstractTreeNode::LeafType) {
-      DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
-      qDebug() << domainNode->itemData().domainName;
-    } else if (node->type() == AbstractTreeNode::GroupType) {
-      GroupNode *groupNode = reinterpret_cast<GroupNode *>(node);
-      qDebug() << groupNode->name();
-    }
-  }
-
-
   return true;
 }
 
@@ -2866,7 +2858,6 @@ void MainWindow::onMasterPasswordEntered(void)
     d->masterPassword = masterPwd;
     ok = restoreSettings();
     if (ok) {
-      ui->domainView->setModel(&d->treeModel);
       ok = restoreDomainDataFromSettings();
       if (ok) {
         generateSaltKeyIV().waitForFinished();

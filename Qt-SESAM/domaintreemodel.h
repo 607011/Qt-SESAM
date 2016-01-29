@@ -48,7 +48,7 @@ public:
   void addNewGroup(const QModelIndex &index);
   QStringList getGroupHierarchy(const QModelIndex &index);
   void removeDomain(const QModelIndex &index);
-  int addDomain(const DomainSettings &ds);
+  QModelIndex addDomain(QModelIndex &parentIndex, const DomainSettings &ds);
   DomainSettingsList getAllDomains();
   void appendDomains(GroupNode *groupNode, DomainSettingsList *domains);
 

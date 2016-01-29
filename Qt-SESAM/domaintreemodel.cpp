@@ -93,10 +93,12 @@ QModelIndex DomainTreeModel::populate(const DomainSettingsList &domainSettingsLi
       node->appendChild(new DomainNode(ds, node));
     }
   }
-  AbstractTreeNode *childItem = d->rootItem->child(0);
-  return childItem != Q_NULLPTR
-      ? createIndex(0, 0, childItem)
-      : QModelIndex();
+  QModelIndex index = QModelIndex();
+  if ((d->rootItem != Q_NULLPTR) && (d->rootItem->childCount() > 0)) {
+    AbstractTreeNode *childItem = d->rootItem->child(0);
+    index = createIndex(0, 0, childItem);
+  }
+  return index;
 }
 
 
@@ -143,13 +145,21 @@ void DomainTreeModel::removeDomain(const QModelIndex &index)
 }
 
 
-int DomainTreeModel::addDomain(const DomainSettings &ds)
+QModelIndex DomainTreeModel::addDomain(QModelIndex &parentIndex, const DomainSettings &ds)
 {
   Q_D(DomainTreeModel);
   GroupNode *nodeGroup = addToHierarchy(ds.groupHierarchy, d->rootItem);
   DomainNode *nodeDomain = new DomainNode(ds, nodeGroup);
   nodeGroup->appendChild(nodeDomain);
-  return nodeDomain->row();
+  QModelIndex index = QModelIndex();
+  if (parentIndex.isValid()) {
+    index = parentIndex.child(nodeDomain->row(), 0);
+  }
+  else if ((d->rootItem != Q_NULLPTR) && (d->rootItem->childCount() > 0)) {
+    AbstractTreeNode *childItem = d->rootItem->child(nodeDomain->row());
+    index = createIndex(childItem->row(), 0, childItem);
+  }
+  return index;
 }
 
 
