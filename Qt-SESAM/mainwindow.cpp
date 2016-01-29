@@ -1405,9 +1405,10 @@ void MainWindow::onImportKeePass2XmlFile(void)
     }
     DomainSettingsList domains = d->treeModel.getAllDomains();
     domains.append(reader.domains());
-    saveAllDomainDataToSettings();
-    d->treeModel.populate(domains);
+    QModelIndex topIndex = d->treeModel.populate(domains);
     ui->domainView->reset();
+    ui->domainView->setCurrentIndex(topIndex);
+    saveAllDomainDataToSettings();
 
     QString msgBoxText;
     if (reader.domains().count() == 1) {
@@ -1449,9 +1450,10 @@ void MainWindow::onImportPasswordSafeFile(void)
     }
     DomainSettingsList domains = d->treeModel.getAllDomains();
     domains.append(reader.domains());
-    saveAllDomainDataToSettings();
-    d->treeModel.populate(domains);
+    QModelIndex topIndex = d->treeModel.populate(domains);
     ui->domainView->reset();
+    ui->domainView->setCurrentIndex(topIndex);
+    saveAllDomainDataToSettings();
 
     QString msgBoxText;
     if (reader.domains().count() == 1) {
