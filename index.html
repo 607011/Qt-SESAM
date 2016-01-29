@@ -60,8 +60,13 @@
       <p>The first time you start Qt-SESAM on a certain computer it asks you about whether or not you like to provide information about your synchronization facilities.
         If this is the first time you ever used Qt-SESAM or don't want to synchronize your settings across computers, you can ignore the advice. 
         In any other case you're taken to the <span class="gui">Options</span> dialog where you can select a file to synchronize with, or the hostname of synchronization server.
-        If you ignore the warning, be prepared to run into problems while using Qt-SESAM. This is because when starting Qt-SESAM for the first time on a computer the application generates the so-called key generation key (<a href="#kgk">KGK</a>) from which your passwords are derived later on. Given that all other settings are the same, different KGKs lead to to different passwords. Getting your settings, which include the KGK, from a synchronization file or server beforehand effectively prevents problems with diverse KGKs.
+        If you ignore the warning, be prepared to run into problems while using Qt-SESAM. This is because when starting Qt-SESAM for the first time on a computer, the application generates the so-called key generation key (<a href="#kgk">KGK</a>). The KGK is used to derive your passwords later on. Given that all other settings are the same, different KGKs lead to to different passwords. Getting your settings, which include the KGK, from a synchronization file or server beforehand effectively prevents problems with diverse KGKs.</p>
+
+      <p class="figure">
+        <img src="img/placeholder.png" title="placeholder" width="640" height="480"/>
+        <span class="title">!!! place figure of options/sync dialog here !!! </span>
       </p>
+
     </section>
 
     <section>
@@ -166,10 +171,6 @@
 
       <p>That's all Qt-SESAM needs to encrypt data (KGK, domain settings).
         The encryption process looks very complicated but in fact is quite straightforward:</p>
-      <p class="figure">
-        <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></span>
-      </p>
 
       <p>
         <span class="step">1</span>
@@ -189,7 +190,7 @@
       </p>
       <p>
         <span class="step">4</span>
-        This key together with the IV from step&nbsp;1 is used to encrypt the domain settings after they have been compressed.
+        This key together with the IV from step&nbsp;1 is used to encrypt the domain settings after they've been compressed.
       </p>
       <p>
         <span class="step">5</span>
@@ -197,16 +198,15 @@
         This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to supercomputers. The privacy of the data contained therein totally relies on the strength of the master password, and how well you keep the password away from unauthorized people.
       </p>
 
+      <p class="figure">
+        <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></span>
+      </p>
 
       <h3 id="decryption">Decryption</h3>
 
       <p>Decrypting data works the other way round. As you can see, only the master password is needed for decryption.
         All the other intermediately needed secrets and other bits of data are extracted piece by piece:
-      </p>
-
-      <p class="figure">
-        <img src="img/algo05-decode.png" width="764" height="958" title="decoding" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
       </p>
 
       <p>
@@ -220,6 +220,11 @@
       <p>
         <span class="step">4</span> Now that the salt is available it can be used to calculate the decryption key 
         <span class="step inline">5</span> together with the IV from step&nbsp;3 the encrypted data can be decrypted, then uncompressed.
+      </p>
+
+      <p class="figure">
+        <img src="img/algo05-decode.png" width="764" height="958" title="decoding" />
+        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
       </p>
 
     </section>
