@@ -161,10 +161,3 @@ bool PBKDF2::isAborted(void) const
 {
   return d_ptr->abort;
 }
-
-
-void PBKDF2::waitForFinished(void)
-{
-  Q_D(PBKDF2);
-  d->future.waitForFinished();
-}
