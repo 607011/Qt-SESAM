@@ -145,7 +145,7 @@ p {
 }
 
 .step.inline {
-  clear: none;
+  clear: both;
   float: unset;
   margin: 0 3px;
 }

@@ -210,16 +210,16 @@
       </p>
 
       <p>
-        <span class="step">1</span>
+        <span class="step inline">1</span>
         After checking that the version number is <code>0x01</code> the encrypted package is deconstructed into its three parts.
       </p>
       <p>
-        <span class="step">2</span> The master password together with the extracted gives the key and IV 
+        <span class="step inline">2</span> The master password together with the extracted gives the key and IV 
         needed to <span class="step inline">3</span> decrypt the encrypted KGK. 
       </p>
       <p>
-        <span class="step">4</span> Now that the salt is available it can be used to calculate the decryption key 
-        <span class="step inline">5</span> together with the IV from step&nbsp;3 the encrypted data can be decrypted, then uncompressed.
+        <span class="step inline">4</span> Now that the salt is available it can be used to calculate the decryption key.
+        <span class="step inline">5</span> The encrypted data can be decrypted with that key and the IV from step&nbsp;3, then uncompressed.
       </p>
 
       <p class="figure">
