@@ -83,7 +83,7 @@ GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode 
 }
 
 
-void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
+QModelIndex DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 {
   Q_D(DomainTreeModel);
   SafeRenew<GroupNode*>(d->rootItem, new GroupNode);
@@ -93,6 +93,10 @@ void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
       node->appendChild(new DomainNode(ds, node));
     }
   }
+  AbstractTreeNode *childItem = d->rootItem->child(0);
+  return childItem != Q_NULLPTR
+      ? createIndex(0, 0, childItem)
+      : QModelIndex();
 }
 
 

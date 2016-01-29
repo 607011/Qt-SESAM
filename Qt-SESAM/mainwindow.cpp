@@ -1616,6 +1616,14 @@ void MainWindow::saveCurrentDomainSettings(void)
         d->currentDomainSettings = ds;
         setDirty(false);
       }
+      else { // first domain settings
+        int row = d->treeModel.addDomain(ds);
+        newIndex = parentIndex.child(row, 0);
+        saveAllDomainDataToSettings();
+        d->currentDomainSettings = ds;
+        ui->domainView->reset();
+        setDirty(false);
+      }
     }
   }
 }
@@ -1643,6 +1651,7 @@ void MainWindow::deleteCurrentDomainSettings(void)
       d->treeModel.removeDomain(index);
       ui->domainView->setExpanded(index.parent(), false);
       ui->domainView->expand(index.parent());
+      ui->domainView->setCurrentIndex(index.parent());
 
       saveAllDomainDataToSettings();
       resetAllFields();
@@ -1904,7 +1913,21 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     }
   }
   DomainSettingsList domains = DomainSettingsList::fromQJsonDocument(json);
-  d->treeModel.populate(domains);
+  QModelIndex index = d->treeModel.populate(domains);
+  ui->domainView->setCurrentIndex(index);
+
+  AbstractTreeNode *node = d->treeModel.node(index);
+  if (node != Q_NULLPTR) {
+    if (node->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
+      qDebug() << domainNode->itemData().domainName;
+    } else if (node->type() == AbstractTreeNode::GroupType) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode *>(node);
+      qDebug() << groupNode->name();
+    }
+  }
+
+
   return true;
 }
 
@@ -2843,9 +2866,9 @@ void MainWindow::onMasterPasswordEntered(void)
     d->masterPassword = masterPwd;
     ok = restoreSettings();
     if (ok) {
+      ui->domainView->setModel(&d->treeModel);
       ok = restoreDomainDataFromSettings();
       if (ok) {
-        ui->domainView->setModel(&d->treeModel);
         generateSaltKeyIV().waitForFinished();
         d->settings.setValue("mainwindow/masterPasswordEntered", true);
         d->settings.sync();

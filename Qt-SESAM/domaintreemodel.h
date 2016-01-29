@@ -43,7 +43,7 @@ public:
   explicit DomainTreeModel(QObject *parent = Q_NULLPTR);
   ~DomainTreeModel();
 
-  void populate(const DomainSettingsList &);
+  QModelIndex populate(const DomainSettingsList &);
   DomainNode *node(const QModelIndex &index) const;
   void addNewGroup(const QModelIndex &index);
   QStringList getGroupHierarchy(const QModelIndex &index);
