@@ -328,10 +328,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionExportAllDomainSettingsAsJSON, SIGNAL(triggered(bool)), SLOT(onExportAllDomainSettingAsJSON()));
   QObject::connect(ui->actionExportAllLoginDataAsClearText, SIGNAL(triggered(bool)), SLOT(onExportAllLoginDataAsClearText()));
   QObject::connect(ui->actionExportCurrentSettingsAsQRCode, SIGNAL(triggered(bool)), SLOT(onExportCurrentSettingsAsQRCode()));
-#ifndef OMIT_V2_CODE
-  QObject::connect(ui->actionUpgradeV2SettingsToV3, SIGNAL(triggered(bool)), SLOT(onUpgradeToV3()));
-  ui->actionUpgradeV2SettingsToV3->setVisible(true);
-#endif
   QObject::connect(ui->actionExportKGK, SIGNAL(triggered(bool)), SLOT(onExportKGK()));
   QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
   QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
@@ -969,45 +965,6 @@ void MainWindow::setTemplate(void)
   ui->passwordTemplateLineEdit->setText(shuffled(pwdTemplate));
   ui->easySelectorWidget->setExtraCharacters(ui->extraLineEdit->text());
 }
-
-
-#ifndef OMIT_V2_CODE
-void MainWindow::onUpgradeToV3(void)
-{
-  Q_D(MainWindow);
-  DomainSettingsList newDs;
-  int nUpgraded = 0;
-  foreach (DomainSettings oldDs, d->domains) {
-    DomainSettings ds = oldDs;
-    if (!ds.deleted && ds.legacyPassword.isEmpty()) {
-      QString templ;
-      const QStringList &templateParts = ds.passwordTemplate.split(';', QString::KeepEmptyParts);
-      if (templateParts.size() == 1) {
-        templ = templateParts.at(0);
-      }
-      else if (templateParts.size() == 2) {
-        templ = templateParts.at(1);
-      }
-      if (!templ.contains('n') && !templ.contains('a') && !templ.contains('A') && !templ.contains('o')) {
-        ds.extraCharacters = ds.usedCharacters;
-        ds.usedCharacters.clear();
-        templ[0] = 'o';
-        ++nUpgraded;
-      }
-      ds.passwordTemplate = templ;
-    }
-    newDs.append(ds);
-  }
-  if (nUpgraded == 0) {
-    QMessageBox::information(this, tr("No conversion necessary"), tr("There were no domain settings which had to be converted to v3."));
-  }
-  else {
-    d->domains = newDs;
-    QMessageBox::information(this, tr("Conversion complete"), tr("%1 domain settings have been converted to v3.").arg(nUpgraded));
-    saveAllDomainDataToSettings();
-  }
-}
-#endif
 
 
 void MainWindow::stopPasswordGeneration(void)

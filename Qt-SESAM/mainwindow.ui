@@ -1050,14 +1050,6 @@
     <string>All domain settings as JSON ...</string>
    </property>
   </action>
-  <action name="actionUpgradeV2SettingsToV3">
-   <property name="text">
-    <string>Upgrade v2 settings to v3 ...</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

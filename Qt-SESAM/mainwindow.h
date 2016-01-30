@@ -154,9 +154,6 @@ private slots:
   void onImportPasswordSafeFile(void);
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
-#ifndef OMIT_V2_CODE
-  void onUpgradeToV3(void);
-#endif
 
 signals:
   void passwordGenerated(void);

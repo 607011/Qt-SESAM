@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   a.setApplicationVersion(AppVersion);
   a.setQuitOnLastWindowClosed(true);
 
-#if 0
+#if 1
   QTranslator translator;
   bool ok = translator.load(QLocale::system(),
 			    AppName,
