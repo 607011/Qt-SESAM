@@ -84,7 +84,7 @@ public:
 
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
-  const SecureString &remix(void);
+  SecureString remix(void);
   void waitForFinished(void);
   int error(void) const;
   QString errorString(void) const;

@@ -183,7 +183,7 @@ void Password::setDomainSettings(const DomainSettings &ds)
 }
 
 
-const SecureString &Password::remix(void)
+SecureString Password::remix(void)
 {
   Q_D(Password);
   d->password.clear();
