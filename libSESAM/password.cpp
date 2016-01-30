@@ -138,7 +138,6 @@ const int Password::DefaultLength = 13;
 const int Password::DefaultMaxLength = 2 * Password::DefaultLength;
 const int Password::MaxComplexityValue = 7;
 const int Password::DefaultComplexityValue = 5;
-const int Password::NoComplexityValue = -1;
 
 
 const Password::TemplateCharacterMap Password::TemplateCharacters = {
