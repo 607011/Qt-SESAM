@@ -13,13 +13,13 @@ html, body {
 }
 
 article {
-  margin: 3ex auto 0 auto;
-  max-width: 810px;
   clear: both;
 }
 
   article.no-float {
+    width: 100%;
     max-width: unset;
+    margin: 0;
   }
 
     article.no-float > section {
@@ -49,7 +49,9 @@ a {
   }
 
 section {
-  padding: 1ex 1em;
+  max-width: 810px;
+  margin: 0 auto;
+  padding: 1ex 0;
   clear: both;
 }
 
@@ -92,10 +94,13 @@ video {
 h1, h2, h3, h4, h5 {
   clear: both;
   font-weight: 900;
+  margin: 3ex auto 0 auto;
+  max-width: 810px;
 }
 
 h1 {
   font-size: 610%;
+  margin-top: 0;
   color: black;
 }
 
@@ -104,7 +109,8 @@ h2, h3, h4 {
 }
 
 p {
-  margin: 1ex 0;
+  max-width: 810px;
+  margin: 1ex auto;
   line-height: 18pt;
 }
 
@@ -127,7 +133,25 @@ p {
       display: block;
     }
 
-.step {
+ol.steps {
+  counter-reset: step;
+  margin-left: 40px;
+}
+
+ol.steps > li {
+  list-style: none;
+  position: relative;
+  line-height: 18pt;
+  margin: 1ex 0;
+  min-height: 40px;
+}
+
+ol.steps > li:before {
+  content: counter(step);
+  counter-increment: step;
+  position: absolute;
+  top: 0.5ex;
+  left: -40px;
   display: inline-block;
   width: 32px;
   height: 32px;
@@ -139,28 +163,15 @@ p {
   background: rgb(155, 45, 42);
   background: linear-gradient(rgb(206, 59, 55), rgb(203, 61, 58), rgb(155, 45, 42));
   font: bold 16px/32px Lato, sans-serif;
-  float: left;
-  margin: 6px 6px 6px 0;
-  clear: both;
 }
 
-.step.inline {
-  clear: both;
-  float: unset;
-  margin: 0 3px;
+q::before {
+  content: "“";
 }
 
-.quote {
+q::after {
+  content: "”";
 }
-
-  .quote::before {
-    content: "“";
-  }
-
-  .quote::after {
-    content: "”";
-  }
-
 
 .gui {
 }
