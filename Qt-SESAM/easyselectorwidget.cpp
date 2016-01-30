@@ -17,7 +17,7 @@
 
 */
 
-
+#include <limits>
 #include "easyselectorwidget.h"
 #include "util.h"
 #include "password.h"
@@ -341,6 +341,9 @@ bool EasySelectorWidget::tooltipTextAt(const QPoint &pos, QString &helpText) con
 qreal EasySelectorWidget::sha1Secs(int length, int complexityValue, qreal sha1PerSec) const
 {
   int charCount = 0;
+  if (qFuzzyIsNull(sha1PerSec)) {
+    return std::numeric_limits<qreal>::infinity();
+  }
   Password::Complexity complexity = Password::Complexity::fromValue(complexityValue);
   if (complexity.digits) {
     charCount += Password::Digits.count();
@@ -357,7 +360,7 @@ qreal EasySelectorWidget::sha1Secs(int length, int complexityValue, qreal sha1Pe
   static const int Iterations = 1;
   const qreal perms = qPow(charCount, length);
   const qreal t2secs = perms * Iterations / sha1PerSec;
-  return 0.5 * t2secs;
+  return .5 * t2secs;
 
 }
 
@@ -443,7 +446,10 @@ void EasySelectorWidget::speedTest(void)
     hash.reset();
     ++n;
   }
-  int coreCount = QThread::idealThreadCount() > 0 ? QThread::idealThreadCount() : 1;
-  qreal hashesPerSec = n * coreCount * 1e9 / t.nsecsElapsed();
-  emit speedTestFinished(hashesPerSec);
+  const int coreCount = QThread::idealThreadCount() > 0 ? QThread::idealThreadCount() : 1;
+  const qint64 nsecsElapsed = t.nsecsElapsed();
+  if (nsecsElapsed > 0) {
+    const qreal hashesPerSec = n * coreCount * 1e9 / nsecsElapsed;
+    emit speedTestFinished(hashesPerSec);
+  }
 }
