@@ -45,6 +45,8 @@ public:
   EasySelectorWidgetPrivate(void)
     : buttonDown(false)
     , length((EasySelectorWidget::DefaultMaxLength - EasySelectorWidget::DefaultMinLength) / 2)
+    , complexity(Password::DefaultComplexityValue)
+    , oldComplexity(Password::NoComplexityValue)
     , oldLength(length)
     , minLength(EasySelectorWidget::DefaultMinLength)
     , maxLength(EasySelectorWidget::DefaultMaxLength)

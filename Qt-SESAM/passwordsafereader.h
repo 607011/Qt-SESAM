@@ -30,7 +30,7 @@ class PasswordSafeReaderPrivate;
 class PasswordSafeReader
 {
 public:
-  PasswordSafeReader(const QString &filename);
+  explicit PasswordSafeReader(const QString &filename);
   ~PasswordSafeReader();
   bool isOpen(void) const;
   bool isValid(void) const;

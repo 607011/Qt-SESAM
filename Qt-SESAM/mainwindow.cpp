@@ -105,7 +105,7 @@ static const char *ExpandedProperty = "expanded";
 
 class MainWindowPrivate {
 public:
-  MainWindowPrivate(QWidget *parent)
+  explicit MainWindowPrivate(QWidget *parent)
     : masterPasswordDialog(new MasterPasswordDialog(parent))
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
@@ -1673,11 +1673,11 @@ void MainWindow::removeOutdatedBackupFilesThread(void)
   Q_D(MainWindow);
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   const QStringList backupFileNames = QDir(backupFilePath).entryList(BackupFilenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
-  int nFilesRemoved = 0;
   bool allRemoved = true;
   if (!backupFileNames.isEmpty()) {
     static const QRegExp reBackupFileTimestamp("^\\d{8}T\\d{6}");
     const QDateTime TooOld = QDateTime::currentDateTime().addDays(-d->optionsDialog->maxBackupFileAge());
+    int nFilesRemoved = 0;
     foreach (QString backupFilename, backupFileNames) {
       if (reBackupFileTimestamp.indexIn(backupFilename) == 0) {
         const QDateTime fileTimestamp = QDateTime::fromString(reBackupFileTimestamp.cap(0), "yyyyMMddThhmmss");
@@ -2491,7 +2491,7 @@ void MainWindow::onExportAllDomainSettingAsJSON(void)
 
 struct DomainSettingsToTextConverter
 {
-  DomainSettingsToTextConverter(const SecureByteArray &kgk)
+  explicit DomainSettingsToTextConverter(const SecureByteArray &kgk)
     : kgk(kgk)
   { /* ... */ }
   typedef SecureByteArray result_type;

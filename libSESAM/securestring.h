@@ -37,7 +37,7 @@ public:
   explicit SecureString(const QChar *unicode, int size = -1);
   SecureString(QChar ch);
   SecureString(int size, QChar ch);
-  SecureString(QLatin1String str);
+  explicit SecureString(QLatin1String str);
   SecureString(const QString &other);
   SecureString(QString &&other);
   SecureString(const char *str);

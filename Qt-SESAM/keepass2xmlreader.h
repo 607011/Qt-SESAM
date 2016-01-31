@@ -33,7 +33,7 @@ class KeePass2XmlReaderPrivate;
 class KeePass2XmlReader
 {
 public:
-  KeePass2XmlReader(const QString &xmlFilename);
+  explicit KeePass2XmlReader(const QString &xmlFilename);
   ~KeePass2XmlReader();
   bool isOpen(void) const;
   bool isValid(void) const;

@@ -81,6 +81,7 @@ public:
   static const int DefaultLength;
   static const int DefaultComplexityValue;
   static const int MaxComplexityValue;
+  static const int NoComplexityValue;
 
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
