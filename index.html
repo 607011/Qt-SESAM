@@ -17,9 +17,8 @@
     <section>
       <p><strong>Qt-SESAM generates and manages strong passwords &mdash; safely, securely, and for free.</strong></p>
       <p>With <a href="https://github.com/ola-ct/Qt-SESAM" target="_blank">Qt-SESAM</a> you can generate and manage passwords for any service, e.g. websites, accounts, or apps.
-        The passwords are generated in real-time from your master password and some service specific settings.
-        You can generate more than one password for a service.
-        For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords. These are called legacy password in SESAM jargon.
+        The passwords are generated in real-time from your master password and some service specific settings. That means that even in the almost impossible case someone managed to decrypt your encrypted settings he'd still doesn't know your master password and therefore won't be able to login to any of the services.
+        For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed (a.k.a. legacy) passwords.
       </p>
       <p>You can share Qt-SESAM's settings across your computers via a <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">dedicated synchronization server</a> and/or a file located on a cloud drive like OwnCloud, Dropbox, Google Drive, or Microsoft OneDrive.
         This is secure because all of your settings are <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a>-encrypted with a 256&nbsp;bit <a href="https://en.wikipedia.org/wiki/Key_(cryptography)" target="_blank">key</a>.</p>
@@ -63,13 +62,27 @@
       <h3>Sync first!</h3>
       <p>The first time you start Qt-SESAM on a certain computer it asks you about whether or not you like to pro&shy;vide information about your syn&shy;chro&shy;ni&shy;zation faci&shy;lities.
         If this is the first time you ever used Qt-SESAM or don't want to syn&shy;chronize your settings across computers, you can ignore the advice. 
-        In any other case you're taken to the <span class="gui">Options</span> dialog where you can select a file to syn&shy;chro&shy;nize with, or the host&shy;name of syn&shy;chro&shy;ni&shy;zation server.
-        If you ignore the warning, be prepared to run into problems while using Qt-SESAM. This is because when starting Qt-SESAM for the first time on a computer, the appli&shy;cation generates the so-called key gene&shy;ration key (<a href="#kgk">KGK</a>). The KGK is used to derive your passwords later on. Given that all other settings are the same, different KGKs lead to to different passwords. Getting your settings, which include the KGK, from a syn&shy;chro&shy;ni&shy;zation file or server beforehand effec&shy;tively prevents problems with diverse KGKs.</p>
-
-      <p class="figure">
-        <img src="img/placeholder.png" title="placeholder" width="640" height="480"/>
-        <span class="title">!!! place figure of options/sync dialog here !!! </span>
+        In any other case you're taken to the <span class="gui">Options</span> dialog where you can select a file to syn&shy;chro&shy;nize with, or the host&shy;name of syn&shy;chro&shy;ni&shy;zation server (see figure below).
+        If you ignore the warning, be prepared to run into problems while using Qt-SESAM. This is because when starting Qt-SESAM for the first time on a computer, the appli&shy;cation generates the so-called key gene&shy;ration key (<a href="#kgk">KGK</a>). The KGK is used to derive your passwords later on. Given that all other settings are the same, different KGKs lead to to different passwords. Getting your settings, which include the KGK, from a syn&shy;chro&shy;ni&shy;zation file or server beforehand effec&shy;tively prevents problems with diverse KGKs.
       </p>
+
+      <div class="figure float-left">
+        <img src="img/options-sync.png" title="sync settings" width="359" height="487" />
+        <div class="title">
+          <p>Set your synchronization settings in <span class="gui">Options/Sync</span>. You can both synchronize with a file or a server. The file should reside on a cloud drive. How to set up the server is described in the <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't SESAM Server wiki</a>.</p>
+          <p>
+            Click on <span class="gui">Check&nbsp;connectivity</span> when you're finished with configuring the synchronization server.
+          </p>
+        </div>
+      </div>
+
+      <div class="figure float-left">
+          <img src="img/check-certificate-chain.png" title="check certificate chain" width="402" height="671" />
+        <div class="title">
+          <p>If your configuration was correct Qt-SESAM displays the server's certificate chain. Please check that the certificate chain indeed that one you configured on the server. This is easily done be comparing the fingerprints. If the received ones match the configured ones you can <span class="gui">Accept</span> the chain.</p>
+          <p>Qt-SESAM will then try to read your settings from the server. On success a tiny padlock is displayed next to the <span class="gui">Check&nbsp;connectivity</span> button in <span class="gui">Options/Sync</span>.</p>
+        </div>
+      </div>
 
     </section>
 
@@ -106,20 +119,6 @@
       <p>Very neat: the widget tells you how long the <a href="https://en.wikipedia.org/wiki/Tianhe-2" target="_blank">Tianhe-2 supercomputer</a> and your computer would need to crack a password with the selected settings.</p>
     </section>
 
-
-    <section>
-      <h2>Not only for experts</h2>
-      <p>Iterations</p>
-      <p>Template</p>
-      <p>Salt</p>
-
-    </section>
-
-    <section>
-    </section>
-    <section>
-    </section>
-
     <section>
       <h2>Internals</h2>
 
@@ -132,18 +131,18 @@
         It's used to derive the generated passwords and to generate a key to encrypt and decrypt the program settings.
       </p>
 
-      <p class="figure">
-        <img src="img/algo01-generate-kgk.png" width="426" height="69" title="KGK generation" />
-      </p>
+      <div class="figure">
+        <p><img src="img/algo01-generate-kgk.png" width="426" height="69" title="KGK generation" /></p>
+      </div>
 
 
       <h4 id="salt-generation">Salt</h4>
 
       <p>The <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)" target="_blank">salt</a> is also random data. It's used to protect the generated passwords and cryptographic keys against <a href="https://en.wikipedia.org/wiki/Dictionary_attack" target="_blank">dictionary attacks</a> and <a href="https://en.wikipedia.org/wiki/Rainbow_table" target="_blank">rainbow table attacks</a>. More on that later.</p>
 
-      <p class="figure">
+      <div class="figure">
         <img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
-      </p>
+      </div>
 
       <h4 id="key-computation">Key computation</h4>
 
@@ -152,10 +151,10 @@
       <p>The repeated hashing adds a lot of computational work to derive the key from the password. That makes it especially hard for an attacker to find the password for a known hash by <a href="https://en.wikipedia.org/wiki/Brute-force_attack" target="_blank">brute-force</a> methods. The HMAC used by Qt-SESAM utilizes the hashing algorithm <a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a> because it pro&shy;vides a 384&nbsp;bit result needed to yield the 256&nbsp;bit AES key and 128&nbsp;bit IV.
       </p>
 
-      <p class="figure">
+      <div class="figure">
         <img src="img/algo03a-make-key-iv.png" width="477" height="142" title="Crypter::makeKeyIVFromPassword()" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::&shy;make&shy;Key&shy;And&shy;IV&shy;From&shy;Password()</a></span>
-      </p>
+        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::&shy;make&shy;Key&shy;And&shy;IV&shy;From&shy;Password()</a></div>
+      </div>
 
 
       <h3 id="password-generation">Password generation</h3>
@@ -164,10 +163,10 @@
       <p>The salt is shuffled the moment you create the entry for the domain or renew the generated password by pressing the button left to the password field. You can set the length of the salt via <span class="gui">Options/Misc/Salt length</span>. The default (and reasonable) length is 16&nbsp;byte. The longer the better, with 64&nbsp;bytes being the sensible upper limit.</p>
       <p>You can determine the number of iterations by selecting the value in the corresponding spinbox (first expand the <span class="gui">Advanced settings</span> section). The default value can be set via <span class="gui">Options/Misc/Default PBKDF2 ite&shy;ra&shy;tions</span>. The higher the iteration count, the better. Higher values lead to longer to compu&shy;tation times which in turn make the user inter&shy;face somewhat doughy. The default value of 8192 is sufficient. For instance, the Wi-Fi security protocol <a href="https://en.wikipedia.org/wiki/Wi-Fi_Protected_Access#WPA2" target="_blank">WPA2</a> uses 4096 iterations.</p>
       <p>The result of the operation is a 512 bit <q>key</q>. Eventually, the password is calculated from this key (see <a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp" class="code" target="_blank">Password::mix()</a>).</p>
-      <p class="figure">
+      <div class="figure">
         <img src="img/algo03b-make-key.png" width="646" height="154" title="Password::generate()" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp">Password::&shy;generate()</a></span>
-      </p>
+        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp">Password::&shy;generate()</a></div>
+      </div>
 
 
       <h3 id="encryption">Encryption</h3>
@@ -198,10 +197,10 @@
         </li>
       </ol>
 
-      <p class="figure">
+      <div class="figure">
         <img src="img/algo04-encode.png" width="760" height="839" title="encoding" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></span>
-      </p>
+        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::encode()</a></div>
+      </div>
 
       <h3 id="decryption">Decryption</h3>
 
@@ -218,10 +217,10 @@
         <li>The encrypted data can then be decrypted with that key and the IV from step&nbsp;3. After deflation the data is ready for use.</li>
       </ol>
 
-      <p class="figure">
+      <div class="figure">
         <img src="img/algo05-decode.png" width="764" height="958" title="decoding" />
-        <span class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></span>
-      </p>
+        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::decode()</a></div>
+      </div>
 
     </section>
 
@@ -270,9 +269,10 @@
   </article>
   <article>
     <section>
-      <p style="text-align: center; font-size: smaller; font-weight: 900; margin-top: 32px;">Qt-SESAM was made with</p>
-      <p style="text-align: center;">
-        <a href="http://qt.io/" target="_blank"><img border="0" src="img/Qt-logo-small.png" width="49" height="64" title="Qt" alt="Qt" />
+      <p style="text-align: center; font-size: smaller; font-weight: 900; margin-top: 32px;">
+        Qt-SESAM was made with
+        <br />
+        <a href="http://qt.io/" target="_blank"><img border="0" src="img/Qt-logo-small.png" width="49" height="64" title="Qt" alt="Qt" /></a>
       </p>
     </section>
   </article>

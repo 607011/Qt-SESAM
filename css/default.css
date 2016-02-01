@@ -121,17 +121,33 @@ p {
     font-weight: 900;
   }
 
-  p.figure {
-    text-align: center;
-    margin: 4ex 0 5ex 0;
+.figure {
+  text-align: center;
+  margin: 4ex 0 5ex 0;
+  padding: 20px 0;
+  clear: both;
+}
+
+  .figure.float-left img {
+    float: left;
+    display: inline-block;
+    margin-right: 20px;
   }
 
-    p.figure .title {
-      margin-top: 17pt;
-      font-weight: 700;
-      font-size: smaller;
-      display: block;
-    }
+  .figure .title {
+    margin: 2ex 3em;
+    font-weight: 700;
+    font-size: smaller;
+    text-align: center;
+  }
+
+  .figure.float-left .title {
+    text-align: left;
+  }
+
+  .title p {
+    line-height: unset;
+  }
 
 ol.steps {
   counter-reset: step;
