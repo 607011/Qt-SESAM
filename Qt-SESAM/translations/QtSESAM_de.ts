@@ -142,11 +142,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Min. iterations</source>
-        <translation>Min. Iterationen</translation>
+        <translation type="vanished">Min. Iterationen</translation>
     </message>
     <message>
         <source>Password length</source>
-        <translation>Passwortlänge</translation>
+        <translation type="vanished">Passwortlänge</translation>
     </message>
     <message>
         <source>Notes</source>
@@ -258,7 +258,7 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Used characters</source>
-        <translation>Verwendete Zeichen</translation>
+        <translation type="vanished">Verwendete Zeichen</translation>
     </message>
     <message>
         <source>File</source>
@@ -454,11 +454,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Empty character table</source>
-        <translation>Leere Zeichentabelle</translation>
+        <translation type="vanished">Leere Zeichentabelle</translation>
     </message>
     <message>
         <source>You forgot to fill in some characters into the field &quot;used characters&quot;</source>
-        <translation>Sie haben vergessen, etwas in Feld &quot;Verwendete Zeichen&quot; einzutragen</translation>
+        <translation type="vanished">Sie haben vergessen, etwas in Feld &quot;Verwendete Zeichen&quot; einzutragen</translation>
     </message>
     <message>
         <source>Domain settings saved.</source>
@@ -765,11 +765,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Simple</source>
-        <translation>Einfach</translation>
+        <translation type="vanished">Einfach</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation>Experten</translation>
+        <translation type="vanished">Experten</translation>
     </message>
     <message>
         <source>Force</source>
@@ -865,15 +865,11 @@ auf deinem Computer: %3</translation>
     </message>
     <message>
         <source>Migrate domain to v3</source>
-        <translation>Domain-Einstellungen nach v3 migrieren</translation>
+        <translation type="vanished">Domain-Einstellungen nach v3 migrieren</translation>
     </message>
     <message>
         <source>Migrate current domain settings from v2 (simple) to v3 (expert)</source>
-        <translation>Die aktuellen Domain-Einstellungen von v2 (einfach) nach v3 (Expert) wandeln</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Ctrl+M</source>
-        <translation></translation>
+        <translation type="vanished">Die aktuellen Domain-Einstellungen von v2 (einfach) nach v3 (Expert) wandeln</translation>
     </message>
     <message>
         <source>Revert</source>
@@ -1246,6 +1242,46 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Shuffle a random username</source>
         <translation>Einen zufälligen Benutzernamen auswählen</translation>
+    </message>
+    <message>
+        <source>Password template (FYI)</source>
+        <translation>Passwort-Vorlage (FYI)</translation>
+    </message>
+    <message>
+        <source>Base64 encoded salt (FYI)</source>
+        <translation>Base64-kodiertes Salt (FYI)</translation>
+    </message>
+    <message>
+        <source>Upgrade v2 settings to v3 ...</source>
+        <translation>Upgraden von v2- auf v3-Einstellungen ...</translation>
+    </message>
+    <message>
+        <source>No conversion necessary</source>
+        <translation>Keine Konvertierung nötig</translation>
+    </message>
+    <message>
+        <source>There were no domain settings which had to be converted to v3.</source>
+        <translation>Keine der Domain-Einstellungen musste nach v3 konvertiert werden.</translation>
+    </message>
+    <message>
+        <source>Conversion complete</source>
+        <translation>Konvertierung abgeschlossen</translation>
+    </message>
+    <message>
+        <source>%1 domain settings have been converted to v3.</source>
+        <translation>%1 Domain-Einstellungen wurden nach v3 konvertiert.</translation>
+    </message>
+    <message>
+        <source>Iterations</source>
+        <translation>Iterationen</translation>
+    </message>
+    <message>
+        <source>Template</source>
+        <translation>Vorlage</translation>
+    </message>
+    <message>
+        <source>Salt</source>
+        <translation>Salt</translation>
     </message>
 </context>
 <context>

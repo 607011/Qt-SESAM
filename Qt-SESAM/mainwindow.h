@@ -47,6 +47,7 @@
 #include <QImage>
 
 #include "global.h"
+#include "password.h"
 #include "domainsettings.h"
 #include "domainsettingslist.h"
 #include "pbkdf2.h"
@@ -109,7 +110,7 @@ private slots:
   void deleteCurrentDomainSettings(void);
   void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
-  void onEasySelectorValuesChanged(int, int);
+  void onEasySelectorValuesChanged(int passwordLength, int complexityValue);
   void onExportAllDomainSettingAsJSON(void);
   void onExportAllLoginDataAsClearText(void);
   void onExportCurrentSettingsAsQRCode(void);
@@ -127,7 +128,6 @@ private slots:
   void setDirty(bool dirty = true);
   void openURL(void);
   void onForcedPush(void);
-  void onMigrateDomainSettingsToExpert(void);
   void onSync(void);
   void syncWith(SyncPeer syncPeer, const QByteArray &baDomains);
   void onExpandableCheckBoxStateChanged(void);
@@ -190,7 +190,7 @@ private: // methods
   bool restoreSettings(void);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
-  void copyDomainSettingsToGUI(const DomainSettings &ds);
+  void copyDomainSettingsToGUI(const DomainSettings ds);
   void generatePassword(void);
   void updateWindowTitle(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
@@ -206,10 +206,10 @@ private: // methods
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
-  void applyComplexity(int complexity);
-  void setTemplateAndUsedCharacters(void);
+  void applyComplexity(int complexityValue);
+  void setTemplate(void);
   QString usedCharacters(void);
-  void applyTemplateStringToGUI(const QByteArray &);
+  void applyTemplateStringToGUI(const QString &);
   void updateCheckableLabel(QLabel *, bool checked);
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);

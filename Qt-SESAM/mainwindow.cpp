@@ -96,8 +96,6 @@
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
 static const int NotFound = -1;
-static const int TabSimple = 0;
-static const int TabExpert = 1;
 static const int TabGeneratedPassword = 0;
 static const int TabLegacyPassword = 1;
 
@@ -112,7 +110,7 @@ static const char *ExpandedProperty = "expanded";
 
 class MainWindowPrivate {
 public:
-  MainWindowPrivate(QWidget *parent)
+  explicit MainWindowPrivate(QWidget *parent)
     : masterPasswordDialog(new MasterPasswordDialog(parent))
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
@@ -312,8 +310,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->legacyPasswordLineEdit->installEventFilter(this);
   QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   ui->notesPlainTextEdit->installEventFilter(this);
-  QObject::connect(ui->usedCharactersPlainTextEdit, SIGNAL(textChanged()), SLOT(onUsedCharactersChanged()));
-  ui->usedCharactersPlainTextEdit->installEventFilter(this);
   QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(onExtraCharactersChanged(QString)));
   QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(onPasswordLengthChanged(int)));
   ui->passwordLengthSpinBox->installEventFilter(this);
@@ -337,7 +333,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionClearAllSettings, SIGNAL(triggered(bool)), SLOT(clearAllSettings()));
   QObject::connect(ui->actionSyncNow, SIGNAL(triggered(bool)), SLOT(onSync()));
   QObject::connect(ui->actionForcedPush, SIGNAL(triggered(bool)), SLOT(onForcedPush()));
-  QObject::connect(ui->actionMigrateDomainToV3, SIGNAL(triggered(bool)), SLOT(onMigrateDomainSettingsToExpert()));
   QObject::connect(ui->actionLockApplication, SIGNAL(triggered(bool)), SLOT(lockApplication()));
   QObject::connect(ui->actionClearClipboard, SIGNAL(triggered(bool)), SLOT(clearClipboard()));
   QObject::connect(ui->actionExit, SIGNAL(triggered(bool)), SLOT(close()));
@@ -437,9 +432,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
-  ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
-  ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
-  ui->tabWidgetVersions->setCurrentIndex(TabExpert);
   enterMasterPassword();
 }
 
@@ -624,10 +616,6 @@ void MainWindow::resetAllFieldsExceptDomainName(void)
   ui->notesPlainTextEdit->setPlainText(QString());
   ui->notesPlainTextEdit->blockSignals(false);
 
-  ui->usedCharactersPlainTextEdit->blockSignals(true);
-  ui->usedCharactersPlainTextEdit->setPlainText(Password::AllChars);
-  ui->usedCharactersPlainTextEdit->blockSignals(false);
-
   ui->generatedPasswordLineEdit->setText(QString());
 
   ui->createdLabel->setText(QString());
@@ -641,13 +629,13 @@ void MainWindow::resetAllFieldsExceptDomainName(void)
 
   ui->easySelectorWidget->blockSignals(true);
   ui->easySelectorWidget->setLength(d->optionsDialog->defaultPasswordLength());
-  ui->easySelectorWidget->setComplexity(Password::DefaultComplexity);
-  ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
+  ui->easySelectorWidget->setComplexityValue(Password::DefaultComplexityValue);
+  ui->easySelectorWidget->setExtraCharacters(ui->extraLineEdit->text());
   ui->easySelectorWidget->blockSignals(false);
 
   ui->deletePushButton->setEnabled(false);
 
-  applyComplexity(ui->easySelectorWidget->complexity());
+  applyComplexity(ui->easySelectorWidget->complexityValue());
 }
 
 
@@ -778,7 +766,7 @@ void MainWindow::onExtraCharactersChanged(QString)
 {
   Q_D(MainWindow);
   setDirty();
-  setTemplateAndUsedCharacters();
+  setTemplate();
   updatePassword();
 }
 
@@ -934,7 +922,7 @@ void MainWindow::updatePassword(void)
         ui->statusBar->showMessage(QString());
       }
 #endif
-      generatePassword();
+      d->password.generateAsync(d->KGK, collectedDomainSettings());
     }
     else {
       ui->generatedPasswordLineEdit->setText(QString());
@@ -951,21 +939,20 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.url = ui->urlLineEdit->text();
   ds.deleted = false; // is default
   ds.createdDate = d_ptr->createdDate.isValid() ? d_ptr->createdDate : QDateTime::currentDateTime();
-  if (d_ptr->modifiedDate.isValid()) {
-    ds.modifiedDate = d_ptr->modifiedDate;
-  }
+  ds.modifiedDate = d_ptr->modifiedDate;
   ds.userName = ui->userLineEdit->text();
   ds.notes = ui->notesPlainTextEdit->toPlainText();
   ds.salt_base64 = ui->saltBase64LineEdit->text();
   ds.legacyPassword = ui->legacyPasswordLineEdit->text();
   ds.iterations = ui->iterationsSpinBox->value();
-  ds.passwordLength = ui->passwordLengthSpinBox->value();
-  ds.usedCharacters = ui->usedCharactersPlainTextEdit->toPlainText();
   ds.groupHierarchy = d_ptr->treeModel.getGroupHierarchy(ui->domainView->currentIndex());
-  ds.tags = ui->tagLineEdit->text().split(QChar(';'), QString::SkipEmptyParts);
-  // v3
   ds.extraCharacters = ui->extraLineEdit->text();
-  ds.passwordTemplate = ui->passwordTemplateLineEdit->text().toUtf8();
+  ds.passwordTemplate = ui->passwordTemplateLineEdit->text();
+#ifndef OMIT_V2_CODE
+  if (DomainSettings::isV2Template(ds.passwordTemplate)) {
+    ds.usedCharacters = ui->extraLineEdit->text();
+  }
+#endif
   return ds;
 }
 
@@ -979,20 +966,22 @@ void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
 }
 
 
-void MainWindow::applyComplexity(int complexity)
+void MainWindow::applyComplexity(int complexityValue)
 {
-  const QBitArray &ba = Password::deconstructedComplexity(complexity);
-  updateCheckableLabel(ui->useDigitsLabel, ba.at(Password::TemplateDigits));
-  updateCheckableLabel(ui->useLowercaseLabel, ba.at(Password::TemplateLowercase));
-  updateCheckableLabel(ui->useUppercaseLabel, ba.at(Password::TemplateUppercase));
-  updateCheckableLabel(ui->useExtraLabel, ba.at(Password::TemplateExtra));
+  const Password::Complexity complexity = Password::Complexity::fromValue(complexityValue);
+  updateCheckableLabel(ui->useDigitsLabel, complexity.digits);
+  updateCheckableLabel(ui->useLowercaseLabel, complexity.lowercase);
+  updateCheckableLabel(ui->useUppercaseLabel, complexity.uppercase);
+  updateCheckableLabel(ui->useExtraLabel, complexity.extra);
 }
 
 
 void MainWindow::onLogin(void)
 {
   Q_D(MainWindow);
-  const SecureString &pwd = ui->generatedPasswordLineEdit->text().isEmpty() ? ui->legacyPasswordLineEdit->text() : ui->generatedPasswordLineEdit->text();
+  const SecureString &pwd = ui->generatedPasswordLineEdit->text().isEmpty()
+      ? ui->legacyPasswordLineEdit->text()
+      : ui->generatedPasswordLineEdit->text();
   d->tcpClient.connect(ui->urlLineEdit->text(), ui->userLineEdit->text(), pwd);
   restartInvalidationTimer();
 }
@@ -1010,31 +999,26 @@ void MainWindow::onMessageFromTcpClient(QJsonDocument json)
 }
 
 
-void MainWindow::applyTemplateStringToGUI(const QByteArray &templ)
+void MainWindow::applyTemplateStringToGUI(const QString &t)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::applyTemplateStringToGUI(" << templ << ")";
-  const QList<QByteArray> &templateParts = templ.split(';');
-  if (templateParts.count() != 2)
-    return;
-  int complexity = templateParts.at(0).toInt();
-  int length = templateParts.at(1).length();
-
-  ui->easySelectorWidget->blockSignals(true);
-  ui->easySelectorWidget->setComplexity(complexity);
-  ui->easySelectorWidget->setLength(length);
-  ui->easySelectorWidget->blockSignals(false);
-
-  applyComplexity(complexity);
-
-  ui->passwordLengthSpinBox->blockSignals(true);
-  ui->passwordLengthSpinBox->setValue(templateParts.at(1).length());
-  ui->passwordLengthSpinBox->blockSignals(false);
-
-  if (complexity != Password::NoComplexity) {
-    ui->usedCharactersPlainTextEdit->blockSignals(true);
-    ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters());
-    ui->usedCharactersPlainTextEdit->blockSignals(false);
+  const QStringList &templateParts = t.split(';', QString::KeepEmptyParts);
+  QString templ;
+  if (templateParts.count() == 1) {
+    templ = templateParts.at(0);
+  }
+  else if (templateParts.count() == 2) {
+    templ = templateParts.at(1);
+  }
+  if (!templ.isEmpty()) {
+    int length = templ.length();
+    int complexityValue = Password::Complexity::fromTemplate(templ).value();
+//    qDebug() << "MainWindow::applyTemplateStringToGUI(" << t << ") ->" << templateParts << templ << length << complexityValue;
+    ui->easySelectorWidget->blockSignals(true);
+    ui->easySelectorWidget->setLength(length);
+    ui->easySelectorWidget->setComplexityValue(complexityValue);
+    ui->easySelectorWidget->blockSignals(false);
+    applyComplexity(complexityValue);
   }
 }
 
@@ -1058,41 +1042,25 @@ QString MainWindow::usedCharacters(void)
 }
 
 
-void MainWindow::setTemplateAndUsedCharacters(void)
+void MainWindow::setTemplate(void)
 {
   Q_D(MainWindow);
-  QByteArray used;
+  QString usedCharacters;
   if (ui->useDigitsLabel->isEnabled()) {
-    used += 'n';
+    usedCharacters += 'n';
   }
   if (ui->useLowercaseLabel->isEnabled()) {
-    used += 'a';
+    usedCharacters += 'a';
   }
   if (ui->useUppercaseLabel->isEnabled()) {
-    used += 'A';
+    usedCharacters += 'A';
   }
   if (ui->useExtraLabel->isEnabled()) {
-    used += 'o';
+    usedCharacters += 'o';
   }
-  QByteArray pwdTemplate = used + QByteArray(ui->easySelectorWidget->length() - used.count(), 'x');
-  ui->passwordTemplateLineEdit->setText(QString("%1").arg(ui->easySelectorWidget->complexity()).toUtf8() + ';' + shuffled(QString::fromUtf8(pwdTemplate)));
-  ui->usedCharactersPlainTextEdit->blockSignals(true);
-  ui->usedCharactersPlainTextEdit->setPlainText(usedCharacters());
-  ui->usedCharactersPlainTextEdit->blockSignals(false);
-  ui->easySelectorWidget->setExtraCharacterCount(ui->extraLineEdit->text().count());
-}
-
-
-void MainWindow::generatePassword(void)
-{
-  Q_D(MainWindow);
-  // qDebug() << "MainWindow::generatePassword()" << ui->usedCharactersPlainTextEdit->toPlainText();
-  if (ui->usedCharactersPlainTextEdit->toPlainText().isEmpty()) {
-    ui->generatedPasswordLineEdit->setText(QString());
-  }
-  else {
-    d->password.generateAsync(d->KGK, collectedDomainSettings());
-  }
+  QString pwdTemplate = usedCharacters + QByteArray(ui->easySelectorWidget->length() - usedCharacters.count(), 'x');
+  ui->passwordTemplateLineEdit->setText(shuffled(pwdTemplate));
+  ui->easySelectorWidget->setExtraCharacters(ui->extraLineEdit->text());
 }
 
 
@@ -1104,7 +1072,6 @@ void MainWindow::stopPasswordGeneration(void)
     d->password.waitForFinished();
   }
 }
-
 
 
 void MainWindow::changeMasterPassword(void)
@@ -1174,7 +1141,9 @@ void MainWindow::nextChangeMasterPasswordStep(void)
 }
 
 
-auto makeHMS = [](qint64 ms) {
+#if HACKING_MODE_ENABLED
+static QString makeHMS(qint64 ms)
+{
   QString sign;
   if (ms < 0) {
     sign = "-";
@@ -1187,19 +1156,22 @@ auto makeHMS = [](qint64 ms) {
   qint64 hrs = secs / 60 / 60;
   qint64 mins = (secs / 60 - hrs * 60);
   secs -= 60 * (hrs * 60 + mins);
-  return QString("%1%2h%3'%4\"").arg(sign).arg(hrs).arg(mins, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0'));
-};
-
+  return QString("%1%2h%3'%4\"")
+      .arg(sign)
+      .arg(hrs)
+      .arg(mins, 2, 10, QChar('0'))
+      .arg(secs, 2, 10, QChar('0'));
+}
+#endif
 
 void MainWindow::onPasswordGenerated(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::onPasswordGenerated()";
 #if HACKING_MODE_ENABLED
   if (!d->hackingMode) {
 #endif
-    ui->generatedPasswordLineEdit->setText(d->password());
-    ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(d->password().length()));
+    ui->generatedPasswordLineEdit->setText(d->password.password());
+    ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(d->password.password().length()));
     d->pwdLabelOpacityEffect->setOpacity(1);
     if (!d->password.isAborted()) {
       ui->statusBar->showMessage(tr("generation time: %1 ms")
@@ -1500,7 +1472,7 @@ void MainWindow::copyLegacyPasswordToClipboard(void)
 }
 
 
-void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
+void MainWindow::copyDomainSettingsToGUI(DomainSettings ds)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::copyDomainSettingsToGUI(...) for domain" << ds.domainName;
@@ -1518,23 +1490,32 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
   ui->notesPlainTextEdit->blockSignals(true);
   ui->notesPlainTextEdit->setPlainText(ds.notes);
   ui->notesPlainTextEdit->blockSignals(false);
-  ui->usedCharactersPlainTextEdit->blockSignals(true);
-  ui->usedCharactersPlainTextEdit->setPlainText(ds.usedCharacters);
-  ui->usedCharactersPlainTextEdit->blockSignals(false);
   ui->iterationsSpinBox->blockSignals(true);
   ui->iterationsSpinBox->setValue(ds.iterations);
   ui->iterationsSpinBox->blockSignals(false);
-  ui->tagLineEdit->blockSignals(true);
-  ui->tagLineEdit->setText(ds.tags.join(QChar(';')));
-  ui->tagLineEdit->blockSignals(false);
-  ui->passwordLengthSpinBox->blockSignals(true);
-  ui->passwordLengthSpinBox->setValue(ds.passwordLength);
-  ui->passwordLengthSpinBox->blockSignals(false);
   ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
   d->createdDate = ds.createdDate;
   d->modifiedDate = ds.modifiedDate;
-  // v3
+#ifndef OMIT_V2_CODE
+  if (!ds.deleted) {
+    QString templ;
+    const QStringList &templateParts = ds.passwordTemplate.split(';', QString::KeepEmptyParts);
+    if (templateParts.size() == 1) {
+      templ = templateParts.at(0);
+    }
+    else if (templateParts.size() == 2) {
+      // v2 complexity value at index 0 ignored
+      templ = templateParts.at(1);
+    }
+    if (ds.legacyPassword.isEmpty() && DomainSettings::isV2Template(ds.passwordTemplate)) {
+      ds.extraCharacters = ds.usedCharacters;
+      ds.usedCharacters.clear();
+      templ[0] = 'o';
+    }
+    ds.passwordTemplate = templ;
+  }
+#endif
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(ds.extraCharacters);
   ui->extraLineEdit->blockSignals(false);
@@ -1544,27 +1525,16 @@ void MainWindow::copyDomainSettingsToGUI(const DomainSettings &ds)
 
   if (ds.legacyPassword.isEmpty()) {
     ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
+    applyTemplateStringToGUI(ds.passwordTemplate);
+#if HACKING_MODE_ENABLED
     ui->actionHackLegacyPassword->setEnabled(false);
-    if (ds.passwordTemplate.isEmpty()) {
-      ui->tabWidgetVersions->setCurrentIndex(TabSimple);
-      ui->actionMigrateDomainToV3->setEnabled(true);
-      ui->tabWidgetVersions->setTabEnabled(TabSimple, true);
-      ui->tabWidgetVersions->setTabEnabled(TabExpert, false);
-    }
-    else {
-      ui->tabWidgetVersions->setCurrentIndex(TabExpert);
-      ui->actionMigrateDomainToV3->setEnabled(false);
-      ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
-      ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
-      applyTemplateStringToGUI(ds.passwordTemplate);
-    }
+#endif
   }
   else {
     ui->tabWidget->setCurrentIndex(TabLegacyPassword);
+#if HACKING_MODE_ENABLED
     ui->actionHackLegacyPassword->setEnabled(true);
-    ui->actionMigrateDomainToV3->setEnabled(false);
-    ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
-    ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
+#endif
   }
   ui->deletePushButton->setEnabled(true);
   updatePassword();
@@ -1665,6 +1635,7 @@ void MainWindow::deleteCurrentDomainSettings(void)
       ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
       d->currentDomainSettings.clear();
     }
+    ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
   }
 }
 
@@ -1698,6 +1669,7 @@ bool MainWindow::wipeFile(const QString &filename)
         for (int j = 0; j < N; ++j) {
           f.write(&b, 1);
         }
+        f.flush();
       }
       static const int NumTriplets = 6;
       static const unsigned char Triplets[NumTriplets][3] = {
@@ -1710,6 +1682,7 @@ bool MainWindow::wipeFile(const QString &filename)
         for (int j = 0; j < N / 3; ++j) {
           f.write(b, 3);
         }
+        f.flush();
       }
     }
     f.seek(0);
@@ -1752,11 +1725,11 @@ void MainWindow::removeOutdatedBackupFilesThread(void)
   Q_D(MainWindow);
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   const QStringList backupFileNames = QDir(backupFilePath).entryList(BackupFilenameFilters, QDir::Files | QDir::CaseSensitive, QDir::NoSort);
-  int nFilesRemoved = 0;
   bool allRemoved = true;
   if (!backupFileNames.isEmpty()) {
     static const QRegExp reBackupFileTimestamp("^\\d{8}T\\d{6}");
     const QDateTime TooOld = QDateTime::currentDateTime().addDays(-d->optionsDialog->maxBackupFileAge());
+    int nFilesRemoved = 0;
     foreach (QString backupFilename, backupFileNames) {
       if (reBackupFileTimestamp.indexIn(backupFilename) == 0) {
         const QDateTime fileTimestamp = QDateTime::fromString(reBackupFileTimestamp.cap(0), "yyyyMMddThhmmss");
@@ -1822,16 +1795,6 @@ void MainWindow::onBackupFilesRemoved(int n)
 void MainWindow::writeBackupFile(void)
 {
   Q_D(MainWindow);
-  /* From the Qt docs: "QStandardPaths::DataLocation returns the
-   * same value as AppLocalDataLocation. This enumeration value
-   * is deprecated. Using AppDataLocation is preferable since on
-   * Windows, the roaming path is recommended."
-   *
-   * AppLocalDataLocation was introduced in Qt 5.4. To maintain
-   * compatibility to Qt 5.3 (which is found in many reasonably
-   * current Linux distributions this code still uses the
-   * deprecated value DataLocation.
-   */
   const QString &backupFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   const QString &backupFilename = QString("%1/%2-%3-backup.txt")
       .arg(backupFilePath)
@@ -2491,35 +2454,6 @@ void MainWindow::onForcedPush(void)
 }
 
 
-void MainWindow::onMigrateDomainSettingsToExpert(void)
-{
-  Q_D(MainWindow);
-  static const int Complexity = Password::NoComplexity;
-  applyComplexity(Complexity);
-  const QString &tmpl = QString(ui->passwordLengthSpinBox->value(), 'x');
-  QString extra;
-  foreach (QChar ch, ui->usedCharactersPlainTextEdit->toPlainText()) {
-    if (Password::Digits.contains(ch) || Password::LowerChars.contains(ch) || Password::UpperChars.contains(ch)) {
-      continue;
-    }
-    extra += ch;
-  }
-  ui->extraLineEdit->blockSignals(true);
-  ui->extraLineEdit->setText(extra);
-  ui->extraLineEdit->blockSignals(false);
-  ui->passwordTemplateLineEdit->blockSignals(true);
-  ui->passwordTemplateLineEdit->setText(QString("%1;%2").arg(Complexity).arg(tmpl));
-  ui->passwordTemplateLineEdit->blockSignals(false);
-  ui->tabWidgetVersions->setCurrentIndex(TabExpert);
-  ui->actionMigrateDomainToV3->setEnabled(false);
-  ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
-  ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
-  setDirty();
-  updatePassword();
-  saveCurrentDomainSettings();
-}
-
-
 void MainWindow::onDomainTextChanged(const QString &domain)
 {
   Q_D(MainWindow);
@@ -2530,32 +2464,27 @@ void MainWindow::onDomainTextChanged(const QString &domain)
     copyDomainSettingsToGUI(d->currentDomainSettings);
   } else {
     if (!d->currentDomainSettings.isEmpty()) {
-      ui->tabWidgetVersions->setCurrentIndex(TabExpert);
       ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
       resetAllFieldsExceptDomainName();
     }
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
-    setTemplateAndUsedCharacters();
+    setTemplate();
     updatePassword();
     ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
-    ui->tabWidgetVersions->setTabEnabled(TabSimple, false);
-    ui->tabWidgetVersions->setTabEnabled(TabExpert, true);
-    ui->tabWidgetVersions->setCurrentIndex(TabExpert);
-    setDirty();
   }
 }
 
 
-void MainWindow::onEasySelectorValuesChanged(int length, int complexity)
+void MainWindow::onEasySelectorValuesChanged(int passwordLength, int complexityValue)
 {
   Q_D(MainWindow);
-  Q_UNUSED(length);
-  applyComplexity(complexity);
-  setTemplateAndUsedCharacters();
+  Q_UNUSED(passwordLength);
+  applyComplexity(complexityValue);
+  setTemplate();
   d->password.setDomainSettings(collectedDomainSettings());
   const SecureString &pwd = d->password.remix();
   ui->generatedPasswordLineEdit->setText(pwd);
-  ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(length));
+  ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(passwordLength));
   d->pwdLabelOpacityEffect->setOpacity(pwd.isEmpty() ? 0.5 : 1.0);
   setDirty();
   restartInvalidationTimer();
@@ -2586,7 +2515,7 @@ void MainWindow::onExportAllDomainSettingAsJSON(void)
 
 struct DomainSettingsToTextConverter
 {
-  DomainSettingsToTextConverter(const SecureByteArray &kgk)
+  explicit DomainSettingsToTextConverter(const SecureByteArray &kgk)
     : kgk(kgk)
   { /* ... */ }
   typedef SecureByteArray result_type;

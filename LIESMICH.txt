@@ -1,10 +1,10 @@
 **************************************************************************
 ***                                                                    ***
-*** Qt SESAM: Supereinfaches und sicheres Authentifizierungsmanagement ***
+*** Qt-SESAM: Supereinfaches und sicheres Authentifizierungsmanagement ***
 ***                                                                    ***
 **************************************************************************
 
-Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+Copyright (c) 2015-2016 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
 Dieses Programm ist freie Software. Sie können es unter den Bedingungen
 der GNU General Public License, wie von der Free Software Foundation
@@ -17,7 +17,9 @@ Medien GmbH & Co. KG haften nicht für eventuelle Schäden, die aus der
 Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre
 Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.
 
-Qt SESAM benutzt die Crypto++-Bibliothek. Crypto++ steht unter der Boost
-Software License 1.0 (http://www.boost.org/users/license.html).
+Qt SESAM benutzt die Crypto++-Bibliothek und libqrcode. Crypto++ steht
+unter der Boost Software License 1.0 (http://www.boost.org/users/
+license.html). libqrcode ist lizenziert unter der GNU Lesser General
+Public License 2.1 oder neuer.
 
 Weitere Informationen finden Sie unter https://github.com/ola-ct/Qt-SESAM

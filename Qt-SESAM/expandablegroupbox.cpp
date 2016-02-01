@@ -28,7 +28,7 @@
 
 class ExpandableGroupboxPrivate {
 public:
-  ExpandableGroupboxPrivate(QWidget *parent)
+  explicit ExpandableGroupboxPrivate(QWidget *parent)
     : layout(new QVBoxLayout(parent))
     , contentsFrame(new QFrame(parent))
     , titleLabel(new QLabel(parent))
