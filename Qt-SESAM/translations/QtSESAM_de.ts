@@ -1210,23 +1210,23 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Upgrade v2 settings to v3 ...</source>
-        <translation>Upgraden von v2- auf v3-Einstellungen ...</translation>
+        <translation type="vanished">Upgraden von v2- auf v3-Einstellungen ...</translation>
     </message>
     <message>
         <source>No conversion necessary</source>
-        <translation>Keine Konvertierung nötig</translation>
+        <translation type="vanished">Keine Konvertierung nötig</translation>
     </message>
     <message>
         <source>There were no domain settings which had to be converted to v3.</source>
-        <translation>Keine der Domain-Einstellungen musste nach v3 konvertiert werden.</translation>
+        <translation type="vanished">Keine der Domain-Einstellungen musste nach v3 konvertiert werden.</translation>
     </message>
     <message>
         <source>Conversion complete</source>
-        <translation>Konvertierung abgeschlossen</translation>
+        <translation type="vanished">Konvertierung abgeschlossen</translation>
     </message>
     <message>
         <source>%1 domain settings have been converted to v3.</source>
-        <translation>%1 Domain-Einstellungen wurden nach v3 konvertiert.</translation>
+        <translation type="vanished">%1 Domain-Einstellungen wurden nach v3 konvertiert.</translation>
     </message>
     <message>
         <source>Iterations</source>
@@ -1239,6 +1239,22 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Salt</source>
         <translation>Salt</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Sprache</translation>
+    </message>
+    <message>
+        <source>Deutsch</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>English</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>blah</source>
+        <translation></translation>
     </message>
 </context>
 <context>

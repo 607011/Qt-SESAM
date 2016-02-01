@@ -154,6 +154,7 @@ private slots:
   void onImportPasswordSafeFile(void);
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
+  void onSelectLanguage(QAction *);
 
 signals:
   void passwordGenerated(void);
@@ -176,6 +177,8 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  void createLanguageMenu(void);
+  void setLanguage(const QString &);
   QMessageBox::StandardButton saveYesNoCancel(void);
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);

@@ -22,6 +22,9 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
+#include <QLibraryInfo>
+#include <QTranslator>
+#include <QLocale>
 #include <QObject>
 #include <QList>
 #include <QPair>
@@ -103,7 +106,8 @@ static const char *ExpandedProperty = "expanded";
 class MainWindowPrivate {
 public:
   explicit MainWindowPrivate(QWidget *parent)
-    : masterPasswordDialog(new MasterPasswordDialog(parent))
+    : langGroup(Q_NULLPTR)
+    , masterPasswordDialog(new MasterPasswordDialog(parent))
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(new ProgressDialog(parent))
@@ -154,6 +158,9 @@ public:
     }
     return KGK;
   }
+  QTranslator translator;
+  QString language;
+  QActionGroup *langGroup;
   MasterPasswordDialog *masterPasswordDialog;
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
@@ -275,6 +282,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
+
+  createLanguageMenu();
 
   ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
@@ -1736,7 +1745,6 @@ void MainWindow::onBackupFilesRemoved(int n)
   ui->statusBar->showMessage(tr("Deleted %1 outdated backup files.").arg(n), 3000);
 }
 
-
 void MainWindow::writeBackupFile(void)
 {
   Q_D(MainWindow);
@@ -3049,4 +3057,61 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   }
   return QObject::eventFilter(obj, event);
+}
+
+
+void MainWindow::setLanguage(const QString &language)
+{
+  Q_D(MainWindow);
+  if (language != d->language) {
+    qApp->removeTranslator(&d->translator);
+    d->language = language;
+    QLocale locale = QLocale(d->language);
+    QLocale::setDefault(locale);
+    bool ok = d->translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
+    if (ok) {
+      qApp->installTranslator(&d->translator);
+    }
+  }
+}
+
+
+void MainWindow::onSelectLanguage(QAction *action)
+{
+  if (action != Q_NULLPTR) {
+    setLanguage(action->data().toString());
+  }
+}
+
+
+void MainWindow::createLanguageMenu(void)
+{
+  Q_D(MainWindow);
+  d->langGroup = new QActionGroup(ui->menuBar);
+  d->langGroup->setExclusive(true);
+  QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
+  QString langPath = ":/translations";
+  QString defaultLocale = QLocale::system().name();
+  defaultLocale.truncate(defaultLocale.lastIndexOf('_'));
+  QDir dir(langPath);
+  QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
+  auto addLangAction = [&](const QString &locale) {
+    const QString &lang = QLocale::languageToString(QLocale(locale).language());
+    QAction *action = new QAction(lang, this);
+    action->setCheckable(true);
+    action->setData(locale);
+    ui->menuLanguage->addAction(action);
+    d->langGroup->addAction(action);
+    if (defaultLocale == locale) {
+      action->setChecked(true);
+    }
+  };
+  addLangAction("en");
+  foreach (QString filename, filenames) {
+    QString locale = filename;
+    locale.truncate(locale.lastIndexOf('.'));
+    locale.remove(0, locale.indexOf('_') + 1);
+    addLangAction(locale);
+  }
+  setLanguage(defaultLocale);
 }
