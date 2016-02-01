@@ -51,7 +51,6 @@
 #include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QSemaphore>
-#include <QStandardPaths>
 #include <QDesktopServices>
 #include <QCompleter>
 #include <QShortcut>
@@ -59,8 +58,6 @@
 #include <QLockFile>
 #include <QPainter>
 #include <QPixmap>
-#include <QFutureWatcher>
-#include <QtConcurrent>
 
 #include "logger.h"
 #include "global.h"
@@ -1820,7 +1817,8 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     json = QJsonDocument::fromJson(recovered, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
       domainList = json.object().keys();
-      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(domainList.count()), 5000);
+      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.")
+                                 .arg(domainList.count()), 5000);
     }
     else {
       QMessageBox::warning(this, tr("Bad data from sync server"),
