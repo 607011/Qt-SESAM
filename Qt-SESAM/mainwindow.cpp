@@ -1543,10 +1543,12 @@ void MainWindow::saveCurrentDomainSettings(void)
   if (!ui->domainLineEdit->text().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
+#ifndef OMIT_V2_CODE
     if (ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
       QMessageBox::warning(this, tr("Empty character table"), tr("You forgot to fill in some characters into the field \"used characters\""));
     }
     else {
+#endif
       ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
       ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
       ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
@@ -1594,7 +1596,9 @@ void MainWindow::saveCurrentDomainSettings(void)
         ui->domainView->setCurrentIndex(newIndex);
         setDirty(false);
       }
+#ifndef OMIT_V2_CODE
     }
+#endif
   }
 }
 
@@ -1607,28 +1611,23 @@ void MainWindow::deleteCurrentDomainSettings(void)
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
     ds.deleted = true;
-    if (ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
-      QMessageBox::warning(this, tr("Empty character table"), tr("You forgot to fill in some characters into the field \"used characters\""));
-    }
-    else {
-      ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
-      ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
-      ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
-      ds.modifiedDate = QDateTime::currentDateTime();
+    ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
+    ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
+    ds.modifiedDate = QDateTime::currentDateTime();
 
-      // first update tree view
-      QModelIndex index = ui->domainView->currentIndex();
-      d->treeModel.removeDomain(index);
-      ui->domainView->setExpanded(index.parent(), false);
-      ui->domainView->expand(index.parent());
-      ui->domainView->setCurrentIndex(index.parent());
+    // first update tree view
+    QModelIndex index = ui->domainView->currentIndex();
+    d->treeModel.removeDomain(index);
+    ui->domainView->setExpanded(index.parent(), false);
+    ui->domainView->expand(index.parent());
+    ui->domainView->setCurrentIndex(index.parent());
 
-      saveAllDomainDataToSettings();
-      resetAllFields();
-      ui->domainView->setCurrentIndex(index.parent());
-      ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
-      d->currentDomainSettings.clear();
-    }
+    saveAllDomainDataToSettings();
+    resetAllFields();
+    ui->domainView->setCurrentIndex(index.parent());
+    ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
+    d->currentDomainSettings.clear();
     ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
   }
 }
