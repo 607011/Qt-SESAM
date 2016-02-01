@@ -12,6 +12,13 @@ html, body {
   font-size: 13pt;
 }
 
+.banderole {
+  position: fixed;
+  top: 0;
+  right: 0;
+  border: 0;
+}
+
 article {
   clear: both;
 }
@@ -128,17 +135,17 @@ p {
   clear: both;
 }
 
-  .figure.float-left img {
-    float: left;
-    display: inline-block;
-    margin-right: 20px;
-  }
-
   .figure .title {
     margin: 2ex 3em;
     font-weight: 700;
     font-size: smaller;
     text-align: center;
+  }
+
+  .figure.float-left img {
+    float: left;
+    display: inline-block;
+    margin-right: 20px;
   }
 
   .figure.float-left .title {
@@ -227,3 +234,51 @@ ul {
   -ms-word-break: break-word;
   word-break: break-word;
 }
+
+
+@media screen and (max-width: 1060px) {
+  .banderole {
+    position: absolute;
+  }
+}
+
+
+@media screen and (max-width: 840px) {
+
+  section {
+    max-width: unset;
+    margin: 20px 10px 20px 10px;
+  }
+
+  section img {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto !important;
+  }
+
+  article.no-float > section {
+    max-width: unset;
+    padding: 1ex 1em;
+    font-size: smaller;
+  }
+
+  h1, h2, h3, h4, h5 {
+    margin: 20px 10px;
+    max-width: unset;
+  }
+
+  p {
+    max-width: unset;
+    margin: 1ex 10px;
+  }
+
+  .figure.float-left img {
+    float: unset;
+    margin-right: unset;
+  }
+
+  .figure.float-left .title {
+    text-align: center;
+  }
+}
+
