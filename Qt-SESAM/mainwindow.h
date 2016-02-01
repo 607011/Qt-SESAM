@@ -183,6 +183,7 @@ private: // methods
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
+  void restoreLanguageSettings(void);
   void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
@@ -221,6 +222,7 @@ private: // methods
   void removeOutdatedBackupFilesThread(void);
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
+  static QString defaultLocale(void);
 };
 
 #endif // __MAINWINDOW_H_

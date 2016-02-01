@@ -284,6 +284,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
 
   createLanguageMenu();
+  restoreLanguageSettings();
 
   ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
@@ -1880,13 +1881,18 @@ void MainWindow::saveSettings(void)
 }
 
 
+void MainWindow::restoreLanguageSettings(void)
+{
+  Q_D(MainWindow);
+  setLanguage(d->settings.value("mainwindow/language", defaultLocale()).toString());
+}
+
+
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  QString defaultLanguage = QLocale::system().name();
-  defaultLanguage.truncate(defaultLanguage.lastIndexOf('_'));
-  setLanguage(d->settings.value("mainwindow/language", defaultLanguage).toString());
+  restoreLanguageSettings();
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -3068,15 +3074,22 @@ void MainWindow::onSelectLanguage(QAction *action)
 }
 
 
+QString MainWindow::defaultLocale(void)
+{
+  QString locale = QLocale::system().name();
+  locale.truncate(locale.lastIndexOf('_'));
+  return locale;
+}
+
+
 void MainWindow::createLanguageMenu(void)
 {
   Q_D(MainWindow);
   d->langGroup = new QActionGroup(ui->menuBar);
   d->langGroup->setExclusive(true);
   QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
-  QString defaultLocale = QLocale::system().name();
-  defaultLocale.truncate(defaultLocale.lastIndexOf('_'));
   QDir dir(":/translations");
+  const QString &myLocale = defaultLocale();
   auto addLangAction = [&](const QString &locale) {
     const QString &lang = QLocale::languageToString(QLocale(locale).language());
     QAction *action = new QAction(lang, this);
@@ -3084,7 +3097,7 @@ void MainWindow::createLanguageMenu(void)
     action->setData(locale);
     ui->menuLanguage->addAction(action);
     d->langGroup->addAction(action);
-    if (defaultLocale == locale) {
+    if (myLocale == locale) {
       action->setChecked(true);
     }
   };
@@ -3096,5 +3109,5 @@ void MainWindow::createLanguageMenu(void)
     locale.remove(0, locale.indexOf('_') + 1);
     addLangAction(locale);
   }
-  setLanguage(defaultLocale);
+  setLanguage(myLocale);
 }
