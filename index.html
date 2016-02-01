@@ -123,7 +123,7 @@
           <source src="screencasts/enter-settings-2.webm" type="video/webm" />
         </video>
       </p>
-      <p>Very neat: the widget tells you how long the <a href="https://en.wikipedia.org/wiki/Tianhe-2" target="_blank">Tianhe-2 supercomputer</a> and your computer would need to crack a password with the selected settings.</p>
+      <p>Very neat: the widget tells you how long the <a href="https://en.wikipedia.org/wiki/Tianhe-2" target="_blank">Tianhe-2 supercomputer</a> and your computer would need to crack a password with the selected settings. As you can see, increasing the password length lets the strength grow much faster than increasing the number of characters in the set. That's because the length flows in exponentially.</p>
     </section>
 
     <section>
@@ -168,7 +168,7 @@
 
       <p>A similar method comes into effect when generating a password. First, the KGK is appended to the domain and user name to form the input to PBKDF2, spiced with a salt.</p>
       <p>The salt is shuffled the moment you create the entry for the domain or renew the generated password by pressing the button left to the password field. You can set the length of the salt via <span class="gui">Options/Misc/Salt length</span>. The default (and reasonable) length is 16&nbsp;byte. The longer the better, with 64&nbsp;bytes being the sensible upper limit.</p>
-      <p>You can determine the number of iterations by selecting the value in the corresponding spinbox (first expand the <span class="gui">Advanced settings</span> section). The default value can be set via <span class="gui">Options/Misc/Default PBKDF2 ite&shy;ra&shy;tions</span>. The higher the iteration count, the better. Higher values lead to longer to compu&shy;tation times which in turn make the user inter&shy;face somewhat doughy. The default value of 8192 is sufficient. For instance, the Wi-Fi security protocol <a href="https://en.wikipedia.org/wiki/Wi-Fi_Protected_Access#WPA2" target="_blank">WPA2</a> uses 4096 iterations.</p>
+      <p>You can determine the number of iterations by selecting the value in the corresponding spinbox (first expand the <span class="gui">Advanced settings</span> section). The default value can be set via <span class="gui">Options/Misc/Default PBKDF2 ite&shy;ra&shy;tions</span>. The higher the iteration count, the better. Higher values lead to longer to compu&shy;tation times which in turn can make the user inter&shy;face somewhat doughy. The default value of 8192 is sufficient. For instance, the Wi-Fi security protocol <a href="https://en.wikipedia.org/wiki/Wi-Fi_Protected_Access#WPA2" target="_blank">WPA2</a> uses 4096 iterations.</p>
       <p>The result of the operation is a 512 bit <q>key</q>. Eventually, the password is calculated from this key (see <a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp" class="code" target="_blank">Password::mix()</a>).</p>
       <div class="figure">
         <img src="img/algo03b-make-key.png" width="646" height="154" title="Password::generate()" />
@@ -200,7 +200,7 @@
         </li>
         <li>
           Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the <a href="#salt-generation">salt</a> that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1, and the result of step&nbsp;4. 
-          This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to super&shy;computers. The privacy of the data contained therein totally relies on the strength of the master password &mdash; and how well you hide the password from overly prying eyes.
+          This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to super&shy;computers. The privacy of the data contained therein totally relies on the strength of the master password &mdash; and how well you hide the password from prying eyes.
         </li>
       </ol>
 
@@ -281,6 +281,11 @@
         <br />
         <a href="http://qt.io/" target="_blank"><img border="0" src="img/Qt-logo-small.png" width="49" height="64" title="Qt" alt="Qt" /></a>
       </p>
+    </section>
+    <section>
+      <!-- Google +1 -->
+      <div class="g-plusone" data-size="medium" data-count="false"></div>
+      <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
     </section>
   </article>
 
