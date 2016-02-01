@@ -786,13 +786,19 @@ void MainWindow::onAddGroup(void)
   Q_D(MainWindow);
   qDebug() << "MainWindow::onAddGroup()";
   QModelIndex index = ui->domainView->currentIndex();
-  AbstractTreeNode *node = d->treeModel.node(index);
-  if (node != Q_NULLPTR) {
-    if (node->type() == AbstractTreeNode::GroupType) {
-      ui->domainView->setExpanded(index, false);
-      d->treeModel.addNewGroup(index);
-      ui->domainView->expand(index);
+  if (index.isValid()) {
+    AbstractTreeNode *node = d->treeModel.node(index);
+    if (node != Q_NULLPTR) {
+      if (node->type() == AbstractTreeNode::GroupType) {
+        ui->domainView->setExpanded(index, false);
+        d->treeModel.addNewGroup(index);
+        ui->domainView->expand(index);
+      }
     }
+  }
+  else { // probably first group
+    d->treeModel.addNewGroup(QModelIndex());
+    ui->domainView->reset();
   }
 }
 

@@ -104,11 +104,18 @@ QModelIndex DomainTreeModel::populate(const DomainSettingsList &domainSettingsLi
 
 void DomainTreeModel::addNewGroup(const QModelIndex &index)
 {
-    AbstractTreeNode *parentNode = this->node(index);
-    if (parentNode != Q_NULLPTR) {
-      GroupNode *groupNode = new GroupNode("New group", parentNode);
-      parentNode->appendChild(groupNode);
-    }
+  Q_D(DomainTreeModel);
+  GroupNode *parentNode = Q_NULLPTR;
+  if (index.isValid()) {
+    parentNode = reinterpret_cast<GroupNode*> (this->node(index));
+  }
+  else if (d->rootItem != Q_NULLPTR) {
+    parentNode = reinterpret_cast<GroupNode*> (d->rootItem);
+  }
+  if (parentNode != Q_NULLPTR) {
+    GroupNode *groupNode = new GroupNode("New group", parentNode);
+    parentNode->appendChild(groupNode);
+  }
 }
 
 
