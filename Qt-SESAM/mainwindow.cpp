@@ -311,8 +311,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
   ui->notesPlainTextEdit->installEventFilter(this);
   QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(onExtraCharactersChanged(QString)));
-  QObject::connect(ui->passwordLengthSpinBox, SIGNAL(valueChanged(int)), SLOT(onPasswordLengthChanged(int)));
-  ui->passwordLengthSpinBox->installEventFilter(this);
   QObject::connect(ui->iterationsSpinBox, SIGNAL(valueChanged(int)), SLOT(onIterationsChanged(int)));
   QObject::connect(ui->tagLineEdit, SIGNAL(textChanged(QString)), SLOT(onTagChanged(QString)));
   QObject::connect(ui->saltBase64LineEdit, SIGNAL(textChanged(QString)), SLOT(onSaltChanged(QString)));
@@ -607,10 +605,6 @@ void MainWindow::resetAllFieldsExceptDomainName(void)
   ui->tagLineEdit->blockSignals(true);
   ui->tagLineEdit->setText(QString());
   ui->tagLineEdit->blockSignals(false);
-
-  ui->passwordLengthSpinBox->blockSignals(true);
-  ui->passwordLengthSpinBox->setValue(d->optionsDialog->defaultPasswordLength());
-  ui->passwordLengthSpinBox->blockSignals(false);
 
   ui->notesPlainTextEdit->blockSignals(true);
   ui->notesPlainTextEdit->setPlainText(QString());
