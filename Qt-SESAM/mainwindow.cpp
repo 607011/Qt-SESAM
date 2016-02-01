@@ -3074,11 +3074,9 @@ void MainWindow::createLanguageMenu(void)
   d->langGroup = new QActionGroup(ui->menuBar);
   d->langGroup->setExclusive(true);
   QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
-  QString langPath = ":/translations";
   QString defaultLocale = QLocale::system().name();
   defaultLocale.truncate(defaultLocale.lastIndexOf('_'));
-  QDir dir(langPath);
-  QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
+  QDir dir(":/translations");
   auto addLangAction = [&](const QString &locale) {
     const QString &lang = QLocale::languageToString(QLocale(locale).language());
     QAction *action = new QAction(lang, this);
@@ -3091,6 +3089,7 @@ void MainWindow::createLanguageMenu(void)
     }
   };
   addLangAction("en");
+  const QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
   foreach (QString filename, filenames) {
     QString locale = filename;
     locale.truncate(locale.lastIndexOf('.'));
