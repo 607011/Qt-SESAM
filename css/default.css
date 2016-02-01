@@ -267,6 +267,10 @@ ul {
     max-width: unset;
   }
 
+  h1 {
+    font-size: 310%;
+  }
+
   p {
     max-width: unset;
     margin: 1ex 10px;
