@@ -1863,6 +1863,7 @@ void MainWindow::saveSettings(void)
   _LOG("MainWindow::saveSettings()");
   d->settings.setValue("sync/param", collectedSyncData());
   d->settings.setValue("mainwindow/geometry", saveGeometry());
+  d->settings.setValue("mainwindow/language", d->language);
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
   d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
@@ -1879,42 +1880,13 @@ void MainWindow::saveSettings(void)
 }
 
 
-#if HACKING_MODE_ENABLED
-void MainWindow::hackLegacyPassword(void)
-{
-  Q_D(MainWindow);
-  const QString &pwd = ui->legacyPasswordLineEdit->text();
-  if (pwd.isEmpty()) {
-    QMessageBox::information(this, tr("Cannot hack"), tr("No legacy password given. Cannot hack!"));
-  }
-  else {
-    ui->tabWidget->setCurrentIndex(0);
-    blockUpdatePassword();
-    d->masterPasswordInvalidationTimer.stop();
-    d->hackingMode = true;
-    d->hackSalt.fill(0);
-    d->hackPos = PositionTable(pwd);
-    d->hackPermutations = d->hackPos.permutations();
-    d->hackIterationDurationMs = 0;
-    const QStringList &chrs = pwd.split("", QString::SkipEmptyParts).toSet().toList(); // keep this for backwards compatibility (Qt < 5.5)
-    ui->usedCharactersPlainTextEdit->setPlainText(chrs.join(""));
-    ui->legacyPasswordLineEdit->setReadOnly(true);
-    ui->usedCharactersPlainTextEdit->setReadOnly(true);
-    ui->renewSaltPushButton->setEnabled(false);
-    ui->passwordLengthSpinBox->setValue(pwd.size());
-    d->hackClock.restart();
-    d->hackIterationClock.restart();
-    unblockUpdatePassword();
-    ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
-  }
-}
-#endif
-
-
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
+  QString defaultLanguage = QLocale::system().name();
+  defaultLanguage.truncate(defaultLanguage.lastIndexOf('_'));
+  setLanguage(d->settings.value("mainwindow/language", defaultLanguage).toString());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -1962,6 +1934,38 @@ bool MainWindow::restoreSettings(void)
   _LOG("MainWindow::restoreSettings() finish.");
   return true;
 }
+
+
+#if HACKING_MODE_ENABLED
+void MainWindow::hackLegacyPassword(void)
+{
+  Q_D(MainWindow);
+  const QString &pwd = ui->legacyPasswordLineEdit->text();
+  if (pwd.isEmpty()) {
+    QMessageBox::information(this, tr("Cannot hack"), tr("No legacy password given. Cannot hack!"));
+  }
+  else {
+    ui->tabWidget->setCurrentIndex(0);
+    blockUpdatePassword();
+    d->masterPasswordInvalidationTimer.stop();
+    d->hackingMode = true;
+    d->hackSalt.fill(0);
+    d->hackPos = PositionTable(pwd);
+    d->hackPermutations = d->hackPos.permutations();
+    d->hackIterationDurationMs = 0;
+    const QStringList &chrs = pwd.split("", QString::SkipEmptyParts).toSet().toList(); // keep this for backwards compatibility (Qt < 5.5)
+    ui->usedCharactersPlainTextEdit->setPlainText(chrs.join(""));
+    ui->legacyPasswordLineEdit->setReadOnly(true);
+    ui->usedCharactersPlainTextEdit->setReadOnly(true);
+    ui->renewSaltPushButton->setEnabled(false);
+    ui->passwordLengthSpinBox->setValue(pwd.size());
+    d->hackClock.restart();
+    d->hackIterationClock.restart();
+    unblockUpdatePassword();
+    ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
+  }
+}
+#endif
 
 
 void MainWindow::onWriteFinished(QNetworkReply *reply)
