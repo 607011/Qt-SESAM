@@ -519,7 +519,7 @@ void MainWindow::changeEvent(QEvent *e)
 }
 
 
-void MainWindow::resizeEvent(QResizeEvent *e)
+void MainWindow::resizeEvent(QResizeEvent *)
 {
   // ...
 }
@@ -877,7 +877,7 @@ void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
 
 void MainWindow::applyComplexity(int complexityValue)
 {
-  const Password::Complexity complexity = Password::Complexity::fromValue(complexityValue);
+  const Password::Complexity &complexity = Password::Complexity::fromValue(complexityValue);
   updateCheckableLabel(ui->useDigitsLabel, complexity.digits);
   updateCheckableLabel(ui->useLowercaseLabel, complexity.lowercase);
   updateCheckableLabel(ui->useUppercaseLabel, complexity.uppercase);
@@ -920,34 +920,14 @@ void MainWindow::applyTemplateStringToGUI(const QString &t)
     templ = templateParts.at(1);
   }
   if (!templ.isEmpty()) {
-    int length = templ.length();
-    int complexityValue = Password::Complexity::fromTemplate(templ).value();
-//    qDebug() << "MainWindow::applyTemplateStringToGUI(" << t << ") ->" << templateParts << templ << length << complexityValue;
+    const int length = templ.length();
+    const int complexityValue = Password::Complexity::fromTemplate(templ).value();
     ui->easySelectorWidget->blockSignals(true);
     ui->easySelectorWidget->setLength(length);
     ui->easySelectorWidget->setComplexityValue(complexityValue);
     ui->easySelectorWidget->blockSignals(false);
     applyComplexity(complexityValue);
   }
-}
-
-
-QString MainWindow::usedCharacters(void)
-{
-  QString used;
-  if (ui->useDigitsLabel->isEnabled()) {
-    used += Password::Digits;
-  }
-  if (ui->useLowercaseLabel->isEnabled()) {
-    used += Password::LowerChars;
-  }
-  if (ui->useUppercaseLabel->isEnabled()) {
-    used += Password::UpperChars;
-  }
-  if (ui->useExtraLabel->isEnabled()) {
-    used += ui->extraLineEdit->text();
-  }
-  return used;
 }
 
 

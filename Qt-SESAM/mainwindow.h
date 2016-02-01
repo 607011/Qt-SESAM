@@ -208,7 +208,6 @@ private: // methods
   bool domainComboboxContains(const QString &domain) const;
   void applyComplexity(int complexityValue);
   void setTemplate(void);
-  QString usedCharacters(void);
   void applyTemplateStringToGUI(const QString &);
   void updateCheckableLabel(QLabel *, bool checked);
   QString selectAlternativeDomainNameFor(const QString &domainName);
