@@ -3056,8 +3056,7 @@ void MainWindow::setLanguage(const QString &language)
   if (language != d->language) {
     qApp->removeTranslator(&d->translator);
     d->language = language;
-    QLocale locale = QLocale(d->language);
-    QLocale::setDefault(locale);
+    QLocale::setDefault(QLocale(d->language));
     bool ok = d->translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
     if (ok) {
       qApp->installTranslator(&d->translator);

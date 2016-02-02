@@ -155,4 +155,3 @@ void CountdownWidget::resizeEvent(QResizeEvent *e)
   redrawImage(e->size());
 }
 
-

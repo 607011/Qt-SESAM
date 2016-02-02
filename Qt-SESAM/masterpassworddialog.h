@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QShowEvent>
 #include <QCloseEvent>
+#include <QEvent>
 #include <QScopedPointer>
 
 namespace Ui {
@@ -52,6 +53,7 @@ signals:
 protected:
   void showEvent(QShowEvent*);
   void closeEvent(QCloseEvent*);
+  void changeEvent(QEvent *);
 
 private slots:
   void okClicked(void);
