@@ -99,14 +99,14 @@
           <source src="screencasts/enter-settings-1-de.mp4" type="video/mp4" />
         </video>
       </p>
-      <p>Wie man sehen kann, ändert sich das generierte Passwort während des Eintippens. Das hängt damit zusammen, dass der <a href="#password-generation">Algorithmus zur Passwortgenerierung</a> den Domain-Namen in das generierte Passwort einflechtet. Gleiches gilt für den Benutzernamen, so dass man mit Qt-SESAM mehrere Logins für dieselbe Domain haben kann.</p>
+      <p>Wie man sehen kann, ändert sich das gene&shy;rierte Pass&shy;wort während des Ein&shy;tippens. Das hängt damit zu&shy;sammen, dass der <a href="#password-generation">Algo&shy;rith&shy;mus zur Pass&shy;wort&shy;ge&shy;ne&shy;rierung</a> den Domain-Namen in das gene&shy;rierte Pass&shy;wort ein&shy;flech&shy;tet. Gleiches gilt für den Benutzernamen, so dass man mit Qt-SESAM mehrere Logins für dieselbe Domain haben kann.</p>
     </section>
 
     <section>
       <h2>Einzigartig und einfach</h2>
-      <p>In den meisten Fällen sind die Passwortparameter vollkommen ausreichend (16 Zeichen, bestehend aus Ziffern, Klein- und Großbuchstaben).
-        Wenn du mehr Kontrolle darüber haben willst, wie das Passwort zusammengesetzt wird, solltest du das Feature ausprobieren, das nur Qt-SESAM hat &mdash; der Easy Selector. Mit diesem Bedienelement kannst du Passwortlänge und -komplexität mit nur einem Mausklick festlegen. Ein rotes Klötzchen bedeutet ein schlechtes Passwort, grün ein gutes.
-        Verschiebe die Markierung in der Horizontalen, um die Länge zu ändern, in der Vertikalen, um die Zeichenmenge auszuwählen, aus denen das Passwort bestehen soll. Drei Zeichenmengen für Ziffern, Klein- und Großbuchstaben sind vorgegeben. Eine weitere kannst du selbst durch Eingabe in das Feld darunter bestimmen:
+      <p>In den meisten Fäl&shy;len sind die vor&shy;ein&shy;gestellten Pass&shy;wort&shy;para&shy;meter voll&shy;kommen aus&shy;rei&shy;chend (16 Zei&shy;chen, be&shy;stehend aus Zif&shy;fern, Klein- und Groß&shy;buch&shy;staben).
+        Wenn du mehr Kon&shy;trolle darüber haben willst, wie das Pass&shy;wort zusam&shy;men&shy;ge&shy;setzt wird, solltest du das Feature ausprobieren, das nur Qt-SESAM hat &mdash; der Easy Selector. Mit diesem Be&shy;dien&shy;ele&shy;ment kannst du Pass&shy;wort&shy;länge und -kom&shy;ple&shy;xi&shy;tät mit nur einem Maus&shy;klick fest&shy;legen. Ein rotes Klötz&shy;chen be&shy;deu&shy;tet ein schlech&shy;tes Pass&shy;wort, grün ein gutes.
+        Ver&shy;schiebe die Mar&shy;kierung in der Ho&shy;ri&shy;zon&shy;talen, um die Länge zu ändern, in der Ver&shy;ti&shy;kalen, um die Zei&shy;chen&shy;menge aus&shy;zu&shy;wählen, aus denen das Pass&shy;wort be&shy;ste&shy;hen soll. Drei Zeichenmengen für Ziffern, Klein- und Groß&shy;buch&shy;staben sind vor&shy;ge&shy;geben. Eine weitere kannst du selbst durch Ein&shy;gabe in das Feld darunter be&shy;stimmen:
       </p>
       <p>
         <video controls="controls" poster="screencasts/enter-settings-2-de.png" preload="auto">
@@ -115,7 +115,7 @@
           <source src="screencasts/enter-settings-2-de.mp4" type="video/mp4" />
         </video>
       </p>
-      <p>Nettes Gimmick: Das Widget zeigt beim Darüberfahren mit der Maus an, wie lange ein Angreifer benötigen würde, um das Passwort auf dem <a href="https://de.wikipedia.org/wiki/Tianhe-2" target="_blank">Supercomputer Tianhe-2</a> (oder auf deinem Computer) zu knacken. Dabei ist schön zu sehen, dass vor allem die Passwortlänge zur Stärke beiträgt, weniger die Größe der Zeichenmenge. Das liegt daran, dass die Länge exponenziell in die Berechnung der Stärke einfließt.</p>
+      <p>Nettes Gimmick: Das Widget zeigt beim Dar&shy;über&shy;fahren mit der Maus an, wie lange ein An&shy;grei&shy;fer benö&shy;tigen würde, um das Pass&shy;wort auf dem <a href="https://de.wikipedia.org/wiki/Tianhe-2" target="_blank">Super&shy;com&shy;puter Tianhe-2</a> (oder auf deinem Com&shy;puter) zu knacken. Dabei ist schön zu sehen, dass vor allem die Pass&shy;wort&shy;länge zur Stärke bei&shy;trägt, weniger die Größe der Zei&shy;chen&shy;men&shy;ge. Das liegt daran, dass die Länge expo&shy;nen&shy;ziell in die Be&shy;rechn&shy;ung der Stärke ein&shy;fließt.</p>
     </section>
 
     <section>
@@ -125,7 +125,7 @@
 
       <h4 id="kgk">Schlüsselerzeugungsschlüssel (KGK)</h4>
 
-      <p>Dreh- und Angelpunkt der Verschlüsselung, Entschlüsselung und Passwortgenerierung in Qt-SESAM ist der <strong>Schlüsselerzeugungsschlüssel (key generation key, KGK)</strong>. Beim KGK handelt es sich um einen 512 Bit langen, <a href="https://de.wikipedia.org/wiki/Zufall" target="_blank">zufällig</a> bei ersten Start von Qt-SESAM auf deinem Computer ermittelten Wert. Aus ihm entstehen die generierten Passwörter sowie die Schlüssel zur Verschlüsselung der Programmeinstellungen.
+      <p>Dreh- und Angel&shy;punkt der Ver&shy;schlüs&shy;selung, Ent&shy;schlüs&shy;selung und Pass&shy;wort&shy;ge&shy;ne&shy;rierung in Qt-SESAM ist der <strong>Schlüssel&shy;er&shy;zeu&shy;gungs&shy;schlüssel (key gene&shy;ra&shy;tion key, KGK)</strong>. Beim KGK handelt es sich um einen 512 Bit lan&shy;gen, <a href="https://de.wikipedia.org/wiki/Zufall" target="_blank">zufällig</a> bei ersten Start von Qt-SESAM auf deinem Com&shy;puter er&shy;mit&shy;tel&shy;ten Wert. Aus ihm ent&shy;stehen die ge&shy;ne&shy;rierten Pass&shy;wörter sowie die Schlüs&shy;sel zur Ver&shy;schlüs&shy;selung der Programm&shy;ein&shy;stel&shy;lungen.
       </p>
 
       <div class="figure">
@@ -135,9 +135,7 @@
 
       <h4 id="salt-generation">Salt</h4>
 
-      <p><img src="img/under-construction.png" width="240" height="240" title="Under construction" />
-
-      <p>Das <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)" target="_blank">Salt</a> is also random data. It's used to protect the generated passwords and cryptographic keys against <a href="https://en.wikipedia.org/wiki/Dictionary_attack" target="_blank">dictionary attacks</a> and <a href="https://en.wikipedia.org/wiki/Rainbow_table" target="_blank">rainbow table attacks</a>. More on that later.</p>
+      <p>Das <a href="https://de.wikipedia.org/wiki/Salt_(Kryptologie)" target="_blank">Salt</a> besteht eben&shy;falls aus Zu&shy;falls&shy;da&shy;ten. Es dient dazu, die ge&shy;ne&shy;rierten Pass&shy;wörter und kryp&shy;to&shy;gra&shy;fischen Schlüs&shy;sel gegen <a href="https://de.wikipedia.org/wiki/W%C3%B6rterbuchangriff" target="_blank">Wör&shy;ter&shy;buch</a>- und <a href="https://de.wikipedia.org/wiki/Rainbow_Table" target="_blank">Rain&shy;bow-Table</a>-Attacken ab&shy;zu&shy;si&shy;chern.</p>
 
       <div class="figure">
         <img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
@@ -145,10 +143,11 @@
 
       <h4 id="key-computation">Schlüsselberechnung</h4>
 
-      <p>Any time Qt-SESAM saves the settings to a file or transfers them over the net to the synchronization server the settings are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> in <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a> mode. Qt-SESAM uses the strongest possible AES encryption with a 256 bit key.</p>
-      <p>Like any symmetric cipher AES employs a key to encrypt or decrypt data. At the beginning of an encryption or decryption process AES has to be initialized with a block of 16&nbsp;bytes. This initialization vector (<a href="https://en.wikipedia.org/wiki/Initialization_vector" target="_blank">IV</a>) is computed along with the key from your master password through a process called <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">key derivation</a>. A well-tested manifestation is the Password-Based Key Derivation Function&nbsp;2 (<a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>) which scrambles your master password with the salt just generated. It does this by repeatedly (32768 times) running the inputs through a hash-based message authentication code (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code" target="_blank">HMAC</a>).</p>
-      <p>The repeated hashing adds a lot of computational work to derive the key from the password. That makes it especially hard for an attacker to find the password for a known hash by <a href="https://en.wikipedia.org/wiki/Brute-force_attack" target="_blank">brute-force</a> methods. The HMAC used by Qt-SESAM utilizes the hashing algorithm <a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a> because it pro&shy;vides a 384&nbsp;bit result needed to yield the 256&nbsp;bit AES key and 128&nbsp;bit IV.
-      </p>
+      <p>Jedes Mal, wenn Qt-SESAM die Ein&shy;stel&shy;lungen in eine Datei schreibt oder über das Netz zum Syn&shy;chro&shy;ni&shy;sie&shy;rungs&shy;server über&shy;trägt, werden sie per <a href="https://de.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://de.wikipedia.org/wiki/Cipher_Block_Chaining_Mode" target="_blank">CBC</a>-Modus ver&shy;schlüs&shy;selt. Qt-SESAM ver&shy;wen&shy;det dabei die stärkst&shy;mög&shy;liche Schlüs&shy;sel&shy;länge von 256 Bit.</p>
+      <p>Wie bei sym&shy;metri&shy;schen Ver&shy;schlüs&shy;se&shy;lungs&shy;al&shy;go&shy;rith&shy;men üblich, verwendet AES einen Schlüs&shy;sel zum (De)Chif&shy;frieren.
+        Zu Beginn einer Ver- oder Ent&shy;schlüs&shy;se&shy;lung muss der AES mit einem 16 Byte großen Wert ini&shy;tia&shy;li&shy;siert werden. Dieser so&shy;ge&shy;nannte <a href="https://de.wikipedia.org/wiki/Initialisierungsvektor" target="_blank">Initialisierungsvektor</a> (IV) wird zusammen mit AES-Schlüssel aus dem Master-Pass&shy;wort mit einem Ver&shy;fahren namens <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">Schlüs&shy;sel&shy;er&shy;wei&shy;terung</a> berechnet. Eine aus&shy;führ&shy;lich über&shy;prüfte und sichere Schlüs&shy;sel&shy;er&shy;wei&shy;te&shy;rungs&shy;me&shy;thode ist die Pass&shy;word-Based Key Deri&shy;vation Func&shy;tion&nbsp;2 (<a href="https://de.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>). Sie rührt das Master-Pass&shy;wort mit dem eben ge&shy;ne&shy;rierten Salt wie&shy;der&shy;holt zusammen. Die Ein&shy;ga&shy;ben werden dazu 32768 Mal einen Keyed-Hash Mes&shy;sage Auth&shy;en&shy;ti&shy;ca&shy;tion Code (<a href="https://de.wikipedia.org/wiki/Keyed-Hash_Message_Authentication_Code" target="_blank">HMAC</a>) gespeist.</p>
+      <p>Das wiederholte Hashing erschwert <a href="https://de.wikipedia.org/wiki/Brute-Force-Attacke" target="_blank">Brute-Force-Angriffe</a> auf er&shy;heb&shy;lich: Während Qt-SESAM diesen Vor&shy;gang für den AES-Schlüs&shy;sel nur einmal durch&shy;führen muss &mdash; was nahezu ver&shy;zö&shy;gerungs&shy;frei gelingt &mdash; muss ein An&shy;grei&shy;fer das für jeden Versuch tun.</p>
+      <p>Qt-SESAM verwendet einen HMAC mit <a href="https://de.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a>, weil dieses Ver&shy;fahren einen Hash mit 384 Bit Länge pro&shy;du&shy;ziert, die sich auf 256 Bit für den AES-Schlüs&shy;sel und 128 Bit für den IV aufteilen.</p>
 
       <div class="figure">
         <img src="img/algo03a-make-key-iv.png" width="477" height="142" title="Crypter::makeKeyIVFromPassword()" />
@@ -158,8 +157,10 @@
 
       <h3 id="password-generation">Passwort-Generierung</h3>
 
-      <p>A similar method comes into effect when generating a password. First, the KGK is appended to the domain and user name to form the input to PBKDF2, spiced with a salt.</p>
-      <p>The salt is shuffled the moment you create the entry for the domain or renew the generated password by pressing the button left to the password field. You can set the length of the salt via <span class="gui">Options/Misc/Salt length</span>. The default (and reasonable) length is 16&nbsp;byte. The longer the better, with 64&nbsp;bytes being the sensible upper limit.</p>
+      <p>Mit einer ähn&shy;lichen Metho&shy;de werden die Dienst&shy;pass&shy;wörter ge&shy;ne&shy;riert: Zunächst hängt Qt-SESAM den KGK an den Domain- und Benutzer&shy;namen an. Das Re&shy;sul&shy;tat wird zusam&shy;men mit einem Salt in PBKDF2 gespeist.</p>
+      <p>Das Salt entsteht just in dem Moment, in dem du einen neuen Domain-Ein&shy;trag anlegst oder das ge&shy;ne&shy;rierte Pass&shy;wort durch Drücken des Knopfes links neben dem Pass&shy;wort-Feld erneu&shy;erst. Die Länge des Salt lässt sich unter <span class="gui">Optionen/Diverse/Salt-Länge</span> einstellen. Vor&shy;ein&shy;ge&shy;stellt (und sinn&shy;voll) sind 16&nbsp;Byte. Je länger das Salt, umso bes&shy;ser. 64&nbsp;Byte ist jedoch ein sinn&shy;volles obe&shy;res Limit.</p>
+      <img src="img/under-construction.png" style="float:right; width: 240px; height: 240px; padding: 5px 0 20px 30px;" alt="< UNDER CONSTRUCTION >" title="< UNDER CONSTRUCTION >" />
+
       <p>You can determine the number of iterations by selecting the value in the corresponding spinbox (first expand the <span class="gui">Advanced settings</span> section). The default value can be set via <span class="gui">Options/Misc/Default PBKDF2 ite&shy;ra&shy;tions</span>. The higher the iteration count, the better. Higher values lead to longer to compu&shy;tation times which in turn can make the user inter&shy;face somewhat doughy. The default value of 8192 is sufficient. For instance, the Wi-Fi security protocol <a href="https://en.wikipedia.org/wiki/Wi-Fi_Protected_Access#WPA2" target="_blank">WPA2</a> uses 4096 iterations.</p>
       <p>The result of the operation is a 512 bit <q>key</q>. Eventually, the password is calculated from this key (see <a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp" class="code" target="_blank">Password::mix()</a>).</p>
       <div class="figure">
