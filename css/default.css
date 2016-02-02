@@ -216,12 +216,20 @@ ol.steps > li:before {
   font: bold 16px/32px Lato, sans-serif;
 }
 
-q::before {
+q:lang(en)::before {
   content: "“";
 }
 
-q::after {
+q:lang(en)::after {
   content: "”";
+}
+
+q:lang(de)::before {
+  content: "„";
+}
+
+q:lang(de)::after {
+  content: "‟";
 }
 
 .gui {
