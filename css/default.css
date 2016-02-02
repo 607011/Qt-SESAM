@@ -12,6 +12,34 @@ html, body {
   font-size: 13pt;
 }
 
+#language-chooser {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+#language-chooser a {
+  margin: 0 0.5em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+  background-color: #222;
+  color: #eee;
+  padding: 0.5ex 1em;
+  border: none;
+}
+
+#language-chooser a:hover {
+  background-color: #555;
+}
+
+#language-chooser a.active {
+  background-color: #e90101;
+}
+
 .banderole {
   position: fixed;
   top: 0;
