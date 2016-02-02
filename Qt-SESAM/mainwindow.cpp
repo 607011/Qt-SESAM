@@ -784,7 +784,7 @@ void MainWindow::onIterationsChanged(int)
 void MainWindow::onAddGroup(void)
 {
   Q_D(MainWindow);
-  qDebug() << "MainWindow::onAddGroup()";
+  //qDebug() << "MainWindow::onAddGroup()";
   QModelIndex index = ui->domainView->currentIndex();
   if (index.isValid()) {
     AbstractTreeNode *node = d->treeModel.node(index);
@@ -856,24 +856,25 @@ void MainWindow::onDomainViewDoubleClicked(const QModelIndex &modelIndex)
 
 void MainWindow::onCustomContextMenu(const QPoint &point)
 {
-    Q_D(MainWindow);
-    QModelIndex index = ui->domainView->indexAt(point);
-    if (index.isValid()) {
-        onDomainViewClicked(index);
-        AbstractTreeNode *node = d->treeModel.node(index);
-        if (node != Q_NULLPTR) {
-            if (node->type() == AbstractTreeNode::LeafType) {
-              d->contextMenuDomain->exec(QCursor::pos());
-            } else if (node->type() == AbstractTreeNode::GroupType) {
-              d->contextMenuGroup->actions().at(1)->setEnabled(true); // enable 'Edit group'
-              d->contextMenuGroup->exec(QCursor::pos());
-            }
-        }
-    } else {
-      // only valid option would be 'Add group'
-      d->contextMenuGroup->actions().at(1)->setDisabled(true); // disable 'Edit group'
-      d->contextMenuGroup->exec(QCursor::pos());
+  Q_D(MainWindow);
+  QModelIndex index = ui->domainView->indexAt(point);
+  if (index.isValid()) {
+    onDomainViewClicked(index);
+    AbstractTreeNode *node = d->treeModel.node(index);
+    if (node != Q_NULLPTR) {
+      if (node->type() == AbstractTreeNode::LeafType) {
+        d->contextMenuDomain->exec(QCursor::pos());
+      } else if (node->type() == AbstractTreeNode::GroupType) {
+        d->contextMenuGroup->actions().at(1)->setEnabled(true); // enable 'Edit group'
+        d->contextMenuGroup->exec(QCursor::pos());
+      }
     }
+  } else {
+    // only valid option would be 'Add group'
+    ui->domainView->setCurrentIndex(QModelIndex());
+    d->contextMenuGroup->actions().at(1)->setDisabled(true); // disable 'Edit group'
+    d->contextMenuGroup->exec(QCursor::pos());
+  }
 }
 
 void MainWindow::onTagChanged(QString)
