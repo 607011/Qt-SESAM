@@ -47,7 +47,7 @@
       <h2>Fertig?</h2>
       <p>
         Beim ersten Aufruf von Qt-SESAM verlangt die Anwen&shy;dung nach der Angabe eines Master-Pass&shy;worts. Dieses Pass&shy;wort ist der Gene&shy;ral&shy;schlüssel zur Ent&shy;schlüs&shy;selung der Login-Daten und sollte daher nicht nur möglichst kompli&shy;ziert sein, sondern auch keines&shy;falls in falsche Hände gelangen. 
-        Da das verwen&shy;dete Ver&shy;schlüs&shy;se&shy;lungs&shy;ver&shy;fahren (<a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#CBC" target="_blank">CBC</a>-Modus mit einem 256 Bit langen Schlüssel) als sicher gilt, hängt die Sicher&shy;heit aller mit Qt-SESAM ver&shy;wal&shy;teten Daten aus&shy;schließ&shy;lich von der Stärke des Master-Passworts ab.
+        Da das verwen&shy;dete Ver&shy;schlüs&shy;se&shy;lungs&shy;ver&shy;fahren (<a href="https://de.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://de.wikipedia.org/wiki/Cipher_Block_Chaining_Mode" target="_blank">CBC</a>-Modus mit einem 256 Bit langen Schlüssel) als sicher gilt, hängt die Sicher&shy;heit aller mit Qt-SESAM ver&shy;wal&shy;teten Daten aus&shy;schließ&shy;lich von der Stärke des Master-Passworts ab.
         Um sicher&shy;zustellen, dass Sie das Master-Passwort auch wirklich korrekt einge&shy;geben haben, fragt Sie Qt-SESAM zwei Mal danach:
       </p>
       <p>
@@ -72,9 +72,9 @@
       <div class="figure float-left">
         <img src="img/options-sync-de.png" title="sync settings" width="424" height="487" />
         <div class="title">
-          <p>Set your synchronization settings in <span class="gui">Options/Sync</span>. You can both synchronize with a file or a server. The file should reside on a cloud drive. How to set up the server is described in the <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't SESAM Server wiki</a>.</p>
+          <p>Synchronisierungsdatei und -server lassen sich in <span class="gui">Optionen/Synchronisierung</span> einstellen. Die Datei befindet sich sinnvollerweise in einem Cloud-Laufwerk. Wie man den Server einrichtet, steht im <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't-SESAM-Server-Wiki</a>.</p>
           <p>
-            Click on <span class="gui">Check&nbsp;connectivity</span> when you're finished with configuring the synchronization server.
+            Wenn Sie die Konfiguration beendet haben, klicken Sie auf <span class="gui">Verbindung&nbsp;prüfen</span>.
           </p>
         </div>
       </div>
@@ -82,8 +82,8 @@
       <div class="figure float-left">
           <img src="img/check-certificate-chain-de.png" title="check certificate chain" width="402" height="671" />
         <div class="title">
-          <p>If your configuration was correct, Qt-SESAM displays the server's certificate chain. Please check that the certificate chain actually is the one you've configured on the server. This is easily done be comparing the fingerprints. If the received ones match the configured ones, you can <span class="gui">Accept</span> the chain.</p>
-          <p>Qt-SESAM will then try to read your settings from the server. On success a tiny padlock is displayed next to the <span class="gui">Check&nbsp;connectivity</span> button in <span class="gui">Options/Sync</span>.</p>
+          <p>Wenn die Ein&shy;stel&shy;lungen korrekt sind, zeigt Qt-SESAM die Zer&shy;ti&shy;fi&shy;kats&shy;kette des Servers an. Bitte prüfen Sie, ob die ange&shy;zeig&shy;ten Infor&shy;ma&shy;tionen mit den Ein&shy;stel&shy;lungen auf dem Server über&shy;ein&shy;stimmen. Am leich&shy;testen geht das durch Ver&shy;glei&shy;chen der Fin&shy;ger&shy;ab&shy;drücke. Stimmen die Fin&shy;ger&shy;ab&shy;drücke überein, können Sie die Zer&shy;ti&shy;fi&shy;kate <span class="gui">Akzep&shy;tieren</span>.</p>
+          <p>Qt-SESAM versucht dann, die Ein&shy;stel&shy;lungen vom Server zu lesen. Ist alles glatt gegan&shy;gen, zeigt <span class="gui">Optio&shy;nen/Syn&shy;chro&shy;ni&shy;sierung</span> neben dem Knopf <span class="gui">Ver&shy;bin&shy;dung prüfen</span> ein kleines Vor&shy;hän&shy;ge&shy;schloss an.</p>
         </div>
       </div>
 
@@ -91,11 +91,7 @@
 
     <section>
       <h2>Erste Schritte</h2>
-      <p>
-        Enter a new domain by typing its name into the combo box. You'll notice that the generated password changes while you type.
-      That's because the <a href="#password-generation">algorithm for password generation</a> weaves the domain name into the eventually generated password.
-      The same is true for the user name so you can have multiple logins with different user names and passwords for the same service.
-      </p>
+      <p>Los gehts mit der Eingabe des ersten Logins. Die Logins werden nach dem Domain-Namen unterschieden, den du in die entsprechende Combobox einträgst:</p>
       <p>
         <video controls="controls" poster="screencasts/enter-settings-1-de.png" preload="auto">
           <source src="screencasts/enter-settings-1-de.ogv" type="video/ogg" />
@@ -103,16 +99,14 @@
           <source src="screencasts/enter-settings-1-de.mp4" type="video/mp4" />
         </video>
       </p>
+      <p>Wie man sehen kann, ändert sich das generierte Passwort während des Eintippens. Das hängt damit zusammen, dass der <a href="#password-generation">Algorithmus zur Passwortgenerierung</a> den Domain-Namen in das generierte Passwort einflechtet. Gleiches gilt für den Benutzernamen, so dass man mit Qt-SESAM mehrere Logins für dieselbe Domain haben kann.</p>
     </section>
 
     <section>
       <h2>Einzigartig und einfach</h2>
-      <p>
-        Most of time the default settings for password generation will suffice (16 characters: digits, lowercase and uppercase).
-      If you need more control over how the password is being generated, try out Qt-SESAM's unique feature: the easy selection widget. It lets you choose the complexity and length of the password with a single click. Red indicates bad passwords, green good ones.
-      Move the marker horizontally to change password length, and vertically to change the set of characters the password is composed of.
-      A set for digits as well as for lowercase and uppercase characters is predefined.
-      You can define your own set by typing it into the field below the easy selection widget.
+      <p>In den meisten Fällen sind die Passwortparameter vollkommen ausreichend (16 Zeichen, bestehend aus Ziffern, Klein- und Großbuchstaben).
+        Wenn du mehr Kontrolle darüber haben willst, wie das Passwort zusammengesetzt wird, solltest du das Feature ausprobieren, das nur Qt-SESAM hat &mdash; der Easy Selector. Mit diesem Bedienelement kannst du Passwortlänge und -komplexität mit nur einem Mausklick festlegen. Ein rotes Klötzchen bedeutet ein schlechtes Passwort, grün ein gutes.
+        Verschiebe die Markierung in der Horizontalen, um die Länge zu ändern, in der Vertikalen, um die Zeichenmenge auszuwählen, aus denen das Passwort bestehen soll. Drei Zeichenmengen für Ziffern, Klein- und Großbuchstaben sind vorgegeben. Eine weitere kannst du selbst durch Eingabe in das Feld darunter bestimmen:
       </p>
       <p>
         <video controls="controls" poster="screencasts/enter-settings-2-de.png" preload="auto">
@@ -121,7 +115,7 @@
           <source src="screencasts/enter-settings-2-de.mp4" type="video/mp4" />
         </video>
       </p>
-      <p>Very neat: the widget tells you how long the <a href="https://en.wikipedia.org/wiki/Tianhe-2" target="_blank">Tianhe-2 supercomputer</a> and your computer would need to crack a password with the selected settings. As you can see, increasing the password length lets the strength grow much faster than increasing the number of characters in the set. That's because the length flows in exponentially.</p>
+      <p>Nettes Gimmick: Das Widget zeigt beim Darüberfahren mit der Maus an, wie lange ein Angreifer benötigen würde, um das Passwort auf dem <a href="https://de.wikipedia.org/wiki/Tianhe-2" target="_blank">Supercomputer Tianhe-2</a> (oder auf deinem Computer) zu knacken. Dabei ist schön zu sehen, dass vor allem die Passwortlänge zur Stärke beiträgt, weniger die Größe der Zeichenmenge. Das liegt daran, dass die Länge exponenziell in die Berechnung der Stärke einfließt.</p>
     </section>
 
     <section>
@@ -129,11 +123,9 @@
 
       <h3 id="basics">Grundlagen</h3>
 
-      <h4 id="kgk">Schlüsslerzeugungsschlüssel (KGK)</h4>
+      <h4 id="kgk">Schlüsselerzeugungsschlüssel (KGK)</h4>
 
-      <p>The crucial element of the Qt-SESAM's encryption/decryption/generation processes is the <strong>key generation key (KGK)</strong>.
-        The KGK is a 512 bit value <a href="https://en.wikipedia.org/wiki/Randomness" target="_blank">randomly</a> chosen the first time you start Qt-SESAM on your computer. 
-        It's used to derive the generated passwords and to generate a key to encrypt and decrypt the program settings.
+      <p>Dreh- und Angelpunkt der Verschlüsselung, Entschlüsselung und Passwortgenerierung in Qt-SESAM ist der <strong>Schlüsselerzeugungsschlüssel (key generation key, KGK)</strong>. Beim KGK handelt es sich um einen 512 Bit langen, <a href="https://de.wikipedia.org/wiki/Zufall" target="_blank">zufällig</a> bei ersten Start von Qt-SESAM auf deinem Computer ermittelten Wert. Aus ihm entstehen die generierten Passwörter sowie die Schlüssel zur Verschlüsselung der Programmeinstellungen.
       </p>
 
       <div class="figure">
@@ -143,7 +135,7 @@
 
       <h4 id="salt-generation">Salt</h4>
 
-      <p>The <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)" target="_blank">salt</a> is also random data. It's used to protect the generated passwords and cryptographic keys against <a href="https://en.wikipedia.org/wiki/Dictionary_attack" target="_blank">dictionary attacks</a> and <a href="https://en.wikipedia.org/wiki/Rainbow_table" target="_blank">rainbow table attacks</a>. More on that later.</p>
+      <p>Das <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)" target="_blank">Salt</a> is also random data. It's used to protect the generated passwords and cryptographic keys against <a href="https://en.wikipedia.org/wiki/Dictionary_attack" target="_blank">dictionary attacks</a> and <a href="https://en.wikipedia.org/wiki/Rainbow_table" target="_blank">rainbow table attacks</a>. More on that later.</p>
 
       <div class="figure">
         <img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
@@ -233,8 +225,8 @@
       <h2>Wichtige Informationen</h2>
       <ul>
         <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/FAQ-%5Bde%5D">FAQ</a></li>
-        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux">Build instructions for Linux</a> (Englisch)</li>
-        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Windows">Build instructions for Windows</a> (Englisch)</li>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux">Qt-SESAM unter Linux kompilieren</a> (Englisch)</li>
+        <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Windows">Qt-SESAM unter Windows kompilieren</a> (Englisch)</li>
         <li><a href="https://github.com/ola-ct/Qt-SESAM/wiki/Contribute">How to contribute to Qt-SESAM</a> (Englisch)</li>
       </ul>
 
@@ -253,21 +245,21 @@
 
   <article class="no-float dark">
     <section>
-      <p>Qt-SESAM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version&nbsp;3 of the License, or (at your option) any later version. Qt-SESAM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/gpl-3.0" target="_blank">GNU General Public License</a> for more details.</p>
+      <p>Qt-SESAM ist freie Software. Du kannst sie unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version&nbsp;3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version. Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, dass es dir von Nutzen sein wird, aber OHNE JEDWEDE GARANTIE, auch ohne die implizite Garantie der MARKTREIFE oder der VERWENDBARKEIT FÜR EINEN BESTIMMTEN ZWECK. Details findest du in der <a href="http://www.gnu.de/documents/gpl.de.html" target="_blank">GNU General Public License</a>.</p>
       <p>
         Copyright &copy;&nbsp;2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, <a href="http://www.heise.de/" target="_blank">Heise Medien GmbH &amp;&nbsp;Co.&nbsp;KG</a>.
-    With contributions by
+    Unter Mitwirkung von
     <a href="https://github.com/egbrt" target="_blank">Egbert van der Haring</a>,
     <a href="https://github.com/stefanb2" target="_blank">Stefan Becker</a>,
-    <a href="https://github.com/fernsehkind" target="_blank">Ralph Haussmann</a>,
-    and
+    <a href="https://github.com/fernsehkind" target="_blank">Ralph Haussmann</a>
+    und
     <a href="https://github.com/cyberfuzzie" target="_blank">Sascha Riemer</a>.
-    Many thanks to <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> for lots of valuable ideas and wonderful discussions about the SESAM project in toto. A special appreciation goes to <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> for reporting bugs.
+    Vielen Dank an <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> für die zahlreichen wertvollen Anregungen und die tollen Diskussionen über das SESAM-Projekt im Allgemeinen. Meine besondere Anerkennung geht an <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> für das Melden von Bugs, gerade in der Anfangsphase von Qt-SESAM.
       </p>
       <p>
         Qt-SESAM verwendet die Bibliotheken <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> und <a href="https://github.com/fukuchi/libqrencode" target="_blank">libqrencode</a>.
       Crypto++ steht unter der <a href="http://www.boost.org/users/license.html" target="_blank">Boost Software License</a>, Version&nbsp;1.0. 
-      libqrencode steht unter der <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html" target="_blank">GNU Lesser General Public License&nbsp;2.1</a> oder neuer.
+      libqrencode steht unter der <a href="http://www.gnu.de/documents/lgpl-2.1.de.html" target="_blank">GNU Lesser General Public License&nbsp;2.1</a> oder neuer.
       </p>
     </section>
   </article>
