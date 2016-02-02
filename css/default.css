@@ -280,17 +280,20 @@ ul {
 
 
 @media screen and (max-width: 840px) {
+  #language-chooser {
+    position: absolute;
+  }
 
   section {
     max-width: unset;
     margin: 20px 10px 20px 10px;
   }
 
-  section img {
-    max-width: 100%;
-    max-height: 100%;
-    height: auto !important;
-  }
+    section img {
+      max-width: 100%;
+      max-height: 100%;
+      height: auto !important;
+    }
 
   article.no-float > section {
     max-width: unset;
@@ -301,10 +304,6 @@ ul {
   h1, h2, h3, h4, h5 {
     margin: 20px 10px;
     max-width: unset;
-  }
-
-  h1 {
-    font-size: 310%;
   }
 
   p {
@@ -322,3 +321,8 @@ ul {
   }
 }
 
+@media screen and (max-width: 580px) {
+  h1 {
+    font-size: 310%;
+  }
+}
