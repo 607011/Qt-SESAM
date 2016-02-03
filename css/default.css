@@ -339,7 +339,7 @@ ul {
   }
 
   body {
-    padding-right: 4cm;
+    padding-right: 5cm;
   }
 
   #language-chooser {
@@ -355,8 +355,25 @@ ul {
     background-color: #fff;
   }
 
-  p {
+  p, ul, li, ol {
     text-align: justify;
+    line-height: 12pt !important;
+  }
+
+  .figure {
+    text-align: left;
+  }
+
+  .figure.float-left img {
+    float: unset;
+    margin: unset;
+    text-align: left;
+  }
+
+  .figure.float-left .title {
+    text-align: left;
+    margin: 0;
+    padding-right: 5cm;
   }
 
   article.dark > section p {
@@ -367,19 +384,19 @@ ul {
     color: black;
   }
 
-  ol.steps > li:before {
-    position: absolute;
-    top: 0.5ex;
-    left: -40px;
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    color: white;
-    text-align: center;
-    -moz-border-radius: 16px;
-    -webkit-border-radius: 16px;
-    border-radius: 16px;
-    background-color: rgb(155, 45, 42) !important;
-    font: bold 16px/32px Lato, sans-serif;
+  #logo {
+    opacity: 0.5;
   }
+
+  ol.steps > li:before {
+    -webkit-print-color-adjust: exact;
+  }
+
+.code, code {
+  font-size: 9pt;
+  background-color: white;
+  color: black !important;
+  padding: unset;
+}
+
 }
