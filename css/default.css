@@ -359,9 +359,9 @@ ul {
     text-align: justify;
   }
 
-    article.dark > section p {
-      font: bold 6pt/8pt Lato, sans-serif !important;
-    }
+  article.dark > section p {
+    font: bold 6pt/8pt Lato, sans-serif !important;
+  }
 
   a, a:visited {
     color: black;
