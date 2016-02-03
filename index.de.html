@@ -59,22 +59,22 @@
       </p>
       <p>
         Während du tippsst, zeigt das Dialog&shy;fenster an, wie stark das bisher ein&shy;ge&shy;ge&shy;bene Pass&shy;wort ist.
-        Die Wer&shy;tungen reichen von <q>nutzlos</q> über <q>schlecht</q>, <q>mittelmäßig</q>, <q>gut</q> und <q>sehr gut</q> bis zu <q>sagenhaft</q>, <q>brutalst stark</q> und <q>super&shy;cali&shy;fragi&shy;listic&shy;ex&shy;pi&shy;al&shy;ige&shy;tisch</q>.
-        Der OK-Knopf wird erst aktiv, wenn du zwei Mal das gleiche Pass&shy;wort eingegeben hast.
+        Die Wer&shy;tungen rei&shy;chen von <q>nutz&shy;los</q> über <q>schlecht</q>, <q>mittel&shy;mäßig</q>, <q>gut</q> und <q>sehr gut</q> bis zu <q>sagen&shy;haft</q>, <q>bru&shy;talst stark</q> und <q>super&shy;cali&shy;fragi&shy;listic&shy;ex&shy;pi&shy;al&shy;ige&shy;tisch</q>.
+        Der OK-Knopf wird erst aktiv, wenn du zwei Mal das gleiche Pass&shy;wort ein&shy;ge&shy;geben hast.
       </p>
 
       <h3>Erst synchronisieren!</h3>
 
-      <p>Wenn du Qt-SESAM auf einem Com&shy;puter das aller&shy;erste Mal startest, wirst du gefragt, ob du einen Syn&shy;chro&shy;ni&shy;sierungs&shy;server betreiben oder dein Qt-SESAM-Ein&shy;stel&shy;lungen über eine Datei auf mehreren Rechnern syn&shy;chron halten willst. Ist das der Fall, solltest du im <span class="gui">Optionen</span>-Dialog die <span class="gui">Synchronisieren</span>-Parameter setzen und dann sofort syn&shy;chro&shy;ni&shy;sieren. Sonst läufst du Gefahr, später Pro&shy;bleme mit falschen Pass&shy;wörtern zu bekommen.
+      <p>Wenn du Qt-SESAM auf einem Com&shy;puter das aller&shy;erste Mal star&shy;test, wirst du ge&shy;fragt, ob du einen Syn&shy;chro&shy;ni&shy;sierungs&shy;server be&shy;trei&shy;ben oder dein Qt-SESAM-Ein&shy;stel&shy;lungen über eine Datei auf meh&shy;re&shy;ren Rech&shy;nern syn&shy;chron halten willst. Ist das der Fall, solltest du im <span class="gui">Optionen</span>-Dialog die <span class="gui">Syn&shy;chro&shy;ni&shy;sieren</span>-Para&shy;me&shy;ter setzen und dann sofort syn&shy;chro&shy;ni&shy;sieren. Sonst läufst du Gefahr, später Pro&shy;bleme mit fal&shy;schen Pass&shy;wörtern zu be&shy;kommen.
         Das liegt daran, dass Qt-SESAM beim aller&shy;ersten Start einen soge&shy;nann&shy;ten Schlüs&shy;sel&shy;er&shy;zeu&shy;gungs&shy;schlüs&shy;sel (key gene&shy;ration key, <a href="#kgk">KGK</a>) per Zufall gene&shy;riert. Aus dem KGK werden unter anderem die Dienstpasswörter berechnet. Sind sonst alle Ein&shy;stel&shy;lungen gleich, führen unter&shy;schied&shy;li&shy;che KGKs deshalb zu unter&shy;schied&shy;li&shy;chen Dienst&shy;pass&shy;wör&shy;tern. Lädst du die Ein&shy;stel&shy;lungen &mdash; sie enthalten den KGK &mdash; jedoch zunächst aus der Syn&shy;chro&shy;ni&shy;sierungs&shy;datei oder vom Server, kann das nicht pas&shy;sieren.
       </p>
 
       <div class="figure float-left">
         <img src="img/options-sync-de.png" title="sync settings" width="424" height="487" />
         <div class="title">
-          <p>Synchronisierungsdatei und -server lassen sich in <span class="gui">Optionen/Synchronisierung</span> einstellen. Die Datei befindet sich sinnvollerweise in einem Cloud-Laufwerk. Wie man den Server einrichtet, steht im <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't-SESAM-Server-Wiki</a>.</p>
+          <p>Syn&shy;chro&shy;ni&shy;sierungs&shy;datei und -ser&shy;ver las&shy;sen sich in <span class="gui">Optionen/Synchronisierung</span> einstellen. Die Datei befindet sich sinn&shy;vol&shy;ler&shy;weise in einem Cloud-Lauf&shy;werk. Wie man den Ser&shy;ver ein&shy;rich&shy;tet, steht im <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't-SESAM-Ser&shy;ver-Wiki</a>.</p>
           <p>
-            Wenn du die Konfiguration beendet hast, klicke auf <span class="gui">Verbindung&nbsp;prüfen</span>.
+            Wenn du die Kon&shy;fi&shy;gu&shy;ra&shy;tion been&shy;det hast, klicke auf <span class="gui">Ver&shy;bin&shy;dung&nbsp;prüfen</span>.
           </p>
         </div>
       </div>
@@ -170,31 +170,25 @@
 
       <h3 id="encryption">Verschlüsselung</h3>
 
-      <p>That's all Qt-SESAM needs to encrypt data, i.e. KGK and domain settings.
-        The encryption process looks very complicated but in fact is quite straight&shy;forward:</p>
-
-      <img src="img/under-construction.png" style="float:right; width: 240px; height: 240px; padding: 5px 0 20px 30px;" alt="< UNDER CONSTRUCTION >" title="< UNDER CONSTRUCTION >" />
+      <p>Damit sind alle Informationen beisammen, die Qt-SESAM zum Verschlüsseln der Daten (KGK und Domain-Einstellungen)  benötigt.
+        Das Verschlüsselungsverfahren wirkt auf den ersten Blick ziemlich kompliziert, ist aber vergleichsweise einfach:</p>
 
       <ol class="steps">
-        <li>
-          Because Qt-SESAM requires the KGK to generate your service passwords, the KGK has to be stored together with the domain settings.
-          And because the KGK is needed to encrypt/decrypt the domain settings, it has to be encrypted separately.
-          A second pair of salt and IV is generated for later use, and pre&shy;pended to the KGK.
-          The encryption process applies the <a href="#key-computation">key and IV returned by <code>Crypter::­make­&shy;Key&shy;­And&shy;­IV&shy;­From&shy;­Password()</code></a> in the previous steps. This means that the data is effec&shy;tively encrypted with your master password.
+        <li>Weil Qt-SESAM den KGK zum Be&shy;rech&shy;nen der Dienst&shy;pass&shy;wör&shy;ter benö&shy;tigt, muss er zu&shy;sam&shy;men mit den Domain-Ein&shy;stel&shy;lungen ab&shy;ge&shy;spei&shy;chert wer&shy;den.
+          Weil der KGK außer&shy;dem für die Ver&shy;schlüs&shy;se&shy;lung der Domain-Ein&shy;stel&shy;lungen benö&shy;tigt wird, muss er sepa&shy;rat ver&shy;schlüs&shy;selt wer&shy;den.
+          Zunächst wird ein zwei&shy;tes Salt/IV-Paar für spä&shy;ter ge&shy;ne&shy;riert und dem KGK voran&shy;ge&shy;stellt.
+          Zur der Ver&shy;schlüs&shy;se&shy;lung kommen <a href="#key-computation">der Schlüss&shy;el und der IV</a> zum Ein&shy;satz, die aus <code>Crypter::­make­&shy;Key&shy;­And&shy;­IV&shy;­From&shy;­Password()</code> her&shy;vor&shy;ge&shy;gan&shy;gen sind. Die Daten wer&shy;den dem&shy;nach effektiv mit deinem Master-Pass&shy;wort ver&shy;schlüs&shy;selt.
         </li>
-        <li>
-          The freshly generated salt from step&nbsp;1 is used to protect the AES encryption key (1024&nbsp;times spun through PBKDF2) against dictionary and rainbow-table attacks.
+        <li>Der 256-Bit-AES-Schlüssel wird aus dem KGK mit Hilfe von PBKDF2 berechnet. Das in Schritt&nbsp;1 ge&shy;ne&shy;rier&shy;te Salt schützt den Schlüs&shy;sel dabei gegen Wör&shy;ter&shy;buch- und Rain&shy;bow-Table-Attacken. 
         </li>
-        <li>
-          The domain settings are formatted in <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a>. This is a rather verbose format for data re&shy;pre&shy;sen&shy;ta&shy;tion and is easily compressed to a fraction of its original size.
-          But com&shy;pres&shy;sion does not only save space, it also adds compu&shy;ta&shy;tional effort for an adversary who has seized the encrypted data and tries to decrypt it by brute force.
+        <li>Die Domain-Ein&shy;stel&shy;lungen liegen intern im <a href="https://de.wikipedia.org/wiki/JavaScript_Object_Notation" target="_blank">JSON</a>-For&shy;mat vor. Das ist ein recht auf&shy;ge&shy;pluster&shy;tes For&shy;mat, das sich leicht auf einen Bruch&shy;teil seiner ur&shy;sprüng&shy;li&shy;chen Größe kom&shy;pri&shy;mieren lässt. 
+          Die Kom&shy;pri&shy;mierung spart nicht nur Spei&shy;cher&shy;platz, son&shy;dern er&shy;schwert auch An&shy;griffe gegen den Schlüs&shy;sel, weil die Daten bei jedem Crack-Ver&shy;such zunächst de&shy;kom&shy;pri&shy;miert wer&shy;den müs&shy;sen.
         </li>
-        <li>
-          The key from step&nbsp;2 together with the IV shuffled for step&nbsp;1 is used to encrypt the domain settings after they've been compressed.
+        <li>Der Schlüssel aus Schritt&nbsp;2 wird zusammen mit dem in Schritt&nbsp;1 aus&shy;ge&shy;wür&shy;fel&shy;ten IV zum Ver&shy;schlüs&shy;seln der Domain-Ein&shy;stel&shy;lungen heran&shy;ge&shy;zogen, nach&shy;dem sie kom&shy;pri&shy;miert wur&shy;den.
         </li>
-        <li>
-          Now the encrypted data can be assembled: The first byte is a version flag (currently only <code>0x01</code> is used). Thereon follows the <a href="#salt-generation">salt</a> that was used to <a href="#key-computation">make the key and IV from the master password</a>, then the encrypted KGK from step&nbsp;1, and the result of step&nbsp;4. 
-          This package can be stored anywhere without the fear of being compromised even if the hacker had long-term access to super&shy;computers. The privacy of the data contained therein totally relies on the strength of the master password &mdash; and how well you hide the password from prying eyes.
+        <li>Nun kann Qt-SESAM die ver&shy;schlüs&shy;selten Daten zu&shy;sam&shy;men&shy;fügen: Das erste Byte ist eine Ver&shy;sions&shy;ken&shy;nung (der&shy;zeit wird nur <code>0x01</code> ver&shy;wen&shy;det). 
+          Darauf folgt das <a href="#salt-generation">Salt</a>, das ver&shy;wen&shy;det wurde, um <a href="#key-computation">den Schlüs&shy;sel und IV aus dem Master-Pass&shy;wort zu be&shy;rech&shy;nen</a>. Dann fol&shy;gen der ver&shy;schlüs&shy;selte KGK von Schritt&nbsp;1 und das Ergeb&shy;nis von Schritt&nbsp;4. 
+          Dieses Kom&shy;plett&shy;paket kann man nun sorg&shy;los abspei&shy;chern oder über&shy;tra&shy;gen, ohne Gefahr zu laufen, dass ein Hacker es knacken kann, selbst wenn er dauer&shy;haften Zugang zu Super&shy;com&shy;pu&shy;tern hat. Die Sicher&shy;heit der im Paket ent&shy;hal&shy;te&shy;nen Daten hängt ein&shy;zig und allein von der Stärke des Master-Pass&shy;worts ab &mdash; und wie gut du es vor allzu neu&shy;gie&shy;rigen Blicken schützt.
         </li>
       </ol>
 
@@ -205,17 +199,16 @@
 
       <h3 id="decryption">Entschlüsselung</h3>
 
-      <p>Decrypting data works the other way round. As you can see, only the master password is needed for decryption.
-        All the other inter&shy;mediately needed secrets and other bits of data are extracted piece by piece:
+      <p>Die Ver&shy;schlüs&shy;se&shy;lung läuft in um&shy;ge&shy;kehr&shy;ter Richtung ab. Wie man sieht, ist dafür nur das Master-Pass&shy;wort von&shy;nöten.
+        Alle anderen wäh&shy;rend&shy;des&shy;sen er&shy;for&shy;der&shy;li&shy;chen Werte wer&shy;den aus den ver&shy;schlüs&shy;sel&shy;ten Daten Stück für Stück ex&shy;tra&shy;hiert:
       </p>
 
       <ol class="steps">
-        <li>After checking that the version number is <code>0x01</code> the encrypted package is deconstructed into its three parts.</p>
-        <li>The master password together with the extracted salt gives the key and IV 
-        needed to&nbsp;&hellip;</li>
-        <li>&hellip;&nbsp;decrypt the encrypted KGK, salt, and IV.</li>
-        <li>Now that the salt is available it can be used to calculate the decryption key.</li>
-        <li>The encrypted data can then be decrypted with that key and the IV from step&nbsp;3. After deflation the data is ready for use.</li>
+        <li>Nach der Prüfung, ob die Versionskennung <code>0x01</code> ist, zerlegt Qt-SESAM die ver&shy;schlüs&shy;selten Daten in ihre drei Haupt&shy;be&shy;stand&shy;teile.</li>
+        <li>Das Master-Pass&shy;wort ergibt zu&shy;sam&shy;men mit dem Salt den Schlüs&shy;sel und den IV, die erforderlich sind, um&nbsp;&hellip;</li>
+        <li>&hellip;&nbsp;den ver&shy;schlüs&shy;selten KGK, das Salt und den IV zu ent&shy;schlüs&shy;seln.</li>
+        <li>Mit dem Salt und dem KGK lässt sich nun der AES-Schlüs&shy;sel be&shy;rech&shy;nen.</li>
+        <li>Mit diesem Schlüs&shy;sel und dem IV von Schritt&nbsp;3 kann Qt-SESAM jetzt die Domain-Ein&shy;stel&shy;lungen ent&shy;schlüs&shy;seln. Nach der De&shy;kom&shy;pri&shy;mierung stehen sie zur wei&shy;te&shy;ren Ver&shy;wen&shy;dung bereit.</li>
       </ol>
 
       <div class="figure">
@@ -249,21 +242,21 @@
 
   <article class="no-float dark">
     <section>
-      <p>Qt-SESAM ist freie Software. Du kannst sie unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version&nbsp;3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version. Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, dass es dir von Nutzen sein wird, aber OHNE JEDWEDE GARANTIE, auch ohne die implizite Garantie der MARKTREIFE oder der VERWENDBARKEIT FÜR EINEN BESTIMMTEN ZWECK. Details findest du in der <a href="http://www.gnu.de/documents/gpl.de.html" target="_blank">GNU General Public License</a>.</p>
+      <p>Qt-SESAM ist freie Software. Du kannst sie unter den Be&shy;din&shy;gungen der GNU Gene&shy;ral Public License, wie von der Free Soft&shy;ware Foun&shy;dation ver&shy;öf&shy;fent&shy;licht, wei&shy;ter&shy;geben und/oder modi&shy;fi&shy;zieren, ent&shy;weder gemäß Ver&shy;sion&nbsp;3 der Lizenz oder (nach deiner Wahl) jeder späteren Version. Die Ver&shy;öffent&shy;lichung dieses Programms er&shy;folgt in der Hoff&shy;nung, dass es dir von Nutzen sein wird, aber OHNE JED&shy;WEDE GARAN&shy;TIE, auch ohne die im&shy;pli&shy;zite Ga&shy;ran&shy;tie der MARKT&shy;REIFE oder der VER&shy;WEND&shy;BAR&shy;KEIT FÜR EINEN BESTIMM&shy;TEN ZWECK. Details fin&shy;dest du in der <a href="http://www.gnu.de/documents/gpl.de.html" target="_blank">GNU Gene&shy;ral Public Li&shy;cense</a>.</p>
       <p>
         Copyright &copy;&nbsp;2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, <a href="http://www.heise.de/" target="_blank">Heise Medien GmbH &amp;&nbsp;Co.&nbsp;KG</a>.
-    Unter Mitwirkung von
+    Mit Beiträgen von
     <a href="https://github.com/egbrt" target="_blank">Egbert van der Haring</a>,
-    <a href="https://github.com/stefanb2" target="_blank">Stefan Becker</a>,
-    <a href="https://github.com/fernsehkind" target="_blank">Ralph Haussmann</a>
+    <a href="https://github.com/stefanb2" target="_blank">Ste&shy;fan Becker</a>,
+    <a href="https://github.com/fernsehkind" target="_blank">Ralph Hauss&shy;mann</a>
     und
     <a href="https://github.com/cyberfuzzie" target="_blank">Sascha Riemer</a>.
-    Vielen Dank an <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> für die zahlreichen wertvollen Anregungen und die tollen Diskussionen über das SESAM-Projekt im Allgemeinen. Meine besondere Anerkennung geht an <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> für das Melden von Bugs, gerade in der Anfangsphase von Qt-SESAM.
+    Vielen Dank an <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> für die zahl&shy;rei&shy;chen wert&shy;vollen Anre&shy;gun&shy;gen und die tol&shy;len Dis&shy;kus&shy;sio&shy;nen über das SESAM-Pro&shy;jekt im All&shy;ge&shy;meinen. Meine beson&shy;dere Aner&shy;ken&shy;nung geht an <a href="https://github.com/wikinaut" target="_blank">Wiki&shy;naut</a> für das Mel&shy;den von Bugs, gerade in der Anfangs&shy;phase von Qt-SESAM.
       </p>
       <p>
-        Qt-SESAM verwendet die Bibliotheken <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> und <a href="https://github.com/fukuchi/libqrencode" target="_blank">libqrencode</a>.
-      Crypto++ steht unter der <a href="http://www.boost.org/users/license.html" target="_blank">Boost Software License</a>, Version&nbsp;1.0. 
-      libqrencode steht unter der <a href="http://www.gnu.de/documents/lgpl-2.1.de.html" target="_blank">GNU Lesser General Public License&nbsp;2.1</a> oder neuer.
+        Qt-SESAM ver&shy;wen&shy;det die Bi&shy;blio&shy;the&shy;ken <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> und <a href="https://github.com/fukuchi/libqrencode" target="_blank">lib&shy;qr&shy;en&shy;code</a>.
+      Crypto++ steht unter der <a href="http://www.boost.org/users/license.html" target="_blank">Boost Soft&shy;ware License</a>, Version&nbsp;1.0. 
+      lib&shy;qr&shy;en&shy;code steht unter der <a href="http://www.gnu.de/documents/lgpl-2.1.de.html" target="_blank">GNU Les&shy;ser Gene&shy;ral Public Li&shy;cense&nbsp;2.1</a> oder neuer.
       </p>
     </section>
   </article>
