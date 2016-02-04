@@ -75,15 +75,12 @@ KeePass2XmlReader::~KeePass2XmlReader()
 }
 
 
-QString KeePass2XmlReader::groupHierarchy(int level)
+QStringList KeePass2XmlReader::groupHierarchy(int level)
 {
   Q_D(KeePass2XmlReader);
-  QString g;
+  QStringList g;
   for (int l = 2; l <= level; ++l) {
     g.append(d->groupNames[l]);
-    if (l < level) {
-      g.append("/");
-    }
   }
   return g;
 }

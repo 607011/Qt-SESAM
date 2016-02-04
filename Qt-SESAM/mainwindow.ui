@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
-    <height>739</height>
+    <width>595</width>
+    <height>610</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="2">
+      <item row="1" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QPushButton" name="shuffleUsernamePushButton">
@@ -96,34 +96,20 @@
        </layout>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>User name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="domainsComboBox">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Domain</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="label_12">
         <property name="text">
          <string>URL</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>User name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QLineEdit" name="urlLineEdit">
@@ -169,17 +155,30 @@
         </item>
        </layout>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
-      <item>
-       <widget class="QCheckBox" name="deleteCheckBox">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>delete</string>
+         <string>Domain</string>
         </property>
        </widget>
       </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="domainLineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="tagLineEdit">
+      <property name="visible">
+       <bool>false</bool>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -199,7 +198,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Save</string>
+         <string>&amp;Save</string>
         </property>
        </widget>
       </item>
@@ -209,7 +208,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Revert</string>
+         <string>&amp;Revert</string>
         </property>
         <property name="shortcut">
          <string>Esc</string>
@@ -222,7 +221,17 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Login</string>
+         <string>&amp;Login</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="deletePushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>&amp;Delete</string>
         </property>
        </widget>
       </item>
@@ -690,6 +699,9 @@
             <property name="echoMode">
              <enum>QLineEdit::PasswordEchoOnEdit</enum>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
             <property name="placeholderText">
              <string>don't fill unless service requires fixed password</string>
             </property>
@@ -888,6 +900,70 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="domainViewerDockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>230</width>
+     <height>149</height>
+    </size>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Domain Viewer</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeView" name="domainView">
+       <property name="acceptDrops">
+        <bool>true</bool>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::InternalMove</enum>
+       </property>
+       <property name="defaultDropAction">
+        <enum>Qt::MoveAction</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -1004,6 +1080,20 @@
     <string>Ctrl+E, Ctrl+F, Ctrl+P</string>
    </property>
   </action>
+  <action name="actionMigrateDomainToV3">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Migrate domain to v3</string>
+   </property>
+   <property name="toolTip">
+    <string>Migrate current domain settings from v2 (simple) to v3 (expert)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E, Ctrl+M</string>
+   </property>
+  </action>
   <action name="actionExportKGK">
    <property name="text">
     <string>KGK ...</string>
@@ -1087,22 +1177,28 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>domainsComboBox</tabstop>
-  <tabstop>urlLineEdit</tabstop>
+  <tabstop>domainView</tabstop>
+  <tabstop>domainLineEdit</tabstop>
+  <tabstop>shuffleUsernamePushButton</tabstop>
   <tabstop>userLineEdit</tabstop>
-  <tabstop>savePushButton</tabstop>
-  <tabstop>iterationsSpinBox</tabstop>
-  <tabstop>notesPlainTextEdit</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>openURLPushButton</tabstop>
   <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>deleteCheckBox</tabstop>
-  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
-  <tabstop>legacyPasswordLineEdit</tabstop>
-  <tabstop>extraLineEdit</tabstop>
+  <tabstop>urlLineEdit</tabstop>
+  <tabstop>openURLPushButton</tabstop>
+  <tabstop>savePushButton</tabstop>
   <tabstop>revertPushButton</tabstop>
+  <tabstop>loginPushButton</tabstop>
+  <tabstop>deletePushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>renewSaltPushButton</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>iterationsSpinBox</tabstop>
+  <tabstop>extraLineEdit</tabstop>
+  <tabstop>passwordTemplateLineEdit</tabstop>
+  <tabstop>saltBase64LineEdit</tabstop>
+  <tabstop>legacyPasswordLineEdit</tabstop>
+  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>

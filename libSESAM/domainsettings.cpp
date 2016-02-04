@@ -28,7 +28,8 @@ const QByteArray DomainSettings::DefaultSalt_base64 = DomainSettings::DefaultSal
 const int DomainSettings::DefaultIterations = 8192;
 const int DomainSettings::DefaultPasswordLength = 16;
 const int DomainSettings::DefaultSaltLength = 16;
-
+const QChar DomainSettings::TagSeparator = QChar('\t');
+const QChar DomainSettings::GroupSeparator = QChar('\t');
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
 const QString DomainSettings::URL = "url";
@@ -97,6 +98,36 @@ void DomainSettings::clear(void)
 }
 
 
+const QChar UniqueSeparator = QChar('/');
+
+// returns the unique name for the domain settings
+QString DomainSettings::getUniqueName(void) const
+{
+  QString uniqueName;
+  if (!groupHierarchy.isEmpty()) {
+    uniqueName = groupHierarchy.join(UniqueSeparator);
+    uniqueName.append(UniqueSeparator);
+  }
+  uniqueName.append(domainName);
+  if (!userName.isEmpty()) {
+    uniqueName.append(UniqueSeparator);
+    uniqueName.append(userName);
+  }
+  return uniqueName;
+}
+
+// replaces old with new group name
+void DomainSettings::replaceGroupName(QString oldName, QString newName)
+{
+  for (int i = 0; i < groupHierarchy.count(); i++) {
+    if (groupHierarchy.at(i) == oldName) {
+      groupHierarchy[i] = newName;
+    }
+  }
+}
+
+
+
 QVariantMap DomainSettings::toVariantMap(void) const
 {
   QVariantMap map;
@@ -119,13 +150,13 @@ QVariantMap DomainSettings::toVariantMap(void) const
       map[NOTES] = notes;
     }
     if (!groupHierarchy.isEmpty()) {
-      map[GROUP] = groupHierarchy;
+      map[GROUP] = groupHierarchy.join(GroupSeparator);
     }
     if (!expiryDate.isNull()) {
       map[EXPIRY_DATE] = expiryDate;
     }
     if (!tags.isEmpty()) {
-      map[TAGS] = tags.join(QChar('\t'));
+      map[TAGS] = tags.join(TagSeparator);
     }
     if (legacyPassword.isEmpty()) {
       map[SALT] = salt_base64;
@@ -150,6 +181,18 @@ QVariantMap DomainSettings::toVariantMap(void) const
 }
 
 
+QJsonDocument DomainSettings::toJsonDocument(void) const
+{
+  return QJsonDocument::fromVariant(toVariantMap());
+}
+
+
+QByteArray DomainSettings::toJson(void) const
+{
+  return toJsonDocument().toJson();
+}
+
+
 DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
 {
   DomainSettings ds;
@@ -168,10 +211,23 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.usedCharacters = map[USED_CHARACTERS].toString();
 #endif
   ds.passwordTemplate = map[PASSWORD_TEMPLATE].toByteArray();
-  ds.groupHierarchy = map[GROUP].toString();
+  ds.groupHierarchy = map[GROUP].toString().split(GroupSeparator, QString::SkipEmptyParts);
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
-  ds.tags = map[TAGS].toString().split(QChar('\t'), QString::SkipEmptyParts);
+  ds.tags = map[TAGS].toString().split(TagSeparator, QString::SkipEmptyParts);
   return ds;
+}
+
+
+DomainSettings DomainSettings::fromJson(const QByteArray &data)
+{
+  QJsonParseError jsonError;
+  DomainSettings ds = DomainSettings::fromVariantMap(QJsonDocument::fromJson(data, &jsonError)
+                                                     .toVariant()
+                                                     .toMap());
+  return jsonError.error == QJsonParseError::NoError
+      ? ds
+      : DomainSettings();
+  // TODO: propagate parse errors
 }
 
 
@@ -211,13 +267,13 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
       debug.nospace() << "  " << DomainSettings::NOTES << ": " << ds.notes << ",\n";
     }
     if (!ds.groupHierarchy.isEmpty()) {
-      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.groupHierarchy << ",\n";
+      debug.nospace() << "  " << DomainSettings::GROUP << ": " << ds.groupHierarchy.join(DomainSettings::GroupSeparator) << ",\n";
     }
     if (!ds.expiryDate.isNull()) {
       debug.nospace() << "  " << DomainSettings::EXPIRY_DATE << ": " << ds.expiryDate << ",\n";
     }
     if (!ds.tags.isEmpty()) {
-      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(',') << ",\n";
+      debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(DomainSettings::TagSeparator) << ",\n";
     }
     if (!ds.legacyPassword.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";
@@ -239,7 +295,7 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
     }
   }
   else {
-    debug.nospace() << "  " << DomainSettings::DELETED << ": true,\n";
+    debug.nospace() << "  " << DomainSettings::DELETED << ": true\n";
   }
   debug.nospace() << "}";
   return debug;
