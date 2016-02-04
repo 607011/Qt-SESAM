@@ -24,6 +24,7 @@
 #include <QWidget>
 #include <QDialog>
 #include <QShowEvent>
+#include <QEvent>
 #include <QScopedPointer>
 #include <QString>
 
@@ -52,7 +53,7 @@ private slots:
 
 protected:
   void showEvent(QShowEvent *);
-
+  void changeEvent(QEvent *);
 
 private:
   Ui::ChangeMasterPasswordDialog *ui;

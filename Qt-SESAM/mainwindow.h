@@ -162,6 +162,7 @@ private slots:
   void onImportPasswordSafeFile(void);
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
+  void onSelectLanguage(QAction *);
 
 signals:
   void passwordGenerated(void);
@@ -184,10 +185,13 @@ private:
   Q_DISABLE_COPY(MainWindow)
 
 private: // methods
+  void createLanguageMenu(void);
+  void setLanguage(const QString &);
   QMessageBox::StandardButton saveYesNoCancel(void);
   void resetAllFieldsExceptDomainName(void);
   void resetAllFields(void);
   bool restoreSettings(void);
+  void restoreLanguageSettings(void);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
   void copyDomainSettingsToGUI(const DomainSettings ds);
@@ -208,7 +212,6 @@ private: // methods
   void beginSyncWithServer(void);
   void applyComplexity(int complexityValue);
   void setTemplate(void);
-  QString usedCharacters(void);
   void applyTemplateStringToGUI(const QString &);
   void updateCheckableLabel(QLabel *, bool checked);
   void warnAboutDifferingKGKs(void);
@@ -220,6 +223,7 @@ private: // methods
   void removeOutdatedBackupFilesThread(void);
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
+  static QString defaultLocale(void);
 };
 
 #endif // __MAINWINDOW_H_

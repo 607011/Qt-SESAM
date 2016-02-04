@@ -22,6 +22,9 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
+#include <QLibraryInfo>
+#include <QTranslator>
+#include <QLocale>
 #include <QObject>
 #include <QList>
 #include <QPair>
@@ -51,7 +54,6 @@
 #include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QSemaphore>
-#include <QStandardPaths>
 #include <QDesktopServices>
 #include <QCompleter>
 #include <QShortcut>
@@ -61,8 +63,6 @@
 #include <QLockFile>
 #include <QPainter>
 #include <QPixmap>
-#include <QFutureWatcher>
-#include <QtConcurrent>
 
 #include "logger.h"
 #include "global.h"
@@ -111,7 +111,8 @@ static const char *ExpandedProperty = "expanded";
 class MainWindowPrivate {
 public:
   explicit MainWindowPrivate(QWidget *parent)
-    : masterPasswordDialog(new MasterPasswordDialog(parent))
+    : langGroup(Q_NULLPTR)
+    , masterPasswordDialog(new MasterPasswordDialog(parent))
     , changeMasterPasswordDialog(new ChangeMasterPasswordDialog(parent))
     , optionsDialog(new OptionsDialog(parent))
     , progressDialog(new ProgressDialog(parent))
@@ -164,6 +165,9 @@ public:
     }
     return KGK;
   }
+  QTranslator translator;
+  QString language;
+  QActionGroup *langGroup;
   MasterPasswordDialog *masterPasswordDialog;
   ChangeMasterPasswordDialog *changeMasterPasswordDialog;
   OptionsDialog *optionsDialog;
@@ -290,6 +294,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
+
+  createLanguageMenu();
+  restoreLanguageSettings();
 
   ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
@@ -552,7 +559,7 @@ void MainWindow::changeEvent(QEvent *e)
 }
 
 
-void MainWindow::resizeEvent(QResizeEvent *e)
+void MainWindow::resizeEvent(QResizeEvent *)
 {
   // ...
 }
@@ -969,7 +976,7 @@ void MainWindow::updateCheckableLabel(QLabel *label, bool checked)
 
 void MainWindow::applyComplexity(int complexityValue)
 {
-  const Password::Complexity complexity = Password::Complexity::fromValue(complexityValue);
+  const Password::Complexity &complexity = Password::Complexity::fromValue(complexityValue);
   updateCheckableLabel(ui->useDigitsLabel, complexity.digits);
   updateCheckableLabel(ui->useLowercaseLabel, complexity.lowercase);
   updateCheckableLabel(ui->useUppercaseLabel, complexity.uppercase);
@@ -1012,34 +1019,14 @@ void MainWindow::applyTemplateStringToGUI(const QString &t)
     templ = templateParts.at(1);
   }
   if (!templ.isEmpty()) {
-    int length = templ.length();
-    int complexityValue = Password::Complexity::fromTemplate(templ).value();
-//    qDebug() << "MainWindow::applyTemplateStringToGUI(" << t << ") ->" << templateParts << templ << length << complexityValue;
+    const int length = templ.length();
+    const int complexityValue = Password::Complexity::fromTemplate(templ).value();
     ui->easySelectorWidget->blockSignals(true);
     ui->easySelectorWidget->setLength(length);
     ui->easySelectorWidget->setComplexityValue(complexityValue);
     ui->easySelectorWidget->blockSignals(false);
     applyComplexity(complexityValue);
   }
-}
-
-
-QString MainWindow::usedCharacters(void)
-{
-  QString used;
-  if (ui->useDigitsLabel->isEnabled()) {
-    used += Password::Digits;
-  }
-  if (ui->useLowercaseLabel->isEnabled()) {
-    used += Password::LowerChars;
-  }
-  if (ui->useUppercaseLabel->isEnabled()) {
-    used += Password::UpperChars;
-  }
-  if (ui->useExtraLabel->isEnabled()) {
-    used += ui->extraLineEdit->text();
-  }
-  return used;
 }
 
 
@@ -1791,7 +1778,6 @@ void MainWindow::onBackupFilesRemoved(int n)
   ui->statusBar->showMessage(tr("Deleted %1 outdated backup files.").arg(n), 3000);
 }
 
-
 void MainWindow::writeBackupFile(void)
 {
   Q_D(MainWindow);
@@ -1873,7 +1859,8 @@ bool MainWindow::restoreDomainDataFromSettings(void)
     json = QJsonDocument::fromJson(recovered, &parseError);
     if (parseError.error == QJsonParseError::NoError) {
       domainList = json.object().keys();
-      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.").arg(domainList.count()), 5000);
+      ui->statusBar->showMessage(tr("Password accepted. Restored %1 domains.")
+                                 .arg(domainList.count()), 5000);
     }
     else {
       QMessageBox::warning(this, tr("Bad data from sync server"),
@@ -1932,10 +1919,7 @@ void MainWindow::saveSettings(void)
   _LOG("MainWindow::saveSettings()");
   d->settings.setValue("sync/param", collectedSyncData());
   d->settings.setValue("mainwindow/geometry", saveGeometry());
-  d->settings.setValue("mainwindow/state", saveState());
-  d->settings.setValue("domainViewerDock/geometry", ui->domainViewerDockWidget->saveGeometry());
-  for (int column = 0; column < d->treeModel.columnCount(); ++column)
-    d->settings.setValue(QString("domainView/column/%1/width").arg(column), ui->domainView->columnWidth(column));
+  d->settings.setValue("mainwindow/language", d->language);
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
   d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
@@ -1952,47 +1936,18 @@ void MainWindow::saveSettings(void)
 }
 
 
-#if HACKING_MODE_ENABLED
-void MainWindow::hackLegacyPassword(void)
+void MainWindow::restoreLanguageSettings(void)
 {
   Q_D(MainWindow);
-  const QString &pwd = ui->legacyPasswordLineEdit->text();
-  if (pwd.isEmpty()) {
-    QMessageBox::information(this, tr("Cannot hack"), tr("No legacy password given. Cannot hack!"));
-  }
-  else {
-    ui->tabWidget->setCurrentIndex(0);
-    blockUpdatePassword();
-    d->masterPasswordInvalidationTimer.stop();
-    d->hackingMode = true;
-    d->hackSalt.fill(0);
-    d->hackPos = PositionTable(pwd);
-    d->hackPermutations = d->hackPos.permutations();
-    d->hackIterationDurationMs = 0;
-    const QStringList &chrs = pwd.split("", QString::SkipEmptyParts).toSet().toList(); // keep this for backwards compatibility (Qt < 5.5)
-    ui->usedCharactersPlainTextEdit->setPlainText(chrs.join(""));
-    ui->legacyPasswordLineEdit->setReadOnly(true);
-    ui->usedCharactersPlainTextEdit->setReadOnly(true);
-    ui->renewSaltPushButton->setEnabled(false);
-    ui->passwordLengthSpinBox->setValue(pwd.size());
-    d->hackClock.restart();
-    d->hackIterationClock.restart();
-    unblockUpdatePassword();
-    ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
-  }
+  setLanguage(d->settings.value("mainwindow/language", defaultLocale()).toString());
 }
-#endif
 
 
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  restoreState(d->settings.value("mainwindow/state").toByteArray());
-  ui->domainViewerDockWidget->restoreGeometry(d->settings.value("domainViewerDock/geometry").toByteArray());
-//  for (int column = 0; column < d->treeModel.columnCount(); ++column) {
-//    ui->domainView->setColumnWidth(column, d->settings.value(QString("domainView/column/%1/width").arg(column), -1).toInt());
-//  }
+  restoreLanguageSettings();
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -2040,6 +1995,38 @@ bool MainWindow::restoreSettings(void)
   _LOG("MainWindow::restoreSettings() finish.");
   return true;
 }
+
+
+#if HACKING_MODE_ENABLED
+void MainWindow::hackLegacyPassword(void)
+{
+  Q_D(MainWindow);
+  const QString &pwd = ui->legacyPasswordLineEdit->text();
+  if (pwd.isEmpty()) {
+    QMessageBox::information(this, tr("Cannot hack"), tr("No legacy password given. Cannot hack!"));
+  }
+  else {
+    ui->tabWidget->setCurrentIndex(0);
+    blockUpdatePassword();
+    d->masterPasswordInvalidationTimer.stop();
+    d->hackingMode = true;
+    d->hackSalt.fill(0);
+    d->hackPos = PositionTable(pwd);
+    d->hackPermutations = d->hackPos.permutations();
+    d->hackIterationDurationMs = 0;
+    const QStringList &chrs = pwd.split("", QString::SkipEmptyParts).toSet().toList(); // keep this for backwards compatibility (Qt < 5.5)
+    ui->usedCharactersPlainTextEdit->setPlainText(chrs.join(""));
+    ui->legacyPasswordLineEdit->setReadOnly(true);
+    ui->usedCharactersPlainTextEdit->setReadOnly(true);
+    ui->renewSaltPushButton->setEnabled(false);
+    ui->passwordLengthSpinBox->setValue(pwd.size());
+    d->hackClock.restart();
+    d->hackIterationClock.restart();
+    unblockUpdatePassword();
+    ui->saltBase64LineEdit->setText(d->hackSalt.toBase64());
+  }
+}
+#endif
 
 
 void MainWindow::onWriteFinished(QNetworkReply *reply)
@@ -3071,4 +3058,66 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   }
   return QObject::eventFilter(obj, event);
+}
+
+
+void MainWindow::setLanguage(const QString &language)
+{
+  Q_D(MainWindow);
+  if (language != d->language) {
+    qApp->removeTranslator(&d->translator);
+    d->language = language;
+    QLocale::setDefault(QLocale(d->language));
+    bool ok = d->translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
+    if (ok) {
+      qApp->installTranslator(&d->translator);
+    }
+  }
+}
+
+
+void MainWindow::onSelectLanguage(QAction *action)
+{
+  if (action != Q_NULLPTR) {
+    setLanguage(action->data().toString());
+  }
+}
+
+
+QString MainWindow::defaultLocale(void)
+{
+  QString locale = QLocale::system().name();
+  locale.truncate(locale.lastIndexOf('_'));
+  return locale;
+}
+
+
+void MainWindow::createLanguageMenu(void)
+{
+  Q_D(MainWindow);
+  d->langGroup = new QActionGroup(ui->menuBar);
+  d->langGroup->setExclusive(true);
+  QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
+  QDir dir(":/translations");
+  const QString &myLocale = defaultLocale();
+  auto addLangAction = [&](const QString &locale) {
+    const QString &lang = QLocale::languageToString(QLocale(locale).language());
+    QAction *action = new QAction(lang, this);
+    action->setCheckable(true);
+    action->setData(locale);
+    ui->menuLanguage->addAction(action);
+    d->langGroup->addAction(action);
+    if (myLocale == locale) {
+      action->setChecked(true);
+    }
+  };
+  addLangAction("en");
+  const QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
+  foreach (QString filename, filenames) {
+    QString locale = filename;
+    locale.truncate(locale.lastIndexOf('.'));
+    locale.remove(0, locale.indexOf('_') + 1);
+    addLangAction(locale);
+  }
+  setLanguage(myLocale);
 }

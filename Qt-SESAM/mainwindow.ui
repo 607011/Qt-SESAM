@@ -818,8 +818,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>595</width>
-     <height>19</height>
+     <width>343</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -875,17 +875,23 @@
      <addaction name="actionRegenerateSaltKeyIV"/>
      <addaction name="actionClearAllSettings"/>
      <addaction name="actionForcedPush"/>
-     <addaction name="actionMigrateDomainToV3"/>
      <addaction name="separator"/>
      <addaction name="menuImport_2"/>
      <addaction name="menuExport"/>
      <addaction name="separator"/>
      <addaction name="actionDeleteOldBackupFiles"/>
     </widget>
+    <widget class="QMenu" name="menuLanguage">
+     <property name="title">
+      <string>Language</string>
+     </property>
+    </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
     <addaction name="actionLockApplication"/>
     <addaction name="actionClearClipboard"/>
+    <addaction name="separator"/>
+    <addaction name="menuLanguage"/>
     <addaction name="separator"/>
     <addaction name="menuExpertMode"/>
    </widget>
@@ -1138,6 +1144,26 @@
   <action name="actionExportAllDomainSettingsAsJSON">
    <property name="text">
     <string>All domain settings as JSON ...</string>
+   </property>
+  </action>
+  <action name="actionDeutsch">
+   <property name="text">
+    <string>Deutsch</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionBlah">
+   <property name="text">
+    <string>blah</string>
+   </property>
+  </action>
+  <action name="actionBlah_2">
+   <property name="text">
+    <string>blah</string>
    </property>
   </action>
  </widget>

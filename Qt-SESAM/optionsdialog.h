@@ -27,6 +27,7 @@
 #include <QNetworkReply>
 #include <QList>
 #include <QString>
+#include <QEvent>
 
 namespace Ui {
 class OptionsDialog;
@@ -121,6 +122,9 @@ public:
 
   bool extensiveWipeout(void) const;
   void setExtensiveWipeout(bool checked);
+
+protected:
+  void changeEvent(QEvent *);
 
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
