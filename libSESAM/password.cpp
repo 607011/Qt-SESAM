@@ -217,7 +217,7 @@ SecureString Password::remix(void)
       charSet = TemplateCharacters[m];
       break;
     default:
-      d->error = EmptyTemplateError;
+      d->error = InvalidTemplateError;
       d->errorString = QString("invalid template character: %1").arg(m);
       return SecureString();
     }
