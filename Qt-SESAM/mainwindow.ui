@@ -904,6 +904,8 @@
     <addaction name="separator"/>
     <addaction name="actionAddGroup"/>
     <addaction name="actionEditGroup"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenURL"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1215,13 +1217,24 @@
     <string>Edit Group</string>
    </property>
   </action>
+  <action name="actionOpenURL">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Open website...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>EasySelectorWidget</class>
    <extends>QWidget</extends>
-   <header location="global">easyselectorwidget.h</header>
+   <header>easyselectorwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

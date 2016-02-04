@@ -355,6 +355,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
   QObject::connect(ui->actionAddGroup, SIGNAL(triggered()), this, SLOT(onAddGroup()));
   QObject::connect(ui->actionEditGroup, SIGNAL(triggered()), this, SLOT(onEditGroup()));
+  QObject::connect(ui->actionOpenURL, SIGNAL(triggered()), this, SLOT(openURL()));
 
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
@@ -738,9 +739,16 @@ void MainWindow::setDirty(bool dirty)
 void MainWindow::openURL(void)
 {
   Q_D(MainWindow);
-  if (!ui->urlLineEdit->text().isEmpty()) {
-    QDesktopServices::openUrl(QUrl(ui->urlLineEdit->text()));
-    copyUsernameToClipboard();
+  QModelIndex index = ui->domainView->currentIndex();
+  AbstractTreeNode *node = d->treeModel.node(index);
+  if (node != Q_NULLPTR) {
+    if (node->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast <DomainNode*> (node);
+      if (domainNode->itemData().url != "") {
+        QDesktopServices::openUrl(QUrl(ui->urlLineEdit->text()));
+        copyUsernameToClipboard();
+      }
+    }
   }
 }
 
@@ -842,10 +850,12 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
   Q_D(MainWindow);
   AbstractTreeNode *node = d->treeModel.node(modelIndex);
   if (node != Q_NULLPTR) {
+    bool urlDefined = false;
     bool onDomainSetting = false;
     if (node->type() == AbstractTreeNode::LeafType) {
       DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
       d->currentDomainSettings = domainNode->itemData();
+      urlDefined = (domainNode->itemData().url != "");
       onDomainSetting = true;
       copyDomainSettingsToGUI(d->currentDomainSettings);
     } else {
@@ -856,6 +866,7 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
     ui->actionEditGroup->setEnabled(!onDomainSetting);
     ui->actionCopyUserName->setEnabled(onDomainSetting);
     ui->actionCopyPassword->setEnabled(onDomainSetting);
+    ui->actionOpenURL->setEnabled(urlDefined);
   }
 }
 
