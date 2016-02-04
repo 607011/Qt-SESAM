@@ -351,6 +351,11 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->actionImportKGK, SIGNAL(triggered(bool)), SLOT(onImportKGK()));
   QObject::connect(ui->actionKeePassXmlFile, SIGNAL(triggered(bool)), SLOT(onImportKeePass2XmlFile()));
   QObject::connect(ui->actionPasswordSafeFile, SIGNAL(triggered(bool)), SLOT(onImportPasswordSafeFile()));
+  QObject::connect(ui->actionCopyUserName, SIGNAL(triggered()), this, SLOT(copyUsernameToClipboard()));
+  QObject::connect(ui->actionCopyPassword, SIGNAL(triggered()), this, SLOT(copyPasswordToClipboard()));
+  QObject::connect(ui->actionAddGroup, SIGNAL(triggered()), this, SLOT(onAddGroup()));
+  QObject::connect(ui->actionEditGroup, SIGNAL(triggered()), this, SLOT(onEditGroup()));
+
   QObject::connect(d->optionsDialog, SIGNAL(serverCertificatesUpdated(QList<QSslCertificate>)), SLOT(onServerCertificatesUpdated(QList<QSslCertificate>)));
   QObject::connect(d->masterPasswordDialog, SIGNAL(accepted()), SLOT(onMasterPasswordEntered()));
   QObject::connect(d->masterPasswordDialog, SIGNAL(closing()), SLOT(onMasterPasswordClosing()), Qt::DirectConnection);
@@ -836,14 +841,21 @@ void MainWindow::onDomainViewClicked(const QModelIndex &modelIndex)
 {
   Q_D(MainWindow);
   AbstractTreeNode *node = d->treeModel.node(modelIndex);
-  if (node != Q_NULLPTR && node->type() == AbstractTreeNode::LeafType) {
-    DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
-    d->currentDomainSettings = domainNode->itemData();
-    copyDomainSettingsToGUI(d->currentDomainSettings);
-    //qDebug() << d->currentDomainSettings.getUniqueName();
-  } else {
-    d->currentDomainSettings.clear();
-    resetAllFields();
+  if (node != Q_NULLPTR) {
+    bool onDomainSetting = false;
+    if (node->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
+      d->currentDomainSettings = domainNode->itemData();
+      onDomainSetting = true;
+      copyDomainSettingsToGUI(d->currentDomainSettings);
+    } else {
+      d->currentDomainSettings.clear();
+      resetAllFields();
+    }
+    ui->actionAddGroup->setEnabled(!onDomainSetting);
+    ui->actionEditGroup->setEnabled(!onDomainSetting);
+    ui->actionCopyUserName->setEnabled(onDomainSetting);
+    ui->actionCopyPassword->setEnabled(onDomainSetting);
   }
 }
 

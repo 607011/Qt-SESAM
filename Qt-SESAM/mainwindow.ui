@@ -818,8 +818,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>343</width>
-     <height>21</height>
+     <width>595</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -895,7 +895,18 @@
     <addaction name="separator"/>
     <addaction name="menuExpertMode"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCopyUserName"/>
+    <addaction name="actionCopyPassword"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddGroup"/>
+    <addaction name="actionEditGroup"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuExtras"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -1164,6 +1175,44 @@
   <action name="actionBlah_2">
    <property name="text">
     <string>blah</string>
+   </property>
+  </action>
+  <action name="actionCopyUserName">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Copy &amp;username to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionCopyPassword">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Copy password to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionAddGroup">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Add Group</string>
+   </property>
+  </action>
+  <action name="actionEditGroup">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Edit Group</string>
    </property>
   </action>
  </widget>
