@@ -1571,7 +1571,7 @@ void MainWindow::saveCurrentDomainSettings(void)
           parentIndex = currentIndex;
         }
 
-       if (ds.domainName == d->currentDomainSettings.domainName) { // save changes to current domain
+       if (ds.getUniqueName() == d->currentDomainSettings.getUniqueName()) { // save changes to current domain
           DomainNode *domainNode = reinterpret_cast<DomainNode *>(node);
           ds.modifiedDate = QDateTime::currentDateTime();
           domainNode->changeDomainSettings(ds);
