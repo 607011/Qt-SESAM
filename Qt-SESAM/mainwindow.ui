@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
+    <width>595</width>
     <height>610</height>
    </rect>
   </property>
@@ -25,6 +25,38 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="1" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QPushButton" name="shuffleUsernamePushButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Shuffle a random username</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="QtSESAM.qrc">
+            <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QLineEdit" name="userLineEdit">
           <property name="placeholderText">
@@ -130,24 +162,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="domainsComboBox">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="domainLineEdit"/>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="groupLineEdit">
-      <property name="visible">
-       <bool>false</bool>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
     </item>
     <item>
      <widget class="QLineEdit" name="tagLineEdit">
@@ -161,13 +179,6 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
-      <item>
-       <widget class="QCheckBox" name="deleteCheckBox">
-        <property name="text">
-         <string>delete</string>
-        </property>
-       </widget>
-      </item>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -187,7 +198,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Save</string>
+         <string>&amp;Save</string>
         </property>
        </widget>
       </item>
@@ -197,7 +208,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Revert</string>
+         <string>&amp;Revert</string>
         </property>
         <property name="shortcut">
          <string>Esc</string>
@@ -210,7 +221,17 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Login</string>
+         <string>&amp;Login</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="deletePushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>&amp;Delete</string>
         </property>
        </widget>
       </item>
@@ -363,6 +384,9 @@
             <height>17</height>
            </size>
           </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
           <property name="title">
            <string>Advanced settings</string>
           </property>
@@ -381,7 +405,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Min. iterations</string>
+                <string>Iterations</string>
                </property>
               </widget>
              </item>
@@ -404,254 +428,162 @@
             </layout>
            </item>
            <item>
-            <widget class="QTabWidget" name="tabWidgetVersions">
-             <property name="currentIndex">
-              <number>1</number>
+            <layout class="QGridLayout" name="selectorGridLayout">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetMinimumSize</enum>
              </property>
-             <widget class="QWidget" name="tabV2">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <attribute name="title">
-               <string>Simple</string>
-              </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout">
-               <item>
-                <layout class="QFormLayout" name="formLayout_2">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_6">
-                   <property name="text">
-                    <string>Password length</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QSpinBox" name="passwordLengthSpinBox">
-                   <property name="minimum">
-                    <number>4</number>
-                   </property>
-                   <property name="value">
-                    <number>24</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_15">
-                 <property name="text">
-                  <string>Used characters</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPlainTextEdit" name="usedCharactersPlainTextEdit">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>60</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="tabV3">
-              <attribute name="title">
-               <string>Expert</string>
-              </attribute>
-              <layout class="QVBoxLayout" name="vLayoutV3">
-               <item>
-                <layout class="QGridLayout" name="selectorGridLayout">
-                 <property name="sizeConstraint">
-                  <enum>QLayout::SetMinimumSize</enum>
-                 </property>
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item row="0" column="0">
-                  <widget class="EasySelectorWidget" name="easySelectorWidget" native="true">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="cursor">
-                    <cursorShape>PointingHandCursor</cursorShape>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QGridLayout" name="gridLayout">
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item row="1" column="1">
-                  <widget class="QLabel" name="label_4">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>18</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>abcdefghijklmnopqrstuvwxyz</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QLabel" name="label_13">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>18</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
-                  <widget class="QLineEdit" name="extraLineEdit">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>18</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLabel" name="label_14">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>18</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>0123456789</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="useDigitsLabel">
-                   <property name="minimumSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="useLowercaseLabel">
-                   <property name="minimumSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="useUppercaseLabel">
-                   <property name="minimumSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="useExtraLabel">
-                   <property name="minimumSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="saltBase64LineEdit">
-                 <property name="visible">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="passwordTemplateLineEdit">
-                 <property name="visible">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </widget>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="EasySelectorWidget" name="easySelectorWidget" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>18</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>abcdefghijklmnopqrstuvwxyz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="label_13">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>18</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="extraLineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>18</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_14">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>18</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>0123456789</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="useDigitsLabel">
+               <property name="minimumSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="useLowercaseLabel">
+               <property name="minimumSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="useUppercaseLabel">
+               <property name="minimumSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="useExtraLabel">
+               <property name="minimumSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="QtSESAM.qrc">:/images/check.png</pixmap>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <spacer name="verticalSpacer_4">
@@ -668,6 +600,56 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <layout class="QFormLayout" name="extraInfoFormLayout">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="passwordTemplateLineEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Password template (FYI)</string>
+               </property>
+               <property name="inputMask">
+                <string notr="true"/>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="saltBase64LineEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Base64 encoded salt (FYI)</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Template</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Salt</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -836,8 +818,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>561</width>
-     <height>22</height>
+     <width>343</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -893,17 +875,23 @@
      <addaction name="actionRegenerateSaltKeyIV"/>
      <addaction name="actionClearAllSettings"/>
      <addaction name="actionForcedPush"/>
-     <addaction name="actionMigrateDomainToV3"/>
      <addaction name="separator"/>
      <addaction name="menuImport_2"/>
      <addaction name="menuExport"/>
      <addaction name="separator"/>
      <addaction name="actionDeleteOldBackupFiles"/>
     </widget>
+    <widget class="QMenu" name="menuLanguage">
+     <property name="title">
+      <string>Language</string>
+     </property>
+    </widget>
     <addaction name="actionOptions"/>
     <addaction name="actionChangeMasterPassword"/>
     <addaction name="actionLockApplication"/>
     <addaction name="actionClearClipboard"/>
+    <addaction name="separator"/>
+    <addaction name="menuLanguage"/>
     <addaction name="separator"/>
     <addaction name="menuExpertMode"/>
    </widget>
@@ -921,6 +909,9 @@
    </property>
    <property name="floating">
     <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
     <string>Domain Viewer</string>
@@ -965,43 +956,10 @@
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
       </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
-       <property name="leftMargin">
-        <number>9</number>
-       </property>
-       <property name="topMargin">
-        <number>9</number>
-       </property>
-       <property name="rightMargin">
-        <number>9</number>
-       </property>
-       <property name="bottomMargin">
-        <number>9</number>
-       </property>
-       <item>
-        <widget class="QPushButton" name="addGroupPushButton">
-         <property name="text">
-          <string>Add group</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
      </item>
     </layout>
    </widget>
@@ -1188,6 +1146,26 @@
     <string>All domain settings as JSON ...</string>
    </property>
   </action>
+  <action name="actionDeutsch">
+   <property name="text">
+    <string>Deutsch</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionBlah">
+   <property name="text">
+    <string>blah</string>
+   </property>
+  </action>
+  <action name="actionBlah_2">
+   <property name="text">
+    <string>blah</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -1199,27 +1177,28 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>domainsComboBox</tabstop>
-  <tabstop>userLineEdit</tabstop>
-  <tabstop>urlLineEdit</tabstop>
-  <tabstop>notesPlainTextEdit</tabstop>
-  <tabstop>savePushButton</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>openURLPushButton</tabstop>
-  <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>iterationsSpinBox</tabstop>
-  <tabstop>usedCharactersPlainTextEdit</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>deleteCheckBox</tabstop>
-  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
-  <tabstop>legacyPasswordLineEdit</tabstop>
-  <tabstop>extraLineEdit</tabstop>
-  <tabstop>passwordLengthSpinBox</tabstop>
-  <tabstop>revertPushButton</tabstop>
-  <tabstop>renewSaltPushButton</tabstop>
-  <tabstop>tabWidgetVersions</tabstop>
   <tabstop>domainView</tabstop>
+  <tabstop>domainLineEdit</tabstop>
+  <tabstop>shuffleUsernamePushButton</tabstop>
+  <tabstop>userLineEdit</tabstop>
+  <tabstop>copyUsernameToClipboardPushButton</tabstop>
+  <tabstop>urlLineEdit</tabstop>
+  <tabstop>openURLPushButton</tabstop>
+  <tabstop>savePushButton</tabstop>
+  <tabstop>revertPushButton</tabstop>
+  <tabstop>loginPushButton</tabstop>
+  <tabstop>deletePushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>renewSaltPushButton</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>iterationsSpinBox</tabstop>
+  <tabstop>extraLineEdit</tabstop>
+  <tabstop>passwordTemplateLineEdit</tabstop>
+  <tabstop>saltBase64LineEdit</tabstop>
+  <tabstop>legacyPasswordLineEdit</tabstop>
+  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>

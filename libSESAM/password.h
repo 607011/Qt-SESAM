@@ -20,6 +20,7 @@
 #ifndef __PASSWORD_H_
 #define __PASSWORD_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QScopedPointer>
@@ -40,39 +41,55 @@ class Password : public QObject
   Q_OBJECT
 public:
   typedef QMap<char, QString> TemplateCharacterMap;
-  enum {
-    TemplateDigits = 0,
-    TemplateLowercase,
-    TemplateUppercase,
-    TemplateExtra }
-  TemplatePlaceholder;
 
   Password(const DomainSettings &ds = DomainSettings(), QObject *parent = Q_NULLPTR);
   ~Password();
 
-  static const QVector<QBitArray> ComplexityMapping;
+  class Complexity {
+  public:
+    Complexity(void);
+    Complexity(const Complexity &);
+    Complexity(bool digits, bool lowercase, bool uppercase, bool extra);
+    bool digits;
+    bool lowercase;
+    bool uppercase;
+    bool extra;
+
+    bool operator==(const Complexity &);
+    bool operator!=(const Complexity &);
+    int value(void) const;
+
+    static Complexity fromValue(int c);
+    static Complexity fromTemplate(const QString &templ);
+
+  private:
+    static const QVector<Complexity> Mapping;
+  };
+
+  enum PasswordError {
+    NoError,
+    EmptyCharacterSetError,
+    EmptyTemplateError,
+    InvalidTemplateError
+  };
+
+  static const QString Digits;
   static const QString LowerChars;
   static const QString UpperChars;
-  static const QString Digits;
   static const QString ExtraChars;
-  static const QString AllChars;
   static const int DefaultMaxLength;
   static const int DefaultLength;
-  static const int DefaultComplexity;
-  static const int MaxComplexity;
-  static const int NoComplexity;
+  static const int DefaultComplexityValue;
+  static const int MaxComplexityValue;
+  static const int NoComplexityValue;
 
-  SecureString operator()(void) const;
   const SecureString &password(void) const;
   const SecureString &hexKey(void) const;
-  const SecureString &remix(void);
+  SecureString remix(void);
   void waitForFinished(void);
+  int error(void) const;
   QString errorString(void) const;
   void setDomainSettings(const DomainSettings &);
-
-  static QBitArray deconstructedComplexity(int complexity);
-  static int constructedComplexity(const QBitArray &);
-  static const QString &charSetFor(char);
 
   void generate(const SecureByteArray &key);
   void generateAsync(const SecureByteArray &key, const DomainSettings &domainSettings = DomainSettings());
@@ -94,5 +111,8 @@ private:
 
   static const TemplateCharacterMap TemplateCharacters;
 };
+
+
+QDebug operator<<(QDebug debug, const Password::Complexity &);
 
 #endif // __PASSWORD_H_

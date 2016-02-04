@@ -25,6 +25,7 @@
 #include <QSslConfiguration>
 #include <QList>
 #include <QScopedPointer>
+#include <QEvent>
 
 
 namespace Ui {
@@ -41,6 +42,9 @@ public:
   ~ServerCertificateWidget();
 
   void setServerSslErrors(const QSslConfiguration &, const QList<QSslError> &errorList);
+
+protected:
+  void changeEvent(QEvent *);
 
 private:
   Ui::ServerCertificateWidget *ui;

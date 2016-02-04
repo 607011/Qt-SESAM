@@ -43,8 +43,14 @@ public:
   explicit DomainTreeModel(QObject *parent = Q_NULLPTR);
   ~DomainTreeModel();
 
-  void populate(const DomainSettingsList &);
+  QModelIndex populate(const DomainSettingsList &);
   DomainNode *node(const QModelIndex &index) const;
+  void addNewGroup(const QModelIndex &index);
+  QStringList getGroupHierarchy(const QModelIndex &index);
+  void removeDomain(const QModelIndex &index);
+  QModelIndex addDomain(QModelIndex &parentIndex, const DomainSettings &ds);
+  DomainSettingsList getAllDomains();
+  void appendDomains(GroupNode *groupNode, DomainSettingsList *domains);
 
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
   bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
@@ -60,15 +66,18 @@ public:
   bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const Q_DECL_OVERRIDE;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) Q_DECL_OVERRIDE;
 
+signals:
+  void groupNameChanged();
+
 private:
   static GroupNode *findChild(const QString &name, GroupNode *node);
   static GroupNode *addToHierarchy(const QStringList &groups, GroupNode *node);
+  void replaceGroupName(QString oldName, QString newName, GroupNode *node);
 
 private: // member variables
   QScopedPointer<DomainTreeModelPrivate> d_ptr;
   Q_DECLARE_PRIVATE(DomainTreeModel)
   Q_DISABLE_COPY(DomainTreeModel)
-
 };
 
 #endif // __TREEMODEL_H_

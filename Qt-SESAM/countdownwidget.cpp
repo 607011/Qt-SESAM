@@ -29,6 +29,7 @@
 class CountdownWidgetPrivate {
 public:
   CountdownWidgetPrivate(void)
+    : timeoutMs(0)
   { /* ... */ }
   ~CountdownWidgetPrivate()
   { /* ... */ }
@@ -153,5 +154,4 @@ void CountdownWidget::resizeEvent(QResizeEvent *e)
 {
   redrawImage(e->size());
 }
-
 

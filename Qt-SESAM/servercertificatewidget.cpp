@@ -54,7 +54,10 @@ ServerCertificateWidget::~ServerCertificateWidget()
 void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslConf, const QList<QSslError> &errorList)
 {
   const QSslCipher &cipher = sslConf.sessionCipher();
-  const QString &fingerprint = fingerprintify(sslConf.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
+  QString fingerprint = "no fingerprint";
+  if (!sslConf.peerCertificateChain().isEmpty()) {
+    fingerprint = fingerprintify(sslConf.peerCertificateChain().last().digest(QCryptographicHash::Sha1));
+  }
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow(tr("Encryption"), new QLabel(cipher.name()));
@@ -172,4 +175,18 @@ void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslCon
     delete ui->scrollArea->layout();
   }
   ui->scrollArea->setLayout(vLayout);
+}
+
+
+void ServerCertificateWidget::changeEvent(QEvent *e)
+{
+  switch (e->type()) {
+  case QEvent::LanguageChange:
+  {
+    ui->retranslateUi(this);
+    break;
+  }
+  default:
+    break;
+  }
 }

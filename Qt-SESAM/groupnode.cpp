@@ -40,6 +40,12 @@ const QString &GroupNode::name(void) const
   return mName;
 }
 
+void GroupNode::setName(QString name)
+{
+  mName = name;
+}
+
+
 
 QVariant GroupNode::data(int column) const
 {

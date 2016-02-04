@@ -53,7 +53,6 @@ public:
   qreal elapsedSeconds(void) const;
   bool isRunning(void) const;
   bool isAborted(void) const;
-  void waitForFinished(void);
 
 signals:
   void generationStarted(void);

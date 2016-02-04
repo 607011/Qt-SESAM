@@ -19,12 +19,7 @@
 
 #include "mainwindow.h"
 #include "global.h"
-#include <QDebug>
 #include <QApplication>
-#include <QLibraryInfo>
-#include <QLocale>
-#include <QTranslator>
-#include <QByteArray>
 
 int main(int argc, char *argv[])
 {
@@ -32,9 +27,7 @@ int main(int argc, char *argv[])
 
   checkPortable();
 
-  bool forceStart = false;
-  if (argc > 1 && qstrcmp(argv[1], "--force-start") == 0)
-    forceStart = true;
+  bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
 
   QApplication a(argc, argv);
   a.setOrganizationName(AppCompanyName);
@@ -42,24 +35,6 @@ int main(int argc, char *argv[])
   a.setApplicationName(AppName);
   a.setApplicationVersion(AppVersion);
   a.setQuitOnLastWindowClosed(true);
-
-  QTranslator translator;
-  bool ok = translator.load(QLocale::system(),
-			    AppName,
-			    "_",
-#ifdef WIN32
-			    ":/translations"
-#else
-			    QLibraryInfo::location(QLibraryInfo::TranslationsPath)
-#endif
-			    );
-#ifdef QT_DEBUG
-  if (!ok)
-    qWarning() << "Could not load translations for" << QLocale::system().name() << "locale";
-#endif
-  if (ok) {
-    a.installTranslator(&translator);
-  }
 
   MainWindow w(forceStart);
   w.activateWindow();

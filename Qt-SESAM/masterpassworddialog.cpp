@@ -43,7 +43,7 @@ MasterPasswordDialog::MasterPasswordDialog(QWidget *parent)
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
   ui->infoLabel->setStyleSheet("font-weight: bold");
-  setWindowTitle(QString("%1 %2%3").arg(AppName).arg(AppVersion).arg(isPortable() ? " - PORTABLE" : ""));
+  setWindowTitle(QString("%1 %2").arg(AppName).arg(isPortable() ? " - PORTABLE" : ""));
   QObject::connect(ui->okPushButton, SIGNAL(pressed()), SLOT(okClicked()));
   QObject::connect(ui->passwordLineEdit, SIGNAL(textEdited(QString)), SLOT(checkPasswords()));
   QObject::connect(ui->repeatPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(checkPasswords()));
@@ -152,5 +152,18 @@ void MasterPasswordDialog::checkPasswords(void)
   }
   else {
     ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty());
+  }
+}
+
+void MasterPasswordDialog::changeEvent(QEvent *e)
+{
+  switch (e->type()) {
+  case QEvent::LanguageChange:
+  {
+    ui->retranslateUi(this);
+    break;
+  }
+  default:
+    break;
   }
 }

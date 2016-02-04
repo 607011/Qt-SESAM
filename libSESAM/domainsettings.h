@@ -32,6 +32,8 @@
 
 #include "securestring.h"
 
+#define OMIT_V2_CODE
+
 class DomainSettings {
 public:
   DomainSettings(void);
@@ -44,8 +46,15 @@ public:
   bool isEmpty(void) const;
   void clear(void);
 
+  // returns the unique name for the domain settings
+  QString getUniqueName(void) const;
+  void replaceGroupName(QString oldName, QString newName);
+
   static DomainSettings fromVariantMap(const QVariantMap &);
   static DomainSettings fromJson(const QByteArray &);
+#ifndef OMIT_V2_CODE
+  static bool isV2Template(const QString &);
+#endif
 
   static const QByteArray DefaultSalt;
   static const QByteArray DefaultSalt_base64;
@@ -74,12 +83,6 @@ public:
   static const QString ITERATIONS;
   int iterations;
 
-  static const QString PASSWORD_LENGTH;
-  int passwordLength;
-
-  static const QString USED_CHARACTERS;
-  QString usedCharacters;
-
   static const QString CDATE;
   QDateTime createdDate;
 
@@ -89,13 +92,16 @@ public:
   static const QString DELETED;
   bool deleted;
 
-  // v3 settings
-
   static const QString EXTRA_CHARACTERS;
   QString extraCharacters;
 
+#ifndef OMIT_V2_CODE
+  static const QString USED_CHARACTERS;
+  QString usedCharacters;
+#endif
+
   static const QString PASSWORD_TEMPLATE;
-  QByteArray passwordTemplate;
+  QString passwordTemplate;
 
   static const QString GROUP;
   QStringList groupHierarchy;
@@ -114,7 +120,7 @@ private:
 };
 
 
-extern QDebug operator<<(QDebug debug, const DomainSettings &ds);
+QDebug operator<<(QDebug debug, const DomainSettings &);
 
 
 #endif // __DOMAINSETTINGS_H_

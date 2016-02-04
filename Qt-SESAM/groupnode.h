@@ -33,6 +33,8 @@ public:
   virtual QVariant data(int column) const;
   virtual NodeType type(void) const;
 
+  void setName(QString name);
+
 protected:
   QString mName;
   DomainNode *mParentItem;

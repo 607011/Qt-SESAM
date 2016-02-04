@@ -23,6 +23,7 @@
 #include <QWidget>
 #include <QScopedPointer>
 #include <QPaintEvent>
+#include <QEvent>
 
 class CountdownWidgetPrivate;
 

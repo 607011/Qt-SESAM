@@ -51,7 +51,8 @@ DomainTreeModel::~DomainTreeModel()
 }
 
 
-GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node) {
+GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node)
+{
   GroupNode *foundChild = Q_NULLPTR;
   for (int row = 0; row < node->childCount(); ++row) {
     AbstractTreeNode *child = node->child(row);
@@ -67,7 +68,8 @@ GroupNode *DomainTreeModel::findChild(const QString &name, GroupNode *node) {
 }
 
 
-GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode *node) {
+GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode *node)
+{
   GroupNode *parentNode = node;
   foreach (QString groupName, groups) {
     GroupNode *childNode = findChild(groupName, parentNode);
@@ -81,7 +83,7 @@ GroupNode *DomainTreeModel::addToHierarchy(const QStringList &groups, GroupNode 
 }
 
 
-void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
+QModelIndex DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
 {
   Q_D(DomainTreeModel);
   SafeRenew<GroupNode*>(d->rootItem, new GroupNode);
@@ -91,14 +93,133 @@ void DomainTreeModel::populate(const DomainSettingsList &domainSettingsList)
       node->appendChild(new DomainNode(ds, node));
     }
   }
+  QModelIndex index = QModelIndex();
+  if ((d->rootItem != Q_NULLPTR) && (d->rootItem->childCount() > 0)) {
+    AbstractTreeNode *childItem = d->rootItem->child(0);
+    index = createIndex(0, 0, childItem);
+  }
+  return index;
 }
 
 
+void DomainTreeModel::addNewGroup(const QModelIndex &index)
+{
+  Q_D(DomainTreeModel);
+  GroupNode *parentNode = Q_NULLPTR;
+  if (index.isValid()) {
+    parentNode = reinterpret_cast<GroupNode*> (this->node(index));
+  }
+  else if (d->rootItem != Q_NULLPTR) {
+    parentNode = reinterpret_cast<GroupNode*> (d->rootItem);
+  }
+  if (parentNode != Q_NULLPTR) {
+    GroupNode *groupNode = new GroupNode("New group", parentNode);
+    parentNode->appendChild(groupNode);
+  }
+}
+
+
+QStringList DomainTreeModel::getGroupHierarchy(const QModelIndex &index)
+{
+  Q_D(DomainTreeModel);
+  QStringList groups = QStringList();
+  if (index.isValid()) {
+    GroupNode *groupNode = NULL;
+    AbstractTreeNode *currentNode = this->node(index);
+    if (currentNode->type() == AbstractTreeNode::LeafType) {
+      groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
+    } else {
+      groupNode = reinterpret_cast<GroupNode*> (currentNode);
+    }
+    while ((groupNode) && (groupNode != d->rootItem)) {
+      groups.prepend(groupNode->name());
+      groupNode = reinterpret_cast<GroupNode*> (groupNode->parentItem());
+    }
+  }
+  return groups;
+}
+
+
+void DomainTreeModel::removeDomain(const QModelIndex &index)
+{
+  if (index.isValid()) {
+    AbstractTreeNode *currentNode = this->node(index);
+    if (currentNode->type() == AbstractTreeNode::LeafType) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
+      groupNode->removeChild(currentNode);
+    }
+  }
+}
+
+
+QModelIndex DomainTreeModel::addDomain(QModelIndex &parentIndex, const DomainSettings &ds)
+{
+  Q_D(DomainTreeModel);
+  GroupNode *nodeGroup = addToHierarchy(ds.groupHierarchy, d->rootItem);
+  DomainNode *nodeDomain = new DomainNode(ds, nodeGroup);
+  nodeGroup->appendChild(nodeDomain);
+  QModelIndex index = QModelIndex();
+  if (parentIndex.isValid()) {
+    index = parentIndex.child(nodeDomain->row(), 0);
+  }
+  else if ((d->rootItem != Q_NULLPTR) && (d->rootItem->childCount() > 0)) {
+    AbstractTreeNode *childItem = d->rootItem->child(nodeDomain->row());
+    index = createIndex(childItem->row(), 0, childItem);
+  }
+  return index;
+}
+
+
+void DomainTreeModel::appendDomains(GroupNode *groupNode, DomainSettingsList *domains)
+{
+  for (int row = 0; row < groupNode->childCount(); ++row) {
+    AbstractTreeNode *child = groupNode->child(row);
+    if (child->type() == AbstractTreeNode::GroupType) {
+      appendDomains(reinterpret_cast<GroupNode*> (child), domains);
+    }
+    else if (child->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode*> (child);
+      DomainSettings ds = domainNode->itemData();
+      domains->append(ds);
+    }
+  }
+}
+
+
+DomainSettingsList DomainTreeModel::getAllDomains()
+{
+  Q_D(DomainTreeModel);
+  DomainSettingsList domains;
+  appendDomains(d->rootItem, &domains);
+  return domains;
+}
+
+
+void DomainTreeModel::replaceGroupName(QString oldName, QString newName, GroupNode *node)
+{
+  for (int row = 0; row < node->childCount(); ++row) {
+    AbstractTreeNode *child = node->child(row);
+    if (child->type() == AbstractTreeNode::GroupType) {
+      replaceGroupName(oldName, newName, reinterpret_cast<GroupNode*> (child));
+    }
+    else if (child->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode*> (child);
+      DomainSettings ds = domainNode->itemData();
+      ds.replaceGroupName(oldName, newName);
+      domainNode->changeDomainSettings(ds);
+    }
+  }
+}
+
 int DomainTreeModel::columnCount(const QModelIndex &parent) const
 {
+  // don't know where this is set, but I only want one column
+  return 1;
+  /*
   return parent.isValid()
       ? reinterpret_cast<DomainNode*>(parent.internalPointer())->columnCount()
       : d_ptr->rootItem->columnCount();
+      */
 }
 
 
@@ -112,32 +233,57 @@ DomainNode *DomainTreeModel::node(const QModelIndex &index) const
 
 QVariant DomainTreeModel::data(const QModelIndex &index, int role) const
 {
-  if (!index.isValid() || role != Qt::DisplayRole) {
-    return QVariant();
+  QVariant data = QVariant();
+  if (index.isValid()) {
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    if (role == Qt::DisplayRole) {
+      if (item->type() == AbstractTreeNode::LeafType) {
+        data = item->data(index.column());
+      }
+      if (index.column() == 0) {
+        data = item->data(0);
+      }
+    }
+    else if ((role == Qt::EditRole) && (item->type() == AbstractTreeNode::GroupType)) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*> (item);
+      data = groupNode->name();
+    }
   }
-  AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
-  if (item->type() == AbstractTreeNode::LeafType) {
-    return item->data(index.column());
-  }
-  if (index.column() == 0) {
-    return item->data(0);
-  }
-  return QVariant();
+  return data;
 }
 
 
 bool DomainTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-  return QAbstractItemModel::setData(index, value, role);
+  bool result = false;
+  if (role == Qt::EditRole) {
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    if (item->type() == AbstractTreeNode::GroupType) {
+      GroupNode *groupNode = reinterpret_cast<GroupNode*> (item);
+      QString newName = value.toString();
+      if (groupNode->name() != newName) {
+        replaceGroupName(groupNode->name(), newName, groupNode);
+        groupNode->setName(value.toString());
+        emit groupNameChanged();
+        result = true;
+      }
+    }
+  }
+  return result;
 }
 
 
 Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
 {
-  const Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
-  return index.isValid()
-      ? Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags
-      : Qt::ItemIsDropEnabled | defaultFlags;
+  Qt::ItemFlags itemFlags = QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
+  if (index.isValid()) {
+    itemFlags = itemFlags | Qt::ItemIsDragEnabled;
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+    if (item->type() == AbstractTreeNode::GroupType) {
+      itemFlags = itemFlags | Qt::ItemIsEditable;
+    }
+  }
+  return itemFlags;
 }
 
 
@@ -148,6 +294,7 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
     case 0: {
       return tr("Domain");
     }
+      /*
     case 1: {
       return tr("User");
     }
@@ -157,6 +304,7 @@ QVariant DomainTreeModel::headerData(int section, Qt::Orientation orientation, i
     case 3: {
       return tr("Tags");
     }
+    */
     default: {
       break;
     }

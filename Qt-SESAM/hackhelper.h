@@ -67,7 +67,7 @@ public:
   PositionTable(void)
     : mStrSize(0)
   { /* ... */ }
-  PositionTable(const QString &str)
+  explicit PositionTable(const QString &str)
   {
     mStrSize = str.size();
     for (quint64 spos = 0; spos < mStrSize; ++spos) {

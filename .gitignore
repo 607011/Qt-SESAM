@@ -34,3 +34,4 @@ twitter-banned.txt
 500-worst-passwords.txt
 all.txt
 alypaa.txt
+*.cppcheck

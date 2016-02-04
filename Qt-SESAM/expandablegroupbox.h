@@ -36,7 +36,7 @@ class ExpandableGroupbox : public QWidget
   Q_PROPERTY(bool expanded READ expanded WRITE setExpanded)
 
 public:
-  ExpandableGroupbox(QWidget *parent = Q_NULLPTR);
+  explicit ExpandableGroupbox(QWidget *parent = Q_NULLPTR);
   ~ExpandableGroupbox();
   void expand(void);
   void collapse(void);
