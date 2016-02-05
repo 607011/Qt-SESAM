@@ -1942,6 +1942,11 @@ void MainWindow::saveSettings(void)
   _LOG("MainWindow::saveSettings()");
   d->settings.setValue("sync/param", collectedSyncData());
   d->settings.setValue("mainwindow/geometry", saveGeometry());
+  d->settings.setValue("mainwindow/state", saveState());
+  d->settings.setValue("domainViewerDock/geometry", ui->domainViewerDockWidget->saveGeometry());
+  for (int column = 0; column < d->treeModel.columnCount(); ++column) {
+    d->settings.setValue(QString("domainView/column/%1/width").arg(column), ui->domainView->columnWidth(column));
+  }
   d->settings.setValue("mainwindow/language", d->language);
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());

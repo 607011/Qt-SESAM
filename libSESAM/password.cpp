@@ -190,13 +190,6 @@ SecureString Password::remix(void)
 {
   Q_D(Password);
   d->password.clear();
-#ifndef OMIT_V2_CODE
-  if (d->ds.usedCharacters.isEmpty()) {
-    d->error = EmptyCharacterSetError;
-    d->errorString = "used character set must not be empty";
-    return SecureString();
-  }
-#endif
   if (d->ds.passwordTemplate.isEmpty()) {
     d->error = EmptyTemplateError;
     d->errorString = "password template is empty";
@@ -224,7 +217,7 @@ SecureString Password::remix(void)
       charSet = TemplateCharacters[m];
       break;
     default:
-      d->error = EmptyTemplateError;
+      d->error = InvalidTemplateError;
       d->errorString = QString("invalid template character: %1").arg(m);
       return SecureString();
     }

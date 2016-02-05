@@ -211,15 +211,10 @@ void DomainTreeModel::replaceGroupName(QString oldName, QString newName, GroupNo
   }
 }
 
-int DomainTreeModel::columnCount(const QModelIndex &parent) const
+
+int DomainTreeModel::columnCount(const QModelIndex &) const
 {
-  // don't know where this is set, but I only want one column
   return 1;
-  /*
-  return parent.isValid()
-      ? reinterpret_cast<DomainNode*>(parent.internalPointer())->columnCount()
-      : d_ptr->rootItem->columnCount();
-      */
 }
 
 
