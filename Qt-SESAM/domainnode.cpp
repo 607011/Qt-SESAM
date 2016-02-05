@@ -40,11 +40,7 @@ QVariant DomainNode::data(int column) const
   switch (column) {
   case 0:
   {
-    QString text = mItemData.domainName;
-    if (!mItemData.userName.isEmpty()) {
-      text.append(QString(" [%1]").arg(mItemData.userName));
-    }
-    return text;
+    return mItemData.getUniqueNameInGroup();
   }
     /*
   case 1:

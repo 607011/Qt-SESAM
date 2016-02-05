@@ -48,6 +48,8 @@ public:
 
   // returns the unique name for the domain settings
   QString getUniqueName(void) const;
+  // returns the unique name within one group of domain settings
+  QString getUniqueNameInGroup(void) const;
   void replaceGroupName(QString oldName, QString newName);
 
   static DomainSettings fromVariantMap(const QVariantMap &);

@@ -94,6 +94,8 @@ private slots:
   void onDomainViewClicked(const QModelIndex &);
   void onDomainViewDoubleClicked(const QModelIndex &);
   void onGroupNameChanged();
+  void onGroupContentsChanged(QModelIndex index);
+  void onRootContentsChanged();
   void onSaltChanged(QString);
   void updatePassword(void);
   void copyUsernameToClipboard(void);

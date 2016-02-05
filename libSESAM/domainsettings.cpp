@@ -116,6 +116,18 @@ QString DomainSettings::getUniqueName(void) const
   return uniqueName;
 }
 
+
+// returns the unique name within one group of domain settings
+QString DomainSettings::getUniqueNameInGroup(void) const
+{
+  QString text = domainName;
+  if (!userName.isEmpty()) {
+    text.append(QString(" [%1]").arg(userName));
+  }
+  return text;
+}
+
+
 // replaces old with new group name
 void DomainSettings::replaceGroupName(QString oldName, QString newName)
 {

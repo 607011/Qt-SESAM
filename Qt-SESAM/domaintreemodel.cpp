@@ -142,11 +142,18 @@ QStringList DomainTreeModel::getGroupHierarchy(const QModelIndex &index)
 
 void DomainTreeModel::removeDomain(const QModelIndex &index)
 {
+  Q_D(DomainTreeModel);
   if (index.isValid()) {
     AbstractTreeNode *currentNode = this->node(index);
     if (currentNode->type() == AbstractTreeNode::LeafType) {
       GroupNode *groupNode = reinterpret_cast<GroupNode*> (currentNode->parentItem());
       groupNode->removeChild(currentNode);
+      if (groupNode == d->rootItem) {
+        emit rootContentsChanged();
+      }
+      else {
+        emit groupContentsChanged(index.parent());
+      }
     }
   }
 }
@@ -212,6 +219,22 @@ void DomainTreeModel::replaceGroupName(QString oldName, QString newName, GroupNo
 }
 
 
+bool DomainTreeModel::groupContains(GroupNode *parentNode, DomainSettings ds)
+{
+  bool present = false;
+  int row = 0;
+  while ((!present) && (row < parentNode->childCount())) {
+    AbstractTreeNode *child = parentNode->child(row);
+    if (child->type() == AbstractTreeNode::LeafType) {
+      DomainNode *domainNode = reinterpret_cast<DomainNode*> (child);
+      present = (ds.getUniqueNameInGroup() == domainNode->itemData().getUniqueNameInGroup());
+    }
+    row++;
+  }
+  return present;
+}
+
+
 int DomainTreeModel::columnCount(const QModelIndex &) const
 {
   return 1;
@@ -272,10 +295,13 @@ Qt::ItemFlags DomainTreeModel::flags(const QModelIndex &index) const
 {
   Qt::ItemFlags itemFlags = QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
   if (index.isValid()) {
-    itemFlags = itemFlags | Qt::ItemIsDragEnabled;
     AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
     if (item->type() == AbstractTreeNode::GroupType) {
       itemFlags = itemFlags | Qt::ItemIsEditable;
+    }
+    else {
+      // only leafs ie domain nodes can be dragged
+      itemFlags = itemFlags | Qt::ItemIsDragEnabled;
     }
   }
   return itemFlags;
@@ -314,7 +340,7 @@ QModelIndex DomainTreeModel::index(int row, int column, const QModelIndex &paren
   if (hasIndex(row, column, parent)) {
     AbstractTreeNode *parentItem = parent.isValid()
         ? reinterpret_cast<AbstractTreeNode*>(parent.internalPointer())
-        : parentItem = d_ptr->rootItem;
+        : d_ptr->rootItem;
     AbstractTreeNode *childItem = parentItem->child(row);
     return childItem != Q_NULLPTR
         ? createIndex(row, column, childItem)
@@ -369,8 +395,11 @@ QMimeData *DomainTreeModel::mimeData(const QModelIndexList &indexes) const
   QDataStream stream(&encodedData, QIODevice::WriteOnly);
   foreach (const QModelIndex &index, indexes) {
     if (index.isValid()) {
-      const DomainNode *const n = node(index);
-      stream << n->itemData().toJson();
+      AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(index.internalPointer());
+      if (item->type() == AbstractTreeNode::LeafType) {
+        const DomainNode *const n = node(index);
+        stream << n->itemData().toJson();
+      }
     }
   }
   mimeData->setData("application/json", encodedData);
@@ -396,34 +425,47 @@ bool DomainTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     return true;
   }
 
-  int beginRow;
-  if (row != -1) {
-    beginRow = row;
+  Q_D(DomainTreeModel);
+  GroupNode *parentNode = Q_NULLPTR;
+  QModelIndex parentIndex = QModelIndex();
+
+  if (parent.isValid()) {
+    parentIndex = parent;
+    AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(parent.internalPointer());
+    if (item->type() == AbstractTreeNode::GroupType) {
+      parentNode = reinterpret_cast<GroupNode*> (item);
+    }
+    else if (parent.parent().isValid()) {
+      // must be leaf, so make it a sibling
+      parentIndex = parent.parent();
+      AbstractTreeNode *item = reinterpret_cast<AbstractTreeNode*>(parentIndex.internalPointer());
+      if (item->type() == AbstractTreeNode::GroupType) {
+        parentNode = reinterpret_cast<GroupNode*> (item);
+      }
+    }
   }
-  else if (parent.isValid()) {
-    beginRow = parent.row();
-  }
-  else {
-    beginRow = rowCount(QModelIndex());
+  if (!parentNode) {
+    parentNode = reinterpret_cast<GroupNode*> (d->rootItem);
   }
 
-  DomainSettingsList newItems;
-  int rows = 0;
   QByteArray encodedData = data->data("application/json");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
   while (!stream.atEnd()) {
     QByteArray data;
     stream >> data;
-    newItems << DomainSettings::fromJson(data);
-    qDebug() << newItems.last();
-    ++rows;
-  }
-
-  insertRows(beginRow, rows, QModelIndex());
-  foreach (DomainSettings ds, newItems) {
-    QModelIndex idx = index(beginRow, 0, QModelIndex());
-    setData(idx, ds.toJson());
-    ++beginRow;
+    DomainSettings ds = DomainSettings::fromJson(data);
+    if (!groupContains(parentNode, ds)) {
+      if (parentNode == d->rootItem) {
+        ds.groupHierarchy.clear();
+        addDomain(parentIndex, ds);
+        emit rootContentsChanged();
+      }
+      else {
+        ds.groupHierarchy = getGroupHierarchy(parent);
+        addDomain(parentIndex, ds);
+        emit groupContentsChanged(parentIndex);
+      }
+    }
   }
 
   return true;

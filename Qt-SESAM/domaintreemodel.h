@@ -68,11 +68,14 @@ public:
 
 signals:
   void groupNameChanged();
+  void groupContentsChanged(QModelIndex index);
+  void rootContentsChanged();
 
 private:
   static GroupNode *findChild(const QString &name, GroupNode *node);
   static GroupNode *addToHierarchy(const QStringList &groups, GroupNode *node);
   void replaceGroupName(QString oldName, QString newName, GroupNode *node);
+  bool groupContains(GroupNode *parentNode, DomainSettings ds);
 
 private: // member variables
   QScopedPointer<DomainTreeModelPrivate> d_ptr;

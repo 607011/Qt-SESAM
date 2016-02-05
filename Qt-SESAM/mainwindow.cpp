@@ -406,6 +406,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->domainView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDomainViewDoubleClicked(QModelIndex)));
 
   QObject::connect(&d->treeModel, SIGNAL(groupNameChanged()), this, SLOT(onGroupNameChanged()));
+  QObject::connect(&d->treeModel, SIGNAL(groupContentsChanged(QModelIndex)), this, SLOT(onGroupContentsChanged(QModelIndex)));
+  QObject::connect(&d->treeModel, SIGNAL(rootContentsChanged()), this, SLOT(onRootContentsChanged()));
 
   // make a context menu for a group in treeview
   d->contextMenuGroup = new QMenu(ui->domainView);
@@ -840,7 +842,24 @@ void MainWindow::onEditGroup(void)
 
 void MainWindow::onGroupNameChanged()
 {
-  //qDebug() << "on group name changed";
+  saveAllDomainDataToSettings();
+}
+
+
+void MainWindow::onGroupContentsChanged(QModelIndex index)
+{
+  Q_D(MainWindow);
+  ui->domainView->collapse(index);
+  ui->domainView->expand(index);
+  ui->domainView->setCurrentIndex(index);
+  saveAllDomainDataToSettings();
+}
+
+
+void MainWindow::onRootContentsChanged()
+{
+  Q_D(MainWindow);
+  ui->domainView->reset();
   saveAllDomainDataToSettings();
 }
 
@@ -1561,7 +1580,7 @@ void MainWindow::saveCurrentDomainSettings(void)
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
 #ifndef OMIT_V2_CODE
-    if (ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
+    if (false) { //(ds.usedCharacters.isEmpty() && ds.legacyPassword.isEmpty()) {
       QMessageBox::warning(this, tr("Empty character table"), tr("You forgot to fill in some characters into the field \"used characters\""));
     }
     else {
@@ -1636,16 +1655,9 @@ void MainWindow::deleteCurrentDomainSettings(void)
     // first update tree view
     QModelIndex index = ui->domainView->currentIndex();
     d->treeModel.removeDomain(index);
-    ui->domainView->setExpanded(index.parent(), false);
-    ui->domainView->expand(index.parent());
-    ui->domainView->setCurrentIndex(index.parent());
 
-    saveAllDomainDataToSettings();
     resetAllFields();
-    ui->domainView->setCurrentIndex(index.parent());
-    ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
     d->currentDomainSettings.clear();
-    ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
   }
 }
 
@@ -1855,6 +1867,7 @@ void MainWindow::saveAllDomainDataToSettings(void)
         generateSaltKeyIV().waitForFinished();
       }
     }
+    ui->statusBar->showMessage(tr("Domain settings saved."), 3000);
   }
   else {
     _LOG("ERROR in MainWindow::saveAllDomainDataToSettings(): d->masterKey must not empty");
