@@ -99,6 +99,7 @@ private slots:
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
+  void onNotesChanged(void);
   void onLegacyPasswordChanged(QString legacyPassword);
   void onDomainTextChanged(const QString &);
   void onDomainSelected(QString);
@@ -117,7 +118,7 @@ private slots:
   void stopPasswordGeneration(void);
   void changeMasterPassword(void);
   void nextChangeMasterPasswordStep(void);
-  void setDirty(bool dirty = true);
+  void setDirty(bool dirty);
   void openURL(void);
   void onForcedPush(void);
   void onSync(void);

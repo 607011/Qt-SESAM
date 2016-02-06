@@ -740,7 +740,7 @@ void MainWindow::openURL(void)
 
 void MainWindow::onURLChanged(QString)
 {
-  setDirty();
+  setDirty(true);
   bool urlFieldFilled = !ui->urlLineEdit->text().isEmpty();
   ui->openURLPushButton->setEnabled(urlFieldFilled);
   ui->loginPushButton->setEnabled(urlFieldFilled);
@@ -749,14 +749,14 @@ void MainWindow::onURLChanged(QString)
 
 void MainWindow::onUserChanged(QString)
 {
-  setDirty();
+  setDirty(true);
   updatePassword();
 }
 
 
 void MainWindow::onUsedCharactersChanged(void)
 {
-  setDirty();
+  setDirty(true);
   updatePassword();
 }
 
@@ -764,7 +764,7 @@ void MainWindow::onUsedCharactersChanged(void)
 void MainWindow::onExtraCharactersChanged(QString)
 {
   Q_D(MainWindow);
-  setDirty();
+  setDirty(true);
   setTemplate();
   updatePassword();
 }
@@ -773,7 +773,7 @@ void MainWindow::onExtraCharactersChanged(QString)
 void MainWindow::onPasswordLengthChanged(int len)
 {
   Q_D(MainWindow);
-  setDirty();
+  setDirty(true);
   ui->easySelectorWidget->setLength(len);
   updatePassword();
 }
@@ -781,14 +781,14 @@ void MainWindow::onPasswordLengthChanged(int len)
 
 void MainWindow::onIterationsChanged(int)
 {
-  setDirty();
+  setDirty(true);
   updatePassword();
 }
 
 
 void MainWindow::onSaltChanged(QString)
 {
-  setDirty();
+  setDirty(true);
   restartInvalidationTimer();
   updatePassword();
 }
@@ -796,7 +796,7 @@ void MainWindow::onSaltChanged(QString)
 
 void MainWindow::onDeleteChanged(bool)
 {
-  setDirty();
+  setDirty(true);
   restartInvalidationTimer();
 }
 
@@ -1575,9 +1575,15 @@ void MainWindow::saveCurrentDomainSettings(void)
 }
 
 
+void MainWindow::onNotesChanged(void)
+{
+  setDirty(true);
+}
+
+
 void MainWindow::onLegacyPasswordChanged(QString legacyPassword)
 {
-  setDirty();
+  setDirty(true);
   ui->actionHackLegacyPassword->setEnabled(!legacyPassword.isEmpty());
   if (!legacyPassword.isEmpty()) {
     ui->generatedPasswordLineEdit->setText(QString());
