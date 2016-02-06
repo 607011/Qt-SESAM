@@ -27,14 +27,10 @@
 int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(QtSESAM);
-
   checkPortable();
-
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName);
   bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
-
-  int currentExitCode = 0;
-
+  int exitCode = 0;
   do {
     QApplication a(argc, argv);
     a.setOrganizationName(AppCompanyName);
@@ -42,19 +38,15 @@ int main(int argc, char *argv[])
     a.setApplicationName(AppName);
     a.setApplicationVersion(AppVersion);
     a.setQuitOnLastWindowClosed(true);
-
-    QString language = settings.value("mainwindow/language", MainWindow::defaultLocale()).toString();
+    const QString &language = settings.value("mainwindow/language", MainWindow::defaultLocale()).toString();
     QTranslator translator;
     bool ok = translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
     if (ok) {
       a.installTranslator(&translator);
     }
-
     MainWindow w(forceStart);
     w.activateWindow();
-    currentExitCode = a.exec();
-  }
-  while (currentExitCode == MainWindow::EXIT_CODE_REBOOT);
-
-  return currentExitCode;
+    exitCode = a.exec();
+  } while (exitCode == MainWindow::EXIT_CODE_REBOOT);
+  return exitCode;
 }
