@@ -1256,6 +1256,18 @@ in %1 Thread%2 ...</translation>
         <source>blah</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Select password length and complexity</source>
+        <translation>Passwortlänge und -komplexität wählen</translation>
+    </message>
+    <message>
+        <source>Changed language</source>
+        <translation>Spracheinstellung geändert</translation>
+    </message>
+    <message>
+        <source>You&apos;ve changed Qt-SESAM&apos;s language. Please restart Qt-SESAM to take the change into effect.</source>
+        <translation>Du hast die Spracheinstellung geändert. Bitte starte Qt-SESAM neu, um die Änderung durchzuführen.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
