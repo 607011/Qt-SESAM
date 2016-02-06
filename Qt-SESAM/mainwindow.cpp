@@ -103,6 +103,9 @@ static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
 
 static const char *ExpandedProperty = "expanded";
 
+const int MainWindow::EXIT_CODE_REBOOT = -12345679;
+
+
 class MainWindowPrivate {
 public:
   explicit MainWindowPrivate(QWidget *parent)
@@ -3058,10 +3061,15 @@ void MainWindow::onSelectLanguage(QAction *action)
   if (action != Q_NULLPTR) {
     const QString &newLanguage = action->data().toString();
     if (newLanguage != d->language) {
-      QMessageBox::information(this,
-                               tr("Changed language"),
-                               tr("You've changed Qt-SESAM's language. Please restart Qt-SESAM to take the change into effect."));
       setLanguage(newLanguage);
+      QMessageBox::StandardButton button =
+          QMessageBox::question(this,
+                                tr("Changed language"),
+                                tr("You've changed Qt-SESAM's language. Do you want to restart Qt-SESAM to take the change into effect?"));
+      if (button == QMessageBox::Yes) {
+        d->lockFile->unlock();
+        qApp->exit(EXIT_CODE_REBOOT);
+      }
     }
   }
 }

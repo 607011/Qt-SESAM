@@ -70,6 +70,9 @@ public:
   virtual QSize sizeHint(void) const;
   virtual QSize minimumSizeHint(void) const;
 
+  static int const EXIT_CODE_REBOOT;
+  static QString defaultLocale(void);
+
 private:
   typedef enum _Type {
     SyncPeerFile = 0x00000001,
@@ -222,7 +225,6 @@ private: // methods
   void removeOutdatedBackupFilesThread(void);
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
-  static QString defaultLocale(void);
 };
 
 #endif // __MAINWINDOW_H_

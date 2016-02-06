@@ -1266,7 +1266,11 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>You&apos;ve changed Qt-SESAM&apos;s language. Please restart Qt-SESAM to take the change into effect.</source>
-        <translation>Du hast die Spracheinstellung geändert. Bitte starte Qt-SESAM neu, um die Änderung durchzuführen.</translation>
+        <translation type="vanished">Du hast die Spracheinstellung geändert. Bitte starte Qt-SESAM neu, um die Änderung durchzuführen.</translation>
+    </message>
+    <message>
+        <source>You&apos;ve changed Qt-SESAM&apos;s language. Do you want to restart Qt-SESAM to take the change into effect?</source>
+        <translation>Du hast die Spracheinstellung geändert. Sie wird erst nach dem Neustart von Qt-SESAM wirksam. Möchtest du Qt-SESAM jetzt neustarten?</translation>
     </message>
 </context>
 <context>

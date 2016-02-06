@@ -32,23 +32,29 @@ int main(int argc, char *argv[])
 
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName);
   bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
-  QApplication a(argc, argv);
-  a.setOrganizationName(AppCompanyName);
-  a.setOrganizationDomain(AppCompanyDomain);
-  a.setApplicationName(AppName);
-  a.setApplicationVersion(AppVersion);
-  a.setQuitOnLastWindowClosed(true);
 
-  QString defaultLocaleString = QLocale::system().name();
-  defaultLocaleString.truncate(defaultLocaleString.lastIndexOf('_'));
-  QString language = settings.value("mainwindow/language", defaultLocaleString).toString();
-  QTranslator translator;
-  bool ok = translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
-  if (ok) {
-    a.installTranslator(&translator);
+  int currentExitCode = 0;
+
+  do {
+    QApplication a(argc, argv);
+    a.setOrganizationName(AppCompanyName);
+    a.setOrganizationDomain(AppCompanyDomain);
+    a.setApplicationName(AppName);
+    a.setApplicationVersion(AppVersion);
+    a.setQuitOnLastWindowClosed(true);
+
+    QString language = settings.value("mainwindow/language", MainWindow::defaultLocale()).toString();
+    QTranslator translator;
+    bool ok = translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
+    if (ok) {
+      a.installTranslator(&translator);
+    }
+
+    MainWindow w(forceStart);
+    w.activateWindow();
+    currentExitCode = a.exec();
   }
+  while (currentExitCode == MainWindow::EXIT_CODE_REBOOT);
 
-  MainWindow w(forceStart);
-  w.activateWindow();
-  return a.exec();
+  return currentExitCode;
 }
