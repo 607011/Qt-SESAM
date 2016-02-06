@@ -419,6 +419,13 @@
             </layout>
            </item>
            <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Select password length and complexity</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QGridLayout" name="selectorGridLayout">
              <property name="sizeConstraint">
               <enum>QLayout::SetMinimumSize</enum>
@@ -435,7 +442,7 @@
              <property name="bottomMargin">
               <number>0</number>
              </property>
-             <item row="0" column="0">
+             <item row="1" column="0">
               <widget class="EasySelectorWidget" name="easySelectorWidget" native="true">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">

@@ -123,9 +123,6 @@ public:
   bool extensiveWipeout(void) const;
   void setExtensiveWipeout(bool checked);
 
-protected:
-  void changeEvent(QEvent *);
-
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
   void saltLengthChanged(int);

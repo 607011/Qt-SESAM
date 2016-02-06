@@ -100,7 +100,7 @@ private slots:
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
   void onNotesChanged(void);
-  void onLegacyPasswordChanged(QString legacyPassword);
+  void onLegacyPasswordChanged(QString);
   void onDomainTextChanged(const QString &);
   void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int passwordLength, int complexityValue);
@@ -184,7 +184,6 @@ private: // methods
   void resetAllFieldsExceptDomainComboBox(void);
   void resetAllFields(void);
   bool restoreSettings(void);
-  void restoreLanguageSettings(void);
   void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);

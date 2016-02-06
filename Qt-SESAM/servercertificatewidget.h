@@ -43,9 +43,6 @@ public:
 
   void setServerSslErrors(const QSslConfiguration &, const QList<QSslError> &errorList);
 
-protected:
-  void changeEvent(QEvent *);
-
 private:
   Ui::ServerCertificateWidget *ui;
 };

@@ -154,16 +154,3 @@ void MasterPasswordDialog::checkPasswords(void)
     ui->okPushButton->setEnabled(!ui->passwordLineEdit->text().isEmpty());
   }
 }
-
-void MasterPasswordDialog::changeEvent(QEvent *e)
-{
-  switch (e->type()) {
-  case QEvent::LanguageChange:
-  {
-    ui->retranslateUi(this);
-    break;
-  }
-  default:
-    break;
-  }
-}

@@ -158,7 +158,6 @@ public:
     }
     return KGK;
   }
-  QTranslator translator;
   QString language;
   QActionGroup *langGroup;
   MasterPasswordDialog *masterPasswordDialog;
@@ -284,7 +283,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
 
   createLanguageMenu();
-  restoreLanguageSettings();
 
   ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
@@ -304,7 +302,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(ui->openURLPushButton, SIGNAL(pressed()), SLOT(openURL()));
   QObject::connect(ui->legacyPasswordLineEdit, SIGNAL(textEdited(QString)), SLOT(onLegacyPasswordChanged(QString)));
   ui->legacyPasswordLineEdit->installEventFilter(this);
-  QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(setDirty()));
+  QObject::connect(ui->notesPlainTextEdit, SIGNAL(textChanged()), SLOT(onNotesChanged()));
   ui->notesPlainTextEdit->installEventFilter(this);
   QObject::connect(ui->extraLineEdit, SIGNAL(textChanged(QString)), SLOT(onExtraCharactersChanged(QString)));
   QObject::connect(ui->deleteCheckBox, SIGNAL(toggled(bool)), SLOT(onDeleteChanged(bool)));
@@ -501,12 +499,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::changeEvent(QEvent *e)
 {
+  QMainWindow::changeEvent(e);
   switch (e->type()) {
-  case QEvent::LanguageChange:
-  {
-    ui->retranslateUi(this);
-    break;
-  }
   case QEvent::WindowStateChange:
   {
     if (windowState() & Qt::WindowMinimized) {
@@ -1887,18 +1881,11 @@ void MainWindow::saveSettings(void)
 }
 
 
-void MainWindow::restoreLanguageSettings(void)
-{
-  Q_D(MainWindow);
-  setLanguage(d->settings.value("mainwindow/language", defaultLocale()).toString());
-}
-
-
 bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  restoreLanguageSettings();
+  setLanguage(d->settings.value("mainwindow/language", defaultLocale()).toString());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -2464,7 +2451,7 @@ void MainWindow::onEasySelectorValuesChanged(int passwordLength, int complexityV
   ui->generatedPasswordLineEdit->setText(pwd);
   ui->passwordLengthLabel->setText(tr("(%1 characters)").arg(passwordLength));
   d->pwdLabelOpacityEffect->setOpacity(pwd.isEmpty() ? 0.5 : 1.0);
-  setDirty();
+  setDirty(true);
   restartInvalidationTimer();
 }
 
@@ -3059,22 +3046,23 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::setLanguage(const QString &language)
 {
   Q_D(MainWindow);
-  if (language != d->language) {
-    qApp->removeTranslator(&d->translator);
-    d->language = language;
-    QLocale::setDefault(QLocale(d->language));
-    bool ok = d->translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
-    if (ok) {
-      qApp->installTranslator(&d->translator);
-    }
-  }
+  d->language = language;
+  d->settings.setValue("mainwindow/language", language);
+  d->settings.sync();
 }
 
 
 void MainWindow::onSelectLanguage(QAction *action)
 {
+  Q_D(MainWindow);
   if (action != Q_NULLPTR) {
-    setLanguage(action->data().toString());
+    const QString &newLanguage = action->data().toString();
+    if (newLanguage != d->language) {
+      QMessageBox::information(this,
+                               tr("Changed language"),
+                               tr("You've changed Qt-SESAM's language. Please restart Qt-SESAM to take the change into effect."));
+      setLanguage(newLanguage);
+    }
   }
 }
 
@@ -3094,7 +3082,7 @@ void MainWindow::createLanguageMenu(void)
   d->langGroup->setExclusive(true);
   QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
   QDir dir(":/translations");
-  const QString &myLocale = defaultLocale();
+  const QString &setLocale = d->settings.value("mainwindow/language").toString();
   auto addLangAction = [&](const QString &locale) {
     const QString &lang = QLocale::languageToString(QLocale(locale).language());
     QAction *action = new QAction(lang, this);
@@ -3102,7 +3090,7 @@ void MainWindow::createLanguageMenu(void)
     action->setData(locale);
     ui->menuLanguage->addAction(action);
     d->langGroup->addAction(action);
-    if (myLocale == locale) {
+    if (setLocale == locale) {
       action->setChecked(true);
     }
   };
@@ -3114,5 +3102,4 @@ void MainWindow::createLanguageMenu(void)
     locale.remove(0, locale.indexOf('_') + 1);
     addLangAction(locale);
   }
-  setLanguage(myLocale);
 }

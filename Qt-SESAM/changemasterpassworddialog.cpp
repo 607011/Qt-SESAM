@@ -114,20 +114,6 @@ void ChangeMasterPasswordDialog::showEvent(QShowEvent *)
 }
 
 
-void ChangeMasterPasswordDialog::changeEvent(QEvent *e)
-{
-  switch (e->type()) {
-  case QEvent::LanguageChange:
-  {
-    ui->retranslateUi(this);
-    break;
-  }
-  default:
-    break;
-  }
-}
-
-
 void ChangeMasterPasswordDialog::comparePasswords(void)
 {
   Q_D(ChangeMasterPasswordDialog);
