@@ -141,6 +141,7 @@ private slots:
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
+  void saveUiSettings(void);
   void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
   void onDeleteFinished(QNetworkReply*);
   void onReadFinished(QNetworkReply*);

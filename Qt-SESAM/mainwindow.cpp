@@ -287,8 +287,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
 
-  createLanguageMenu();
-
   ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
   QObject::connect(d->optionsDialog, SIGNAL(maxPasswordLengthChanged(int)), ui->easySelectorWidget, SLOT(setMaxLength(int)));
@@ -467,6 +465,7 @@ void MainWindow::prepareExit(void)
   if (d->lockFile->isLocked()) {
     d->lockFile->unlock();
   }
+  saveUiSettings();
 }
 
 
@@ -1567,6 +1566,7 @@ void MainWindow::saveCurrentDomainSettings(void)
   if (!ui->domainsComboBox->currentText().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
+    qDebug() << ds;
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
     saveDomainSettings(ds);
     if (ds.deleted) {
@@ -1872,8 +1872,20 @@ void MainWindow::saveSettings(void)
   // qDebug() << "MainWindow::saveSettings()";
   _LOG("MainWindow::saveSettings()");
   d->settings.setValue("sync/param", collectedSyncData());
+  saveAllDomainDataToSettings();
+  saveUiSettings();
+  d->settings.sync();
+}
+
+
+void MainWindow::saveUiSettings(void)
+{
+  Q_D(MainWindow);
+  // qDebug() << "MainWindow::saveUiSettings()";
+  _LOG("MainWindow::saveUiSettings()");
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("mainwindow/language", d->language);
+  d->settings.setValue("mainwindow/lastAttachFileDir", d->lastAttachFileDir);
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
   d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
@@ -1885,7 +1897,6 @@ void MainWindow::saveSettings(void)
   d->settings.setValue("misc/extensiveWipeout", d->optionsDialog->extensiveWipeout());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
-  saveAllDomainDataToSettings();
   d->settings.sync();
 }
 
@@ -1894,7 +1905,7 @@ bool MainWindow::restoreSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
-  setLanguage(d->settings.value("mainwindow/language", defaultLocale()).toString());
+  d->language = d->settings.value("mainwindow/language", defaultLocale()).toString();
   d->lastAttachFileDir = d->settings.value("mainwindow/lastAttachFileDir").toString();
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
@@ -2422,7 +2433,7 @@ void MainWindow::onDomainSelected(QString domain)
     }
   }
   d->lastCleanDomainSettings = d->domains.at(domain);
-//  qDebug() << d->lastCleanDomainSettings;
+  qDebug() << d->lastCleanDomainSettings;
   copyDomainSettingsToGUI(d->lastCleanDomainSettings);
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   setDirty(false);
@@ -2765,6 +2776,7 @@ void MainWindow::onMasterPasswordEntered(void)
     d->masterPassword = masterPwd;
     ok = restoreSettings();
     if (ok) {
+      createLanguageMenu();
       ok = restoreDomainDataFromSettings();
       if (ok) {
         generateSaltKeyIV().waitForFinished();
@@ -3142,28 +3154,30 @@ QString MainWindow::defaultLocale(void)
 void MainWindow::createLanguageMenu(void)
 {
   Q_D(MainWindow);
-  d->langGroup = new QActionGroup(ui->menuBar);
-  d->langGroup->setExclusive(true);
-  QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
-  QDir dir(":/translations");
-  const QString &setLocale = d->settings.value("mainwindow/language").toString();
-  auto addLangAction = [&](const QString &locale) {
-    const QString &lang = QLocale::languageToString(QLocale(locale).language());
-    QAction *action = new QAction(lang, this);
-    action->setCheckable(true);
-    action->setData(locale);
-    ui->menuLanguage->addAction(action);
-    d->langGroup->addAction(action);
-    if (setLocale == locale) {
-      action->setChecked(true);
+  if (d->langGroup == Q_NULLPTR) {
+    d->langGroup = new QActionGroup(ui->menuBar);
+    d->langGroup->setExclusive(true);
+    QObject::connect(d->langGroup, SIGNAL(triggered(QAction*)), SLOT(onSelectLanguage(QAction*)));
+    QDir dir(":/translations");
+    const QString &setLocale = d->settings.value("mainwindow/language").toString();
+    auto addLangAction = [&](const QString &locale) {
+      const QString &lang = QLocale::languageToString(QLocale(locale).language());
+      QAction *action = new QAction(lang, this);
+      action->setCheckable(true);
+      action->setData(locale);
+      ui->menuLanguage->addAction(action);
+      d->langGroup->addAction(action);
+      if (setLocale == locale) {
+        action->setChecked(true);
+      }
+    };
+    addLangAction("en");
+    const QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
+    foreach (QString filename, filenames) {
+      QString locale = filename;
+      locale.truncate(locale.lastIndexOf('.'));
+      locale.remove(0, locale.indexOf('_') + 1);
+      addLangAction(locale);
     }
-  };
-  addLangAction("en");
-  const QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
-  foreach (QString filename, filenames) {
-    QString locale = filename;
-    locale.truncate(locale.lastIndexOf('.'));
-    locale.remove(0, locale.indexOf('_') + 1);
-    addLangAction(locale);
   }
 }
