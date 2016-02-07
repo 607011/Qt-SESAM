@@ -219,6 +219,8 @@ public:
   bool doConvertLocalToLegacy;
   QLockFile *lockFile;
   bool forceStart;
+  QString lastAttachFileDir;
+  QVariantMap attachedFiles;
 };
 
 
@@ -593,6 +595,8 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->easySelectorWidget->setExtraCharacters(ui->extraLineEdit->text());
   ui->easySelectorWidget->blockSignals(false);
 
+  d->attachedFiles.clear();
+
   applyComplexity(ui->easySelectorWidget->complexityValue());
 }
 
@@ -856,6 +860,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text();
+  ds.files = d_ptr->attachedFiles;
 #ifndef OMIT_V2_CODE
   if (DomainSettings::isV2Template(ds.passwordTemplate)) {
     ds.usedCharacters = ui->extraLineEdit->text();
@@ -1890,6 +1895,7 @@ bool MainWindow::restoreSettings(void)
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   setLanguage(d->settings.value("mainwindow/language", defaultLocale()).toString());
+  d->lastAttachFileDir = d->settings.value("mainwindow/lastAttachFileDir").toString();
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -3084,9 +3090,44 @@ void MainWindow::onSelectLanguage(QAction *action)
 }
 
 
+void MainWindow::attachFile(const QString &filename)
+{
+  Q_D(MainWindow);
+  QFile f(filename);
+  bool ok = f.open(QIODevice::ReadOnly);
+  bool anyAttached = false;
+  QFileInfo fi(filename);
+  if (ok) {
+    const QString &idx = fi.fileName();
+    qDebug() << "attaching" << idx << "...";
+    if (!d->attachedFiles.contains(idx)) {
+      d->attachedFiles[idx] = f.readAll().toBase64();
+      anyAttached = true;
+    }
+    else {
+      // TODO ...
+    }
+    setDirty(anyAttached);
+  }
+}
+
+
 void MainWindow::onAttachFile(void)
 {
-
+  Q_D(MainWindow);
+  QStringList filenames = QFileDialog::getOpenFileNames(
+        this, tr("Attach files"), d->lastAttachFileDir);
+  if (!filenames.isEmpty()) {
+    foreach (QString filename, filenames) {
+      QFileInfo fi(filename);
+      if (fi.exists()) {
+        d->lastAttachFileDir = fi.absolutePath();
+        if (fi.size() < DomainSettings::MaxFileSize) {
+          attachFile(filename);
+        }
+      }
+    }
+  }
 }
 
 

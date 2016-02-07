@@ -226,6 +226,7 @@ private: // methods
   void removeOutdatedBackupFilesThread(void);
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
+  void attachFile(const QString &filename);
 };
 
 #endif // __MAINWINDOW_H_
