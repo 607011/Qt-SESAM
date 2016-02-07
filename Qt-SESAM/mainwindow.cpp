@@ -456,7 +456,7 @@ QSize MainWindow::minimumSizeHint(void) const
 void MainWindow::prepareExit(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::prepareExit()";
+  _LOG("MainWindow::prepareExit()");
   d->trayIcon.hide();
   d->optionsDialog->close();
   d->changeMasterPasswordDialog->close();
@@ -472,10 +472,8 @@ void MainWindow::prepareExit(void)
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   Q_D(MainWindow);
-
   cancelPasswordGeneration();
   d->backupFileDeletionFuture.waitForFinished();
-
   if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
     QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
@@ -1567,7 +1565,6 @@ void MainWindow::saveCurrentDomainSettings(void)
   if (!ui->domainsComboBox->currentText().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
-    qDebug() << ds;
     ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
     saveDomainSettings(ds);
     if (ds.deleted) {
@@ -2434,7 +2431,7 @@ void MainWindow::onDomainSelected(QString domain)
     }
   }
   d->lastCleanDomainSettings = d->domains.at(domain);
-  qDebug() << d->lastCleanDomainSettings;
+  // qDebug() << d->lastCleanDomainSettings;
   copyDomainSettingsToGUI(d->lastCleanDomainSettings);
   ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
   setDirty(false);
@@ -3113,7 +3110,7 @@ void MainWindow::attachFile(const QString &filename)
   QFileInfo fi(filename);
   if (ok) {
     const QString &idx = fi.fileName();
-    qDebug() << "attaching" << idx << "...";
+    // qDebug() << "attaching" << idx << "...";
     if (!d->attachedFiles.contains(idx)) {
       d->attachedFiles[idx] = f.readAll().toBase64();
       anyAttached = true;
