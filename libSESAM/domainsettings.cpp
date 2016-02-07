@@ -226,7 +226,7 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
       debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(',') << ",\n";
     }
     if (!ds.files.isEmpty()) {
-      debug.nospace() << "  " << DomainSettings::FILES << ": #" << ds.files.count() << ",\n";
+      debug.nospace() << "  " << DomainSettings::FILES << ": " << ds.files << ",\n";
     }
     if (!ds.legacyPassword.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";
