@@ -27,6 +27,8 @@
 #include <QStringList>
 #include <QVariantMap>
 #include <QDateTime>
+#include <QMap>
+#include <QByteArray>
 
 #include "securestring.h"
 
@@ -52,6 +54,7 @@ public:
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
   static const int DefaultSaltLength;
+  static const int MaxFileSize;
 
   static const QString DOMAIN_NAME;
   QString domainName;
@@ -102,6 +105,10 @@ public:
 
   static const QString TAGS;
   QStringList tags;
+
+  static const QString FILES;
+  QVariantMap files;
+
 };
 
 
