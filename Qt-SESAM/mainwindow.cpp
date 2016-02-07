@@ -860,6 +860,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text();
   ds.files = d_ptr->attachedFiles;
+  ds.tags = QStringList(); // TODO: implemented tagging facility
 #ifndef OMIT_V2_CODE
   if (DomainSettings::isV2Template(ds.passwordTemplate)) {
     ds.usedCharacters = ui->extraLineEdit->text();
@@ -3095,6 +3096,7 @@ void MainWindow::onSelectLanguage(QAction *action)
                                 tr("You've changed Qt-SESAM's language. Do you want to restart Qt-SESAM to take the change into effect?"));
       if (button == QMessageBox::Yes) {
         d->lockFile->unlock();
+        _LOG("Restart.");
         qApp->exit(EXIT_CODE_REBOOT);
       }
     }
