@@ -1245,18 +1245,6 @@ in %1 Thread%2 ...</translation>
         <translation>Sprache</translation>
     </message>
     <message>
-        <source>Deutsch</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>English</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>blah</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Select password length and complexity</source>
         <translation>Passwortlänge und -komplexität wählen</translation>
     </message>
@@ -1271,6 +1259,14 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>You&apos;ve changed Qt-SESAM&apos;s language. Do you want to restart Qt-SESAM to take the change into effect?</source>
         <translation>Du hast die Spracheinstellung geändert. Sie wird erst nach dem Neustart von Qt-SESAM wirksam. Möchtest du Qt-SESAM jetzt neustarten?</translation>
+    </message>
+    <message>
+        <source>Attach file ...</source>
+        <translation>Datei anhängen ...</translation>
+    </message>
+    <message>
+        <source>Attach files</source>
+        <translation>Dateien anhängen</translation>
     </message>
 </context>
 <context>
