@@ -55,7 +55,7 @@ public:
   static const int DefaultIterations;
   static const int DefaultPasswordLength;
   static const int DefaultSaltLength;
-  static const int MaxFileSize;
+  static const qint64 MaxFileSize;
 
   static const QString DOMAIN_NAME;
   QString domainName;
