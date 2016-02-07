@@ -159,6 +159,7 @@ private slots:
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
   void onSelectLanguage(QAction *);
+  void onAttachFile(void);
 
 signals:
   void passwordGenerated(void);

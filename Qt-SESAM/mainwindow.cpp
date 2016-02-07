@@ -346,6 +346,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
   QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(removeOutdatedBackupFiles()));
+  QObject::connect(ui->actionAttachFile, SIGNAL(triggered(bool)), SLOT(onAttachFile()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 #else
@@ -3010,33 +3011,41 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   case QEvent::Enter:
     if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty()) {
       ui->generatedPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
+      return true;
     }
     else if (obj->objectName() == "legacyPasswordLineEdit" && !ui->legacyPasswordLineEdit->text().isEmpty()) {
       ui->legacyPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
+      return true;
     }
     break;
   case QEvent::Leave:
     if (obj->objectName() == "generatedPasswordLineEdit") {
       ui->generatedPasswordLineEdit->setCursor(Qt::ArrowCursor);
+      return true;
     }
     else if (obj->objectName() == "legacyPasswordLineEdit") {
       ui->legacyPasswordLineEdit->setCursor(Qt::ArrowCursor);
+      return true;
     }
     break;
   case QEvent::MouseButtonPress:
       if (obj->objectName() == "generatedPasswordLineEdit") {
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+        return true;
       }
       else if (obj->objectName() == "legacyPasswordLineEdit") {
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
+        return true;
       }
     break;
   case QEvent::MouseButtonRelease:
       if (obj->objectName() == "generatedPasswordLineEdit") {
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
+        return true;
       }
       else if (obj->objectName() == "legacyPasswordLineEdit") {
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Password);
+        return true;
       }
     break;
   default:
@@ -3072,6 +3081,12 @@ void MainWindow::onSelectLanguage(QAction *action)
       }
     }
   }
+}
+
+
+void MainWindow::onAttachFile(void)
+{
+
 }
 
 

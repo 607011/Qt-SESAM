@@ -758,8 +758,8 @@
           <height>60</height>
          </size>
         </property>
-        <property name="placeholderText">
-         <string>may be empty</string>
+        <property name="acceptDrops">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -831,6 +831,8 @@
     <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
+    <addaction name="separator"/>
+    <addaction name="actionAttachFile"/>
     <addaction name="separator"/>
     <addaction name="menuImport"/>
     <addaction name="separator"/>
@@ -1081,6 +1083,11 @@
   <action name="actionBlah_2">
    <property name="text">
     <string>blah</string>
+   </property>
+  </action>
+  <action name="actionAttachFile">
+   <property name="text">
+    <string>Attach file ...</string>
    </property>
   </action>
  </widget>
