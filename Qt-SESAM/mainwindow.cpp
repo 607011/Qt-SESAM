@@ -855,6 +855,7 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text();
+  ds.tags = QStringList(); // TODO: implemented tagging facility
 #ifndef OMIT_V2_CODE
   if (DomainSettings::isV2Template(ds.passwordTemplate)) {
     ds.usedCharacters = ui->extraLineEdit->text();
