@@ -97,6 +97,9 @@ public:
   void setLoggingEnabled(bool);
   bool loggingEnabled(void) const;
 
+  void setMaxAttachmentSizeKbyte(int);
+  int maxAttachmentSizeKbyte(void) const;
+
 #ifdef WIN32
   void setSmartLogin(bool);
   bool smartLogin(void) const;
@@ -122,6 +125,9 @@ public:
 
   bool extensiveWipeout(void) const;
   void setExtensiveWipeout(bool checked);
+
+  int activeTab(void) const;
+  void setActiveTab(int);
 
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);

@@ -1900,12 +1900,13 @@ void MainWindow::saveSettings(void)
 void MainWindow::saveUiSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveUiSettings()";
-  _LOG("MainWindow::saveUiSettings()");
+  qDebug() << "MainWindow::saveUiSettings()";
+  // _LOG("MainWindow::saveUiSettings()");
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("mainwindow/language", d->language);
   d->settings.setValue("mainwindow/lastAttachFileDir", d->lastAttachFileDir);
   d->settings.setValue("mainwindow/lastSaveAttachmentDir", d->lastSaveAttachmentDir);
+  d->settings.setValue("misc/optionsTabIndex", d->optionsDialog->activeTab());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
   d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
@@ -1914,6 +1915,7 @@ void MainWindow::saveUiSettings(void)
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
   d->settings.setValue("misc/autoDeleteBackupFiles", d->optionsDialog->autoDeleteBackupFiles());
   d->settings.setValue("misc/maxBackupFileAge", d->optionsDialog->maxBackupFileAge());
+  d->settings.setValue("misc/maxAttachmentSizeKbyte", d->optionsDialog->maxAttachmentSizeKbyte());
   d->settings.setValue("misc/extensiveWipeout", d->optionsDialog->extensiveWipeout());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
@@ -1928,6 +1930,7 @@ bool MainWindow::restoreSettings(void)
   d->language = d->settings.value("mainwindow/language", defaultLocale()).toString();
   d->lastAttachFileDir = d->settings.value("mainwindow/lastAttachFileDir").toString();
   d->lastSaveAttachmentDir = d->settings.value("mainwindow/lastSaveAttachmentDir").toString();
+  d->optionsDialog->setActiveTab(d->settings.value("misc/optionsTabIndex", 0).toInt());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -1936,6 +1939,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setDefaultPasswordLength(d->settings.value("misc/defaultPasswordLength", DomainSettings::DefaultPasswordLength).toInt());
   d->optionsDialog->setDefaultIterations(d->settings.value("misc/defaultPBKDF2Iterations", DomainSettings::DefaultIterations).toInt());
   d->optionsDialog->setMaxBackupFileAge(d->settings.value("misc/maxBackupFileAge", 30).toInt());
+  d->optionsDialog->setMaxAttachmentSizeKbyte(d->settings.value("misc/maxAttachmentSizeKbyte", 50).toInt());
   d->optionsDialog->setAutoDeleteBackupFiles(d->settings.value("misc/autoDeleteBackupFiles", true).toBool());
   d->optionsDialog->setExtensiveWipeout(d->settings.value("misc/extensiveWipeout", false).toBool());
   d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
