@@ -22,5 +22,6 @@
         <file alias="sync.png">resources/images/sync.png</file>
         <file alias="qtlogo.png">resources/images/qtlogo.png</file>
         <file alias="info.png">resources/images/info@2x.png</file>
+        <file>resources/images/upload-icon.png</file>
     </qresource>
 </RCC>

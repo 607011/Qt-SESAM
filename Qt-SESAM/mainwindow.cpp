@@ -379,8 +379,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
+  ui->attachmentListWidget->installEventFilter(this);
   d->attachmentsContextMenu = new QMenu(ui->attachmentListWidget);
-
   d->actionSaveAttachment = new QAction(QIcon(":/images/filesave.png"), tr("Save attachment as ..."), d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionSaveAttachment);
   d->actionDeleteAttachment = new QAction(QIcon(":/images/remove.png"), tr("Delete attachment"), d->attachmentsContextMenu);
@@ -415,8 +415,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->generatedPasswordTab->layout()->addWidget(d->expandableGroupBox);
   ui->moreSettingsGroupBox->hide();
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
-
-  ui->attachmentListWidget->installEventFilter(this);
 
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
@@ -3091,7 +3089,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
       }
     break;
   case QEvent::DragEnter:
-    if (obj->objectName() == "attachmentListWidget") {
+    if (obj == ui->attachmentListWidget) {
       bool acceptable = true;
       QDragEnterEvent *dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
       if (dragEnterEvent->mimeData() != Q_NULLPTR && dragEnterEvent->mimeData()->hasUrls()) {
