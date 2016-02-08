@@ -22,20 +22,20 @@
       <p class="subheading"><span class="capitals">SESAM</span> &mdash; Super-Einfaches &amp; Sicheres Authentifizierungs-Management</p>
     </section>
     <section>
-      <p><strong>Qt-SESAM gene&shy;riert und ver&shy;wal&shy;tet starke Pass&shy;wörter für dich &mdash; sicher und kosten&shy;los.</strong></p>
+      <p><strong>Qt-SESAM generiert und verwaltet Passwörter für dich &mdash; sicher und kostenlos.</strong></p>
 
-      <p>Mit <a href="https://github.com/ola-ct/Qt-SESAM" target="_blank">Qt-SESAM</a> kannst du Pass&shy;wörter für belie&shy;bige Dienste gene&shy;rieren und verwalten, zum Bei&shy;spiel für Web&shy;seiten, PINs, Konten oder Apps. Die Pass&shy;wörter werden in Echt&shy;zeit aus deinem Master-Pass&shy;wort und einigen dienst&shy;spe&shy;zi&shy;fi&shy;schen Ein&shy;stel&shy;lungen berechnet. In dem so gut wie un&shy;mögli&shy;chen Fall, dass es einem An&shy;grei&shy;fer gelingt, die ver&shy;schlüs&shy;selten Pro&shy;gramm&shy;ein&shy;stel&shy;lungen zu ent&shy;schlüs&shy;seln, kommt er deshalb nicht an deine Pass&shy;wörter, weil ihm dann immer noch das Master-Pass&shy;wort fehlt. Für Dienste, bei denen man das Pass&shy;wort nicht wählen kann, bei&shy;spiels&shy;weise Pins von Bezahl&shy;karten, kann Qt-SESAM auch klas&shy;sisch ein&shy;ge&shy;ge&shy;bene Pass&shy;wörter speichern.
+      <p>Mit <a href="https://github.com/ola-ct/Qt-SESAM" target="_blank">Qt-SESAM</a> kannst du Passwörter für beliebige Dienste generieren und verwalten, zum Beispiel für Webseiten, PINs, Konten oder Apps. Die Passwörter werden in Echtzeit aus deinem Master-Passwort und einigen dienstspezifischen Einstellungen berechnet.</p>
+      <p>In dem so gut wie unmöglichen Fall, dass es einem Angreifer gelingt, die verschlüsselten Programmeinstellungen zu entschlüsseln, kommt er deshalb nicht an deine Passwörter, weil ihm dann immer noch das Master-Passwort fehlt. Für Dienste, bei denen man das Passwort nicht wählen kann, beispielsweise Pins von Bezahlkarten, kann Qt-SESAM auch klassisch eingegebene Passwörter speichern.
       </p>
-      <p>
-        Sämtliche Login-Para&shy;meter werden ver&shy;schlüs&shy;selt gespeichert, und zwar stets in einer loka&shy;len Datei sowie optio&shy;nal in einem Cloud-Lauf&shy;werk. Zusätz&shy;lich kannst du deine Logins mit Hilfe eines unter eigener Regie geführten <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">Syn&shy;chro&shy;ni&shy;sierungs&shy;servers</a> rechner&shy;über&shy;grei&shy;fend auf dem aktuel&shy;len Stand halten. Die Daten bleiben auch hier von Ende zu Ende sicher ver&shy;schlüs&shy;selt.
+      <p>Qt-SESAM speichert die Login-Parameter verschlüsselt in einer lokalen Datei ab. Du kannst deine Einstellungen rechnerübergreifend auf dem aktuellen Stand halten, wenn du Qt-SESAM erlaubst, sie auf einem Cloud-Laufwerk abzulegen. Das geht auch mit Hilfe eines unter eigener Regie geführten <a href="https://github.com/ola-ct/ctSESAM-server" target="_blank">Synchronisierungsservers</a>. Die Daten bleiben auch hier von Ende zu Ende sicher verschlüsselt.
       </p>
-      <p>Qt-SESAM läuft unter Windows, Linux, and Mac&nbsp;OS&nbsp;X. Eine dazu kom&shy;patible <a href="https://github.com/pinae/ctSESAM-android" target="_blank">Android-App</a> ist so gut wie fertig.</p>
+      <p>Qt-SESAM läuft unter Windows, Linux, and Mac&nbsp;OS&nbsp;X. Eine dazu kompatible <a href="https://github.com/pinae/ctSESAM-android" target="_blank">Android-App</a> ist so gut wie fertig.</p>
 
       <h3>Qt-SESAM herunterladen</h3>
 
         <ul>
           <li><a href="https://github.com/ola-ct/Qt-SESAM/releases" target="_blank">Für Windows und Mac&nbsp;OS&nbsp;X stehen Installer bereit.</a></li>
-          <li>Linux-Anwender müssen Qt-SESAM aus dem <a href="https://github.com/ola-ct/Qt-SESAM">Quellcode</a> <a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux" target="_blank">selber kompi&shy;lieren</a>.</li>
+          <li>Linux-Anwender müssen Qt-SESAM aus dem <a href="https://github.com/ola-ct/Qt-SESAM">Quellcode</a> <a href="https://github.com/ola-ct/Qt-SESAM/wiki/Build-for-Linux" target="_blank">selber kompilieren</a>.</li>
         </ul>
 
       <p class="no-print">
@@ -47,9 +47,9 @@
     <section>
       <h2>Los geht's</h2>
       <p>
-        Beim ersten Aufruf von Qt-SESAM ver&shy;langt die Anwen&shy;dung nach der Angabe eines Master-Pass&shy;worts. Dieses Pass&shy;wort ist der Gene&shy;ral&shy;schlüssel zur Ent&shy;schlüs&shy;selung der Login-Daten und sollte daher nicht nur möglichst kompli&shy;ziert sein, sondern auch keines&shy;falls in falsche Hände gelangen. 
-        Da das verwen&shy;dete Ver&shy;schlüs&shy;se&shy;lungs&shy;ver&shy;fahren (<a href="https://de.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://de.wikipedia.org/wiki/Cipher_Block_Chaining_Mode" target="_blank">CBC</a>-Modus mit einem 256 Bit langen Schlüssel) als sicher gilt, hängt die Sicher&shy;heit aller mit Qt-SESAM ver&shy;wal&shy;teten Daten aus&shy;schließ&shy;lich von der Stärke des Master-Passworts ab.
-        Um sicher&shy;zu&shy;stel&shy;len, dass du das Master-Pass&shy;wort auch wirk&shy;lich kor&shy;rekt einge&shy;geben hast, fragt dich Qt-SESAM zwei Mal danach:
+        Beim ersten Aufruf verlangt Qt-SESAM nach der Angabe eines Master-Passworts. Dieses Passwort ist der Generalschlüssel zur Entschlüsselung der Login-Daten und sollte daher nicht nur möglichst lang sein, sondern auch keinesfalls in falsche Hände gelangen. 
+        Das verwendete Verschlüsselungsverfahren (<a href="https://de.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://de.wikipedia.org/wiki/Cipher_Block_Chaining_Mode" target="_blank">CBC</a>-Modus mit einem 256 Bit langen Schlüssel) gilt als sicher. Die Sicherheit aller mit Qt-SESAM verwalteten Daten hängt ausschließlich von der Stärke des Master-Passworts ab.
+        Um sicherzustellen, dass du das Master-Passwort auch wirklich korrekt eingegeben hast, fragt dich Qt-SESAM zwei Mal danach:
       </p>
       <p>
         <video controls="controls" poster="screencasts/master-password-entry-1-de.png" preload="auto">
@@ -59,22 +59,21 @@
         </video>
       </p>
       <p>
-        Während du tippst, zeigt das Dialog&shy;fenster an, wie stark das bisher ein&shy;ge&shy;ge&shy;bene Pass&shy;wort ist.
-        Die Wer&shy;tungen rei&shy;chen von <q>nutz&shy;los</q> über <q>schlecht</q>, <q>mittel&shy;mäßig</q>, <q>gut</q> und <q>sehr gut</q> bis zu <q>sagen&shy;haft</q>, <q>bru&shy;talst stark</q> und <q>super&shy;cali&shy;fragi&shy;listic&shy;ex&shy;pi&shy;al&shy;ige&shy;tisch</q>.
-        Der OK-Knopf wird erst aktiv, wenn du zwei Mal das gleiche Pass&shy;wort ein&shy;ge&shy;geben hast.
+        Während du tippst, zeigt das Dialogfenster an, wie stark das bisher eingegebene Passwort ist.
+        Die Wertungen reichen von <q>nutzlos</q> über <q>schlecht</q>, <q>mittelmäßig</q>, <q>gut</q> und <q>sehr gut</q> bis zu <q>sagenhaft</q>, <q>brutalst stark</q> und <q>supercalifragilisticexpialigetisch</q>.
+        Der OK-Knopf wird erst aktiv, wenn du zwei Mal das gleiche Passwort eingegeben hast.
       </p>
 
       <h3>Erst synchronisieren!</h3>
 
-      <p>Wenn du Qt-SESAM auf einem Com&shy;puter das aller&shy;erste Mal star&shy;test, wirst du ge&shy;fragt, ob du einen Syn&shy;chro&shy;ni&shy;sierungs&shy;server be&shy;trei&shy;ben oder deine Qt-SESAM-Ein&shy;stel&shy;lungen über eine Datei auf meh&shy;re&shy;ren Rech&shy;nern syn&shy;chron halten willst. Ist das der Fall, solltest du im <span class="gui">Optionen</span>-Dialog die <span class="gui">Syn&shy;chro&shy;ni&shy;sieren</span>-Para&shy;me&shy;ter setzen und dann sofort syn&shy;chro&shy;ni&shy;sieren. Sonst läufst du Gefahr, später Pro&shy;bleme mit fal&shy;schen Pass&shy;wörtern zu be&shy;kommen.</p>
-      <p>Das liegt daran, dass Qt-SESAM beim aller&shy;ersten Start einen soge&shy;nann&shy;ten Schlüs&shy;sel&shy;er&shy;zeu&shy;gungs&shy;schlüs&shy;sel (key gene&shy;ration key, <a href="#kgk">KGK</a>) per Zufall gene&shy;riert. Aus dem KGK werden unter anderem die Dienstpasswörter berechnet. Sind sonst alle Ein&shy;stel&shy;lungen gleich, führen unter&shy;schied&shy;li&shy;che KGKs deshalb zu unter&shy;schied&shy;li&shy;chen Dienst&shy;pass&shy;wör&shy;tern. Lädst du die Ein&shy;stel&shy;lungen &mdash; sie enthalten den KGK &mdash; jedoch zunächst aus der Syn&shy;chro&shy;ni&shy;sierungs&shy;datei oder vom Server, ist alles gut.</p>
+      <p>Wenn du Qt-SESAM auf einem Computer das allererste Mal startest, wirst du gefragt, ob du einen Synchronisierungsserver betreiben oder deine Qt-SESAM-Einstellungen über eine Datei auf mehreren Rechnern synchron halten willst. Ist das der Fall, solltest du im <span class="gui">Optionen</span>-Dialog die <span class="gui">Synchronisieren</span>-Parameter setzen und dann sofort synchronisieren. Sonst läufst du Gefahr, später Probleme mit falschen Passwörtern zu bekommen.</p>
+      <p>Das liegt daran, dass Qt-SESAM beim allerersten Start einen sogenannten Schlüsselerzeugungsschlüssel (key generation key, <a href="#kgk">KGK</a>) per Zufall generiert. Aus dem KGK berechnet Qt-SESAM unter anderem die Dienstpasswörter. Auch wenn sonst alle Einstellungen gleich sind, führen unterschiedliche KGKs deshalb zu unterschiedlichen Dienstpasswörtern. Lädst du die Einstellungen &mdash; sie enthalten den KGK &mdash; jedoch zunächst aus der Synchronisierungsdatei oder vom Server, verwendet Qt-SESAM immer den gleichen KGK.</p>
 
       <div class="figure float-left">
         <img src="img/options-sync-de.png" title="sync settings" width="424" height="487" />
         <div class="title">
-          <p>Syn&shy;chro&shy;ni&shy;sierungs&shy;datei und -ser&shy;ver las&shy;sen sich in <span class="gui">Op&shy;tio&shy;nen/Syn&shy;chro&shy;ni&shy;sierung</span> ein&shy;stel&shy;len. Die Datei befin&shy;det sich sinn&shy;vol&shy;ler&shy;weise in einem Cloud-Lauf&shy;werk. Wie man den Ser&shy;ver ein&shy;rich&shy;tet, steht im <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't-SESAM-Ser&shy;ver-Wiki</a>.</p>
-          <p>
-            Wenn du die Kon&shy;fi&shy;gu&shy;ra&shy;tion been&shy;det hast, klicke auf <span class="gui">Ver&shy;bin&shy;dung&nbsp;prüfen</span>.
+          <p>Synchronisierungsdatei und -server lassen sich in <span class="gui">Optionen/Synchronisierung</span> einstellen. Die Datei befindet sich sinnvollerweise in einem Cloud-Laufwerk.</p>
+          <p>Wie man den Server einrichtet, steht im <a href="https://github.com/ola-ct/ctSESAM-server/wiki" target="_blank">c't-SESAM-Server-Wiki</a>. Wenn du die Konfiguration beendet hast, klicke auf <span class="gui">Verbindung&nbsp;prüfen</span>.
           </p>
         </div>
       </div>
@@ -82,8 +81,8 @@
       <div class="figure float-left">
           <img src="img/check-certificate-chain-de.png" title="check certificate chain" width="402" height="671" />
         <div class="title">
-          <p>Wenn die Ein&shy;stel&shy;lungen korrekt sind, zeigt Qt-SESAM die Zer&shy;ti&shy;fi&shy;kats&shy;kette des Servers an. Bitte prüfe, ob die ange&shy;zeig&shy;ten Infor&shy;ma&shy;tionen mit den Ein&shy;stel&shy;lungen auf dem Server über&shy;ein&shy;stimmen. Am leich&shy;testen geht das durch Ver&shy;glei&shy;chen der Fin&shy;ger&shy;ab&shy;drücke. Stimmen die Fin&shy;ger&shy;ab&shy;drücke überein, kannst du die Zer&shy;ti&shy;fi&shy;kate <span class="gui">Akzep&shy;tieren</span>.</p>
-          <p>Qt-SESAM versucht dann, die Ein&shy;stel&shy;lungen vom Server zu lesen. Ist alles glatt gegan&shy;gen, zeigt <span class="gui">Optio&shy;nen/Syn&shy;chro&shy;ni&shy;sierung</span> neben dem Knopf <span class="gui">Ver&shy;bin&shy;dung prüfen</span> ein kleines Vor&shy;hän&shy;ge&shy;schloss an.</p>
+          <p>Wenn die Einstellungen korrekt sind, zeigt Qt-SESAM die Zertifikatskette des Servers an. Bitte prüfe, ob die angezeigten Informationen mit den Einstellungen auf dem Server übereinstimmen. Am leichtesten geht das durch Vergleichen der Fingerabdrücke. Stimmen die Fingerabdrücke überein, kannst du die Zertifikate <span class="gui">Akzeptieren</span>.</p>
+          <p>Qt-SESAM versucht dann, die Einstellungen vom Server zu lesen. Ist alles glatt gegangen, zeigt <span class="gui">Optionen/Synchronisierung</span> neben dem Knopf <span class="gui">Verbindung prüfen</span> ein kleines Vorhängeschloss an.</p>
         </div>
       </div>
 
@@ -91,7 +90,7 @@
 
     <section>
       <h2>Erste Schritte</h2>
-      <p>Los gehts mit der Ein&shy;gabe des ersten Logins. Die Logins werden nach dem Domain-Namen unter&shy;schi&shy;eden, den du in die ent&shy;spre&shy;chende Combo&shy;box einträgst:</p>
+      <p>Los gehts mit der Eingabe des ersten Logins. Die Logins werden nach dem Domain-Namen unterschieden, den du in die entsprechende Combobox einträgst:</p>
       <p>
         <video controls="controls" poster="screencasts/enter-settings-1-de.png" preload="auto">
           <source src="screencasts/enter-settings-1-de.ogv" type="video/ogg" />
@@ -99,14 +98,14 @@
           <source src="screencasts/enter-settings-1-de.mp4" type="video/mp4" />
         </video>
       </p>
-      <p>Das gene&shy;rierte Pass&shy;wort ändert sich während des Ein&shy;tippens. Das hängt damit zu&shy;sammen, dass der <a href="#password-generation">Algo&shy;rith&shy;mus zur Pass&shy;wort&shy;ge&shy;ne&shy;rierung</a> den Domain-Namen in das gene&shy;rierte Pass&shy;wort ein&shy;flech&shy;tet. Gleiches gilt für den Benutzernamen, so dass man mit Qt-SESAM mehrere Logins für dieselbe Domain haben kann.</p>
+      <p>Das generierte Passwort ändert sich während des Eintippens. Das hängt damit zusammen, dass der <a href="#password-generation">Algorithmus zur Passwortgenerierung</a> den Domain-Namen in das generierte Passwort einflechtet. Gleiches gilt für den Benutzernamen.</p>
     </section>
 
     <section>
       <h2>Einzigartig und einfach</h2>
-      <p>In den meisten Fäl&shy;len sind die vor&shy;ein&shy;gestellten Pass&shy;wort&shy;para&shy;meter voll&shy;kommen aus&shy;rei&shy;chend (16 Zei&shy;chen, be&shy;stehend aus Zif&shy;fern, Klein- und Groß&shy;buch&shy;staben).
-        Wenn du mehr Kon&shy;trolle darüber ausüben willst, wie das Pass&shy;wort zusam&shy;men&shy;ge&shy;setzt wird, solltest du das Feature ausprobieren, das nur Qt-SESAM hat &mdash; den Easy Selec&shy;tor. Mit diesem Be&shy;dien&shy;ele&shy;ment kannst du Pass&shy;wort&shy;länge und -kom&shy;ple&shy;xi&shy;tät mit nur einem Maus&shy;klick fest&shy;legen. Ein rotes Klötz&shy;chen be&shy;deu&shy;tet ein schlech&shy;tes Pass&shy;wort, grün ein gutes.
-        Ver&shy;schiebe die Mar&shy;kierung in der Ho&shy;ri&shy;zon&shy;talen, um die Länge zu ändern, in der Ver&shy;ti&shy;kalen, um die Zei&shy;chen&shy;menge aus&shy;zu&shy;wählen, aus denen das Pass&shy;wort be&shy;ste&shy;hen soll. Drei Zeichenmengen für Ziffern, Klein- und Groß&shy;buch&shy;staben sind vor&shy;ge&shy;geben. Eine weitere kannst du selbst durch Ein&shy;gabe in das Feld darunter be&shy;stimmen:
+      <p>In den meisten Fällen sind die voreingestellten Passwortparameter vollkommen ausreichend (16 Zeichen, bestehend aus Ziffern, Klein- und Großbuchstaben).
+        Wenn du mehr Kontrolle darüber ausüben willst, wie das Passwort zusammengesetzt wird, solltest du das Feature ausprobieren, das nur Qt-SESAM hat &mdash; den Easy Selector. Mit diesem Bedienelement kannst du Passwortlänge und -komplexität mit nur einem Mausklick festlegen. Ein rotes Feld bedeutet ein schlechtes Passwort, grün ein gutes.
+        Verschiebe die Markierung in der Horizontalen, um die Länge zu ändern, in der Vertikalen, um die Zeichenmenge auszuwählen, aus denen das Passwort bestehen soll. Drei Zeichenmengen sind vorgegeben: Ziffern, Klein- und Großbuchstaben. Eine weitere kannst du selbst durch Eingabe in das Feld darunter bestimmen. Ein paar Sonderzeichen sind darin schon eingetragen:
       </p>
       <p>
         <video controls="controls" poster="screencasts/enter-settings-2-de.png" preload="auto">
@@ -115,7 +114,7 @@
           <source src="screencasts/enter-settings-2-de.mp4" type="video/mp4" />
         </video>
       </p>
-      <p>Nettes Gimmick: Das Widget zeigt beim Dar&shy;über&shy;fahren mit der Maus an, wie lange ein An&shy;grei&shy;fer benö&shy;tigen würde, um das Pass&shy;wort auf dem <a href="https://de.wikipedia.org/wiki/Tianhe-2" target="_blank">Super&shy;com&shy;puter Tianhe-2</a> (oder auf deinem Com&shy;puter) zu knacken. Dabei ist schön zu sehen, dass vor allem die Pass&shy;wort&shy;länge zur Stärke bei&shy;trägt, weniger der Umfang der Zei&shy;chen&shy;men&shy;ge. Das liegt daran, dass die Länge expo&shy;nen&shy;ziell in die Be&shy;rechn&shy;ung der Stärke ein&shy;fließt.</p>
+      <p>Nettes Gimmick: Das Widget zeigt beim Darüberfahren mit der Maus an, wie lange ein Angreifer benötigen würde, um das Passwort auf dem <a href="https://de.wikipedia.org/wiki/Tianhe-2" target="_blank">Supercomputer Tianhe-2</a> (oder auf deinem Computer) zu knacken. Dabei ist schön zu sehen, dass vor allem die Passwortlänge zur Stärke beiträgt, weniger der Umfang der Zeichenmenge. Das liegt daran, dass die Länge exponenziell in die Berechnung der Stärke einfließt, Brute-Force-Angriffe darauf demnach exponenziell mit der Länge schwieriger werden.</p>
     </section>
 
     <section>
@@ -125,7 +124,7 @@
 
       <h4 id="kgk">Schlüsselerzeugungsschlüssel (KGK)</h4>
 
-      <p>Dreh- und Angel&shy;punkt der Ver&shy;schlüs&shy;selung, Ent&shy;schlüs&shy;selung und Pass&shy;wort&shy;ge&shy;ne&shy;rierung in Qt-SESAM ist der <strong>Schlüssel&shy;er&shy;zeu&shy;gungs&shy;schlüssel (key gene&shy;ra&shy;tion key, KGK)</strong>. Beim KGK handelt es sich um einen 512 Bit lan&shy;gen, <a href="https://de.wikipedia.org/wiki/Zufall" target="_blank">zufällig</a> bei ersten Start von Qt-SESAM auf deinem Com&shy;puter er&shy;mit&shy;tel&shy;ten Wert. Aus ihm ent&shy;stehen die ge&shy;ne&shy;rierten Pass&shy;wörter sowie die Schlüs&shy;sel zur Ver&shy;schlüs&shy;selung der Programm&shy;ein&shy;stel&shy;lungen.
+      <p>Dreh- und Angelpunkt der Verschlüsselung, Entschlüsselung und Passwortgenerierung in Qt-SESAM ist der <strong>Schlüsselerzeugungsschlüssel (key generation key, KGK)</strong>. Beim KGK handelt es sich um einen 512 Bit langen, <a href="https://de.wikipedia.org/wiki/Zufall" target="_blank">zufällig</a> bei ersten Start von Qt-SESAM auf deinem Computer ermittelten Wert. Aus ihm entstehen die generierten Passwörter sowie die Schlüssel zur Verschlüsselung der Programmeinstellungen.
       </p>
 
       <div class="figure">
@@ -135,7 +134,7 @@
 
       <h4 id="salt-generation">Salt</h4>
 
-      <p>Das <a href="https://de.wikipedia.org/wiki/Salt_(Kryptologie)" target="_blank">Salt</a> besteht eben&shy;falls aus Zu&shy;falls&shy;da&shy;ten. Es dient dazu, die ge&shy;ne&shy;rierten Pass&shy;wörter und kryp&shy;to&shy;gra&shy;fischen Schlüs&shy;sel gegen <a href="https://de.wikipedia.org/wiki/W%C3%B6rterbuchangriff" target="_blank">Wör&shy;ter&shy;buch</a>- und <a href="https://de.wikipedia.org/wiki/Rainbow_Table" target="_blank">Rain&shy;bow-Table</a>-Attacken ab&shy;zu&shy;si&shy;chern.</p>
+      <p>Das <a href="https://de.wikipedia.org/wiki/Salt_(Kryptologie)" target="_blank">Salt</a> besteht ebenfalls aus Zufallsdaten. Es dient dazu, die generierten Passwörter und kryptografischen Schlüssel gegen <a href="https://de.wikipedia.org/wiki/W%C3%B6rterbuchangriff" target="_blank">Wörterbuch</a>- und <a href="https://de.wikipedia.org/wiki/Rainbow_Table" target="_blank">Rainbow-Table</a>-Attacken abzusichern.</p>
 
       <div class="figure">
         <img src="img/algo02-generate-salt.png" width="214" height="70" title="salt generation" />
@@ -143,51 +142,50 @@
 
       <h4 id="key-computation">Schlüsselberechnung</h4>
 
-      <p>Jedes Mal, wenn Qt-SESAM die Ein&shy;stel&shy;lungen in eine Datei schreibt oder über das Netz zum Syn&shy;chro&shy;ni&shy;sie&shy;rungs&shy;server über&shy;trägt, werden sie per <a href="https://de.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://de.wikipedia.org/wiki/Cipher_Block_Chaining_Mode" target="_blank">CBC</a>-Modus ver&shy;schlüs&shy;selt. Qt-SESAM ver&shy;wen&shy;det dabei die stärkst&shy;mög&shy;liche Schlüs&shy;sel&shy;länge von 256 Bit.</p>
-      <p>Zu Beginn einer Ver- oder Ent&shy;schlüs&shy;se&shy;lung muss AES mit einem 16&nbsp;Byte großen Wert ini&shy;tia&shy;li&shy;siert werden. Dieser so&shy;ge&shy;nannte <a href="https://de.wikipedia.org/wiki/Initialisierungsvektor" target="_blank">Initialisierungsvektor</a> (IV) wird zusammen mit AES-Schlüssel aus dem Master-Pass&shy;wort mit einem Ver&shy;fahren namens <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">Schlüs&shy;sel&shy;er&shy;wei&shy;terung</a> berechnet. Eine aus&shy;führ&shy;lich über&shy;prüfte und sichere Schlüs&shy;sel&shy;er&shy;wei&shy;te&shy;rungs&shy;me&shy;thode ist die Pass&shy;word-Based Key Deri&shy;vation Func&shy;tion&nbsp;2 (<a href="https://de.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>). Sie rührt das Master-Pass&shy;wort mit dem eben ge&shy;ne&shy;rierten Salt wie&shy;der&shy;holt zusammen. Die Ein&shy;ga&shy;ben werden dazu 32768 Mal in einen Keyed-Hash Mes&shy;sage Auth&shy;en&shy;ti&shy;ca&shy;tion Code (<a href="https://de.wikipedia.org/wiki/Keyed-Hash_Message_Authentication_Code" target="_blank">HMAC</a>) gespeist.</p>
-      <p>Das wiederholte Hashing erschwert <a href="https://de.wikipedia.org/wiki/Brute-Force-Attacke" target="_blank">Brute-Force-Angriffe</a> er&shy;heb&shy;lich: Während Qt-SESAM diesen Vor&shy;gang für den AES-Schlüs&shy;sel nur einmal durch&shy;führen muss &mdash; was nahezu ver&shy;zö&shy;gerungs&shy;frei gelingt &mdash; muss ein An&shy;grei&shy;fer das für jeden Versuch tun.</p>
-      <p>Qt-SESAM verwendet einen HMAC mit <a href="https://de.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a>, weil dieses Ver&shy;fahren einen Hash mit 384 Bit Länge pro&shy;du&shy;ziert, die auf 256 Bit für den AES-Schlüs&shy;sel und 128 Bit für den IV aufgeteilt werden.</p>
+      <p>Jedes Mal, wenn Qt-SESAM die Einstellungen in eine Datei schreibt oder über das Netz zum Synchronisierungsserver überträgt, werden sie per <a href="https://de.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> im <a href="https://de.wikipedia.org/wiki/Cipher_Block_Chaining_Mode" target="_blank">CBC</a>-Modus verschlüsselt. Qt-SESAM verwendet dabei die stärkstmögliche Schlüssellänge von 256 Bit.</p>
+      <p>Zu Beginn einer Ver- oder Entschlüsselung muss AES mit einem 128&nbsp;Bit großen Wert initialisiert werden. Dieser sogenannte <a href="https://de.wikipedia.org/wiki/Initialisierungsvektor" target="_blank">Initialisierungsvektor</a> (IV) wird zusammen mit dem AES-Schlüssel aus dem Master-Passwort mit einem Verfahren namens <a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank">Schlüsselerweiterung</a> berechnet. Eine ausführlich überprüfte und sichere Schlüsselerweiterungsmethode ist die Password-Based Key Derivation Function&nbsp;2 (<a href="https://de.wikipedia.org/wiki/PBKDF2" target="_blank">PBKDF2</a>). Die Eingaben (Master-Password, Salt) werden darin 32768 Mal in einen Keyed-Hash Message Authentication Code (<a href="https://de.wikipedia.org/wiki/Keyed-Hash_Message_Authentication_Code" target="_blank">HMAC</a>) gespeist.</p>
+      <p>Das wiederholte Hashing erschwert <a href="https://de.wikipedia.org/wiki/Brute-Force-Attacke" target="_blank">Brute-Force-Angriffe</a> erheblich: Während Qt-SESAM diesen Vorgang für den AES-Schlüssel nur einmal durchführen muss &mdash; was nahezu verzögerungsfrei gelingt &mdash; muss ein Angreifer das für jeden Versuch tun.</p>
+      <p>Qt-SESAM verwendet einen HMAC mit <a href="https://de.wikipedia.org/wiki/SHA-2" target="_blank">SHA-384</a>, weil dieses Verfahren einen Hash mit 384 Bit Länge produziert, die auf 256 Bit für den AES-Schlüssel und 128 Bit für den IV aufgeteilt werden.</p>
 
       <div class="figure">
         <img src="img/algo03a-make-key-iv.png" width="477" height="142" title="Crypter::makeKeyIVFromPassword()" />
-        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::&shy;make&shy;Key&shy;And&shy;IV&shy;From&shy;Password()</a></div>
+        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/crypter.cpp">Crypter::makeKeyAndIVFromPassword()</a></div>
       </div>
 
 
       <h3 id="password-generation">Passwort-Generierung</h3>
 
-      <p>Mit einer ähn&shy;lichen Metho&shy;de werden die Dienst&shy;pass&shy;wörter ge&shy;ne&shy;riert: Zunächst hängt Qt-SESAM den KGK an den Domain- und Benutzer&shy;namen an. Das Re&shy;sul&shy;tat wird zusam&shy;men mit einem Salt in PBKDF2 gespeist.</p>
-      <p>Das Salt entsteht just in dem Moment, in dem du einen neuen Domain-Ein&shy;trag anlegst oder das ge&shy;ne&shy;rierte Pass&shy;wort durch Drücken des Knopfes links neben dem Pass&shy;wort-Feld erneu&shy;erst. Die Länge des Salt lässt sich unter <span class="gui">Optionen/Diverse/Salt-Länge</span> einstellen. Vor&shy;ein&shy;ge&shy;stellt (und sinn&shy;voll) sind 16&nbsp;Byte. Je länger das Salt, umso bes&shy;ser. 64&nbsp;Byte ist jedoch ein sinn&shy;volles obe&shy;res Limit.</p>
+      <p>Mit einer ähnlichen Methode werden die Dienstpasswörter generiert: Zunächst hängt Qt-SESAM den KGK an den Domain- und Benutzernamen an. Das Resultat wird zusammen mit einem Salt in PBKDF2 gespeist.</p>
+      <p>Das Salt entsteht just in dem Moment, in dem du einen neuen Domain-Eintrag anlegst oder das generierte Passwort durch Drücken des Knopfes links neben dem Passwort-Feld erneuerst. Die Länge des Salt lässt sich unter <span class="gui">Optionen/Diverse/Salt-Länge</span> einstellen. Voreingestellt (und sinnvoll) sind 16&nbsp;Byte. Mehr als 64&nbsp;Byte verbessern die Sicherheit nicht.</p>
 
-      <p>Du kannst die Anzahl der PBKDF2-Ite&shy;ra&shy;tionen in der Spin&shy;box ein&shy;stellen. Sie wird sicht&shy;bar, wenn du die <span class="gui">Erwei&shy;ter&shy;ten Ein&shy;stel&shy;lungen</span> aus&shy;klappst. Der Vor&shy;ga&shy;be&shy;wert lässt sich über <span class="gui">Optio&shy;nen/Diverse/PBKDF2-Ite&shy;ra&shy;tionen (Vor&shy;gabe)</span> festlegen. Je mehr Ite&shy;ra&shy;tionen, umso siche&shy;rer das Pass&shy;wort, weil höhere Werte zu län&shy;ge&shy;ren Be&shy;rech&shy;nungs&shy;zeiten führen, die wiede&shy;rum den Auf&shy;wand für Brute-Force-An&shy;griffe erhöhen. Die er&shy;höh&shy;te Berech&shy;nungs&shy;auf&shy;wand schlägt sich aller&shy;dings auch in der Be&shy;dien&shy;bar&shy;keit nieder: Je nach Rech&shy;ner wirkt die Be&shy;dienung schon ab weni&shy;gen tau&shy;send Ite&shy;ra&shy;tionen zäh. Der Default-Wert 8192 ist mehr als aus&shy;rei&shy;chend. Zum Beis&shy;piel ver&shy;wen&shy;det das WLAN-Si&shy;cher&shy;heits&shy;pro&shy;to&shy;koll <a href="https://de.wikipedia.org/wiki/Wi-Fi_Protected_Access#WPA2" target="_blank">WPA2</a> 4096 Ite&shy;ra&shy;tionen.</p>
-      <p>Das Resul&shy;tat der Ope&shy;ra&shy;tion ist ein 512 Bit lan&shy;ger <q>Schlüs&shy;sel</q>. Aus diesem Schlüs&shy;sel berech&shy;net Qt-SESAM schließ&shy;lich das Dienst&shy;passw&shy;ort (siehe die Methode <a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp" class="code" target="_blank">Password::mix()</a>).</p>
+      <p>Du kannst die Anzahl der PBKDF2-Iterationen in der Spinbox einstellen. Sie wird sichtbar, wenn du die <span class="gui">Erweiterten Einstellungen</span> ausklappst. Der Vorgabewert lässt sich über <span class="gui">Optionen/Diverse/PBKDF2-Iterationen (Vorgabe)</span> festlegen. Je mehr Iterationen, umso sicherer das Passwort. Höhere Werte führen nämlich zu längeren Berechnungszeiten, die wiederum den Aufwand für Brute-Force-Angriffe erhöhen. Die erhöhte Berechnungsaufwand schlägt sich allerdings auch in der Bedienbarkeit nieder: Je nach Rechner wirkt die Bedienung schon ab wenigen tausend Iterationen zäh. Der Default-Wert 8192 ist mehr als ausreichend. Zum Beispiel verwendet das WLAN-Sicherheitsprotokoll <a href="https://de.wikipedia.org/wiki/Wi-Fi_Protected_Access#WPA2" target="_blank">WPA2</a> 4096 Iterationen.</p>
+      <p>Das Resultat der Operation ist ein 512 Bit langer <q>Schlüssel</q>. Aus diesem Wert berechnet Qt-SESAM schließlich das Dienstpasswort (siehe die Methode <a href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp" class="code" target="_blank">Password::mix()</a>).</p>
       <div class="figure">
         <img src="img/algo03b-make-key.png" width="646" height="154" title="Password::generate()" />
-        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp">Password::&shy;generate()</a></div>
+        <div class="title"><a class="code" href="https://github.com/ola-ct/Qt-SESAM/blob/master/libSESAM/password.cpp">Password::generate()</a></div>
       </div>
 
 
       <h3 id="encryption">Verschlüsselung</h3>
 
-      <p>Damit sind alle Informationen beisammen, die Qt-SESAM zum Verschlüsseln der Daten (KGK und Domain-Einstellungen)  benötigt.
-        Das Verschlüsselungsverfahren wirkt auf den ersten Blick ziemlich kompliziert, ist aber vergleichsweise einfach:</p>
+      <p>Das Verschlüsselungsverfahren von Qt-SESAM wirkt auf den ersten Blick ziemlich kompliziert, ist aber vergleichsweise einfach:</p>
 
       <ol class="steps">
-        <li>Weil Qt-SESAM den KGK zum Be&shy;rech&shy;nen der Dienst&shy;pass&shy;wör&shy;ter benö&shy;tigt, muss er zu&shy;sam&shy;men mit den Domain-Ein&shy;stel&shy;lungen ab&shy;ge&shy;spei&shy;chert wer&shy;den.
-          Weil der KGK außer&shy;dem für die Ver&shy;schlüs&shy;se&shy;lung der Domain-Ein&shy;stel&shy;lungen benö&shy;tigt wird, muss er sepa&shy;rat ver&shy;schlüs&shy;selt wer&shy;den.
-          Zunächst wird ein zwei&shy;tes Salt/IV-Paar für spä&shy;ter ge&shy;ne&shy;riert und dem KGK voran&shy;ge&shy;stellt.
-          Zur der Ver&shy;schlüs&shy;se&shy;lung kommen <a href="#key-computation">der Schlüss&shy;el und der IV</a> zum Ein&shy;satz, die aus <code>Crypter::­make­&shy;Key&shy;­And&shy;­IV&shy;­From&shy;­Password()</code> her&shy;vor&shy;ge&shy;gan&shy;gen sind. Die Daten wer&shy;den dem&shy;nach effektiv mit deinem Master-Pass&shy;wort ver&shy;schlüs&shy;selt.
+        <li>Weil Qt-SESAM den KGK zum Berechnen der Dienstpasswörter benötigt, muss er zusammen mit den Domain-Einstellungen abgespeichert werden.
+          Weil der KGK außerdem für die Verschlüsselung der Domain-Einstellungen benötigt wird, muss er separat verschlüsselt werden.
+          Zunächst wird ein zweites Salt/IV-Paar für später generiert und dem KGK vorangestellt.
+          Zur der Verschlüsselung kommen <a href="#key-computation">der Schlüssel und der IV</a> zum Einsatz, die aus <code>Crypter::­make­Key­And­IV­From­Password()</code> hervorgegangen sind. Die Daten werden demnach effektiv mit deinem Master-Passwort verschlüsselt.
         </li>
-        <li>Der 256-Bit-AES-Schlüssel wird aus dem KGK mit Hilfe von PBKDF2 berechnet. Das in Schritt&nbsp;1 ge&shy;ne&shy;rier&shy;te Salt schützt den Schlüs&shy;sel dabei gegen Wör&shy;ter&shy;buch- und Rain&shy;bow-Table-Attacken. 
+        <li>Der 256-Bit-AES-Schlüssel wird aus dem KGK mit Hilfe von PBKDF2 berechnet. Das in Schritt&nbsp;1 generierte Salt schützt den Schlüssel dabei gegen Wörterbuch- und Rainbow-Table-Attacken. 
         </li>
-        <li>Die Domain-Ein&shy;stel&shy;lungen liegen intern im <a href="https://de.wikipedia.org/wiki/JavaScript_Object_Notation" target="_blank">JSON</a>-For&shy;mat vor. Das ist ein recht auf&shy;ge&shy;pluster&shy;tes For&shy;mat, das sich leicht auf einen Bruch&shy;teil seiner ur&shy;sprüng&shy;li&shy;chen Größe kom&shy;pri&shy;mieren lässt. 
-          Die Kom&shy;pri&shy;mierung spart nicht nur Spei&shy;cher&shy;platz, son&shy;dern er&shy;schwert auch An&shy;griffe gegen den Schlüs&shy;sel, weil die Daten bei jedem Crack-Ver&shy;such de&shy;kom&shy;pri&shy;miert wer&shy;den müs&shy;sen.
+        <li>Die Domain-Einstellungen liegen intern im <a href="https://de.wikipedia.org/wiki/JavaScript_Object_Notation" target="_blank">JSON</a>-Format vor. Das ist ein recht aufgeplustertes Format, das sich leicht auf einen Bruchteil seiner ursprünglichen Größe komprimieren lässt. 
+          Die Komprimierung spart nicht nur Speicherplatz, sondern erschwert auch Angriffe gegen den Schlüssel, weil die Daten bei jedem Crack-Versuch dekomprimiert werden müssen.
         </li>
-        <li>Der Schlüssel aus Schritt&nbsp;2 wird zusammen mit dem in Schritt&nbsp;1 aus&shy;ge&shy;wür&shy;fel&shy;ten IV zum Ver&shy;schlüs&shy;seln der Domain-Ein&shy;stel&shy;lungen heran&shy;ge&shy;zogen, nach&shy;dem sie kom&shy;pri&shy;miert wur&shy;den.
+        <li>Der Schlüssel aus Schritt&nbsp;2 wird zusammen mit dem in Schritt&nbsp;1 ausgewürfelten IV zum Verschlüsseln der Domain-Einstellungen herangezogen, nachdem sie komprimiert wurden.
         </li>
-        <li>Nun kann Qt-SESAM die ver&shy;schlüs&shy;selten Daten zu&shy;sam&shy;men&shy;fügen: Das erste Byte ist eine Ver&shy;sions&shy;ken&shy;nung (der&shy;zeit wird nur <code>0x01</code> ver&shy;wen&shy;det). 
-          Darauf folgt das <a href="#salt-generation">Salt</a>, das ver&shy;wen&shy;det wurde, um <a href="#key-computation">den Schlüs&shy;sel und IV aus dem Master-Pass&shy;wort zu be&shy;rech&shy;nen</a>. Dann fol&shy;gen der ver&shy;schlüs&shy;selte KGK von Schritt&nbsp;1 und das Ergeb&shy;nis von Schritt&nbsp;4. 
-          Dieses Kom&shy;plett&shy;paket kann man nun sorg&shy;los abspei&shy;chern oder über&shy;tra&shy;gen, ohne Gefahr zu laufen, dass es ein Hacker in endlicher Zeit knacken kann, selbst wenn er dauer&shy;haften Zugang zu Super&shy;com&shy;pu&shy;tern hat. Die Sicher&shy;heit der im Paket ent&shy;hal&shy;te&shy;nen Daten hängt ein&shy;zig und allein von der Stärke des Master-Pass&shy;worts ab &mdash; und wie gut du es vor allzu neu&shy;gie&shy;rigen Blicken schützt.
+        <li>Nun kann Qt-SESAM die verschlüsselten Daten zusammenfügen: Das erste Byte ist eine Versionskennung (derzeit wird nur <code>0x01</code> verwendet). 
+          Darauf folgt das <a href="#salt-generation">Salt</a>, das verwendet wurde, um <a href="#key-computation">den Schlüssel und IV aus dem Master-Passwort zu berechnen</a>. Dann folgen der verschlüsselte KGK von Schritt&nbsp;1 und das Ergebnis von Schritt&nbsp;4. 
+          Dieses Komplettpaket kann man nun sorglos abspeichern oder übertragen, ohne Gefahr zu laufen, dass es ein Hacker in endlicher Zeit knacken kann, selbst wenn er dauerhaften Zugang zu Supercomputern hat. Die Sicherheit der im Paket enthaltenen Daten hängt einzig und allein von der Stärke des Master-Passworts ab &mdash; und wie gut du es vor allzu neugierigen Blicken schützt.
         </li>
       </ol>
 
@@ -198,16 +196,16 @@
 
       <h3 id="decryption">Entschlüsselung</h3>
 
-      <p>Die Ver&shy;schlüs&shy;se&shy;lung läuft in um&shy;ge&shy;kehr&shy;ter Richtung ab. Wie man sieht, ist dafür nur das Master-Pass&shy;wort von&shy;nöten.
-        Alle anderen wäh&shy;rend&shy;des&shy;sen er&shy;for&shy;der&shy;li&shy;chen Werte wer&shy;den aus den ver&shy;schlüs&shy;sel&shy;ten Daten Stück für Stück ex&shy;tra&shy;hiert:
+      <p>Die Verschlüsselung läuft in umgekehrter Richtung ab. Als Eingabe ist nur Master-Passwort vonnöten.
+        Alle anderen währenddessen erforderlichen Werte werden aus den verschlüsselten Daten Stück für Stück extrahiert:
       </p>
 
       <ol class="steps">
-        <li>Nach der Prüfung, ob die Versionskennung <code>0x01</code> ist, zerlegt Qt-SESAM die ver&shy;schlüs&shy;selten Daten in ihre drei Haupt&shy;be&shy;stand&shy;teile.</li>
-        <li>Das Master-Pass&shy;wort ergibt zu&shy;sam&shy;men mit dem Salt den Schlüs&shy;sel und den IV, die erforderlich sind, um&nbsp;&hellip;</li>
-        <li>&hellip;&nbsp;den ver&shy;schlüs&shy;selten KGK, das Salt und den IV zu ent&shy;schlüs&shy;seln.</li>
-        <li>Mit dem Salt und dem KGK lässt sich nun der AES-Schlüs&shy;sel be&shy;rech&shy;nen.</li>
-        <li>Mit diesem Schlüs&shy;sel und dem IV von Schritt&nbsp;3 kann Qt-SESAM jetzt die Domain-Ein&shy;stel&shy;lungen ent&shy;schlüs&shy;seln. Nach der De&shy;kom&shy;pri&shy;mierung stehen sie zur wei&shy;te&shy;ren Ver&shy;wen&shy;dung bereit.</li>
+        <li>Nach der Prüfung, ob die Versionskennung <code>0x01</code> ist, zerlegt Qt-SESAM die verschlüsselten Daten in ihre drei Hauptbestandteile.</li>
+        <li>Das Master-Passwort ergibt zusammen mit dem Salt den Schlüssel und den IV, die erforderlich sind, um&nbsp;&hellip;</li>
+        <li>&hellip;&nbsp;den verschlüsselten KGK, das Salt und den IV zu entschlüsseln.</li>
+        <li>Mit dem Salt und dem KGK lässt sich nun der AES-Schlüssel berechnen.</li>
+        <li>Mit diesem Schlüssel und dem IV von Schritt&nbsp;3 kann Qt-SESAM jetzt die Domain-Einstellungen entschlüsseln. Nach der Dekomprimierung stehen sie zur weiteren Verwendung bereit.</li>
       </ol>
 
       <div class="figure">
@@ -228,34 +226,34 @@
 
       <h2>Literatur</h2>
       <ul>
-        <li><a href="http://heise.de/-3045112">Johannes Merkert, Fenster&shy;beschwörung, PySide: grafische Programme mit Python und Qt, c't&nbsp;1/16, S.&nbsp;178</a></li>
-        <li><a href="http://heise.de/-2842027">Oliver Lau, Sesam, synce dich!, Den c't-SESAM-Syn&shy;chro&shy;ni&shy;sierungs&shy;server instal&shy;lieren, c't&nbsp;23/15, S.&nbsp;182</a></li>
-        <li><a href="http://heise.de/-2811169">Johannes Merkert, Passwort-Erinnerer, Pro&shy;gram&shy;mieren lernen mit Python, Teil&nbsp;2, c't&nbsp;21/15, S.&nbsp;158</a></li>
+        <li><a href="http://heise.de/-3045112">Johannes Merkert, Fensterbeschwörung, PySide: grafische Programme mit Python und Qt, c't&nbsp;1/16, S.&nbsp;178</a></li>
+        <li><a href="http://heise.de/-2842027">Oliver Lau, Sesam, synce dich!, Den c't-SESAM-Synchronisierungsserver installieren, c't&nbsp;23/15, S.&nbsp;182</a></li>
+        <li><a href="http://heise.de/-2811169">Johannes Merkert, Passwort-Erinnerer, Programmieren lernen mit Python, Teil&nbsp;2, c't&nbsp;21/15, S.&nbsp;158</a></li>
         <li><a href="http://heise.de/-2793210">Oliver Lau, Sesam, öffne dich!, Passwörter verwalten mit c't SESAM, c't&nbsp;20/15, S.&nbsp;182</a></li>
-        <li><a href="http://heise.de/-2767841">Johannes Merkert, Schlangen&shy;beschwörung für Einsteiger, Pro&shy;gram&shy;mieren lernen mit Python, c't&nbsp;18/15, S.&nbsp;118</a></li>
+        <li><a href="http://heise.de/-2767841">Johannes Merkert, Schlangenbeschwörung für Einsteiger, Programmieren lernen mit Python, c't&nbsp;18/15, S.&nbsp;118</a></li>
         <li><a href="http://heise.de/-2753149">Oliver Lau, Aus kurz wird lang, Passwörter sicher speichern mit Hilfe von PBKDF2, c't&nbsp;17/15, S.&nbsp;180</a></li>
-        <li><a href="http://heise.de/-2284364">Jürgen Schmidt, Eines für alle, Ein neues Konzept für den Umgang mit Pass&shy;wörtern, c't&nbsp;18/14, S.&nbsp;82</a></li>
+        <li><a href="http://heise.de/-2284364">Jürgen Schmidt, Eines für alle, Ein neues Konzept für den Umgang mit Passwörtern, c't&nbsp;18/14, S.&nbsp;82</a></li>
       </ul>
     </section>
   </article>
 
   <article class="no-float dark">
     <section>
-      <p>Qt-SESAM ist freie Software. Du kannst sie unter den Be&shy;din&shy;gungen der GNU Gene&shy;ral Public License, wie von der Free Soft&shy;ware Foun&shy;dation ver&shy;öf&shy;fent&shy;licht, wei&shy;ter&shy;geben und/oder modi&shy;fi&shy;zieren, ent&shy;weder gemäß Ver&shy;sion&nbsp;3 der Lizenz oder (nach deiner Wahl) jeder späteren Version. Die Ver&shy;öffent&shy;lichung dieses Programms er&shy;folgt in der Hoff&shy;nung, dass es dir von Nutzen sein wird, aber OHNE JED&shy;WEDE GARAN&shy;TIE, auch ohne die im&shy;pli&shy;zite Ga&shy;ran&shy;tie der MARKT&shy;REIFE oder der VER&shy;WEND&shy;BAR&shy;KEIT FÜR EINEN BESTIMM&shy;TEN ZWECK. Details fin&shy;dest du in der <a href="http://www.gnu.de/documents/gpl.de.html" target="_blank">GNU Gene&shy;ral Public Li&shy;cense</a>.</p>
+      <p>Qt-SESAM ist freie Software. Du kannst sie unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version&nbsp;3 der Lizenz oder (nach deiner Wahl) jeder späteren Version. Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, dass es dir von Nutzen sein wird, aber OHNE JEDWEDE GARANTIE, auch ohne die implizite Garantie der MARKTREIFE oder der VERWENDBARKEIT FÜR EINEN BESTIMMTEN ZWECK. Details findest du in der <a href="http://www.gnu.de/documents/gpl.de.html" target="_blank">GNU General Public License</a>.</p>
       <p>
         Copyright &copy;&nbsp;2015 Oliver Lau &lt;<a href="mailto:ola@ct.de">ola@ct.de</a>&gt;, <a href="http://www.heise.de/" target="_blank">Heise Medien GmbH &amp;&nbsp;Co.&nbsp;KG</a>.
     Mit Beiträgen von
     <a href="https://github.com/egbrt" target="_blank">Egbert van der Haring</a>,
-    <a href="https://github.com/stefanb2" target="_blank">Ste&shy;fan Becker</a>,
-    <a href="https://github.com/fernsehkind" target="_blank">Ralph Hauss&shy;mann</a>
+    <a href="https://github.com/stefanb2" target="_blank">Stefan Becker</a>,
+    <a href="https://github.com/fernsehkind" target="_blank">Ralph Haussmann</a>
     und
     <a href="https://github.com/cyberfuzzie" target="_blank">Sascha Riemer</a>.
-    Vielen Dank an <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> für die zahl&shy;rei&shy;chen wert&shy;vollen Anre&shy;gun&shy;gen und die tol&shy;len Dis&shy;kus&shy;sio&shy;nen über das SESAM-Pro&shy;jekt im All&shy;ge&shy;meinen. Meine beson&shy;dere Aner&shy;ken&shy;nung geht an <a href="https://github.com/wikinaut" target="_blank">Wiki&shy;naut</a> für das Mel&shy;den von Bugs, gerade in der Anfangs&shy;phase von Qt-SESAM.
+    Vielen Dank an <a href="https://github.com/pinae" target="_blank">Johannes Merkert</a> für die zahlreichen wertvollen Anregungen und die tollen Diskussionen über das SESAM-Projekt im Allgemeinen. Meine besondere Anerkennung geht an <a href="https://github.com/wikinaut" target="_blank">Wikinaut</a> für das Melden von Bugs, gerade in der Anfangsphase von Qt-SESAM.
       </p>
       <p>
-        Qt-SESAM ver&shy;wen&shy;det die Bi&shy;blio&shy;the&shy;ken <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> und <a href="https://github.com/fukuchi/libqrencode" target="_blank">lib&shy;qr&shy;en&shy;code</a>.
-      Crypto++ steht unter der <a href="http://www.boost.org/users/license.html" target="_blank">Boost Soft&shy;ware License</a>, Version&nbsp;1.0. 
-      lib&shy;qr&shy;en&shy;code steht unter der <a href="http://www.gnu.de/documents/lgpl-2.1.de.html" target="_blank">GNU Les&shy;ser Gene&shy;ral Public Li&shy;cense&nbsp;2.1</a> oder neuer.
+        Qt-SESAM verwendet die Bibliotheken <a href="https://www.cryptopp.com/" target="_blank">Crypto++</a> und <a href="https://github.com/fukuchi/libqrencode" target="_blank">libqrencode</a>.
+      Crypto++ steht unter der <a href="http://www.boost.org/users/license.html" target="_blank">Boost Software License</a>, Version&nbsp;1.0. 
+      libqrencode steht unter der <a href="http://www.gnu.de/documents/lgpl-2.1.de.html" target="_blank">GNU Lesser General Public License&nbsp;2.1</a> oder neuer.
       </p>
     </section>
   </article>
