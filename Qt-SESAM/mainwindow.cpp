@@ -101,8 +101,6 @@ static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
 
-static const char *ExpandedProperty = "expanded";
-
 const int MainWindow::EXIT_CODE_REBOOT = -12345679;
 
 
