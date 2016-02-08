@@ -540,15 +540,5 @@ void OptionsDialog::choosePasswordFile()
 
 void OptionsDialog::okClicked(void)
 {
-  bool ok = true;
-  if (!ui->syncFileLineEdit->text().isEmpty()) {
-    QFileInfo fi(ui->syncFileLineEdit->text());
-    ok = fi.exists();
-  }
-  if (ok) {
-    accept();
-  }
-  else {
-    reject();
-  }
+  accept();
 }

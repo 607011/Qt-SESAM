@@ -1118,13 +1118,6 @@ void MainWindow::onPasswordGenerationAborted(void)
 }
 
 
-void MainWindow::onOptionsAccepted(void)
-{
-  Q_D(MainWindow);
-  saveSettings();
-}
-
-
 void MainWindow::onServerCertificatesUpdated(const QList<QSslCertificate> &certs)
 {
   Q_D(MainWindow);
@@ -1142,10 +1135,10 @@ void MainWindow::showOptionsDialog(void)
 {
   Q_D(MainWindow);
   d->interactionSemaphore.acquire();
-  int button = d->optionsDialog->exec();
+  const int button = d->optionsDialog->exec();
   d->interactionSemaphore.release();
   if (button == QDialog::Accepted) {
-    onOptionsAccepted();
+    saveSettings();
   }
 }
 
@@ -1867,7 +1860,6 @@ QString MainWindow::collectedSyncData(void)
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveSettings()";
   _LOG("MainWindow::saveSettings()");
   d->settings.setValue("sync/param", collectedSyncData());
   saveAllDomainDataToSettings();

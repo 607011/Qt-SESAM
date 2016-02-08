@@ -95,7 +95,6 @@ private slots:
   void copyUsernameToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
-  void onOptionsAccepted(void);
   void onServerCertificatesUpdated(const QList<QSslCertificate> &certs);
   void showOptionsDialog(void);
   void onPasswordGenerated(void);
