@@ -47,6 +47,6 @@ int main(int argc, char *argv[])
     MainWindow w(forceStart);
     w.activateWindow();
     exitCode = a.exec();
-  } while (exitCode == MainWindow::EXIT_CODE_REBOOT);
+  } while (exitCode == MainWindow::EXIT_CODE_RESTART_APP);
   return exitCode;
 }

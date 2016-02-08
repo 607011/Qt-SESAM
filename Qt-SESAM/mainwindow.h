@@ -70,7 +70,7 @@ public:
   virtual QSize sizeHint(void) const;
   virtual QSize minimumSizeHint(void) const;
 
-  static int const EXIT_CODE_REBOOT;
+  static int const EXIT_CODE_RESTART_APP;
   static QString defaultLocale(void);
 
 private:

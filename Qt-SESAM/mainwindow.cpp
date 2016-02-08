@@ -104,7 +104,7 @@ static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
 static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
 static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
 
-const int MainWindow::EXIT_CODE_REBOOT = -12345679;
+const int MainWindow::EXIT_CODE_RESTART_APP = -12345679;
 
 
 class MainWindowPrivate {
@@ -3090,7 +3090,7 @@ void MainWindow::onSelectLanguage(QAction *action)
       if (button == QMessageBox::Yes) {
         d->lockFile->unlock();
         _LOG("Restart.");
-        qApp->exit(EXIT_CODE_REBOOT);
+        qApp->exit(EXIT_CODE_RESTART_APP);
       }
     }
   }
