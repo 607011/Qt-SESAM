@@ -379,10 +379,13 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
 
   d->attachmentsContextMenu = new QMenu(ui->attachmentListWidget);
-  d->actionSaveAttachment = new QAction(tr("Save attachment as ..."), d->attachmentsContextMenu);
+
+  d->actionSaveAttachment = new QAction(QIcon(":/images/filesave.png"), tr("Save attachment as ..."), d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionSaveAttachment);
-  d->actionDeleteAttachment = new QAction(tr("Delete attachment"), d->attachmentsContextMenu);
+  d->actionDeleteAttachment = new QAction(QIcon(":/images/remove.png"), tr("Delete attachment"), d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionDeleteAttachment);
+  d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"), tr("Attach file ..."), d->attachmentsContextMenu);
+  d->attachmentsContextMenu->addAction(d->actionAttachFile);
 
   d->trayMenu = new QMenu(AppName);
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
