@@ -397,6 +397,9 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->moreSettingsGroupBox->hide();
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
 
+  // uncomment following line when issue #6 is resolved and merged into master
+  ui->actionAttachFile->setEnabled(false);
+
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
   ui->tabWidget->setCurrentIndex(TabGeneratedPassword);
