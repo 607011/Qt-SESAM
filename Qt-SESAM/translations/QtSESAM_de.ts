@@ -1262,7 +1262,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Attach file ...</source>
-        <translation type="vanished">Datei anhängen ...</translation>
+        <translation>Datei anhängen ...</translation>
     </message>
     <message>
         <source>Attach files</source>
@@ -1274,7 +1274,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Attach files ...</source>
-        <translation>Dateien anhängen ...</translation>
+        <translation type="vanished">Dateien anhängen ...</translation>
     </message>
     <message>
         <source>Save attachment as ...</source>
@@ -1702,7 +1702,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Backup of settings</source>
-        <translation>Backup der Einstellungen</translation>
+        <translation type="vanished">Backup der Einstellungen</translation>
     </message>
     <message>
         <source>Extensive wipe-out of backup files</source>
@@ -1711,6 +1711,18 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Enable logging</source>
         <translation>Logging einschalten</translation>
+    </message>
+    <message>
+        <source>Backups</source>
+        <translation>Backups</translation>
+    </message>
+    <message>
+        <source>Max. attachment size</source>
+        <translation>Max. Anhanggröße</translation>
+    </message>
+    <message>
+        <source> KB</source>
+        <translation> KByte</translation>
     </message>
 </context>
 <context>

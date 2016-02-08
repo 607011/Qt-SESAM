@@ -928,11 +928,19 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/info.png</normaloff>:/images/info.png</iconset>
+   </property>
    <property name="text">
     <string>About ...</string>
    </property>
   </action>
   <action name="actionAboutQt">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/qtlogo.png</normaloff>:/images/qtlogo.png</iconset>
+   </property>
    <property name="text">
     <string>About Qt ...</string>
    </property>
