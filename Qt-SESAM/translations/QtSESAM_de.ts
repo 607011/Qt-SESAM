@@ -1262,11 +1262,27 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Attach file ...</source>
-        <translation>Datei anhängen ...</translation>
+        <translation type="vanished">Datei anhängen ...</translation>
     </message>
     <message>
         <source>Attach files</source>
         <translation>Dateien anhängen</translation>
+    </message>
+    <message>
+        <source>Attachments</source>
+        <translation>Anhänge</translation>
+    </message>
+    <message>
+        <source>Attach files ...</source>
+        <translation>Dateien anhängen ...</translation>
+    </message>
+    <message>
+        <source>Save attachment as ...</source>
+        <translation>Anhang speichern unter ...</translation>
+    </message>
+    <message>
+        <source>Delete attachment</source>
+        <translation>Anhang entfernen</translation>
     </message>
 </context>
 <context>

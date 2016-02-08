@@ -730,6 +730,20 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="attachmentsTab">
+       <attribute name="title">
+        <string>Attachments</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QListWidget" name="attachmentListWidget">
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
@@ -1061,7 +1075,7 @@
   </action>
   <action name="actionAttachFile">
    <property name="text">
-    <string>Attach file ...</string>
+    <string>Attach files ...</string>
    </property>
   </action>
  </widget>

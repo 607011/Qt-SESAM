@@ -44,6 +44,7 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QImage>
+#include <QListWidgetItem>
 
 #include "global.h"
 #include "password.h"
@@ -227,6 +228,11 @@ private: // methods
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
   void attachFile(const QString &filename);
+  void setAttachments(const QVariantMap &attachments);
+  int attachmentRow(const QString &filename) const;
+  bool attachmentExists(const QString &filename) const;
+  void saveAttachmentAs(const QListWidgetItem *);
+  void deleteAttachment(const QListWidgetItem *);
 };
 
 #endif // __MAINWINDOW_H_
