@@ -220,7 +220,7 @@ private: // methods
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
-  QString collectedSyncData(void);
+  void saveSyncDataToSettings(void);
   bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);

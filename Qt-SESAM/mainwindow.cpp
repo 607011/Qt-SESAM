@@ -124,6 +124,7 @@ public:
     , attachmentsContextMenu(Q_NULLPTR)
     , actionSaveAttachment(Q_NULLPTR)
     , actionDeleteAttachment(Q_NULLPTR)
+    , actionAttachFile(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
@@ -180,6 +181,7 @@ public:
   QMenu *attachmentsContextMenu;
   QAction *actionSaveAttachment;
   QAction *actionDeleteAttachment;
+  QAction *actionAttachFile;
   QString lastDomainBeforeLock;
   DomainSettings lastCleanDomainSettings;
   DomainSettings domainSettingsBeforceSync;
@@ -355,7 +357,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
   QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(removeOutdatedBackupFiles()));
-  QObject::connect(ui->actionAttachFile, SIGNAL(triggered(bool)), SLOT(onAttachFile()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 #else
@@ -416,9 +417,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
 
   ui->attachmentListWidget->installEventFilter(this);
-
-  // uncomment following line when issue #6 is resolved and merged into master
-  // ui->actionAttachFile->setEnabled(false);
 
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
@@ -488,7 +486,6 @@ void MainWindow::prepareExit(void)
   if (d->lockFile->isLocked()) {
     d->lockFile->unlock();
   }
-  saveUiSettings();
 }
 
 
@@ -1850,9 +1847,10 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 }
 
 
-QString MainWindow::collectedSyncData(void)
+void MainWindow::saveSyncDataToSettings(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::saveSyncDataToSettings()";
   QMutexLocker(&d->keyGenerationMutex);
   QVariantMap syncData;
   syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
@@ -1880,17 +1878,17 @@ QString MainWindow::collectedSyncData(void)
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
     _LOG(QString("ERROR in MainWindow::collectedSyncData(): %1").arg(e.what()));
-    return QString();
   }
-  return baCryptedData.isEmpty() ? QString() : QString::fromUtf8(baCryptedData.toBase64());
+  d->settings.setValue("sync/param",baCryptedData.toBase64());
 }
 
 
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::saveSettings()";
   _LOG("MainWindow::saveSettings()");
-  d->settings.setValue("sync/param", collectedSyncData());
+  saveSyncDataToSettings();
   saveAllDomainDataToSettings();
   saveUiSettings();
   d->settings.sync();
@@ -3124,7 +3122,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     break;
   case QEvent::Drop:
-    if (obj->objectName() == "attachmentListWidget") {
+    if (obj == ui->attachmentListWidget) {
       QDropEvent *dropEvent = reinterpret_cast<QDropEvent*>(event);
       if (dropEvent->mimeData() != Q_NULLPTR && dropEvent->mimeData()->hasUrls()) {
         foreach (QUrl url, dropEvent->mimeData()->urls()) {
@@ -3138,17 +3136,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     break;
   case QEvent::ContextMenu:
-    if (obj->objectName() == "attachmentListWidget") {
+    if (obj == ui->attachmentListWidget) {
       QContextMenuEvent *cmEvent = reinterpret_cast<QContextMenuEvent*>(event);
       QListWidgetItem *item = ui->attachmentListWidget->itemAt(cmEvent->pos());
-      if (item != Q_NULLPTR) {
-        const QAction *const selectedAction = d->attachmentsContextMenu->exec(cmEvent->globalPos());
-        if (selectedAction == d->actionSaveAttachment) {
-          saveAttachmentAs(item);
-        }
-        else if (selectedAction == d->actionDeleteAttachment) {
-          deleteAttachment(item);
-        }
+      d->actionSaveAttachment->setVisible(item != Q_NULLPTR);
+      d->actionDeleteAttachment->setVisible(item != Q_NULLPTR);
+      const QAction *const selectedAction = d->attachmentsContextMenu->exec(cmEvent->globalPos());
+      if (selectedAction == d->actionAttachFile) {
+        onAttachFile();
+      }
+      else if (item != Q_NULLPTR && selectedAction == d->actionSaveAttachment) {
+        saveAttachmentAs(item);
+      }
+      else if (item != Q_NULLPTR && selectedAction == d->actionDeleteAttachment) {
+        deleteAttachment(item);
       }
     }
     break;
@@ -3226,10 +3227,10 @@ void MainWindow::attachFile(const QString &filename)
 {
   Q_D(MainWindow);
   QFile f(filename);
-  bool ok = f.open(QIODevice::ReadOnly);
-  bool anyAttached = false;
-  QFileInfo fi(filename);
+  const bool ok = f.open(QIODevice::ReadOnly);
   if (ok) {
+    bool anyAttached = false;
+    QFileInfo fi(filename);
     const QString &fn = fi.fileName();
     if (!attachmentExists(fn)) {
       QByteArray contents = f.readAll().toBase64();
@@ -3258,8 +3259,11 @@ void MainWindow::onAttachFile(void)
       QFileInfo fi(filename);
       if (fi.exists()) {
         d->lastAttachFileDir = fi.absolutePath();
-        if (fi.size() < DomainSettings::MaxFileSize) {
+        if (fi.size() < d->optionsDialog->maxAttachmentSizeKbyte() * 1024) {
           attachFile(filename);
+        }
+        else {
+          // TODO: warn user that file has not been attached
         }
       }
     }
@@ -3296,7 +3300,7 @@ void MainWindow::createLanguageMenu(void)
       }
     };
     addLangAction("en");
-    const QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
+    const QStringList &filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
     foreach (QString filename, filenames) {
       QString locale = filename;
       locale.truncate(locale.lastIndexOf('.'));
