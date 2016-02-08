@@ -91,8 +91,11 @@
 static const int DefaultMasterPasswordInvalidationTimeMins = 5;
 static const bool CompressionEnabled = true;
 static const int NotFound = -1;
-static const int TabGeneratedPassword = 0;
-static const int TabLegacyPassword = 1;
+
+enum TabIndexes {
+  TabGeneratedPassword,
+  TabLegacyPassword
+};
 
 static const QString DefaultSyncServerRoot = "https://syncserver.net/ctSESAM";
 static const QString DefaultSyncServerUsername = "inter";
