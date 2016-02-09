@@ -3259,10 +3259,11 @@ static QString toKbyte(qint64 a)
 
 void MainWindow::appendAttachmentToTable(const QString &filename, const QByteArray &contents)
 {
+  // qDebug() << "MainWindow::appendAttachmentToTable(" << filename << "," << contents << ")";
   const int row = ui->attachmentTableWidget->rowCount();
   ui->attachmentTableWidget->insertRow(row);
   QTableWidgetItem *const itemFilename = new QTableWidgetItem(filename);
-  itemFilename->setData(Qt::UserRole,  QByteArray::fromBase64(contents));
+  itemFilename->setData(Qt::UserRole, contents);
   itemFilename->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   ui->attachmentTableWidget->setItem(row, 0, itemFilename);
   QTableWidgetItem *const itemSize = new QTableWidgetItem(toKbyte(contents.size()));
