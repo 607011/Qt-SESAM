@@ -3165,10 +3165,24 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         onAttachFile();
       }
       else if (selectedAction == d->actionSaveAttachment && additionalMenuItemsVisible) {
-        saveAttachmentAs(item);
+        if (ui->attachmentTableWidget->selectedItems().count() == 1) {
+          saveAttachmentAs(item);
+        }
+        else {
+          // TODO: save multiple items
+        }
       }
       else if (selectedAction == d->actionDeleteAttachment && additionalMenuItemsVisible) {
-        deleteAttachment(item);
+        QList<int> rowsToBeDeleted;
+        foreach (const QModelIndex &index, ui->attachmentTableWidget->selectionModel()->selection().indexes()) {
+          rowsToBeDeleted.append(index.row());
+        }
+        foreach (int rowToBeDeleted, rowsToBeDeleted) {
+          ui->attachmentTableWidget->removeRow(rowToBeDeleted);
+        }
+        if (!rowsToBeDeleted.isEmpty()) {
+          setDirty(true);
+        }
       }
     }
     break;
