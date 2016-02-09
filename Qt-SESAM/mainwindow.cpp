@@ -388,8 +388,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"),
                                     tr("Attach file ..."),
                                     d->attachmentsContextMenu);
-  d->attachmentsContextMenu->addSeparator();
   d->attachmentsContextMenu->addAction(d->actionAttachFile);
+  d->attachmentsContextMenu->addSeparator();
   d->actionSaveAttachment = new QAction(QIcon(":/images/filesave.png"),
                                         tr("Save attachment as ..."),
                                         d->attachmentsContextMenu);
