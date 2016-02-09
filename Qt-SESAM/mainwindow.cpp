@@ -3113,7 +3113,7 @@ void MainWindow::dragEnterAttachmentWidget(QEvent *event)
     foreach (const QUrl &url, dragEnterEvent->mimeData()->urls()) {
       if (url.isLocalFile()) {
         QFileInfo fi(url.toLocalFile());
-        if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
+        if (fi.exists() && fi.isFile() && fi.isReadable()) {
           dragEnterEvent->acceptProposedAction();
           break;
         }
