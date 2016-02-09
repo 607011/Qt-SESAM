@@ -235,6 +235,7 @@ private: // methods
   void deleteAttachment(const QTableWidgetItem *);
   void restoreUiSettings(void);
   bool restoreSyncSettings(void);
+  void appendAttachmentToTable(const QString &filename, const QByteArray &contents);
 };
 
 #endif // __MAINWINDOW_H_

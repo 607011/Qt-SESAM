@@ -3211,32 +3211,6 @@ void MainWindow::saveAttachmentAs(const QTableWidgetItem *item)
 }
 
 
-QString toKbyte(qint64 a)
-{
-  return (a <= 1024)
-      ? QObject::tr("%1 B").arg(a)
-      : (a <= 1024 * 1024)
-        ? QObject::tr("%1 KB").arg(a / 1024)
-        : QObject::tr("%1 MB").arg(a / 1024 / 1024);
-}
-
-
-void MainWindow::setAttachments(const QVariantMap &attachments)
-{
-  Q_D(MainWindow);
-  ui->attachmentTableWidget->clearContents();
-  foreach (QString key, attachments.keys()) {
-    ui->attachmentTableWidget->insertRow(0);
-    QTableWidgetItem *const item0 = new QTableWidgetItem(key);
-    item0->setData(Qt::UserRole, attachments[key]);
-    ui->attachmentTableWidget->setItem(0, 0, item0);
-    const QByteArray &contents = QByteArray::fromBase64(attachments[key].toByteArray());
-    QTableWidgetItem *const item1 = new QTableWidgetItem(toKbyte(contents.size()));
-    ui->attachmentTableWidget->setItem(0, 1, item1);
-  }
-}
-
-
 int MainWindow::attachmentRow(const QString &filename) const
 {
   int row = -1;
@@ -3256,6 +3230,41 @@ bool MainWindow::attachmentExists(const QString &filename) const
 }
 
 
+static QString toKbyte(qint64 a)
+{
+  const qreal sz = static_cast<qreal>(a) / 1024;
+  return (sz < 1)
+      ? QObject::tr("%1 B").arg(a)
+      : (sz < 1024)
+        ? QObject::tr("%1 KB").arg(sz, 0, 'f', 2)
+        : QObject::tr("%1 MB").arg(sz / 1024, 0, 'f', 2);
+}
+
+
+void MainWindow::appendAttachmentToTable(const QString &filename, const QByteArray &contents)
+{
+  const int row = ui->attachmentTableWidget->rowCount();
+  ui->attachmentTableWidget->insertRow(row);
+  QTableWidgetItem *const itemFilename = new QTableWidgetItem(filename);
+  itemFilename->setData(Qt::UserRole,  QByteArray::fromBase64(contents));
+  itemFilename->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  ui->attachmentTableWidget->setItem(row, 0, itemFilename);
+  QTableWidgetItem *const itemSize = new QTableWidgetItem(toKbyte(contents.size()));
+  itemSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  ui->attachmentTableWidget->setItem(row, 1, itemSize);
+}
+
+
+void MainWindow::setAttachments(const QVariantMap &attachments)
+{
+  Q_D(MainWindow);
+  ui->attachmentTableWidget->clearContents();
+  foreach (QString key, attachments.keys()) {
+    appendAttachmentToTable(key, attachments[key].toByteArray());
+  }
+}
+
+
 void MainWindow::attachFile(const QString &filename)
 {
   Q_D(MainWindow);
@@ -3268,23 +3277,19 @@ void MainWindow::attachFile(const QString &filename)
       QFile f(filename);
       const bool ok = f.open(QIODevice::ReadOnly);
       if (ok) {
-        QTableWidgetItem *const item0 = new QTableWidgetItem(fn);
         QByteArray contents = f.readAll().toBase64();
         f.close();
-        item0->setData(Qt::UserRole, contents);
-        QTableWidgetItem *const item1 = new QTableWidgetItem(toKbyte(fi.size()));
-        int row = ui->attachmentTableWidget->rowCount();
-        ui->attachmentTableWidget->insertRow(row);
-        ui->attachmentTableWidget->setItem(row, 0, item0);
-        ui->attachmentTableWidget->setItem(row, 1, item1);
+        appendAttachmentToTable(fn, contents);
         anyAttached = true;
       }
       else {
         QMessageBox::information(
               this,
               tr("Read error"),
-              tr("The file '%1' was not added because it cannot be read.")
-              .arg(fn));
+              tr("The file '%1' was not added because it cannot be read (%2).")
+              .arg(fn)
+              .arg(f.errorString())
+              );
       }
     }
     else {
@@ -3292,11 +3297,12 @@ void MainWindow::attachFile(const QString &filename)
             this,
             tr("Attachment too large"),
             tr("The file '%1' was not added because it's too large. "
-               "Only %2 KByte are allowed. "
-               "Your file has %3 KByte.")
+               "Your file has %2 KByte, but only %3 KByte are allowed. "
+               "You can change this limit via Extras/Options/Misc.")
             .arg(fn)
+            .arg(fileKByte)
             .arg(d->optionsDialog->maxAttachmentSizeKbyte())
-            .arg(fileKByte));
+            );
     }
   }
   else {

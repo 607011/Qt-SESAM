@@ -1298,7 +1298,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; was not added because it cannot be read.</source>
-        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte.</translation>
+        <translation type="vanished">Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte.</translation>
     </message>
     <message>
         <source>Attachment too large</source>
@@ -1318,7 +1318,15 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; was not added because it&apos;s too large. Only %2 KByte are allowed. Your file has %3 KByte.</source>
-        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Nur %2 KByte sind erlaubt. Deine Datei hat aber %3 KByte.</translation>
+        <translation type="vanished">Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Nur %2 KByte sind erlaubt. Deine Datei hat aber %3 KByte.</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it&apos;s too large. Your file has %2 KByte, but only %3 KByte are allowed. You can change this limit via Extras/Options/Misc.</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Deine Datei ist %2 KByte groß, aber nur %3 KByte sind erlaubt. Du kannst dieses Limit in Extras/Optionen/Diverse ändern.</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it cannot be read (%2).</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte (%2).</translation>
     </message>
 </context>
 <context>
