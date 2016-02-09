@@ -23,5 +23,6 @@
         <file alias="qtlogo.png">resources/images/qtlogo.png</file>
         <file alias="info.png">resources/images/info@2x.png</file>
         <file>resources/images/upload-icon.png</file>
+        <file alias="add.png">resources/images/add.png</file>
     </qresource>
 </RCC>

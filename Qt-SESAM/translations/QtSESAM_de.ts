@@ -1328,6 +1328,10 @@ in %1 Thread%2 ...</translation>
         <source>The file &apos;%1&apos; was not added because it cannot be read (%2).</source>
         <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte (%2).</translation>
     </message>
+    <message>
+        <source>Add file</source>
+        <translation>Datei hinzufügen</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>

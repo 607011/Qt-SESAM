@@ -398,6 +398,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
                                           tr("Delete attachment"),
                                           d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionDeleteAttachment);
+  QObject::connect(ui->addAttachmentPushButton, SIGNAL(clicked(bool)), SLOT(onAttachFile()));
 
   d->trayMenu = new QMenu(AppName);
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -3220,7 +3221,7 @@ void MainWindow::saveAttachmentAs(const QTableWidgetItem *item)
 {
   Q_D(MainWindow);
   if (item != Q_NULLPTR) {
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save attachment as ..."), d->lastSaveAttachmentDir);
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save attachment as ..."), d->lastSaveAttachmentDir + "/" + item->text());
     if (!filename.isEmpty()) {
       QFile f(filename);
       bool ok = f.open(QIODevice::WriteOnly);
