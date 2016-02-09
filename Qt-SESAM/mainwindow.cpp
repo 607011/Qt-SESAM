@@ -612,7 +612,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->easySelectorWidget->setExtraCharacters(ui->extraLineEdit->text());
   ui->easySelectorWidget->blockSignals(false);
 
-  ui->attachmentTableWidget->clearContents();
+  ui->attachmentTableWidget->setRowCount(0);
 
   applyComplexity(ui->easySelectorWidget->complexityValue());
 }
@@ -3275,7 +3275,7 @@ void MainWindow::appendAttachmentToTable(const QString &filename, const QByteArr
 void MainWindow::setAttachments(const QVariantMap &attachments)
 {
   Q_D(MainWindow);
-  ui->attachmentTableWidget->clearContents();
+  ui->attachmentTableWidget->setRowCount(0);
   foreach (QString key, attachments.keys()) {
     appendAttachmentToTable(key, attachments[key].toByteArray());
   }
