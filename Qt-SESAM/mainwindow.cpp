@@ -3108,31 +3108,17 @@ void MainWindow::executeAttachmentContextMenu(QEvent *event)
 
 void MainWindow::dragEnterAttachmentWidget(QEvent *event)
 {
-  bool acceptable = true;
   QDragEnterEvent *const dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
   if (dragEnterEvent->mimeData() != Q_NULLPTR && dragEnterEvent->mimeData()->hasUrls()) {
     foreach (const QUrl &url, dragEnterEvent->mimeData()->urls()) {
       if (url.isLocalFile()) {
         QFileInfo fi(url.toLocalFile());
         if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
-          acceptable = false;
+          dragEnterEvent->acceptProposedAction();
           break;
         }
       }
-      else {
-        acceptable = false;
-        break;
-      }
     }
-  }
-  else {
-    acceptable = false;
-  }
-  if (acceptable) {
-    dragEnterEvent->accept();
-  }
-  else {
-    dragEnterEvent->ignore();
   }
 }
 
