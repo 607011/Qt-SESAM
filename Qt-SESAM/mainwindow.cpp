@@ -384,12 +384,18 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->attachmentTableWidget->setColumnCount(2);
   ui->attachmentTableWidget->setHorizontalHeaderLabels(QStringList() << tr("Filename") << tr("Size"));
   d->attachmentsContextMenu = new QMenu(ui->attachmentTableWidget);
-  d->actionSaveAttachment = new QAction(QIcon(":/images/filesave.png"), tr("Save attachment as ..."), d->attachmentsContextMenu);
-  d->attachmentsContextMenu->addAction(d->actionSaveAttachment);
-  d->actionDeleteAttachment = new QAction(QIcon(":/images/remove.png"), tr("Delete attachment"), d->attachmentsContextMenu);
-  d->attachmentsContextMenu->addAction(d->actionDeleteAttachment);
-  d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"), tr("Attach file ..."), d->attachmentsContextMenu);
+  d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"),
+                                    tr("Attach file ..."),
+                                    d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionAttachFile);
+  d->actionSaveAttachment = new QAction(QIcon(":/images/filesave.png"),
+                                        tr("Save attachment as ..."),
+                                        d->attachmentsContextMenu);
+  d->attachmentsContextMenu->addAction(d->actionSaveAttachment);
+  d->actionDeleteAttachment = new QAction(QIcon(":/images/remove.png"),
+                                          tr("Delete attachment"),
+                                          d->attachmentsContextMenu);
+  d->attachmentsContextMenu->addAction(d->actionDeleteAttachment);
 
   d->trayMenu = new QMenu(AppName);
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
