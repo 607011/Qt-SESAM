@@ -45,10 +45,6 @@ public:
 };
 
 
-static const QString ExpandCollapseButton = "expandCollapseButton";
-static const QString TitleLabel = "titleLabel";
-
-
 ExpandableGroupbox::ExpandableGroupbox(QWidget *parent)
   : QWidget(parent)
   , d_ptr(new ExpandableGroupboxPrivate(this))
@@ -62,12 +58,10 @@ ExpandableGroupbox::ExpandableGroupbox(QWidget *parent)
   d->contentsFrame->setFrameShape(QFrame::StyledPanel);
   d->titleLabel->setCursor(Qt::PointingHandCursor);
   d->titleLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-  d->titleLabel->setObjectName(TitleLabel);
   d->titleLabel->installEventFilter(this);
   d->titleLabel->move(12, 4);
   d->buttonLabel->setCursor(Qt::PointingHandCursor);
   d->buttonLabel->setMaximumSize(11, 11);
-  d->buttonLabel->setObjectName(ExpandCollapseButton);
   d->buttonLabel->installEventFilter(this);
   d->buttonLabel->move(0, 6);
   d->layout->addWidget(d->contentsFrame);
@@ -150,9 +144,10 @@ void ExpandableGroupbox::setLayout(QLayout *layout)
 
 bool ExpandableGroupbox::eventFilter(QObject *obj, QEvent *event)
 {
+  Q_D(ExpandableGroupbox);
   switch (event->type()) {
   case QEvent::MouseButtonPress:
-    if (obj->objectName() == ExpandCollapseButton || obj->objectName() == TitleLabel) {
+    if (obj == d->buttonLabel || obj == d->titleLabel) {
       toggle();
     }
     break;
