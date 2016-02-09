@@ -236,6 +236,8 @@ private: // methods
   void restoreUiSettings(void);
   bool restoreSyncSettings(void);
   void appendAttachmentToTable(const QString &filename, const QByteArray &contents);
+  void executeAttachmentContextMenu(QEvent *event);
+  void dragEnterAttachmentWidget(QEvent *event);
 };
 
 #endif // __MAINWINDOW_H_

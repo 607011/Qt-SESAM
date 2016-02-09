@@ -3061,6 +3061,74 @@ void MainWindow::aboutQt(void)
 }
 
 
+void MainWindow::executeAttachmentContextMenu(QEvent *event)
+{
+  Q_D(MainWindow);
+  const QContextMenuEvent *const cmEvent = reinterpret_cast<QContextMenuEvent*>(event);
+  const int row = ui->attachmentTableWidget->rowAt(cmEvent->pos().y()
+                                                   - ui->attachmentTableWidget->horizontalHeader()->height());
+  const QTableWidgetItem *const item = ui->attachmentTableWidget->item(row, 0);
+  const bool additionalMenuItemsVisible = (item != Q_NULLPTR);
+  d->actionSaveAttachment->setVisible(additionalMenuItemsVisible);
+  d->actionDeleteAttachment->setVisible(additionalMenuItemsVisible);
+  const QAction *const selectedAction = d->attachmentsContextMenu->exec(cmEvent->globalPos());
+  if (selectedAction == d->actionAttachFile) {
+    onAttachFile();
+  }
+  else if (selectedAction == d->actionSaveAttachment && additionalMenuItemsVisible) {
+    saveAttachmentAs(item);
+  }
+  else if (selectedAction == d->actionDeleteAttachment && additionalMenuItemsVisible) {
+    QList<int> rowsToBeDeleted;
+    foreach (const QModelIndex &index, ui->attachmentTableWidget->selectionModel()->selection().indexes()) {
+      rowsToBeDeleted.append(index.row());
+    }
+    int prevRow = -1;
+    for (int i = rowsToBeDeleted.count() - 1; i >= 0; --i) {
+      int currentRow = rowsToBeDeleted.at(i);
+      if (currentRow != prevRow) {
+        ui->attachmentTableWidget->model()->removeRows(currentRow, 1);
+        prevRow = currentRow;
+      }
+    }
+    if (!rowsToBeDeleted.isEmpty()) {
+      setDirty(true);
+    }
+  }
+}
+
+
+void MainWindow::dragEnterAttachmentWidget(QEvent *event)
+{
+  bool acceptable = true;
+  QDragEnterEvent *const dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
+  if (dragEnterEvent->mimeData() != Q_NULLPTR && dragEnterEvent->mimeData()->hasUrls()) {
+    foreach (const QUrl &url, dragEnterEvent->mimeData()->urls()) {
+      if (url.isLocalFile()) {
+        QFileInfo fi(url.toLocalFile());
+        if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
+          acceptable = false;
+          break;
+        }
+      }
+      else {
+        acceptable = false;
+        break;
+      }
+    }
+  }
+  else {
+    acceptable = false;
+  }
+  if (acceptable) {
+    dragEnterEvent->accept();
+  }
+  else {
+    dragEnterEvent->ignore();
+  }
+}
+
+
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
   Q_D(MainWindow);
@@ -3108,32 +3176,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   case QEvent::DragEnter:
     if (obj == ui->attachmentTableWidget) {
-      bool acceptable = true;
-      QDragEnterEvent *const dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
-      if (dragEnterEvent->mimeData() != Q_NULLPTR && dragEnterEvent->mimeData()->hasUrls()) {
-        foreach (const QUrl &url, dragEnterEvent->mimeData()->urls()) {
-          if (url.isLocalFile()) {
-            QFileInfo fi(url.toLocalFile());
-            if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
-              acceptable = false;
-              break;
-            }
-          }
-          else {
-            acceptable = false;
-            break;
-          }
-        }
-      }
-      else {
-        acceptable = false;
-      }
-      if (acceptable) {
-        dragEnterEvent->accept();
-      }
-      else {
-        dragEnterEvent->ignore();
-      }
+      dragEnterAttachmentWidget(event);
       restartInvalidationTimer();
       return true;
     }
@@ -3155,36 +3198,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     break;
   case QEvent::ContextMenu:
     if (obj == ui->attachmentTableWidget) {
-      const QContextMenuEvent *const cmEvent = reinterpret_cast<QContextMenuEvent*>(event);
-      const int row = ui->attachmentTableWidget->rowAt(cmEvent->pos().y() - ui->attachmentTableWidget->horizontalHeader()->height());
-      const QTableWidgetItem *const item = ui->attachmentTableWidget->item(row, 0);
-      const bool additionalMenuItemsVisible = (item != Q_NULLPTR);
-      d->actionSaveAttachment->setVisible(additionalMenuItemsVisible);
-      d->actionDeleteAttachment->setVisible(additionalMenuItemsVisible);
-      const QAction *const selectedAction = d->attachmentsContextMenu->exec(cmEvent->globalPos());
-      if (selectedAction == d->actionAttachFile) {
-        onAttachFile();
-      }
-      else if (selectedAction == d->actionSaveAttachment && additionalMenuItemsVisible) {
-        saveAttachmentAs(item);
-      }
-      else if (selectedAction == d->actionDeleteAttachment && additionalMenuItemsVisible) {
-        QList<int> rowsToBeDeleted;
-        foreach (const QModelIndex &index, ui->attachmentTableWidget->selectionModel()->selection().indexes()) {
-          rowsToBeDeleted.append(index.row());
-        }
-        int prevRow = -1;
-        for (int i = rowsToBeDeleted.count() - 1; i >= 0; --i) {
-          int currentRow = rowsToBeDeleted.at(i);
-          if (currentRow != prevRow) {
-            ui->attachmentTableWidget->model()->removeRows(currentRow, 1);
-            prevRow = currentRow;
-          }
-        }
-        if (!rowsToBeDeleted.isEmpty()) {
-          setDirty(true);
-        }
-      }
+      executeAttachmentContextMenu(event);
       restartInvalidationTimer();
     }
     break;
