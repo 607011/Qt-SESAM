@@ -44,7 +44,7 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QImage>
-#include <QListWidgetItem>
+#include <QTableWidgetItem>
 
 #include "global.h"
 #include "password.h"
@@ -231,8 +231,10 @@ private: // methods
   void setAttachments(const QVariantMap &attachments);
   int attachmentRow(const QString &filename) const;
   bool attachmentExists(const QString &filename) const;
-  void saveAttachmentAs(const QListWidgetItem *);
-  void deleteAttachment(const QListWidgetItem *);
+  void saveAttachmentAs(const QTableWidgetItem *);
+  void deleteAttachment(const QTableWidgetItem *);
+  void restoreUiSettings(void);
+  bool restoreSyncSettings(void);
 };
 
 #endif // __MAINWINDOW_H_

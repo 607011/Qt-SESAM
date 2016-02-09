@@ -1284,6 +1284,42 @@ in %1 Thread%2 ...</translation>
         <source>Delete attachment</source>
         <translation>Anhang entfernen</translation>
     </message>
+    <message>
+        <source>Filename</source>
+        <translation>Dateiname</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Größe</translation>
+    </message>
+    <message>
+        <source>Read error</source>
+        <translation>Lesefehler</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it cannot be read.</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte.</translation>
+    </message>
+    <message>
+        <source>Attachment too large</source>
+        <translation>Anhang zu groß</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it&apos;s too large. Only %2 KByte are allowed. Your file has %3 KByte</source>
+        <translation type="vanished">Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Nur %2 KByte sind erlaubt. Deine Datei hat aber %3 KByte.</translation>
+    </message>
+    <message>
+        <source>Attachment already exists</source>
+        <translation>Anhang existiert bereits</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because an attachment with the same name already exists.</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil ein Anhang mit demselben Namen bereits existiert.</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it&apos;s too large. Only %2 KByte are allowed. Your file has %3 KByte.</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Nur %2 KByte sind erlaubt. Deine Datei hat aber %3 KByte.</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1951,6 +1987,18 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Login data file (*.txt *.sesam)</source>
         <translation>Login-Daten-Datei (*.txt *.sesam)</translation>
+    </message>
+    <message>
+        <source>%1 B</source>
+        <translation>%1 B</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 KB</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 MB</translation>
     </message>
 </context>
 <context>
