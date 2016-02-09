@@ -383,6 +383,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->attachmentTableWidget->installEventFilter(this);
   ui->attachmentTableWidget->setColumnCount(2);
   ui->attachmentTableWidget->setHorizontalHeaderLabels(QStringList() << tr("Filename") << tr("Size"));
+  ui->attachmentTableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   d->attachmentsContextMenu = new QMenu(ui->attachmentTableWidget);
   d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"),
                                     tr("Attach file ..."),
