@@ -3109,9 +3109,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
   case QEvent::DragEnter:
     if (obj == ui->attachmentTableWidget) {
       bool acceptable = true;
-      QDragEnterEvent *dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
+      QDragEnterEvent *const dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
       if (dragEnterEvent->mimeData() != Q_NULLPTR && dragEnterEvent->mimeData()->hasUrls()) {
-        foreach (QUrl url, dragEnterEvent->mimeData()->urls()) {
+        foreach (const QUrl &url, dragEnterEvent->mimeData()->urls()) {
           if (url.isLocalFile()) {
             QFileInfo fi(url.toLocalFile());
             if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
@@ -3129,34 +3129,35 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         acceptable = false;
       }
       if (acceptable) {
-        event->accept();
+        dragEnterEvent->accept();
       }
       else {
-        event->ignore();
+        dragEnterEvent->ignore();
       }
+      restartInvalidationTimer();
       return true;
     }
     break;
   case QEvent::Drop:
     if (obj == ui->attachmentTableWidget) {
-      QDropEvent *dropEvent = reinterpret_cast<QDropEvent*>(event);
+      QDropEvent *const dropEvent = reinterpret_cast<QDropEvent*>(event);
       if (dropEvent->mimeData() != Q_NULLPTR && dropEvent->mimeData()->hasUrls()) {
-        foreach (QUrl url, dropEvent->mimeData()->urls()) {
+        foreach (const QUrl &url, dropEvent->mimeData()->urls()) {
           if (url.isLocalFile()) {
             attachFile(url.toLocalFile());
           }
         }
         dropEvent->accept();
+        restartInvalidationTimer();
         return true;
       }
     }
     break;
   case QEvent::ContextMenu:
     if (obj == ui->attachmentTableWidget) {
-      QContextMenuEvent *cmEvent = reinterpret_cast<QContextMenuEvent*>(event);
-      const int row = ui->attachmentTableWidget->rowAt(cmEvent->pos().y() /* subtraction of header height seems to be a dirty that is needed at least for OS X */
-                                                       - ui->attachmentTableWidget->horizontalHeader()->height());
-      QTableWidgetItem *item = ui->attachmentTableWidget->item(row, 0);
+      const QContextMenuEvent *const cmEvent = reinterpret_cast<QContextMenuEvent*>(event);
+      const int row = ui->attachmentTableWidget->rowAt(cmEvent->pos().y() - ui->attachmentTableWidget->horizontalHeader()->height());
+      const QTableWidgetItem *const item = ui->attachmentTableWidget->item(row, 0);
       const bool additionalMenuItemsVisible = (item != Q_NULLPTR);
       d->actionSaveAttachment->setVisible(additionalMenuItemsVisible);
       d->actionDeleteAttachment->setVisible(additionalMenuItemsVisible);
@@ -3165,25 +3166,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         onAttachFile();
       }
       else if (selectedAction == d->actionSaveAttachment && additionalMenuItemsVisible) {
-        if (ui->attachmentTableWidget->selectedItems().count() == 1) {
-          saveAttachmentAs(item);
-        }
-        else {
-          // TODO: save multiple items
-        }
+        saveAttachmentAs(item);
       }
       else if (selectedAction == d->actionDeleteAttachment && additionalMenuItemsVisible) {
         QList<int> rowsToBeDeleted;
         foreach (const QModelIndex &index, ui->attachmentTableWidget->selectionModel()->selection().indexes()) {
           rowsToBeDeleted.append(index.row());
         }
-        foreach (int rowToBeDeleted, rowsToBeDeleted) {
-          ui->attachmentTableWidget->removeRow(rowToBeDeleted);
+        int prevRow = -1;
+        for (int i = rowsToBeDeleted.count() - 1; i >= 0; --i) {
+          int currentRow = rowsToBeDeleted.at(i);
+          if (currentRow != prevRow) {
+            ui->attachmentTableWidget->model()->removeRows(currentRow, 1);
+            prevRow = currentRow;
+          }
         }
         if (!rowsToBeDeleted.isEmpty()) {
           setDirty(true);
         }
       }
+      restartInvalidationTimer();
     }
     break;
   default:
