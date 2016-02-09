@@ -61,6 +61,7 @@
 #include <QLockFile>
 #include <QPainter>
 #include <QPixmap>
+#include <QCursor>
 
 #include "logger.h"
 #include "global.h"
@@ -94,7 +95,8 @@ static const int NotFound = -1;
 
 enum TabIndexes {
   TabGeneratedPassword,
-  TabLegacyPassword
+  TabLegacyPassword,
+  TabAttachments
 };
 
 static const QString DefaultSyncServerRoot = "https://syncserver.net/ctSESAM";
@@ -119,6 +121,10 @@ public:
     , trayMenu(Q_NULLPTR)
     , actionShow(Q_NULLPTR)
     , actionLockApplication(Q_NULLPTR)
+    , attachmentsContextMenu(Q_NULLPTR)
+    , actionSaveAttachment(Q_NULLPTR)
+    , actionDeleteAttachment(Q_NULLPTR)
+    , actionAttachFile(Q_NULLPTR)
     , settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName)
     , customCharacterSetDirty(false)
     , parameterSetDirty(false)
@@ -172,6 +178,10 @@ public:
   QMenu *trayMenu;
   QAction *actionShow;
   QAction *actionLockApplication;
+  QMenu *attachmentsContextMenu;
+  QAction *actionSaveAttachment;
+  QAction *actionDeleteAttachment;
+  QAction *actionAttachFile;
   QString lastDomainBeforeLock;
   DomainSettings lastCleanDomainSettings;
   DomainSettings domainSettingsBeforceSync;
@@ -221,7 +231,7 @@ public:
   QLockFile *lockFile;
   bool forceStart;
   QString lastAttachFileDir;
-  QVariantMap attachedFiles;
+  QString lastSaveAttachmentDir;
 };
 
 
@@ -287,6 +297,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
 
   ui->setupUi(this);
   setWindowIcon(QIcon(":/images/ctSESAM.ico"));
+  restoreUiSettings();
 
   ui->selectorGridLayout->addWidget(ui->easySelectorWidget, 0, 1);
   QObject::connect(ui->easySelectorWidget, SIGNAL(valuesChanged(int, int)), SLOT(onEasySelectorValuesChanged(int, int)));
@@ -347,7 +358,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(d->countdownWidget, SIGNAL(timeout()), SLOT(lockApplication()));
   QObject::connect(ui->actionChangeMasterPassword, SIGNAL(triggered(bool)), SLOT(changeMasterPassword()));
   QObject::connect(ui->actionDeleteOldBackupFiles, SIGNAL(triggered(bool)), SLOT(removeOutdatedBackupFiles()));
-  QObject::connect(ui->actionAttachFile, SIGNAL(triggered(bool)), SLOT(onAttachFile()));
 #if HACKING_MODE_ENABLED
   QObject::connect(ui->actionHackLegacyPassword, SIGNAL(triggered(bool)), SLOT(hackLegacyPassword()));
 #else
@@ -369,6 +379,25 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(&d->readNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
   QObject::connect(&d->writeNAM, SIGNAL(finished(QNetworkReply*)), SLOT(onWriteFinished(QNetworkReply*)));
   QObject::connect(&d->writeNAM, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(sslErrorsOccured(QNetworkReply*,QList<QSslError>)));
+
+  ui->attachmentTableWidget->installEventFilter(this);
+  ui->attachmentTableWidget->setColumnCount(2);
+  ui->attachmentTableWidget->setHorizontalHeaderLabels(QStringList() << tr("Filename") << tr("Size"));
+  ui->attachmentTableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  d->attachmentsContextMenu = new QMenu(ui->attachmentTableWidget);
+  d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"),
+                                    tr("Attach file ..."),
+                                    d->attachmentsContextMenu);
+  d->attachmentsContextMenu->addAction(d->actionAttachFile);
+  d->attachmentsContextMenu->addSeparator();
+  d->actionSaveAttachment = new QAction(QIcon(":/images/filesave.png"),
+                                        tr("Save attachment as ..."),
+                                        d->attachmentsContextMenu);
+  d->attachmentsContextMenu->addAction(d->actionSaveAttachment);
+  d->actionDeleteAttachment = new QAction(QIcon(":/images/remove.png"),
+                                          tr("Delete attachment"),
+                                          d->attachmentsContextMenu);
+  d->attachmentsContextMenu->addAction(d->actionDeleteAttachment);
 
   d->trayMenu = new QMenu(AppName);
   QObject::connect(&d->trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -397,9 +426,6 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->generatedPasswordTab->layout()->addWidget(d->expandableGroupBox);
   ui->moreSettingsGroupBox->hide();
   QObject::connect(d->expandableGroupBox, SIGNAL(expansionStateChanged()), SLOT(onExpandableCheckBoxStateChanged()));
-
-  // uncomment following line when issue #6 is resolved and merged into master
-  ui->actionAttachFile->setEnabled(false);
 
   ui->statusBar->addPermanentWidget(d->countdownWidget);
   setDirty(false);
@@ -563,6 +589,8 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->legacyPasswordLineEdit->setText(QString());
   ui->legacyPasswordLineEdit->blockSignals(false);
 
+  ui->generatedPasswordLineEdit->setText(QString());
+
   ui->saltBase64LineEdit->blockSignals(true);
   renewSalt();
   ui->saltBase64LineEdit->blockSignals(false);
@@ -579,13 +607,9 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->deleteCheckBox->setChecked(false);
   ui->deleteCheckBox->blockSignals(false);
 
-  ui->generatedPasswordLineEdit->setText(QString());
-
   ui->createdLabel->setText(QString());
-
   ui->modifiedLabel->setText(QString());
 
-  // v3
   ui->extraLineEdit->blockSignals(true);
   ui->extraLineEdit->setText(Password::ExtraChars);
   ui->extraLineEdit->blockSignals(false);
@@ -596,7 +620,7 @@ void MainWindow::resetAllFieldsExceptDomainComboBox(void)
   ui->easySelectorWidget->setExtraCharacters(ui->extraLineEdit->text());
   ui->easySelectorWidget->blockSignals(false);
 
-  d->attachedFiles.clear();
+  ui->attachmentTableWidget->setRowCount(0);
 
   applyComplexity(ui->easySelectorWidget->complexityValue());
 }
@@ -861,8 +885,15 @@ DomainSettings MainWindow::collectedDomainSettings(void) const
   ds.iterations = ui->iterationsSpinBox->value();
   ds.extraCharacters = ui->extraLineEdit->text();
   ds.passwordTemplate = ui->passwordTemplateLineEdit->text();
-  ds.files = d_ptr->attachedFiles;
-  ds.tags = QStringList(); // TODO: implemented tagging facility
+  QVariantMap attachedFiles;
+  for (int row = 0; row < ui->attachmentTableWidget->rowCount(); ++row) {
+    QTableWidgetItem *const item = ui->attachmentTableWidget->item(row, 0);
+    if (item != Q_NULLPTR) {
+      attachedFiles[item->text()] = item->data(Qt::UserRole);
+    }
+  }
+  ds.files = attachedFiles;
+  ds.tags = QStringList(); // TODO: implement tagging facility
 #ifndef OMIT_V2_CODE
   if (DomainSettings::isV2Template(ds.passwordTemplate)) {
     ds.usedCharacters = ui->extraLineEdit->text();
@@ -1142,7 +1173,8 @@ void MainWindow::showOptionsDialog(void)
   const int button = d->optionsDialog->exec();
   d->interactionSemaphore.release();
   if (button == QDialog::Accepted) {
-    saveSettings();
+    saveSyncDataToSettings();
+    saveUiSettings();
   }
 }
 
@@ -1436,6 +1468,7 @@ void MainWindow::copyDomainSettingsToGUI(DomainSettings ds)
   ui->iterationsSpinBox->blockSignals(true);
   ui->iterationsSpinBox->setValue(ds.iterations);
   ui->iterationsSpinBox->blockSignals(false);
+  setAttachments(ds.files);
   ui->createdLabel->setText(ds.createdDate.toString(Qt::ISODate));
   ui->modifiedLabel->setText(ds.modifiedDate.toString(Qt::ISODate));
   d->createdDate = ds.createdDate;
@@ -1825,9 +1858,10 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 }
 
 
-QString MainWindow::collectedSyncData(void)
+void MainWindow::saveSyncDataToSettings(void)
 {
   Q_D(MainWindow);
+  // qDebug() << "MainWindow::saveSyncDataToSettings()";
   QMutexLocker(&d->keyGenerationMutex);
   QVariantMap syncData;
   syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
@@ -1855,20 +1889,20 @@ QString MainWindow::collectedSyncData(void)
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
     _LOG(QString("ERROR in MainWindow::collectedSyncData(): %1").arg(e.what()));
-    return QString();
   }
-  return baCryptedData.isEmpty() ? QString() : QString::fromUtf8(baCryptedData.toBase64());
+  d->settings.setValue("sync/param",baCryptedData.toBase64());
+  d->settings.sync();
 }
 
 
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
+  // qDebug() << "MainWindow::saveSettings()";
   _LOG("MainWindow::saveSettings()");
-  d->settings.setValue("sync/param", collectedSyncData());
+  saveSyncDataToSettings();
   saveAllDomainDataToSettings();
   saveUiSettings();
-  d->settings.sync();
 }
 
 
@@ -1876,10 +1910,12 @@ void MainWindow::saveUiSettings(void)
 {
   Q_D(MainWindow);
   // qDebug() << "MainWindow::saveUiSettings()";
-  _LOG("MainWindow::saveUiSettings()");
+  // _LOG("MainWindow::saveUiSettings()");
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("mainwindow/language", d->language);
   d->settings.setValue("mainwindow/lastAttachFileDir", d->lastAttachFileDir);
+  d->settings.setValue("mainwindow/lastSaveAttachmentDir", d->lastSaveAttachmentDir);
+  d->settings.setValue("misc/optionsTabIndex", d->optionsDialog->activeTab());
   d->settings.setValue("misc/masterPasswordInvalidationTimeMins", d->optionsDialog->masterPasswordInvalidationTimeMins());
   d->settings.setValue("misc/maxPasswordLength", d->optionsDialog->maxPasswordLength());
   d->settings.setValue("misc/defaultPasswordLength", d->optionsDialog->defaultPasswordLength());
@@ -1888,6 +1924,7 @@ void MainWindow::saveUiSettings(void)
   d->settings.setValue("misc/writeBackups", d->optionsDialog->writeBackups());
   d->settings.setValue("misc/autoDeleteBackupFiles", d->optionsDialog->autoDeleteBackupFiles());
   d->settings.setValue("misc/maxBackupFileAge", d->optionsDialog->maxBackupFileAge());
+  d->settings.setValue("misc/maxAttachmentSizeKbyte", d->optionsDialog->maxAttachmentSizeKbyte());
   d->settings.setValue("misc/extensiveWipeout", d->optionsDialog->extensiveWipeout());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
@@ -1895,12 +1932,14 @@ void MainWindow::saveUiSettings(void)
 }
 
 
-bool MainWindow::restoreSettings(void)
+void MainWindow::restoreUiSettings(void)
 {
   Q_D(MainWindow);
   restoreGeometry(d->settings.value("mainwindow/geometry").toByteArray());
   d->language = d->settings.value("mainwindow/language", defaultLocale()).toString();
   d->lastAttachFileDir = d->settings.value("mainwindow/lastAttachFileDir").toString();
+  d->lastSaveAttachmentDir = d->settings.value("mainwindow/lastSaveAttachmentDir").toString();
+  d->optionsDialog->setActiveTab(d->settings.value("misc/optionsTabIndex", 0).toInt());
   d->optionsDialog->setMasterPasswordInvalidationTimeMins(d->settings.value("misc/masterPasswordInvalidationTimeMins", DefaultMasterPasswordInvalidationTimeMins).toInt());
   d->optionsDialog->setWriteBackups(d->settings.value("misc/writeBackups", true).toBool());
   d->optionsDialog->setPasswordFilename(d->settings.value("misc/passwordFile").toString());
@@ -1909,6 +1948,7 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setDefaultPasswordLength(d->settings.value("misc/defaultPasswordLength", DomainSettings::DefaultPasswordLength).toInt());
   d->optionsDialog->setDefaultIterations(d->settings.value("misc/defaultPBKDF2Iterations", DomainSettings::DefaultIterations).toInt());
   d->optionsDialog->setMaxBackupFileAge(d->settings.value("misc/maxBackupFileAge", 30).toInt());
+  d->optionsDialog->setMaxAttachmentSizeKbyte(d->settings.value("misc/maxAttachmentSizeKbyte", 50).toInt());
   d->optionsDialog->setAutoDeleteBackupFiles(d->settings.value("misc/autoDeleteBackupFiles", true).toBool());
   d->optionsDialog->setExtensiveWipeout(d->settings.value("misc/extensiveWipeout", false).toBool());
   d->optionsDialog->setSyncFilename(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + AppName + ".bin");
@@ -1919,6 +1959,12 @@ bool MainWindow::restoreSettings(void)
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
   d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
   d->expandableGroupBox->setExpanded(d->settings.value("misc/moreSettingsExpanded", false).toBool());
+}
+
+
+bool MainWindow::restoreSyncSettings(void)
+{
+  Q_D(MainWindow);
   QByteArray baCryptedData = QByteArray::fromBase64(d->settings.value("sync/param").toByteArray());
   if (!baCryptedData.isEmpty()) {
     QByteArray baSyncData;
@@ -1947,6 +1993,13 @@ bool MainWindow::restoreSettings(void)
   Logger::instance().setEnabled(d->settings.value("misc/logger/enabled", true).toBool());
   _LOG("MainWindow::restoreSettings() finish.");
   return true;
+}
+
+
+bool MainWindow::restoreSettings(void)
+{
+  Q_D(MainWindow);
+  return restoreSyncSettings();
 }
 
 
@@ -3016,49 +3069,132 @@ void MainWindow::aboutQt(void)
 }
 
 
+void MainWindow::executeAttachmentContextMenu(QEvent *event)
+{
+  Q_D(MainWindow);
+  const QContextMenuEvent *const cmEvent = reinterpret_cast<QContextMenuEvent*>(event);
+  const int row = ui->attachmentTableWidget->rowAt(cmEvent->pos().y()
+                                                   - ui->attachmentTableWidget->horizontalHeader()->height());
+  const QTableWidgetItem *const item = ui->attachmentTableWidget->item(row, 0);
+  const bool additionalMenuItemsVisible = (item != Q_NULLPTR);
+  d->actionSaveAttachment->setVisible(additionalMenuItemsVisible);
+  d->actionDeleteAttachment->setVisible(additionalMenuItemsVisible);
+  const QAction *const selectedAction = d->attachmentsContextMenu->exec(cmEvent->globalPos());
+  if (selectedAction == d->actionAttachFile) {
+    onAttachFile();
+  }
+  else if (selectedAction == d->actionSaveAttachment && additionalMenuItemsVisible) {
+    saveAttachmentAs(item);
+  }
+  else if (selectedAction == d->actionDeleteAttachment && additionalMenuItemsVisible) {
+    QList<int> rowsToBeDeleted;
+    foreach (const QModelIndex &index, ui->attachmentTableWidget->selectionModel()->selection().indexes()) {
+      rowsToBeDeleted.append(index.row());
+    }
+    int prevRow = -1;
+    for (int i = rowsToBeDeleted.count() - 1; i >= 0; --i) {
+      int currentRow = rowsToBeDeleted.at(i);
+      if (currentRow != prevRow) {
+        ui->attachmentTableWidget->model()->removeRows(currentRow, 1);
+        prevRow = currentRow;
+      }
+    }
+    if (!rowsToBeDeleted.isEmpty()) {
+      setDirty(true);
+    }
+  }
+}
+
+
+void MainWindow::dragEnterAttachmentWidget(QEvent *event)
+{
+  QDragEnterEvent *const dragEnterEvent = reinterpret_cast<QDragEnterEvent*>(event);
+  if (dragEnterEvent->mimeData() != Q_NULLPTR && dragEnterEvent->mimeData()->hasUrls()) {
+    foreach (const QUrl &url, dragEnterEvent->mimeData()->urls()) {
+      if (url.isLocalFile()) {
+        QFileInfo fi(url.toLocalFile());
+        if (!fi.exists() || !fi.isFile() || !fi.isReadable()) {
+          dragEnterEvent->acceptProposedAction();
+          break;
+        }
+      }
+    }
+  }
+}
+
+
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-  // qDebug() << "MainWindow::eventFilter(" << obj << event << ")";
+  Q_D(MainWindow);
+  // qDebug() << "MainWindow::eventFilter(" << obj->objectName() << event->type() << ")";
   switch (event->type()) {
   case QEvent::Enter:
-    if (obj->objectName() == "generatedPasswordLineEdit" && !ui->generatedPasswordLineEdit->text().isEmpty()) {
+    if (obj == ui->generatedPasswordLineEdit && !ui->generatedPasswordLineEdit->text().isEmpty()) {
       ui->generatedPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
       return true;
     }
-    else if (obj->objectName() == "legacyPasswordLineEdit" && !ui->legacyPasswordLineEdit->text().isEmpty()) {
+    else if (obj == ui->legacyPasswordLineEdit && !ui->legacyPasswordLineEdit->text().isEmpty()) {
       ui->legacyPasswordLineEdit->setCursor(Qt::WhatsThisCursor);
       return true;
     }
     break;
   case QEvent::Leave:
-    if (obj->objectName() == "generatedPasswordLineEdit") {
+    if (obj == ui->generatedPasswordLineEdit) {
       ui->generatedPasswordLineEdit->setCursor(Qt::ArrowCursor);
       return true;
     }
-    else if (obj->objectName() == "legacyPasswordLineEdit") {
+    else if (obj == ui->legacyPasswordLineEdit) {
       ui->legacyPasswordLineEdit->setCursor(Qt::ArrowCursor);
       return true;
     }
     break;
   case QEvent::MouseButtonPress:
-      if (obj->objectName() == "generatedPasswordLineEdit") {
+      if (obj == ui->generatedPasswordLineEdit) {
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Normal);
         return true;
       }
-      else if (obj->objectName() == "legacyPasswordLineEdit") {
+      else if (obj == ui->legacyPasswordLineEdit) {
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Normal);
         return true;
       }
     break;
   case QEvent::MouseButtonRelease:
-      if (obj->objectName() == "generatedPasswordLineEdit") {
+      if (obj ==ui->generatedPasswordLineEdit) {
         ui->generatedPasswordLineEdit->setEchoMode(QLineEdit::Password);
         return true;
       }
-      else if (obj->objectName() == "legacyPasswordLineEdit") {
+      else if (obj == ui->legacyPasswordLineEdit) {
         ui->legacyPasswordLineEdit->setEchoMode(QLineEdit::Password);
         return true;
       }
+    break;
+  case QEvent::DragEnter:
+    if (obj == ui->attachmentTableWidget) {
+      dragEnterAttachmentWidget(event);
+      restartInvalidationTimer();
+      return true;
+    }
+    break;
+  case QEvent::Drop:
+    if (obj == ui->attachmentTableWidget) {
+      QDropEvent *const dropEvent = reinterpret_cast<QDropEvent*>(event);
+      if (dropEvent->mimeData() != Q_NULLPTR && dropEvent->mimeData()->hasUrls()) {
+        foreach (const QUrl &url, dropEvent->mimeData()->urls()) {
+          if (url.isLocalFile()) {
+            attachFile(url.toLocalFile());
+          }
+        }
+        dropEvent->accept();
+        restartInvalidationTimer();
+        return true;
+      }
+    }
+    break;
+  case QEvent::ContextMenu:
+    if (obj == ui->attachmentTableWidget) {
+      executeAttachmentContextMenu(event);
+      restartInvalidationTimer();
+    }
     break;
   default:
     break;
@@ -3067,32 +3203,89 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-void MainWindow::setLanguage(const QString &language)
+void MainWindow::deleteAttachment(const QTableWidgetItem *item)
 {
   Q_D(MainWindow);
-  d->language = language;
-  d->settings.setValue("mainwindow/language", language);
-  d->settings.sync();
+  if (item != Q_NULLPTR) {
+    const int row = attachmentRow(item->text());
+    if (row >= 0) {
+      ui->attachmentTableWidget->removeRow(row);
+      setDirty(true);
+    }
+  }
 }
 
 
-void MainWindow::onSelectLanguage(QAction *action)
+void MainWindow::saveAttachmentAs(const QTableWidgetItem *item)
 {
   Q_D(MainWindow);
-  if (action != Q_NULLPTR) {
-    const QString &newLanguage = action->data().toString();
-    if (newLanguage != d->language) {
-      setLanguage(newLanguage);
-      QMessageBox::StandardButton button =
-          QMessageBox::question(this,
-                                tr("Changed language"),
-                                tr("You've changed Qt-SESAM's language. Do you want to restart Qt-SESAM to take the change into effect?"));
-      if (button == QMessageBox::Yes) {
-        d->lockFile->unlock();
-        _LOG("Restart.");
-        qApp->exit(EXIT_CODE_RESTART_APP);
+  if (item != Q_NULLPTR) {
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save attachment as ..."), d->lastSaveAttachmentDir);
+    if (!filename.isEmpty()) {
+      QFile f(filename);
+      bool ok = f.open(QIODevice::WriteOnly);
+      if (ok) {
+        d->lastSaveAttachmentDir = QFileInfo(filename).absolutePath();
+        const QByteArray &contents = QByteArray::fromBase64(item->data(Qt::UserRole).toByteArray());
+        f.write(contents);
+        f.close();
       }
     }
+  }
+}
+
+
+int MainWindow::attachmentRow(const QString &filename) const
+{
+  int row = -1;
+  for (int i = 0; i < ui->attachmentTableWidget->rowCount(); ++i) {
+    if (ui->attachmentTableWidget->item(i, 0)->text() == filename) {
+      row = i;
+      break;
+    }
+  }
+  return row;
+}
+
+
+bool MainWindow::attachmentExists(const QString &filename) const
+{
+  return attachmentRow(filename) >= 0;
+}
+
+
+static QString toKbyte(qint64 a)
+{
+  const qreal sz = static_cast<qreal>(a) / 1024;
+  return (sz < 1)
+      ? QObject::tr("%1 B").arg(a)
+      : (sz < 1024)
+        ? QObject::tr("%1 KB").arg(sz, 0, 'f', 2)
+        : QObject::tr("%1 MB").arg(sz / 1024, 0, 'f', 2);
+}
+
+
+void MainWindow::appendAttachmentToTable(const QString &filename, const QByteArray &contents)
+{
+  // qDebug() << "MainWindow::appendAttachmentToTable(" << filename << "," << contents << ")";
+  const int row = ui->attachmentTableWidget->rowCount();
+  ui->attachmentTableWidget->insertRow(row);
+  QTableWidgetItem *const itemFilename = new QTableWidgetItem(filename);
+  itemFilename->setData(Qt::UserRole, contents);
+  itemFilename->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  ui->attachmentTableWidget->setItem(row, 0, itemFilename);
+  QTableWidgetItem *const itemSize = new QTableWidgetItem(toKbyte(contents.size()));
+  itemSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  ui->attachmentTableWidget->setItem(row, 1, itemSize);
+}
+
+
+void MainWindow::setAttachments(const QVariantMap &attachments)
+{
+  Q_D(MainWindow);
+  ui->attachmentTableWidget->setRowCount(0);
+  foreach (QString key, attachments.keys()) {
+    appendAttachmentToTable(key, attachments[key].toByteArray());
   }
 }
 
@@ -3100,21 +3293,53 @@ void MainWindow::onSelectLanguage(QAction *action)
 void MainWindow::attachFile(const QString &filename)
 {
   Q_D(MainWindow);
-  QFile f(filename);
-  bool ok = f.open(QIODevice::ReadOnly);
   bool anyAttached = false;
   QFileInfo fi(filename);
-  if (ok) {
-    const QString &idx = fi.fileName();
-    // qDebug() << "attaching" << idx << "...";
-    if (!d->attachedFiles.contains(idx)) {
-      d->attachedFiles[idx] = f.readAll().toBase64();
-      anyAttached = true;
+  const QString &fn = fi.fileName();
+  if (!attachmentExists(fn)) {
+    const int fileKByte = int(fi.size() / 1024);
+    if (fileKByte <= d->optionsDialog->maxAttachmentSizeKbyte()) {
+      QFile f(filename);
+      const bool ok = f.open(QIODevice::ReadOnly);
+      if (ok) {
+        QByteArray contents = f.readAll().toBase64();
+        f.close();
+        appendAttachmentToTable(fn, contents);
+        anyAttached = true;
+      }
+      else {
+        QMessageBox::information(
+              this,
+              tr("Read error"),
+              tr("The file '%1' was not added because it cannot be read (%2).")
+              .arg(fn)
+              .arg(f.errorString())
+              );
+      }
     }
     else {
-      // TODO ...
+      QMessageBox::information(
+            this,
+            tr("Attachment too large"),
+            tr("The file '%1' was not added because it's too large. "
+               "Your file has %2 KByte, but only %3 KByte are allowed. "
+               "You can change this limit via Extras/Options/Misc.")
+            .arg(fn)
+            .arg(fileKByte)
+            .arg(d->optionsDialog->maxAttachmentSizeKbyte())
+            );
     }
-    setDirty(anyAttached);
+  }
+  else {
+    QMessageBox::information(
+          this,
+          tr("Attachment already exists"),
+          tr("The file '%1' was not added because an attachment with the same name already exists.")
+          .arg(fn));
+  }
+  if (anyAttached) {
+    setDirty(true);
+    d->lastAttachFileDir = fi.absolutePath();
   }
 }
 
@@ -3128,10 +3353,7 @@ void MainWindow::onAttachFile(void)
     foreach (QString filename, filenames) {
       QFileInfo fi(filename);
       if (fi.exists()) {
-        d->lastAttachFileDir = fi.absolutePath();
-        if (fi.size() < DomainSettings::MaxFileSize) {
-          attachFile(filename);
-        }
+        attachFile(filename);
       }
     }
   }
@@ -3167,12 +3389,44 @@ void MainWindow::createLanguageMenu(void)
       }
     };
     addLangAction("en");
-    const QStringList filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
+    const QStringList &filenames = dir.entryList(QStringList("QtSESAM_*.qm"));
     foreach (QString filename, filenames) {
       QString locale = filename;
       locale.truncate(locale.lastIndexOf('.'));
       locale.remove(0, locale.indexOf('_') + 1);
       addLangAction(locale);
+    }
+  }
+}
+
+
+void MainWindow::setLanguage(const QString &language)
+{
+  Q_D(MainWindow);
+  d->language = language;
+  d->settings.setValue("mainwindow/language", language);
+  d->settings.sync();
+}
+
+
+void MainWindow::onSelectLanguage(QAction *action)
+{
+  Q_D(MainWindow);
+  if (action != Q_NULLPTR) {
+    const QString &newLanguage = action->data().toString();
+    if (newLanguage != d->language) {
+      setLanguage(newLanguage);
+      QMessageBox::StandardButton button =
+          QMessageBox::question(
+            this,
+            tr("Changed language"),
+            tr("You've changed Qt-SESAM's language. "
+               "Do you want to restart Qt-SESAM to take the change into effect?"));
+      if (button == QMessageBox::Yes) {
+        d->lockFile->unlock();
+        _LOG("Restart.");
+        qApp->exit(EXIT_CODE_RESTART_APP);
+      }
     }
   }
 }

@@ -1268,6 +1268,66 @@ in %1 Thread%2 ...</translation>
         <source>Attach files</source>
         <translation>Dateien anhängen</translation>
     </message>
+    <message>
+        <source>Attachments</source>
+        <translation>Anhänge</translation>
+    </message>
+    <message>
+        <source>Attach files ...</source>
+        <translation type="vanished">Dateien anhängen ...</translation>
+    </message>
+    <message>
+        <source>Save attachment as ...</source>
+        <translation>Anhang speichern unter ...</translation>
+    </message>
+    <message>
+        <source>Delete attachment</source>
+        <translation>Anhang entfernen</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation>Dateiname</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Größe</translation>
+    </message>
+    <message>
+        <source>Read error</source>
+        <translation>Lesefehler</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it cannot be read.</source>
+        <translation type="vanished">Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte.</translation>
+    </message>
+    <message>
+        <source>Attachment too large</source>
+        <translation>Anhang zu groß</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it&apos;s too large. Only %2 KByte are allowed. Your file has %3 KByte</source>
+        <translation type="vanished">Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Nur %2 KByte sind erlaubt. Deine Datei hat aber %3 KByte.</translation>
+    </message>
+    <message>
+        <source>Attachment already exists</source>
+        <translation>Anhang existiert bereits</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because an attachment with the same name already exists.</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil ein Anhang mit demselben Namen bereits existiert.</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it&apos;s too large. Only %2 KByte are allowed. Your file has %3 KByte.</source>
+        <translation type="vanished">Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Nur %2 KByte sind erlaubt. Deine Datei hat aber %3 KByte.</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it&apos;s too large. Your file has %2 KByte, but only %3 KByte are allowed. You can change this limit via Extras/Options/Misc.</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie zu groß ist. Deine Datei ist %2 KByte groß, aber nur %3 KByte sind erlaubt. Du kannst dieses Limit in Extras/Optionen/Diverse ändern.</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; was not added because it cannot be read (%2).</source>
+        <translation>Die Datei &apos;%1&apos; wurde nicht hinzugefügt, weil sie nicht gelesen werden konnte (%2).</translation>
+    </message>
 </context>
 <context>
     <name>MasterPasswordDialog</name>
@@ -1686,7 +1746,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Backup of settings</source>
-        <translation>Backup der Einstellungen</translation>
+        <translation type="vanished">Backup der Einstellungen</translation>
     </message>
     <message>
         <source>Extensive wipe-out of backup files</source>
@@ -1695,6 +1755,18 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Enable logging</source>
         <translation>Logging einschalten</translation>
+    </message>
+    <message>
+        <source>Backups</source>
+        <translation>Backups</translation>
+    </message>
+    <message>
+        <source>Max. attachment size</source>
+        <translation>Max. Anhanggröße</translation>
+    </message>
+    <message>
+        <source> KB</source>
+        <translation> KByte</translation>
     </message>
 </context>
 <context>
@@ -1923,6 +1995,18 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Login data file (*.txt *.sesam)</source>
         <translation>Login-Daten-Datei (*.txt *.sesam)</translation>
+    </message>
+    <message>
+        <source>%1 B</source>
+        <translation>%1 B</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 KB</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 MB</translation>
     </message>
 </context>
 <context>

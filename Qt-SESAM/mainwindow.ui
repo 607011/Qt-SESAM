@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
-    <height>739</height>
+    <width>330</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -237,7 +237,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="generatedPasswordTab">
        <attribute name="title">
@@ -730,6 +730,35 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="attachmentsTab">
+       <attribute name="title">
+        <string>Attachments</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTableWidget" name="attachmentTableWidget">
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QAbstractScrollArea::AdjustToContents</enum>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
@@ -807,7 +836,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>343</width>
+     <width>330</width>
      <height>21</height>
     </rect>
    </property>
@@ -825,8 +854,6 @@
     <addaction name="actionNewDomain"/>
     <addaction name="actionSave"/>
     <addaction name="actionSyncNow"/>
-    <addaction name="separator"/>
-    <addaction name="actionAttachFile"/>
     <addaction name="separator"/>
     <addaction name="menuImport"/>
     <addaction name="separator"/>
@@ -892,6 +919,10 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -899,6 +930,10 @@
   <action name="actionNewDomain">
    <property name="enabled">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/filenew.png</normaloff>:/images/filenew.png</iconset>
    </property>
    <property name="text">
     <string>New domain ...</string>
@@ -908,16 +943,28 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/info.png</normaloff>:/images/info.png</iconset>
+   </property>
    <property name="text">
     <string>About ...</string>
    </property>
   </action>
   <action name="actionAboutQt">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/qtlogo.png</normaloff>:/images/qtlogo.png</iconset>
+   </property>
    <property name="text">
     <string>About Qt ...</string>
    </property>
   </action>
   <action name="actionSyncNow">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/sync.png</normaloff>:/images/sync.png</iconset>
+   </property>
    <property name="text">
     <string>Sync now ...</string>
    </property>
@@ -981,6 +1028,10 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="QtSESAM.qrc">
+     <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
+   </property>
    <property name="text">
     <string>Save domain settings</string>
    </property>
@@ -1057,11 +1108,6 @@
   <action name="actionExportAllDomainSettingsAsJSON">
    <property name="text">
     <string>All domain settings as JSON ...</string>
-   </property>
-  </action>
-  <action name="actionAttachFile">
-   <property name="text">
-    <string>Attach file ...</string>
    </property>
   </action>
  </widget>

@@ -44,6 +44,7 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QImage>
+#include <QTableWidgetItem>
 
 #include "global.h"
 #include "password.h"
@@ -219,7 +220,7 @@ private: // methods
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
-  QString collectedSyncData(void);
+  void saveSyncDataToSettings(void);
   bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
@@ -227,6 +228,16 @@ private: // methods
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
   void attachFile(const QString &filename);
+  void setAttachments(const QVariantMap &attachments);
+  int attachmentRow(const QString &filename) const;
+  bool attachmentExists(const QString &filename) const;
+  void saveAttachmentAs(const QTableWidgetItem *);
+  void deleteAttachment(const QTableWidgetItem *);
+  void restoreUiSettings(void);
+  bool restoreSyncSettings(void);
+  void appendAttachmentToTable(const QString &filename, const QByteArray &contents);
+  void executeAttachmentContextMenu(QEvent *event);
+  void dragEnterAttachmentWidget(QEvent *event);
 };
 
 #endif // __MAINWINDOW_H_

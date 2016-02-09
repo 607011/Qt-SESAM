@@ -28,7 +28,6 @@ const QByteArray DomainSettings::DefaultSalt_base64 = DomainSettings::DefaultSal
 const int DomainSettings::DefaultIterations = 8192;
 const int DomainSettings::DefaultPasswordLength = 16;
 const int DomainSettings::DefaultSaltLength = 16;
-const qint64 DomainSettings::MaxFileSize = 50*1024;
 
 const QString DomainSettings::DOMAIN_NAME = "domain";
 const QString DomainSettings::URL = "url";
