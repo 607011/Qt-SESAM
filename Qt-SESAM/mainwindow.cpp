@@ -386,7 +386,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   ui->attachmentTableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   d->attachmentsContextMenu = new QMenu(ui->attachmentTableWidget);
   d->actionAttachFile = new QAction(QIcon(":/images/filenew.png"),
-                                    tr("Attach file ..."),
+                                    tr("Attach files ..."),
                                     d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionAttachFile);
   d->attachmentsContextMenu->addSeparator();
@@ -395,7 +395,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
                                         d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionSaveAttachment);
   d->actionDeleteAttachment = new QAction(QIcon(":/images/remove.png"),
-                                          tr("Delete attachment"),
+                                          tr("Delete attachments"),
                                           d->attachmentsContextMenu);
   d->attachmentsContextMenu->addAction(d->actionDeleteAttachment);
   QObject::connect(ui->addAttachmentPushButton, SIGNAL(clicked(bool)), SLOT(onAttachFile()));
