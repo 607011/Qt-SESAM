@@ -1262,7 +1262,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Attach file ...</source>
-        <translation>Datei anhängen ...</translation>
+        <translation type="vanished">Datei anhängen ...</translation>
     </message>
     <message>
         <source>Attach files</source>
@@ -1274,7 +1274,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Attach files ...</source>
-        <translation type="vanished">Dateien anhängen ...</translation>
+        <translation>Dateien anhängen ...</translation>
     </message>
     <message>
         <source>Save attachment as ...</source>
@@ -1282,7 +1282,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>Delete attachment</source>
-        <translation>Anhang entfernen</translation>
+        <translation type="vanished">Anhang entfernen</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1331,6 +1331,10 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Add file</source>
         <translation>Datei hinzufügen</translation>
+    </message>
+    <message>
+        <source>Delete attachments</source>
+        <translation>Anhänge löschen</translation>
     </message>
 </context>
 <context>
