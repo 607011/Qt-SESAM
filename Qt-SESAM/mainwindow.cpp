@@ -3318,8 +3318,7 @@ void MainWindow::attachFile(const QString &filename)
   QFileInfo fi(filename);
   const QString &fn = fi.fileName();
   if (!attachmentExists(fn)) {
-    const int fileKByte = int(fi.size() / 1024);
-    if (fileKByte <= d->optionsDialog->maxAttachmentSizeKbyte()) {
+    if (fi.size() < d->optionsDialog->maxAttachmentSizeKbyte() * 1024) {
       QFile f(filename);
       const bool ok = f.open(QIODevice::ReadOnly);
       if (ok) {
@@ -3346,7 +3345,7 @@ void MainWindow::attachFile(const QString &filename)
                "Your file has %2 KByte, but only %3 KByte are allowed. "
                "You can change this limit via Extras/Options/Misc.")
             .arg(fn)
-            .arg(fileKByte)
+            .arg(fi.size() / 1024)
             .arg(d->optionsDialog->maxAttachmentSizeKbyte())
             );
     }

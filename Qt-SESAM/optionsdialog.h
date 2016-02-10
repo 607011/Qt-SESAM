@@ -98,7 +98,7 @@ public:
   bool loggingEnabled(void) const;
 
   void setMaxAttachmentSizeKbyte(int);
-  int maxAttachmentSizeKbyte(void) const;
+  qint64 maxAttachmentSizeKbyte(void) const;
 
 #ifdef WIN32
   void setSmartLogin(bool);

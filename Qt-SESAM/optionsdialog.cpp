@@ -364,7 +364,7 @@ void OptionsDialog::setMaxAttachmentSizeKbyte(int v)
 }
 
 
-int OptionsDialog::maxAttachmentSizeKbyte(void) const
+qint64 OptionsDialog::maxAttachmentSizeKbyte(void) const
 {
   return ui->maxAttachmentSizeSpinBox->value();
 }
