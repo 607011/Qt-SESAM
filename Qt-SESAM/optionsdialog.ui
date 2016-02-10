@@ -516,10 +516,6 @@
         </spacer>
        </item>
       </layout>
-      <zorder>writeBackupsCheckBox</zorder>
-      <zorder></zorder>
-      <zorder>extensiveWipeoutCheckBox</zorder>
-      <zorder>verticalSpacer_3</zorder>
      </widget>
      <widget class="QWidget" name="tabMisc">
       <attribute name="title">
