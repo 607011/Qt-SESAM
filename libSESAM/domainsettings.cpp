@@ -49,6 +49,7 @@ const QString DomainSettings::PASSWORD_TEMPLATE = "passwordTemplate";
 const QString DomainSettings::GROUP = "group";
 const QString DomainSettings::EXPIRY_DATE = "expiryDate";
 const QString DomainSettings::TAGS = "tags";
+const QString DomainSettings::FILES = "files";
 
 
 DomainSettings::DomainSettings(void)
@@ -77,6 +78,7 @@ DomainSettings::DomainSettings(const DomainSettings &o)
   , groupHierarchy(o.groupHierarchy)
   , expiryDate(o.expiryDate)
   , tags(o.tags)
+  , files(o.files)
 { /* ... */ }
 
 
@@ -158,6 +160,9 @@ QVariantMap DomainSettings::toVariantMap(void) const
     if (!tags.isEmpty()) {
       map[TAGS] = tags.join(TagSeparator);
     }
+    if (!files.isEmpty()) {
+      map[FILES] = files;
+    }
     if (legacyPassword.isEmpty()) {
       map[SALT] = salt_base64;
       map[ITERATIONS] = iterations;
@@ -214,6 +219,7 @@ DomainSettings DomainSettings::fromVariantMap(const QVariantMap &map)
   ds.groupHierarchy = map[GROUP].toString().split(GroupSeparator, QString::SkipEmptyParts);
   ds.expiryDate = map[EXPIRY_DATE].toDateTime();
   ds.tags = map[TAGS].toString().split(TagSeparator, QString::SkipEmptyParts);
+  ds.files = map[FILES].toMap();
   return ds;
 }
 
@@ -274,6 +280,9 @@ QDebug operator<<(QDebug debug, const DomainSettings &ds)
     }
     if (!ds.tags.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::TAGS << ": " << ds.tags.join(DomainSettings::TagSeparator) << ",\n";
+    }
+    if (!ds.files.isEmpty()) {
+      debug.nospace() << "  " << DomainSettings::FILES << ": " << ds.files << ",\n";
     }
     if (!ds.legacyPassword.isEmpty()) {
       debug.nospace() << "  " << DomainSettings::LEGACY_PASSWORD << ": " << ds.legacyPassword << ",\n";

@@ -358,6 +358,18 @@ bool OptionsDialog::loggingEnabled(void) const
 }
 
 
+void OptionsDialog::setMaxAttachmentSizeKbyte(int v)
+{
+  ui->maxAttachmentSizeSpinBox->setValue(v);
+}
+
+
+int OptionsDialog::maxAttachmentSizeKbyte(void) const
+{
+  return ui->maxAttachmentSizeSpinBox->value();
+}
+
+
 int OptionsDialog::masterPasswordInvalidationTimeMins(void) const
 {
   return ui->masterPasswordInvalidationTimeMinsSpinBox->value();
@@ -433,6 +445,18 @@ bool OptionsDialog::syncToServerEnabled(void) const
 void OptionsDialog::setExtensiveWipeout(bool checked)
 {
   ui->extensiveWipeoutCheckBox->setChecked(checked);
+}
+
+
+int OptionsDialog::activeTab(void) const
+{
+  return ui->tabWidget->currentIndex();
+}
+
+
+void OptionsDialog::setActiveTab(int idx)
+{
+  ui->tabWidget->setCurrentIndex(idx);
 }
 
 
@@ -540,28 +564,5 @@ void OptionsDialog::choosePasswordFile()
 
 void OptionsDialog::okClicked(void)
 {
-  bool ok = true;
-  if (!ui->syncFileLineEdit->text().isEmpty()) {
-    QFileInfo fi(ui->syncFileLineEdit->text());
-    ok = fi.exists();
-  }
-  if (ok) {
-    accept();
-  }
-  else {
-    reject();
-  }
-}
-
-void OptionsDialog::changeEvent(QEvent *e)
-{
-  switch (e->type()) {
-  case QEvent::LanguageChange:
-  {
-    ui->retranslateUi(this);
-    break;
-  }
-  default:
-    break;
-  }
+  accept();
 }

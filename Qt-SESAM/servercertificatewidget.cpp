@@ -176,17 +176,3 @@ void ServerCertificateWidget::setServerSslErrors(const QSslConfiguration &sslCon
   }
   ui->scrollArea->setLayout(vLayout);
 }
-
-
-void ServerCertificateWidget::changeEvent(QEvent *e)
-{
-  switch (e->type()) {
-  case QEvent::LanguageChange:
-  {
-    ui->retranslateUi(this);
-    break;
-  }
-  default:
-    break;
-  }
-}

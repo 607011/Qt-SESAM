@@ -20,23 +20,33 @@
 #include "mainwindow.h"
 #include "global.h"
 #include <QApplication>
+#include <QSettings>
+#include <QTranslator>
+#include <QLocale>
 
 int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(QtSESAM);
-
   checkPortable();
-
-  bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
-
-  QApplication a(argc, argv);
-  a.setOrganizationName(AppCompanyName);
-  a.setOrganizationDomain(AppCompanyDomain);
-  a.setApplicationName(AppName);
-  a.setApplicationVersion(AppVersion);
-  a.setQuitOnLastWindowClosed(true);
-
-  MainWindow w(forceStart);
-  w.activateWindow();
-  return a.exec();
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, AppCompanyName, AppName);
+  const bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
+  int exitCode = 0;
+  do {
+    QApplication a(argc, argv);
+    a.setOrganizationName(AppCompanyName);
+    a.setOrganizationDomain(AppCompanyDomain);
+    a.setApplicationName(AppName);
+    a.setApplicationVersion(AppVersion);
+    a.setQuitOnLastWindowClosed(true);
+    const QString &language = settings.value("mainwindow/language", MainWindow::defaultLocale()).toString();
+    QTranslator translator;
+    bool ok = translator.load(QString(":/translations/QtSESAM_%1.qm").arg(language));
+    if (ok) {
+      a.installTranslator(&translator);
+    }
+    MainWindow w(forceStart);
+    w.activateWindow();
+    exitCode = a.exec();
+  } while (exitCode == MainWindow::EXIT_CODE_RESTART_APP);
+  return exitCode;
 }

@@ -29,9 +29,11 @@
 #include <QDateTime>
 #include <QByteArray>
 #include <QJsonDocument>
+#include <QMap>
 
 #include "securestring.h"
 
+// PLEASE ASK MAINTAINER BEFORE UNCOMMENTING THE FOLLOWING LINE!
 // #define OMIT_V2_CODE
 
 class DomainSettings {
@@ -112,11 +114,13 @@ public:
   static const QString TAGS;
   QStringList tags;
 
+  static const QString FILES;
+  QVariantMap files;
+
   static const QChar TagSeparator;
   static const QChar GroupSeparator;
 
 private:
-
 };
 
 
