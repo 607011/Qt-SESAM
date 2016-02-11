@@ -2719,7 +2719,7 @@ void MainWindow::onShuffleUsername(void)
   QString username;
   const int N = Password::LowerChars.length();
   for (int i = 0; i < 8; ++i) {
-    const unsigned int r = static_cast<unsigned int>(Crypter::rnd());
+    const unsigned int r = static_cast<unsigned int>(qrand());
     const QChar &ch = Password::LowerChars.at(r % N);
     username.append(ch);
   }
@@ -2818,6 +2818,7 @@ void MainWindow::onMasterPasswordEntered(void)
 {
   Q_D(MainWindow);
   bool ok = true;
+  qsrand(static_cast<uint>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
   const QString masterPwd = d->masterPasswordDialog->masterPassword();
   const bool repeatedPasswordEntry = d->masterPasswordDialog->repeatedPasswordEntry();
   if (!masterPwd.isEmpty()) {
