@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang }}">
+<head>
+  <title>{{ page.title }}</title>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8">
+  <meta name="description" content="Qt-SESAM" />
+  <meta name="keywords" content="Password Manager" />
+  <meta name="rights" content="Copyright (c) 2015-2016 Oliver Lau" />
+  <meta name="author" content="Oliver Lau" />
+  <meta name="generator" content="10fingers" />
+  <link rel="stylesheet" href="css/default.css" />
+</head>
+<body>
+  <div id="language-chooser">{% for other in page.other_lang %}<a href="index.{{ other }}.html">{{ other }}</a>{% endfor %}</div>
+  <div id="banderole"><a href="https://github.com/ola-ct/Qt-SESAM"><img class="banderole" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a></div>
+  <div id="content">
+  {{ content }}
+  </div>
+</body>
+</html>
