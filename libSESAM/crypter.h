@@ -29,9 +29,7 @@
 #include "filters.h"
 #include "aes.h"
 
-#ifndef Q_OS_WIN
 #include <random>
-#endif
 
 class Crypter
 {
@@ -48,15 +46,13 @@ public:
   static void makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, SecureByteArray &key, SecureByteArray &IV);
   static QByteArray encode(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &salt, const SecureByteArray &KGK, const QByteArray &data, bool compress);
   static QByteArray decode(const SecureByteArray &masterPassword, QByteArray cipher, bool uncompress, SecureByteArray &KGK);
-  static QByteArray randomBytes(const int size, bool *ok = Q_NULLPTR);
+  static QByteArray randomBytes(const int size);
   static SecureByteArray generateKGK(void);
   static SecureByteArray generateIV(void);
   static QByteArray generateSalt(void);
   static QByteArray encrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &plain, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
   static SecureByteArray decrypt(const SecureByteArray &key, const SecureByteArray &IV, const QByteArray &cipher, CryptoPP::StreamTransformationFilter::BlockPaddingScheme padding);
-#ifndef Q_OS_WIN
-  static std::random_device randomDev;
-#endif
+  static std::random_device fallbackRandomDev;
 
 private:
   static const int KGKIterations;
