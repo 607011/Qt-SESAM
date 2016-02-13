@@ -6,7 +6,7 @@ Qt-SESAM is a user-friendly application that enables you to generate strong pass
 
 The passwords are generated in realtime from service name, user name, a randomly shuffled salt and the master password. For services which don't allow passwords to be changed (e.g. credit cards) Qt-SESAM can also store fixed passwords.
 
-Qt-SESAM has a unique feature which lets you choose the complexity and length of the password in a colored widget:
+Qt-SESAM has a unique feature which lets you choose the complexity (vertically) and length (horizontally) of the password in a colored widget:
 
 ![EasySelectorWidget](https://raw.githubusercontent.com/ola-ct/Qt-SESAM/master/doc/qt-sesam-screenshot.png)
 
