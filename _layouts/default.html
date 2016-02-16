@@ -10,6 +10,9 @@
   <meta name="author" content="Oliver Lau" />
   <meta name="generator" content="10fingers + jekyll" />
   <link rel="stylesheet" href="css/default.css" />
+  {% for other in page.other_lang %}
+  <link rel="alternate" hreflang="{{ other }}" href="index.{{ other }}.html">
+  {% endfor %}
 </head>
 <body>
   <div id="language-chooser">{% for other in page.other_lang %}<a href="index.{{ other }}.html">{{ other }}</a>{% endfor %}</div>
