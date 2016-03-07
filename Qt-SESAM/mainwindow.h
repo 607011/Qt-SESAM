@@ -45,6 +45,7 @@
 #include <QModelIndex>
 #include <QJsonDocument>
 #include <QImage>
+#include <QTableWidgetItem>
 
 #include "global.h"
 #include "password.h"
@@ -70,6 +71,9 @@ public:
 
   virtual QSize sizeHint(void) const;
   virtual QSize minimumSizeHint(void) const;
+
+  static int const EXIT_CODE_RESTART_APP;
+  static QString defaultLocale(void);
 
 private:
   typedef enum _Type {
@@ -102,7 +106,6 @@ private slots:
   void copyPasswordToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
-  void onOptionsAccepted(void);
   void onServerCertificatesUpdated(const QList<QSslCertificate> &certs);
   void showOptionsDialog(void);
   void onPasswordGenerated(void);
@@ -110,7 +113,8 @@ private slots:
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
   void deleteCurrentDomainSettings(void);
-  void onLegacyPasswordChanged(QString legacyPassword);
+  void onLegacyPasswordChanged(QString);
+  void onNotesChanged(void);
   void onDomainTextChanged(const QString &);
   void onEasySelectorValuesChanged(int passwordLength, int complexityValue);
   void onExportAllDomainSettingAsJSON(void);
@@ -127,7 +131,7 @@ private slots:
   void stopPasswordGeneration(void);
   void changeMasterPassword(void);
   void nextChangeMasterPasswordStep(void);
-  void setDirty(bool dirty = true);
+  void setDirty(bool dirty);
   void openURL(void);
   void onForcedPush(void);
   void onSync(void);
@@ -147,6 +151,7 @@ private slots:
   void showHide(void);
   void trayIconActivated(QSystemTrayIcon::ActivationReason);
   void saveSettings(void);
+  void saveUiSettings(void);
   void sslErrorsOccured(QNetworkReply*, const QList<QSslError> &);
   void onDeleteFinished(QNetworkReply*);
   void onReadFinished(QNetworkReply*);
@@ -165,6 +170,7 @@ private slots:
   void onBackupFilesRemoved(bool ok);
   void onBackupFilesRemoved(int);
   void onSelectLanguage(QAction *);
+  void onAttachFile(void);
 
 signals:
   void passwordGenerated(void);
@@ -194,6 +200,7 @@ private: // methods
   void resetAllFields(void);
   bool restoreSettings(void);
   void restoreLanguageSettings(void);
+  void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
   void copyDomainSettingsToGUI(const DomainSettings ds);
@@ -219,13 +226,25 @@ private: // methods
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
   QString collectedSyncData(void);
+  QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
+  void saveSyncDataToSettings(void);
   bool wipeFile(const QString &filename);
   void cleanupAfterMasterPasswordChanged(void);
   void prepareExit(void);
   void removeOutdatedBackupFilesThread(void);
   QImage currentDomainSettings2QRCode(void) const;
   bool validCredentials(void) const;
-  static QString defaultLocale(void);
+  void attachFile(const QString &filename);
+  void setAttachments(const QVariantMap &attachments);
+  int attachmentRow(const QString &filename) const;
+  bool attachmentExists(const QString &filename) const;
+  void saveAttachmentAs(const QTableWidgetItem *);
+  void deleteAttachment(const QTableWidgetItem *);
+  void restoreUiSettings(void);
+  bool restoreSyncSettings(void);
+  void appendAttachmentToTable(const QString &filename, const QByteArray &contents);
+  void executeAttachmentContextMenu(QEvent *event);
+  void dragEnterAttachmentWidget(QEvent *event);
 };
 
 #endif // __MAINWINDOW_H_

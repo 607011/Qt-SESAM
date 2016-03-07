@@ -53,7 +53,6 @@ private slots:
 
 protected:
   void showEvent(QShowEvent *);
-  void changeEvent(QEvent *);
 
 private:
   Ui::ChangeMasterPasswordDialog *ui;

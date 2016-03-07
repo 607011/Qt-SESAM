@@ -97,6 +97,9 @@ public:
   void setLoggingEnabled(bool);
   bool loggingEnabled(void) const;
 
+  void setMaxAttachmentSizeKbyte(int);
+  qint64 maxAttachmentSizeKbyte(void) const;
+
 #ifdef WIN32
   void setSmartLogin(bool);
   bool smartLogin(void) const;
@@ -123,8 +126,8 @@ public:
   bool extensiveWipeout(void) const;
   void setExtensiveWipeout(bool checked);
 
-protected:
-  void changeEvent(QEvent *);
+  int activeTab(void) const;
+  void setActiveTab(int);
 
 signals:
   void serverCertificatesUpdated(QList<QSslCertificate>);
