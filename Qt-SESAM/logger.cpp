@@ -25,6 +25,7 @@
 #include <QDateTime>
 #include <QStandardPaths>
 #include <QFile>
+#include <QtGlobal>
 
 class LoggerPrivate {
 public:
@@ -71,7 +72,11 @@ void Logger::log(const QString &message)
       d->file.flush();
     }
     else {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
       qDebug().noquote().nospace() << logMsg;
+#else
+      qDebug().nospace() << logMsg;
+#endif
     }
   }
 }
