@@ -1929,6 +1929,7 @@ void MainWindow::saveUiSettings(void)
   d->settings.setValue("misc/extensiveWipeout", d->optionsDialog->extensiveWipeout());
   d->settings.setValue("misc/passwordFile", d->optionsDialog->passwordFilename());
   d->settings.setValue("misc/moreSettingsExpanded", d->expandableGroupBox->expanded());
+  d->settings.setValue("misc/loggingEnabled", d->optionsDialog->loggingEnabled());
   d->settings.sync();
 }
 
@@ -1960,6 +1961,7 @@ void MainWindow::restoreUiSettings(void)
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
   d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
   d->expandableGroupBox->setExpanded(d->settings.value("misc/moreSettingsExpanded", false).toBool());
+  d->optionsDialog->setLoggingEnabled(d->settings.value("misc/loggingEnabled", true).toBool());
 }
 
 
