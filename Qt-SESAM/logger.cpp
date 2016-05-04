@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QStandardPaths>
+#include <QDir>
 #include <QFile>
 #include <QtGlobal>
 
@@ -40,6 +41,8 @@ public:
 Logger::Logger(void)
   : d_ptr(new LoggerPrivate)
 {
+  const QString &logFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QDir().mkpath(logFilePath);
   setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
 }
 
