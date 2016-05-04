@@ -42,8 +42,6 @@ public:
 Logger::Logger(void)
   : d_ptr(new LoggerPrivate)
 {
-  const QString &logFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir().mkpath(logFilePath);
   setFileName(QString("%1/%2.log").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).arg(AppName));
 }
 
@@ -99,6 +97,7 @@ void Logger::setFileName(const QString &filename)
   if (d->file.isOpen()) {
     d->file.close();
   }
+  QDir().mkpath(QFileInfo(filename).canonicalPath());
   d->file.setFileName(filename);
   d->file.open(QIODevice::WriteOnly | QIODevice::Append);
   log(QString("Logger writing to %1").arg(filename));
