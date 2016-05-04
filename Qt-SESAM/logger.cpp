@@ -26,12 +26,13 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QtGlobal>
 
 class LoggerPrivate {
 public:
   LoggerPrivate(void)
-    : enabled(true)
+    : enabled(false)
   { /* ... */ }
   QFile file;
   bool enabled;

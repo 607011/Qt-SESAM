@@ -1961,7 +1961,7 @@ void MainWindow::restoreUiSettings(void)
   d->optionsDialog->setWriteUrl(DefaultSyncServerWriteUrl);
   d->optionsDialog->setDeleteUrl(DefaultSyncServerDeleteUrl);
   d->expandableGroupBox->setExpanded(d->settings.value("misc/moreSettingsExpanded", false).toBool());
-  d->optionsDialog->setLoggingEnabled(d->settings.value("misc/loggingEnabled", true).toBool());
+  d->optionsDialog->setLoggingEnabled(d->settings.value("misc/loggingEnabled", false).toBool());
 }
 
 
