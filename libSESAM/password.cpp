@@ -201,34 +201,35 @@ SecureString Password::remix(void)
   d->error = NoError;
   d->errorString.clear();
   BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  foreach (QChar c, d->ds.passwordTemplate) {
-    const QString *charSet = Q_NULLPTR;
+  const QString &templ = d->ds.passwordTemplate;
+  foreach (QChar c, templ) {
+    QString charSet;
     const char m = c.toLatin1();
     switch (m) {
     case 'x':
-      charSet = &d->ds.usedCharacters;
+      charSet = d->ds.usedCharacters;
       break;
     case 'o':
-      charSet = &d->ds.extraCharacters;
+      charSet = d->ds.extraCharacters;
       break;
     case 'a': // fall-through
     case 'A': // fall-through
     case 'n':
-      charSet = &TemplateCharacters[m];
+      charSet = TemplateCharacters[m];
       break;
     default:
       d->error = EmptyTemplateError;
       d->errorString = QString("invalid template character: %1").arg(m);
       return SecureString();
     }
-    if (charSet == Q_NULLPTR) {
+    if (charSet.isEmpty()) {
       d->error = EmptyCharacterSetError;
       d->errorString = QString("character set for template character %1 must not be empty").arg(m);
       return SecureString();
     }
-    const BigInt::Rossi Modulus(QString("%1").arg(charSet->size()).toStdString(), BigInt::DEC_DIGIT);
+    const BigInt::Rossi Modulus(QString("%1").arg(charSet.size()).toStdString(), BigInt::DEC_DIGIT);
     const BigInt::Rossi &mod = v % Modulus;
-    d->password.append(charSet->at(int(mod.toUlong())));
+    d->password.append(charSet.at(int(mod.toUlong())));
     v = v / Modulus;
   }
   return d->password;
