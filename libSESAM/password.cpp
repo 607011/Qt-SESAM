@@ -201,8 +201,7 @@ SecureString Password::remix(void)
   d->error = NoError;
   d->errorString.clear();
   BigInt::Rossi v(d->pbkdf2.hexKey().toStdString(), BigInt::HEX_DIGIT);
-  const QString &templ = d->ds.passwordTemplate;
-  foreach (QChar c, templ) {
+  foreach (QChar c, d->ds.passwordTemplate) {
     QString charSet;
     const char m = c.toLatin1();
     switch (m) {
