@@ -42,6 +42,7 @@
 #include <QEvent>
 #include <QMessageBox>
 #include <QLabel>
+#include <QModelIndex>
 #include <QJsonDocument>
 #include <QImage>
 #include <QTableWidgetItem>
@@ -90,10 +91,19 @@ private slots:
   void onExtraCharactersChanged(QString);
   void onPasswordLengthChanged(int);
   void onIterationsChanged(int);
+  void onTagChanged(QString);
+  void onCustomContextMenu(const QPoint &point);
+  void onAddGroup(void);
+  void onEditGroup(void);
+  void onDomainViewClicked(const QModelIndex &);
+  void onDomainViewDoubleClicked(const QModelIndex &);
+  void onGroupNameChanged();
+  void onGroupContentsChanged(QModelIndex index);
+  void onRootContentsChanged();
   void onSaltChanged(QString);
-  void onDeleteChanged(bool);
   void updatePassword(void);
   void copyUsernameToClipboard(void);
+  void copyPasswordToClipboard(void);
   void copyGeneratedPasswordToClipboard(void);
   void copyLegacyPasswordToClipboard(void);
   void onServerCertificatesUpdated(const QList<QSslCertificate> &certs);
@@ -102,10 +112,10 @@ private slots:
   void onPasswordGenerationAborted(void);
   void onPasswordGenerationStarted(void);
   void saveCurrentDomainSettings(void);
-  void onNotesChanged(void);
+  void deleteCurrentDomainSettings(void);
   void onLegacyPasswordChanged(QString);
+  void onNotesChanged(void);
   void onDomainTextChanged(const QString &);
-  void onDomainSelected(QString);
   void onEasySelectorValuesChanged(int passwordLength, int complexityValue);
   void onExportAllDomainSettingAsJSON(void);
   void onExportAllLoginDataAsClearText(void);
@@ -186,20 +196,20 @@ private: // methods
   void createLanguageMenu(void);
   void setLanguage(const QString &);
   QMessageBox::StandardButton saveYesNoCancel(void);
-  void resetAllFieldsExceptDomainComboBox(void);
+  void resetAllFieldsExceptDomainName(void);
   void resetAllFields(void);
   bool restoreSettings(void);
+  void restoreLanguageSettings(void);
   void saveDomainSettings(DomainSettings ds);
   void saveAllDomainDataToSettings(void);
   bool restoreDomainDataFromSettings(void);
-  void copyDomainSettingsToGUI(DomainSettings ds);
-  void copyDomainSettingsToGUI(const QString &domain);
+  void copyDomainSettingsToGUI(const DomainSettings ds);
+  void generatePassword(void);
   void updateWindowTitle(void);
-  void makeDomainComboBox(void);
   void wrongPasswordWarning(int errCode, QString errMsg);
   void restartInvalidationTimer(void);
   void generateSaltKeyIVThread(void);
-  DomainSettings collectedDomainSettings(void) const;
+  DomainSettings collectedDomainSettings() const;
   QByteArray cryptedRemoteDomains(void);
   void mergeLocalAndRemoteData(void);
   void writeToRemote(SyncPeer syncPeer);
@@ -209,16 +219,13 @@ private: // methods
   void createEmptySyncFile(void);
   void syncWithFile(void);
   void beginSyncWithServer(void);
-  int findDomainInComboBox(const QString &domain) const;
-  int findDomainInComboBox(const QString &domain, int lo, int hi) const;
-  bool domainComboboxContains(const QString &domain) const;
   void applyComplexity(int complexityValue);
   void setTemplate(void);
   void applyTemplateStringToGUI(const QString &);
   void updateCheckableLabel(QLabel *, bool checked);
-  QString selectAlternativeDomainNameFor(const QString &domainName);
   void warnAboutDifferingKGKs(void);
   void convertToLegacyPassword(DomainSettings &ds);
+  QString collectedSyncData(void);
   QString selectAlternativeDomainNameFor(const QString &domainName, const QStringList &domainNameList);
   void saveSyncDataToSettings(void);
   bool wipeFile(const QString &filename);

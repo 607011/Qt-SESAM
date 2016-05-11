@@ -27,8 +27,9 @@
 #include <QStringList>
 #include <QVariantMap>
 #include <QDateTime>
-#include <QMap>
 #include <QByteArray>
+#include <QJsonDocument>
+#include <QMap>
 
 #include "securestring.h"
 
@@ -42,10 +43,19 @@ public:
 
   bool expired(void) const;
   QVariantMap toVariantMap(void) const;
+  QJsonDocument toJsonDocument(void) const;
+  QByteArray toJson(void) const;
   bool isEmpty(void) const;
   void clear(void);
 
+  // returns the unique name for the domain settings
+  QString getUniqueName(void) const;
+  // returns the unique name within one group of domain settings
+  QString getUniqueNameInGroup(void) const;
+  void replaceGroupName(QString oldName, QString newName);
+
   static DomainSettings fromVariantMap(const QVariantMap &);
+  static DomainSettings fromJson(const QByteArray &);
 #ifndef OMIT_V2_CODE
   static bool isV2Template(const QString &);
 #endif
@@ -98,7 +108,7 @@ public:
   QString passwordTemplate;
 
   static const QString GROUP;
-  QString groupHierarchy;
+  QStringList groupHierarchy;
 
   static const QString EXPIRY_DATE;
   QDateTime expiryDate;
@@ -109,6 +119,10 @@ public:
   static const QString FILES;
   QVariantMap files;
 
+  static const QChar TagSeparator;
+  static const QChar GroupSeparator;
+
+private:
 };
 
 

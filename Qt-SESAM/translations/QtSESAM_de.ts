@@ -75,6 +75,25 @@
     </message>
 </context>
 <context>
+    <name>DomainTreeModel</name>
+    <message>
+        <source>Domain</source>
+        <translation>Domain</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Benutzer</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Gruppe</translation>
+    </message>
+</context>
+<context>
     <name>EasySelectorWidget</name>
     <message>
         <source>%1 characters</source>
@@ -969,6 +988,18 @@ auf deinem Computer: %3</translation>
         <translation>(%1 Zeichen)</translation>
     </message>
     <message>
+        <source>Domain Viewer</source>
+        <translation>Domain-Übersicht</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="vanished">Gruppe</translation>
+    </message>
+    <message>
+        <source>separate group hierarchy items with ;</source>
+        <translation type="vanished">Einträge trennen mit Semikolon</translation>
+    </message>
+    <message>
         <source>You&apos;re about to export your key generation key (KGK). The KGK is used to derive passwords from your master password and to derive a key to encrypt your settings. You normally won&apos;t export the KGK unless for backup purposes. The KGK is encrypted with a key derived from your master password. Are you prepared for this?</source>
         <translation>Du stehst kurz davor, deinen Schlüsselgenerierungsschlüssel (key generation key, KGK) zu exportieren. Der KGK wird verwendet, um zusammen mit deinem Master-Passwort die Dienstpasswörter zu berechnen, und um die Programmeinstellungen zu verschlüsseln. Normalerweise musst du den KGK nicht exportieren, es sei denn zu Backup-Zwecken. Der exportierte KGK ist mit einem Schlüssel verschlüsselt, der aus deinem Master-Passwort abgeleitet wurde. Willst du wirklich exportieren?</translation>
     </message>
@@ -1195,6 +1226,18 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Successfully exported %1 logins.</source>
         <translation>Erfolgreich %1 Logins exportiert.</translation>
+    </message>
+    <message>
+        <source>Add group</source>
+        <translation>Gruppe hinzufügen</translation>
+    </message>
+    <message>
+        <source>Copy username</source>
+        <translation>Benutzername in Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Copy password</source>
+        <translation>Passwort in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Shuffle a random username</source>
@@ -2150,6 +2193,25 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>&lt;p&gt;&lt;strong&gt;Attention!&lt;/strong&gt; The certificate chain of the host with the SHA1 fingerprint %2 can not be fully trusted:&lt;p&gt;</source>
         <translation>&lt;p&gt;&lt;strong&gt;Achtung!&lt;/strong&gt; Der Zertifikatskette mit dem SHA1-Fingerabdruck %2 kann nicht voll vertraut werden:&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>TreeModel</name>
+    <message>
+        <source>Domain</source>
+        <translation type="vanished">Domain</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="vanished">Benutzer</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="vanished">URL</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="vanished">Gruppe</translation>
     </message>
 </context>
 </TS>

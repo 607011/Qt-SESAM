@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>330</width>
-    <height>643</height>
+    <width>595</width>
+    <height>610</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="2">
+      <item row="1" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QPushButton" name="shuffleUsernamePushButton">
@@ -96,34 +96,20 @@
        </layout>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>User name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="domainsComboBox">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Domain</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="label_12">
         <property name="text">
          <string>URL</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>User name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QLineEdit" name="urlLineEdit">
@@ -169,17 +155,30 @@
         </item>
        </layout>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
-      <item>
-       <widget class="QCheckBox" name="deleteCheckBox">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>delete</string>
+         <string>Domain</string>
         </property>
        </widget>
       </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="domainLineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="tagLineEdit">
+      <property name="visible">
+       <bool>false</bool>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="topButtonsHorizontalLayout">
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -199,7 +198,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Save</string>
+         <string>&amp;Save</string>
         </property>
        </widget>
       </item>
@@ -209,7 +208,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Revert</string>
+         <string>&amp;Revert</string>
         </property>
         <property name="shortcut">
          <string>Esc</string>
@@ -222,7 +221,17 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Login</string>
+         <string>&amp;Login</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="deletePushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>&amp;Delete</string>
         </property>
        </widget>
       </item>
@@ -237,7 +246,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="generatedPasswordTab">
        <attribute name="title">
@@ -331,6 +340,9 @@
             <property name="readOnly">
              <bool>true</bool>
             </property>
+            <property name="placeholderText">
+             <string/>
+            </property>
            </widget>
           </item>
           <item>
@@ -416,13 +428,6 @@
             </layout>
            </item>
            <item>
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Select password length and complexity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <layout class="QGridLayout" name="selectorGridLayout">
              <property name="sizeConstraint">
               <enum>QLayout::SetMinimumSize</enum>
@@ -439,7 +444,7 @@
              <property name="bottomMargin">
               <number>0</number>
              </property>
-             <item row="1" column="0">
+             <item row="0" column="0">
               <widget class="EasySelectorWidget" name="easySelectorWidget" native="true">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -694,6 +699,9 @@
             <property name="echoMode">
              <enum>QLineEdit::PasswordEchoOnEdit</enum>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
             <property name="placeholderText">
              <string>don't fill unless service requires fixed password</string>
             </property>
@@ -818,6 +826,9 @@
           <height>60</height>
          </size>
         </property>
+        <property name="placeholderText">
+         <string>may be empty</string>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -870,8 +881,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>330</width>
-     <height>21</height>
+     <width>595</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -947,16 +958,89 @@
     <addaction name="separator"/>
     <addaction name="menuExpertMode"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCopyUserName"/>
+    <addaction name="actionCopyPassword"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddGroup"/>
+    <addaction name="actionEditGroup"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenURL"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuExtras"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionExit">
-   <property name="icon">
-    <iconset resource="QtSESAM.qrc">
-     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+  <widget class="QDockWidget" name="domainViewerDockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>230</width>
+     <height>149</height>
+    </size>
    </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Domain Viewer</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeView" name="domainView">
+       <property name="acceptDrops">
+        <bool>true</bool>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::InternalMove</enum>
+       </property>
+       <property name="defaultDropAction">
+        <enum>Qt::MoveAction</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionExit">
    <property name="text">
     <string>Exit</string>
    </property>
@@ -964,10 +1048,6 @@
   <action name="actionNewDomain">
    <property name="enabled">
     <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="QtSESAM.qrc">
-     <normaloff>:/images/filenew.png</normaloff>:/images/filenew.png</iconset>
    </property>
    <property name="text">
     <string>New domain ...</string>
@@ -977,28 +1057,16 @@
    </property>
   </action>
   <action name="actionAbout">
-   <property name="icon">
-    <iconset resource="QtSESAM.qrc">
-     <normaloff>:/images/info.png</normaloff>:/images/info.png</iconset>
-   </property>
    <property name="text">
     <string>About ...</string>
    </property>
   </action>
   <action name="actionAboutQt">
-   <property name="icon">
-    <iconset resource="QtSESAM.qrc">
-     <normaloff>:/images/qtlogo.png</normaloff>:/images/qtlogo.png</iconset>
-   </property>
    <property name="text">
     <string>About Qt ...</string>
    </property>
   </action>
   <action name="actionSyncNow">
-   <property name="icon">
-    <iconset resource="QtSESAM.qrc">
-     <normaloff>:/images/sync.png</normaloff>:/images/sync.png</iconset>
-   </property>
    <property name="text">
     <string>Sync now ...</string>
    </property>
@@ -1062,10 +1130,6 @@
    </property>
   </action>
   <action name="actionSave">
-   <property name="icon">
-    <iconset resource="QtSESAM.qrc">
-     <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
-   </property>
    <property name="text">
     <string>Save domain settings</string>
    </property>
@@ -1090,6 +1154,20 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E, Ctrl+F, Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionMigrateDomainToV3">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Migrate domain to v3</string>
+   </property>
+   <property name="toolTip">
+    <string>Migrate current domain settings from v2 (simple) to v3 (expert)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E, Ctrl+M</string>
    </property>
   </action>
   <action name="actionExportKGK">
@@ -1144,33 +1222,108 @@
     <string>All domain settings as JSON ...</string>
    </property>
   </action>
+  <action name="actionDeutsch">
+   <property name="text">
+    <string>Deutsch</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionBlah">
+   <property name="text">
+    <string>blah</string>
+   </property>
+  </action>
+  <action name="actionBlah_2">
+   <property name="text">
+    <string>blah</string>
+   </property>
+  </action>
+  <action name="actionCopyUserName">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Copy &amp;username to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionCopyPassword">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Copy password to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionAddGroup">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Add Group</string>
+   </property>
+  </action>
+  <action name="actionEditGroup">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Edit Group</string>
+   </property>
+  </action>
+  <action name="actionOpenURL">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Open website...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>EasySelectorWidget</class>
    <extends>QWidget</extends>
-   <header location="global">easyselectorwidget.h</header>
+   <header>easyselectorwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>domainsComboBox</tabstop>
-  <tabstop>urlLineEdit</tabstop>
+  <tabstop>domainView</tabstop>
+  <tabstop>domainLineEdit</tabstop>
+  <tabstop>shuffleUsernamePushButton</tabstop>
   <tabstop>userLineEdit</tabstop>
-  <tabstop>savePushButton</tabstop>
-  <tabstop>iterationsSpinBox</tabstop>
-  <tabstop>notesPlainTextEdit</tabstop>
-  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>openURLPushButton</tabstop>
   <tabstop>copyUsernameToClipboardPushButton</tabstop>
-  <tabstop>generatedPasswordLineEdit</tabstop>
-  <tabstop>deleteCheckBox</tabstop>
-  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
-  <tabstop>legacyPasswordLineEdit</tabstop>
-  <tabstop>extraLineEdit</tabstop>
+  <tabstop>urlLineEdit</tabstop>
+  <tabstop>openURLPushButton</tabstop>
+  <tabstop>savePushButton</tabstop>
   <tabstop>revertPushButton</tabstop>
+  <tabstop>loginPushButton</tabstop>
+  <tabstop>deletePushButton</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>renewSaltPushButton</tabstop>
+  <tabstop>generatedPasswordLineEdit</tabstop>
+  <tabstop>copyGeneratedPasswordToClipboardPushButton</tabstop>
+  <tabstop>iterationsSpinBox</tabstop>
+  <tabstop>extraLineEdit</tabstop>
+  <tabstop>passwordTemplateLineEdit</tabstop>
+  <tabstop>saltBase64LineEdit</tabstop>
+  <tabstop>legacyPasswordLineEdit</tabstop>
+  <tabstop>notesPlainTextEdit</tabstop>
+  <tabstop>copyLegacyPasswordToClipboardPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="QtSESAM.qrc"/>

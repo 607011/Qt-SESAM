@@ -61,6 +61,10 @@ SOURCES += main.cpp \
     keepass2xmlreader.cpp \
     hackhelper.cpp \
     expandablegroupbox.cpp \
+    domainnode.cpp \
+    groupnode.cpp \
+    abstracttreenode.cpp \
+    domaintreemodel.cpp \
     logger.cpp \
     passwordsafereader.cpp
 
@@ -79,7 +83,10 @@ HEADERS  += \
     tcpclient.h \
     keepass2xmlreader.h \
     expandablegroupbox.h \
-    logger.h \
+    domainnode.h \
+    groupnode.h \
+    abstracttreenode.h \
+    domaintreemodel.h \
     passwordsafereader.h
 
 FORMS += mainwindow.ui \
