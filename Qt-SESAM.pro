@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Oliver Lau <ola@ct.de>
+# Copyright (c) 2015-2018 Oliver Lau <ola@ct.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

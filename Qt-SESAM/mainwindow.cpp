@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+    Copyright (c) 2015-2018 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -99,12 +99,13 @@ enum TabIndexes {
   TabAttachments
 };
 
-static const QString DefaultSyncServerRoot = "https://syncserver.net/ctSESAM";
-static const QString DefaultSyncServerUsername = "inter";
-static const QString DefaultSyncServerPassword = "op";
-static const QString DefaultSyncServerWriteUrl = "/ajax/write.php";
-static const QString DefaultSyncServerReadUrl = "/ajax/read.php";
-static const QString DefaultSyncServerDeleteUrl = "/ajax/delete.php";
+static const QString DefaultSyncServerRoot = "https://localhost:8443";
+static const QString DefaultSyncServerUsername = "user";
+static const QString DefaultSyncServerPassword = "overwhelmingsecrecyachievedbyextremelylongrandomlygeneratedpasswords";
+static const QString DefaultSyncServerWriteUrl = "/write";
+static const QString DefaultSyncServerReadUrl = "/read";
+static const QString DefaultSyncServerDeleteUrl = "/delete";
+static const QString DefaultSyncServerListUrl = "/list";
 
 const int MainWindow::EXIT_CODE_RESTART_APP = -12345679;
 
@@ -505,12 +506,12 @@ void MainWindow::closeEvent(QCloseEvent *e)
   Q_D(MainWindow);
   cancelPasswordGeneration();
   d->backupFileDeletionFuture.waitForFinished();
+  saveSettings();
   if (d->parameterSetDirty && !ui->domainsComboBox->currentText().isEmpty()) {
     QMessageBox::StandardButton button = saveYesNoCancel();
     switch (button) {
     case QMessageBox::Yes:
       saveCurrentDomainSettings();
-      saveSettings();
       // fall-through
     case QMessageBox::No:
       prepareExit();
@@ -1004,21 +1005,36 @@ void MainWindow::stopPasswordGeneration(void)
 void MainWindow::changeMasterPassword(void)
 {
   Q_D(MainWindow);
-  d->changeMasterPasswordDialog->setPasswordFilename(d->optionsDialog->passwordFilename());
-  d->interactionSemaphore.acquire();
-  const int button = d->changeMasterPasswordDialog->exec();
-  d->interactionSemaphore.release();
-  if ((button == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
-    if (d->optionsDialog->syncToServerEnabled() || d->optionsDialog->syncToFileEnabled()) {
-      d->masterPasswordChangeStep = 1;
-      nextChangeMasterPasswordStep();
-    }
-    else {
-      saveAllDomainDataToSettings();
-      d->masterPassword = d->changeMasterPasswordDialog->newPassword();
-      d->keyGenerationFuture.waitForFinished();
-      generateSaltKeyIV().waitForFinished();
-      cleanupAfterMasterPasswordChanged();
+  int rc = QMessageBox::Yes;
+  if (!d->optionsDialog->syncToFileEnabled() && !d->optionsDialog->syncToServerEnabled()) {
+    rc = QMessageBox::warning(this,
+                              tr("Caution!"),
+                              tr("Syncing with a server or a file is not enabled. "
+                                 "If you proceed only your local settings will be encrypted "
+                                 "with your new master password – "
+                                 "and you'll no longer be able to access the data stored "
+                                 "on either the server or in the file. "
+                                 "If this is intentional you can safely proceed. If not, cancel the action, go to the settings dialog, configure a sync peer and enable it. "
+                                 "Are you still sure you want to change the master password?"),
+                              QMessageBox::Yes | QMessageBox::Default, QMessageBox::Abort | QMessageBox::Escape);
+  }
+  if (rc == QMessageBox::Yes) {
+    d->changeMasterPasswordDialog->setPasswordFilename(d->optionsDialog->passwordFilename());
+    d->interactionSemaphore.acquire();
+    const int button = d->changeMasterPasswordDialog->exec();
+    d->interactionSemaphore.release();
+    if ((button == QDialog::Accepted) && (d->changeMasterPasswordDialog->oldPassword() == d->masterPassword)) {
+      if (d->optionsDialog->syncToServerEnabled() || d->optionsDialog->syncToFileEnabled()) {
+        d->masterPasswordChangeStep = 1;
+        nextChangeMasterPasswordStep();
+      }
+      else {
+        saveAllDomainDataToSettings();
+        d->masterPassword = d->changeMasterPasswordDialog->newPassword();
+        d->keyGenerationFuture.waitForFinished();
+        generateSaltKeyIV().waitForFinished();
+        cleanupAfterMasterPasswordChanged();
+      }
     }
   }
 }
@@ -1027,7 +1043,10 @@ void MainWindow::changeMasterPassword(void)
 void MainWindow::nextChangeMasterPasswordStep(void)
 {
   Q_D(MainWindow);
-  switch (d->masterPasswordChangeStep++) {
+  const int step = d->masterPasswordChangeStep;
+//  qDebug() << "MainWindow::nextChangeMasterPasswordStep()" << step;
+  ++d->masterPasswordChangeStep;
+  switch (step) {
   case 1:
     d->progressDialog->show();
     d->progressDialog->raise();
@@ -1183,7 +1202,7 @@ void MainWindow::showOptionsDialog(void)
 QFuture<void> &MainWindow::generateSaltKeyIV(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::generateSaltKeyIV()";
+//  qDebug() << "MainWindow::generateSaltKeyIV()";
   _LOG("MainWindow::generateSaltKeyIV() ...");
   d->keyGenerationFuture = QtConcurrent::run(this, &MainWindow::generateSaltKeyIVThread);
   return d->keyGenerationFuture;
@@ -1193,6 +1212,7 @@ QFuture<void> &MainWindow::generateSaltKeyIV(void)
 void MainWindow::generateSaltKeyIVThread(void)
 {
   Q_D(MainWindow);
+//  qDebug() << "MainWindow::generateSaltKeyIVThread()";
   Q_ASSERT_X(!d->masterPassword.isEmpty(), "MainWindow::generateSaltKeyIVThread()", "d->masterPassword must not be empty");
   if (d->masterPassword.isEmpty()) {
     qWarning() << "Error in  MainWindow::generateSaltKeyIVThread(): d->masterPassword must not be empty";
@@ -1208,7 +1228,7 @@ void MainWindow::generateSaltKeyIVThread(void)
 void MainWindow::onGeneratedSaltKeyIV(void)
 {
   Q_D(MainWindow);
-  _LOG("MainWindow::onGeneratedSaltKeyIV()");
+//  qDebug() << "MainWindow::onGeneratedSaltKeyIV()";
   ui->statusBar->showMessage(tr("Auto-generated new salt (%1) and key.").arg(QString::fromLatin1(d->salt.mid(0, 4).toHex())), 2000);
 }
 
@@ -1592,7 +1612,7 @@ void MainWindow::saveDomainSettings(DomainSettings ds)
 void MainWindow::saveCurrentDomainSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
+//  qDebug() << "MainWindow::saveCurrentDomainSettings() called by" << (sender() ? sender()->objectName() : "NONE") << "ui->domainsComboBox->currentText() =" << ui->domainsComboBox->currentText();
   if (!ui->domainsComboBox->currentText().isEmpty()) {
     restartInvalidationTimer();
     DomainSettings ds = collectedDomainSettings();
@@ -1650,7 +1670,7 @@ bool MainWindow::wipeFile(const QString &filename)
         { 0x6d, 0xb6, 0xdb }, { 0xb6, 0xdb, 0x6d }, { 0xdb, 0x6d, 0xb6 }
       };
       for (int i = 0; i < NumTriplets; ++i) {
-        const char *b = reinterpret_cast<const char*>(&Triplets[i][0]);
+        const char *const b = reinterpret_cast<const char*>(&Triplets[i][0]);
         f.seek(0);
         for (int j = 0; j < N / 3; ++j) {
           f.write(b, 3);
@@ -1786,8 +1806,8 @@ void MainWindow::writeBackupFile(void)
 void MainWindow::saveAllDomainDataToSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveAllDomainDataToSettings()";
   if (!d->masterKey.isEmpty()) {
+//    qDebug() << "MainWindow::saveAllDomainDataToSettings()";
     QByteArray cipher;
     {
       QMutexLocker locker(&d->keyGenerationMutex);
@@ -1862,7 +1882,7 @@ bool MainWindow::restoreDomainDataFromSettings(void)
 void MainWindow::saveSyncDataToSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveSyncDataToSettings()";
+//  qDebug() << "MainWindow::saveSyncDataToSettings()";
   QMutexLocker(&d->keyGenerationMutex);
   QVariantMap syncData;
   syncData["sync/server/root"] = d->optionsDialog->serverRootUrl();
@@ -1884,23 +1904,25 @@ void MainWindow::saveSyncDataToSettings(void)
       baCryptedData = Crypter::encode(d->masterKey, d->IV, d->salt, d->kgk(), QJsonDocument::fromVariant(syncData).toJson(QJsonDocument::Compact), CompressionEnabled);
     }
     else {
-      _LOG(QString("ERROR in MainWindow::collectedSyncData(): invalid credentials"));
+      _LOG(QString("ERROR in MainWindow::saveSyncDataToSettings(): invalid credentials"));
+//      qDebug() << "ERROR in MainWindow::saveSyncDataToSettings(): invalid credentials";
     }
   }
   catch (CryptoPP::Exception &e) {
     wrongPasswordWarning((int)e.GetErrorType(), e.what());
-    _LOG(QString("ERROR in MainWindow::collectedSyncData(): %1").arg(e.what()));
+    _LOG(QString("ERROR in MainWindow::saveSyncDataToSettings(): %1").arg(e.what()));
   }
-  d->settings.setValue("sync/param",baCryptedData.toBase64());
-  d->settings.sync();
+  if (baCryptedData.size() > 0) {
+    d->settings.setValue("sync/param", QString::fromUtf8(baCryptedData.toBase64()));
+    d->settings.sync();
+  }
 }
 
 
 void MainWindow::saveSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveSettings()";
-  _LOG("MainWindow::saveSettings()");
+//  qDebug() << "MainWindow::saveSettings()";
   saveSyncDataToSettings();
   saveAllDomainDataToSettings();
   saveUiSettings();
@@ -1910,7 +1932,6 @@ void MainWindow::saveSettings(void)
 void MainWindow::saveUiSettings(void)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::saveUiSettings()";
   // _LOG("MainWindow::saveUiSettings()");
   d->settings.setValue("mainwindow/geometry", saveGeometry());
   d->settings.setValue("mainwindow/language", d->language);
@@ -2368,6 +2389,7 @@ void MainWindow::mergeLocalAndRemoteData(void)
 void MainWindow::writeToRemote(SyncPeer syncPeer)
 {
   Q_D(MainWindow);
+  qDebug() << "MainWindow::writeToRemote(" << syncPeer << ")";
   const QByteArray &cipher = cryptedRemoteDomains();
   if (!cipher.isEmpty()) {
     if ((syncPeer & SyncPeerFile) == SyncPeerFile && d->optionsDialog->syncToFileEnabled()) {
@@ -2926,7 +2948,7 @@ void MainWindow::wrongPasswordWarning(int errCode, QString errMsg)
 void MainWindow::invalidateMasterPassword(bool reenter)
 {
   Q_D(MainWindow);
-  // qDebug() << "MainWindow::invalidatePassword()";
+  qDebug() << "MainWindow::invalidatePassword()";
   SecureErase(d->masterPassword);
   d->masterPasswordDialog->invalidatePassword();
   d->KGK.invalidate();
@@ -3056,7 +3078,7 @@ void MainWindow::about(void)
            "You should have received a copy of the GNU General Public License "
            "along with this program. "
            "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>"
-           "<p>Copyright &copy; 2015 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
+           "<p>Copyright &copy; 2015-2018 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
            "<p>"
            " This program uses the Crypto++ library and libqrencode by Kentaro Fukuchi. "
            " Crypto++ is licensed under the Boost Software License, Version 1.0. "

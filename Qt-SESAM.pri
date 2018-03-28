@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Oliver Lau <ola@ct.de>
+# Copyright (c) 2015-2018 Oliver Lau <ola@ct.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-QTSESAM_VERSION = 2.1.0-BETA15
+QTSESAM_VERSION = 2.1.0-BETA16
 
 DEFINES += CRYPTOPP_DISABLE_X86ASM CRYPTOPP_DISABLE_SSSE3
 

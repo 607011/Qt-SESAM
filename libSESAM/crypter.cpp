@@ -1,6 +1,6 @@
 /*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
+    Copyright (c) 2015-2018 Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -348,6 +348,7 @@ SecureByteArray Crypter::makeKeyFromPassword(const SecureByteArray &masterKey, c
  */
 void Crypter::makeKeyAndIVFromPassword(const SecureByteArray &masterPassword, const QByteArray &salt, SecureByteArray &key, SecureByteArray &IV)
 {
+//  qDebug() << "Crypter::makeKeyAndIVFromPassword(" << masterPassword << ")";
   Q_ASSERT_X(!masterPassword.isEmpty(), "Crypter::makeKeyAndIVFromPassword()", "masterPassword must not be empty");
   PBKDF2 pbkdf2(masterPassword, salt, DomainIterations, QCryptographicHash::Sha384);
   const SecureByteArray &hash = pbkdf2.derivedKey();

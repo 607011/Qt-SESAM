@@ -1146,7 +1146,7 @@ in %1 Thread%2 ...</translation>
     </message>
     <message>
         <source>PasswordSafe file...</source>
-        <translation>PasswordSafe-Datei</translation>
+        <translation>PasswordSafe-Datei...</translation>
     </message>
     <message>
         <source>Ctrl+I, Ctrl+P</source>
@@ -1335,6 +1335,14 @@ in %1 Thread%2 ...</translation>
     <message>
         <source>Delete attachments</source>
         <translation>Anhänge löschen</translation>
+    </message>
+    <message>
+        <source>Caution!</source>
+        <translation>Achtung!</translation>
+    </message>
+    <message>
+        <source>Syncing with a server or a file is not enabled. If you proceed only your local settings will be encrypted with your new master password – and you&apos;ll no longer be able to access the data stored on either the server or in the file. If this is intentional you can safely proceed. If not, cancel the action, go to the settings dialog, configure a sync peer and enable it. Are you still sure you want to change the master password?</source>
+        <translation>Du hast weder einen Server noch eine Datei zum Synchronisieren gewählt. Wenn du fortfährst, werden nur die lokalen Einstellungen mit dem neuen Master-Passwort verschlüsselt – auf Daten in einer eventuellen Synchronisationsdatei oder auf dem Synchronisationsserver wirst du nicht mehr zugreifen können. Wenn das so gewollt ist, kannst du fortfahren. Wenn nicht, öffne die Einstellungen, konfiguriere Synchronisationsgegenstellen und aktiviere sie. Bist du dir sicher, dass du das Master-Passwort ändern willst?</translation>
     </message>
 </context>
 <context>
