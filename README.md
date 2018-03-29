@@ -14,12 +14,12 @@ You can share Qt-SESAM's settings across your computers via a [dedicated synchro
 
 This is secure because all of your settings are [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)-encrypted with a 256 bit long [key](https://en.wikipedia.org/wiki/Key_(cryptography)) and a 128 bit long [IV](https://en.wikipedia.org/wiki/Initialization_vector) derived from your master password with [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2).
 
-Qt-SESAM supports Windows, Linux and Mac OS X. An [Android app](https://github.com/pinae/ctSESAM-android) compatible to Qt-SESAM is underway.
+Qt-SESAM supports Windows, Linux and macOS. An [Android app](https://github.com/pinae/ctSESAM-android) compatible to Qt-SESAM is underway.
 
 ## Download
 
  * [Source code](https://github.com/ola-ct/Qt-SESAM)
- * [Binaries for Windows and OS X](https://github.com/ola-ct/Qt-SESAM/releases)
+ * [Binaries for Windows and macOS](https://github.com/ola-ct/Qt-SESAM/releases)
 
 ## Important infos
 
