@@ -21,6 +21,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <cstdlib>
+
 #include <QDebug>
 #include <QLibraryInfo>
 #include <QTranslator>
@@ -264,7 +266,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
                                  .arg(AppName)
                                  .arg(appId));
         close();
-        ::exit(1);
+        exit(1);
       }
       else {
         QMessageBox::StandardButton button =
@@ -286,7 +288,7 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
         }
         else {
           close();
-          ::exit(1);
+          exit(1);
         }
       }
     }
