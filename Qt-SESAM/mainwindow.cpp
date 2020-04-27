@@ -1567,6 +1567,7 @@ void MainWindow::makeDomainComboBox(void)
   }
   d->completer = new QCompleter(domainNames);
   d->completer->setCaseSensitivity(Qt::CaseInsensitive);
+  d->completer->setFilterMode(Qt::MatchContains);
   QObject::connect(d->completer, SIGNAL(activated(QString)), this, SLOT(onDomainSelected(QString)));
   ui->domainsComboBox->setCompleter(d->completer);
   ui->domainsComboBox->setCurrentIndex(-1);
