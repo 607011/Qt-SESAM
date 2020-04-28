@@ -25,6 +25,7 @@
 #include <QSize>
 #include <QImage>
 #include <QPainter>
+#include <QApplication>
 
 class CountdownWidgetPrivate {
 public:
@@ -124,13 +125,15 @@ void CountdownWidget::paintEvent(QPaintEvent *)
 void CountdownWidget::redrawImage(const QSize &sz)
 {
   Q_D(CountdownWidget);
-  if (d->image.size() != sz) {
-    d->image = QImage(sz, QImage::Format_ARGB32_Premultiplied);
+  const QSize &requestedSize = sz * qApp->devicePixelRatio();
+  if (d->image.size() != requestedSize) {
+    d->image = QImage(requestedSize, QImage::Format_ARGB32_Premultiplied);
+    d->image.setDevicePixelRatio(qApp->devicePixelRatio());
   }
   d->image.fill(Qt::transparent);
   if (d->masterPasswordInvalidationTimer.isActive()) {
     QPainter p(&d->image);
-    p.setOpacity(0.6);
+    p.setOpacity(0.9);
     p.setRenderHint(QPainter::Antialiasing);
     p.setCompositionMode(QPainter::CompositionMode_Source);
     p.setBrush(Qt::transparent);
