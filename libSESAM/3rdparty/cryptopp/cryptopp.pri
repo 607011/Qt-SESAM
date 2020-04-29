@@ -26,7 +26,6 @@ SOURCES += \
     $$PWD/cpu.cpp \
     $$PWD/crc.cpp \
     $$PWD/cryptlib.cpp \
-    $$PWD/cryptlib_bds.cpp \
     $$PWD/datatest.cpp \
     $$PWD/default.cpp \
     $$PWD/des.cpp \
@@ -47,7 +46,6 @@ SOURCES += \
     $$PWD/files.cpp \
     $$PWD/filters.cpp \
     $$PWD/fips140.cpp \
-    $$PWD/fipsalgt.cpp \
     $$PWD/gcm.cpp \
     $$PWD/gf2_32.cpp \
     $$PWD/gf2n.cpp \
@@ -77,7 +75,6 @@ SOURCES += \
     $$PWD/oaep.cpp \
     $$PWD/osrng.cpp \
     $$PWD/panama.cpp \
-    $$PWD/pch.cpp \
     $$PWD/pkcspad.cpp \
     $$PWD/polynomi.cpp \
     $$PWD/pssr.cpp \
@@ -118,15 +115,10 @@ SOURCES += \
     $$PWD/trdlocal.cpp \
     $$PWD/ttmac.cpp \
     $$PWD/twofish.cpp \
-    $$PWD/validat0.cpp \
-    $$PWD/validat1.cpp \
-    $$PWD/validat2.cpp \
-    $$PWD/validat3.cpp \
     $$PWD/vmac.cpp \
     $$PWD/wait.cpp \
     $$PWD/wake.cpp \
     $$PWD/whrlpool.cpp \
-    $$PWD/winpipes.cpp \
     $$PWD/xtr.cpp \
     $$PWD/xtrcrypt.cpp \
     $$PWD/zdeflate.cpp \
@@ -214,7 +206,6 @@ HEADERS += \
     $$PWD/oids.h \
     $$PWD/osrng.h \
     $$PWD/panama.h \
-    $$PWD/pch.h \
     $$PWD/pkcspad.h \
     $$PWD/polynomi.h \
     $$PWD/pssr.h \
@@ -264,10 +255,19 @@ HEADERS += \
     $$PWD/wait.h \
     $$PWD/wake.h \
     $$PWD/whrlpool.h \
-    $$PWD/winpipes.h \
     $$PWD/words.h \
     $$PWD/xtr.h \
     $$PWD/xtrcrypt.h \
     $$PWD/zdeflate.h \
     $$PWD/zinflate.h \
-    $$PWD/zlib.h \
+    $$PWD/zlib.h
+
+win32 {
+SOURCES += \
+    $$PWD/pch.cpp \
+    $$PWD/winpipes.cpp \
+
+HEADERS += \
+    $$PWD/pch.h
+    $$PWD/winpipes.h \
+}
