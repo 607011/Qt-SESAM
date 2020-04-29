@@ -163,7 +163,7 @@ public:
   void resetSSLConf(void)
   {
     sslConf = QSslConfiguration::defaultConfiguration();
-    sslConf.setCiphers(QSslSocket::supportedCiphers());
+    sslConf.setCiphers(QSslConfiguration::supportedCiphers());
   }
   const SecureByteArray &kgk(void) {
     if (KGK.isEmpty()) {
