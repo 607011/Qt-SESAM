@@ -22,6 +22,7 @@
 #define __EASYSELECTORWIDGET_H_
 
 #include <QWidget>
+#include <QScreen>
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QResizeEvent>
@@ -64,6 +65,7 @@ public slots:
   void onSpeedTestBegin(void);
   void onSpeedTestEnd(qreal hashesPerSec);
   void onSpeedTestAbort(void);
+  void onScreenChanged(QScreen *screen);
 
 private:
   QScopedPointer<EasySelectorWidgetPrivate> d_ptr;

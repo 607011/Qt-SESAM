@@ -35,6 +35,7 @@
 #include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QTime>
+#include <QApplication>
 
 const int EasySelectorWidget::DefaultMinLength = 4;
 const int EasySelectorWidget::DefaultMaxLength = 36;
@@ -102,10 +103,10 @@ void EasySelectorWidget::setMousePos(const QPoint &pos)
   if (!d->bgPixmap.isNull()) {
     const int nX = d->maxLength - d->minLength + 1;
     const int nY = Password::MaxComplexityValue + 1;
-    const int xs = d->bgPixmap.width() / nX;
-    const int ys = d->bgPixmap.height() / nY;
-    const int clampedX = clamp(pos.x(), 0, d->bgPixmap.width() - xs);
-    const int clampedY = clamp(pos.y(), 0, d->bgPixmap.height() - ys);
+    const int xs = width() / nX;
+    const int ys = height() / nY;
+    const int clampedX = clamp(pos.x(), 0, width() - xs);
+    const int clampedY = clamp(pos.y(), 0, height() - ys);
     d->length = d->minLength + clampedX / xs;
     d->complexity = Password::MaxComplexityValue - clampedY / ys;
     update();
@@ -199,25 +200,6 @@ void EasySelectorWidget::mouseReleaseEvent(QMouseEvent *e)
 }
 
 
-void EasySelectorWidget::paintEvent(QPaintEvent *)
-{
-  Q_D(EasySelectorWidget);
-  if (!d->bgPixmap.isNull()) {
-    const int nX = d->maxLength - d->minLength + 1;
-    const int nY = Password::MaxComplexityValue + 1;
-    const int xs = d->bgPixmap.width() / nX;
-    const int ys = d->bgPixmap.height() / nY;
-    QPainter p(this);
-    p.drawPixmap(QPoint(0, 0), d->bgPixmap);
-    p.setBrush(QColor(255, 255, 255, 208));
-    p.setPen(Qt::transparent);
-    p.drawRect(QRect(QPoint(xs * (d->length - d->minLength) + 1,
-                            d->bgPixmap.height() - ys * (d->complexity + 1)),
-                     QSize(xs - 1, ys - 1)));
-  }
-}
-
-
 void EasySelectorWidget::resizeEvent(QResizeEvent *)
 {
   redrawBackground();
@@ -259,6 +241,37 @@ static QColor red2yellow2green(qreal x)
 }
 
 
+void EasySelectorWidget::onScreenChanged(QScreen *screen) {
+  qDebug() << "onScreenChanged() " << screen->devicePixelRatio();
+  redrawBackground();
+  update();
+}
+
+
+void EasySelectorWidget::paintEvent(QPaintEvent *ev)
+{
+  Q_D(EasySelectorWidget);
+  if (!d->bgPixmap.isNull()) {
+    const qreal dpr = devicePixelRatioF();
+    const int nX = d->maxLength - d->minLength;
+    const int nY = Password::MaxComplexityValue;
+    const int xs = dpr * (width() - 2) / nX;
+    const int ys = dpr * (height() - 2) / nY;
+    QPainter p(&d->bgPixmap);
+    p.setBrush(QColor(255, 255, 255, 208));
+    p.setPen(Qt::transparent);
+    const int i = d->length - d->minLength;
+    const int j = d->complexity + 1;
+    p.drawRect(i * xs,
+               d->bgPixmap.height() - j * ys,
+               xs,
+               ys);
+    QPainter wp(this);
+    wp.drawPixmap(ev->rect(), d->bgPixmap, d->bgPixmap.rect());
+  }
+}
+
+
 void EasySelectorWidget::redrawBackground(void)
 {
   Q_D(EasySelectorWidget);
@@ -266,25 +279,26 @@ void EasySelectorWidget::redrawBackground(void)
     d->bgPixmap = QPixmap();
     return;
   }
-  const int nX = d->maxLength - d->minLength + 1;
-  const int nY = Password::MaxComplexityValue + 1;
-  const int xs = (width() - 2) / nX;
-  const int ys = (height() - 2) / nY;
-  d->bgPixmap = QPixmap(QSize(xs * nX + 1, ys * nY + 1));
+  const qreal dpr = devicePixelRatioF();
+  const int nX = d->maxLength - d->minLength;
+  const int nY = Password::MaxComplexityValue;
+  const int xs = dpr * (width() - 2) / nX;
+  const int ys = dpr * (height() - 2) / nY;
+  d->bgPixmap = QPixmap(QSize(xs * nX, ys * nY) * dpr);
+  d->bgPixmap.fill(Qt::white);
   QPainter p(&d->bgPixmap);
-  for (int y = 0; y < nY; ++y) {
-    for (int x = 0; x < nX; ++x) {
-      p.fillRect(QRect(x * xs, d->bgPixmap.height() - y * ys - ys, xs, ys),
-                 red2yellow2green(qLn(passwordStrength(x + d->minLength, y)) / 40).darker(168));
+  for (int j = 0; j <= nY; ++j) {
+    for (int i = 0; i <= nX; ++i) {
+      p.fillRect(i * xs, d->bgPixmap.height() - j * ys - ys, xs, ys, red2yellow2green(qLn(passwordStrength(i + d->minLength, j)) / 40).darker(168));
     }
   }
   p.setBrush(Qt::transparent);
   p.setPen(QPen(QBrush(QColor(0, 0, 0, 128)), 1));
-  for (int x = 0; x <= nX; ++x) {
-    p.drawLine(xs * x, 0, xs * x, d->bgPixmap.height());
+  for (int i = 0; i <= nX; ++i) {
+    p.drawLine(xs * i, 0, xs * i, d->bgPixmap.height());
   }
-  for (int y = 0; y <= nY; ++y) {
-    p.drawLine(0, ys * y, d->bgPixmap.width(), ys * y);
+  for (int j = 0; j <= nY; ++j) {
+    p.drawLine(0, j * ys, d->bgPixmap.width(), j * ys);
   }
 }
 

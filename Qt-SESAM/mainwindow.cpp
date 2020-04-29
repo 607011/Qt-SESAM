@@ -64,6 +64,8 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QCursor>
+#include <QWindow>
+#include <QScreen>
 
 #include "logger.h"
 #include "global.h"
@@ -309,6 +311,8 @@ MainWindow::MainWindow(bool forceStart, QWidget *parent)
   QObject::connect(this, SIGNAL(backupFilesDeleted(bool)), SLOT(onBackupFilesRemoved(bool)));
   QObject::connect(this, SIGNAL(backupFilesDeleted(int)), SLOT(onBackupFilesRemoved(int)));
   resetAllFields();
+
+  QObject::connect(window()->windowHandle(), SIGNAL(screenChanged(QScreen*)), ui->easySelectorWidget, SLOT(onScreenChanged(QScreen*)));
 
   QObject::connect(ui->domainsComboBox, SIGNAL(editTextChanged(QString)), SLOT(onDomainTextChanged(QString)));
   QObject::connect(ui->domainsComboBox, SIGNAL(currentIndexChanged(QString)), SLOT(onDomainSelected(QString)));
