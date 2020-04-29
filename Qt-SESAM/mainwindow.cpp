@@ -3068,7 +3068,7 @@ void MainWindow::about(void)
 {
   QMessageBox::about(
         this, tr("About %1 %2").arg(AppName).arg(AppVersion),
-        tr("<p><b>%1</b> is a domain specific password generator. "
+        tr("<p><b>%1 %5</b> is a domain specific password generator. "
            "See <a href=\"%2\" title=\"%1 project homepage\">%2</a> for more info.</p>"
            "<p>This program is free software: you can redistribute it and/or modify "
            "it under the terms of the GNU General Public License as published by "
@@ -3081,14 +3081,14 @@ void MainWindow::about(void)
            "You should have received a copy of the GNU General Public License "
            "along with this program. "
            "If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0\">http://www.gnu.org/licenses</a>.</p>"
-           "<p>Copyright &copy; 2015-2018 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
+           "<p>Copyright &copy; 2015–2020 %3 &lt;%4&gt;, Heise Medien GmbH &amp; Co. KG.</p>"
            "<p>"
            " This program uses the Crypto++ library and libqrencode by Kentaro Fukuchi. "
            " Crypto++ is licensed under the Boost Software License, Version 1.0. "
            " libqrencode is licensed under the GNU Lesser General Public License 2.1 or later."
            "</p>"
            )
-        .arg(AppName).arg(AppURL).arg(AppAuthor).arg(AppAuthorMail));
+        .arg(AppName).arg(AppURL).arg(AppAuthor).arg(AppAuthorMail).arg(AppVersion));
 }
 
 
