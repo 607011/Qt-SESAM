@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
   const bool forceStart = argc > 1 && qstrcmp(argv[1], "--force-start") == 0;
   int exitCode = 0;
   do {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
     a.setOrganizationName(AppCompanyName);
     a.setOrganizationDomain(AppCompanyDomain);
